@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "< cat bread",
+  "authors": [
+    "cats"
+  ],
+  "icon": "assets/quoi/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "quoi.QuoiMod"
+      }
+    ]
+  },
+  "mixins": [
+    "mixins.quoi.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": ">=${fabric_api_version}",
+    "minecraft": "~${minecraft_version}",
+    "fabric-language-kotlin": ">=${fabric_kotlin_version}"
+  }
+}
