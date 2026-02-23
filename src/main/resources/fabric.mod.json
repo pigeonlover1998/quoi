@@ -3,9 +3,9 @@
   "id": "${mod_id}",
   "version": "${mod_version}",
   "name": "${mod_name}",
-  "description": "\uD83D\uDC4D",
+  "description": "\uD83D\uDC38",
   "authors": [
-    "devs"
+    "frogs"
   ],
   "icon": "assets/quoi/icon.png",
   "environment": "*",
