@@ -37,7 +37,7 @@ object ModuleManager {
             AutoSS,
             DungeonBreaker,
             NecronPlatformHighlight,
-            DungeonMap,
+//            DungeonMap,
             TerminalAura,
             AutoMask,
             BarrierBoom,
@@ -47,7 +47,7 @@ object ModuleManager {
             AutoGFS,
             Splits,
             Secrets,
-            AutoBloodRush,
+//            AutoBloodRush,
             AutoRoutes,
             SecretAura,
 
@@ -57,7 +57,6 @@ object ModuleManager {
             ChatReplacements, // todo remove/replace
             AutoDialogue,
             PetKeybinds,
-            Fun,
             Titles,
             WardrobeKeybinds,
             AntiNick,

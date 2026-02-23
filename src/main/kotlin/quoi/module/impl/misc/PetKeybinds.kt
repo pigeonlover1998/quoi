@@ -32,7 +32,7 @@ import net.minecraft.world.item.ItemStack
 
 object PetKeybinds : Module(
     name = "Pet Keybinds",
-    desc = "Keybinds for the pets menu. (/petkeybinds)"
+    desc = "Keybinds for the pets menu."
 ) {
     private val unequipKeybind by KeybindSetting("Unequip", desc = "Unequips the current pet.")
     private val nextPageKeybind by KeybindSetting("Next page", desc = "Goes to the next page.")

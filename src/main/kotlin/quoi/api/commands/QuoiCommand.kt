@@ -29,6 +29,8 @@ import quoi.utils.ui.hud.HudManager
 import quoi.utils.ui.screens.UIScreen.Companion.open
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
 import net.minecraft.world.phys.BlockHitResult
+import quoi.utils.StringUtils.capitaliseFirst
+import quoi.utils.ui.rendering.NVGRenderer
 
 object QuoiCommand {
     val command = BaseCommand("quoi", "requise") {
@@ -80,6 +82,20 @@ object QuoiCommand {
 
             "area" {
                 modMessage("Area: $currentArea, Sub: $subarea, Server: $currentServer, Floor: ${Dungeon.floor?.name}")
+            }
+
+            "featurelist" {
+                val featureList = StringBuilder()
+
+                for ((category, modulesInCategory) in ModuleManager.modules.groupBy { it.category }.entries) {
+                    featureList.appendLine("Category: ${category.name.capitaliseFirst()}")
+                    for (module in modulesInCategory.sortedByDescending {
+                        NVGRenderer.textWidth(it.name, 16f, NVGRenderer.defaultFont)
+                    }) featureList.appendLine("- ${module.name}: ${module.desc}")
+                    featureList.appendLine()
+                }
+
+                mc.keyboardHandler.clipboard = featureList.toString()
             }
         }
 
