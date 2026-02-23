@@ -3,9 +3,9 @@
   "id": "${mod_id}",
   "version": "${mod_version}",
   "name": "${mod_name}",
-  "description": "< cat bread",
+  "description": "\uD83D\uDC4D",
   "authors": [
-    "cats"
+    "devs"
   ],
   "icon": "assets/quoi/icon.png",
   "environment": "*",
