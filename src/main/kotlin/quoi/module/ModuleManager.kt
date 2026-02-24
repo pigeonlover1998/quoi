@@ -62,7 +62,7 @@ object ModuleManager {
             AntiNick,
             AutoClicker,
             Inventory,
-            CustomTriggers,
+//            CustomTriggers,
 
             // PLAYER
             AutoSprint,

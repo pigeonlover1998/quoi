@@ -18,6 +18,7 @@ import net.minecraft.world.entity.decoration.ArmorStand
 // Kyleen
 object TerminalAura : Module(
     "Terminal Aura",
+    desc = "Automatically opens terminals.",
     area = Island.Dungeon(7, inBoss = true)
 ) {
 

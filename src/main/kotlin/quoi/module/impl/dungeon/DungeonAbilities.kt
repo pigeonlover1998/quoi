@@ -12,7 +12,8 @@ import quoi.utils.StringUtils.noControlCodes
 // Kyleen
 object DungeonAbilities : Module(
     "Dungeon Abilities",
-    area = Island.Dungeon
+    desc = "Automatically uses abilities.",
+    area = Island.Dungeon,
 ) {
     private val autoWish by BooleanSetting("Healer auto wish")
 

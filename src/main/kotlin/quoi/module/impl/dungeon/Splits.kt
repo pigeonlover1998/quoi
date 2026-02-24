@@ -21,6 +21,7 @@ import quoi.utils.ui.textPair
 
 object Splits : Module(
     "Splits",
+    desc = "Shows timers for various phases",
     area = Island.Dungeon
 ) {
     private val timeElapsed by BooleanSetting("Time Elapsed split") // todo

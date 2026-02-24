@@ -76,7 +76,7 @@ class NumberSetting<E>(
 
     override fun ElementScope<*>.draw(asSub: Boolean): ElementScope<*> = column(size(Copying), gap = 2.px) {
 
-        row(size(w = Copying), gap = 2.px) {
+        row(size(w = Copying), gap = 3.px) {
             text(
                 string = name + if (asSub) ":" else "",
                 size = theme.textSize,

@@ -22,6 +22,7 @@ import java.util.HashSet
 // Kyleen
 object SecretTriggerBot : Module(
     "Secret TriggerBot",
+    desc = "Automatically collects secrets when looking at them.",
     area = Island.Dungeon
 ) {
 

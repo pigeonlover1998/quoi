@@ -27,7 +27,10 @@ import net.minecraft.world.phys.HitResult
 
 // Kyleen
 // https://github.com/Synnerz/devonian/blob/1.21.10/src/main/kotlin/com/github/synnerz/devonian/features/misc/EtherwarpOverlay.kt
-object EtherwarpOverlay : Module ("Etherwarp Overlay") {
+object EtherwarpOverlay : Module (
+    "Etherwarp Overlay",
+    desc = "Renders a box at the location where the etherwarp is going to be at."
+) {
 
     private val useCameraHeight by BooleanSetting("Use camera height", desc = "Should be used with Tweaks -> Skyblock only -> Legacy sneak height")
     private val validColour by ColourSetting("Valid colour", Colour.GREEN.withAlpha(60), true)

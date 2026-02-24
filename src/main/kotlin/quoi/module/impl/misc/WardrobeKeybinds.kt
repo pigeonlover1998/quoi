@@ -13,7 +13,8 @@ import quoi.utils.skyblock.player.PlayerUtils.clickSlot
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 
 object WardrobeKeybinds : Module(
-    "Wardrobe Keybinds"
+    "Wardrobe Keybinds",
+    desc = "Keybinds for wardrobe."
 ) {
     private val unequipKeybind by KeybindSetting("Unequip", desc = "Unequips the current slot.")
     private val nextPageKeybind by KeybindSetting("Next page", desc = "Goes to the next page.")

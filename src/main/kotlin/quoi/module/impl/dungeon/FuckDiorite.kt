@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.Blocks
 // Kyleen
 object FuckDiorite : Module(
     "Fuck Diorite",
+    desc = "Replaces the pillars in the storm fight with glass.",
     area = Island.Dungeon(7, inBoss = true)
 ) {
 

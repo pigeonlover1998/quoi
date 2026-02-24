@@ -12,7 +12,8 @@ import quoi.module.settings.impl.SelectorSetting
 import quoi.utils.skyblock.player.PlayerUtils
 
 object AutoGFS : Module( // untested
-    "Auto GFS"
+    "Auto GFS",
+    desc = "Automatically refills certain items from your sacks."
 ) {
     private val itemsDropdown by DropdownSetting("Items to refill").collapsible()
     private val pearls by BooleanSetting("Pearls").withDependency(itemsDropdown)

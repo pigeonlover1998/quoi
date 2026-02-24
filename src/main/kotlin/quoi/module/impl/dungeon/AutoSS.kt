@@ -27,6 +27,7 @@ import kotlin.random.Random
 // Kyleen
 object AutoSS : Module(
     "AutoSS",
+    desc = "Automatically completes Simon says device.",
     area = Island.Dungeon(7)
 ) {
     private val delay by NumberSetting("Delay", 200.0, 50.0, 500.0, 10.0, "AutoSS delay.", unit = "ms")

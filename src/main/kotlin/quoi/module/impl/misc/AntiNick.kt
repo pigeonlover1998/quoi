@@ -7,8 +7,9 @@ import quoi.utils.ChatUtils.prefix
 import quoi.utils.WorldUtils
 import quoi.utils.skyblock.player.PlayerUtils.realName
 
-object AntiNick : Module( // untested
-    "AntiNick"
+object AntiNick : Module(
+    "AntiNick",
+    desc = "Detects nicked players."
 ) {
     init {
         on<WorldEvent.Load.End> {

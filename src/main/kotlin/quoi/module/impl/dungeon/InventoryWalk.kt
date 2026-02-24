@@ -12,7 +12,10 @@ import org.lwjgl.glfw.GLFW
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen
 
 // Kyleen
-object InventoryWalk : Module("Inventory Walk") {
+object InventoryWalk : Module(
+    "Inventory Walk",
+    desc = "Allows movement in containers."
+) {
 
     private val clickDelay = NumberSetting("Click Delay", 6.0, 3.0, 12.0, 1.0)
     private var delay = 0

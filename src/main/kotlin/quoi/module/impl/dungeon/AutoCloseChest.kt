@@ -11,6 +11,7 @@ import net.minecraft.world.inventory.MenuType
 // Kyleen
 object AutoCloseChest : Module(
     "Auto Close Chest",
+    desc = "Automatically closes secret chests.",
     area = Island.Dungeon
 ) {
 

@@ -28,6 +28,7 @@ import net.minecraft.world.phys.Vec3
 
 object AutoBloodRush : Module(
     "Auto Blood Rush",
+    desc = "Automatically blood rushes.",
     area = Island.Dungeon
 ) {
     private val debug by BooleanSetting("Debug")
@@ -47,21 +48,12 @@ object AutoBloodRush : Module(
             val room = currentRoom!!
             val real1 = room.getRealCoords(leaf1)
             val real2 = room.getRealCoords(leaf2)
-            return if (real1.state?.block == Blocks.OAK_LEAVES) real1 else real2 // I am a retarded cunt, I've been doing leaf1.state?.block == Blocks.OAK_LEAVES..... FUCKING RELATIVE COORDS. I AM A RETARD. I SPENT 40 MINS DEBUGGING????
+            return if (real1.state?.block == Blocks.OAK_LEAVES) real1 else real2
         }
 
     init {
-//        command.sub("br") {
-////            modMessage(leafCoords)
-////            var (_, yaw, pitch) = etherwarpRotateTo(leafCoords) ?: return@sub modMessage("NULL")
-////            player.rotate(yaw, pitch)
-//            tickerThing = doBr()
-////            tpsReceived = 0
-////            tpsAmount = 2
-//        }
         on<TickEvent.End> {
             if (isDead) return@on
-            if (clipped && player.y != 99.0) tickerThing = null
 
             tickerThing?.let {
                 if (it.tick()) tickerThing = null
@@ -142,7 +134,6 @@ object AutoBloodRush : Module(
         }
         action {
             SwapManager.swapByName("aspect of the void")
-//            clipped = true
         }
     }
 

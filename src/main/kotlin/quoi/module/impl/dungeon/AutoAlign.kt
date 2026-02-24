@@ -18,6 +18,7 @@ import net.minecraft.world.phys.Vec3
 // Kyleen
 object AutoAlign : Module(
     "Auto Align",
+    desc = "Automatically completes arrows align device.",
     area = Island.Dungeon(inBoss = true)
 ) {
 

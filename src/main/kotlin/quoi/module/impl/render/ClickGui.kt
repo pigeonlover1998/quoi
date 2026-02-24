@@ -52,7 +52,7 @@ object ClickGui : Module(
 ) {
 
     val forceDungeons by BooleanSetting("Force dungeons")
-    val accentColour by ColourSetting("Colour", Colour.RGB(107, 203, 119)) // temp
+    val accentColour by ColourSetting("Colour", Colour.RGB(107, 203, 119))
 
     var rainbowSpeed by NumberSetting("Rainbow colour speed", 1.0f, 0.05f, 5.0f, 0.05f)
 
@@ -88,7 +88,7 @@ object ClickGui : Module(
     }.setting()
 
     private val pingType by SelectorSetting("Ping type", PingType.Average)
-    private val pingHud by TextHud("Ping display") { // todo show current, median, or average
+    private val pingHud by TextHud("Ping display") {
         visibleIf { !mc.isSingleplayer }
         textPair(
             string = "Ping:",
@@ -99,7 +99,7 @@ object ClickGui : Module(
     }.withSettings(::pingType).setting()
 
     private val tpsType by SelectorSetting("Tps type", TpsType.Average)
-    private val tpsHud by TextHud("Tps display") { // todo same here
+    private val tpsHud by TextHud("Tps display") {
         visibleIf { !mc.isSingleplayer }
         textPair(
             string = "Tps:",
@@ -326,7 +326,6 @@ object ClickGui : Module(
             }
         }
         settings = column(constrain(x = 5.px, w = Copying - 10.px, h = height), gap = 7.px) {
-//            padding(horizontal = 12f, vertical = 100f)
         }
     }
 

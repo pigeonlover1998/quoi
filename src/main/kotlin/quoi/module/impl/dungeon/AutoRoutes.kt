@@ -42,11 +42,15 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import quoi.api.skyblock.Island
+import quoi.api.skyblock.invoke
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
 object AutoRoutes : Module( // todo maybe split it in two files
-    "Auto Routes"
+    "Auto Routes",
+    desc = "",
+    area = Island.Dungeon(inClear = true)
 ) {
     val zeroTick by BooleanSetting("Zero tick")
     private val style by SelectorSetting("Style", "Box", listOf("Box", "Ellipse"))

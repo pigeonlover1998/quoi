@@ -29,7 +29,8 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 // https://github.com/Noamm9/CatgirlAddons/blob/main/src/main/kotlin/catgirlroutes/module/impl/dungeons/Secrets.kt
 object Secrets : Module(
-    "Secrets"
+    "Secrets",
+    desc = "Highlights collected secrets."
 ) {
     private val chimeDropdown by DropdownSetting("Chime").collapsible()
     private val secretChime by BooleanSetting("Secret chime", desc = "Plays a sound on secret click.").withDependency(chimeDropdown)

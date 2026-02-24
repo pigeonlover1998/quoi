@@ -22,8 +22,9 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.boss.wither.WitherBoss
 
 // Kyleen
-object BossESP : Module(
+object BossESP : Module( // todo move to dungeon esp
     "Boss ESP",
+    desc = "Highlights floor seven bosses.",
     area = Island.Dungeon(7, inBoss = true)
 ) {
     private val depth by BooleanSetting("Depth check")

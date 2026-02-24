@@ -13,7 +13,7 @@ import quoi.utils.ui.createSoundSettings
 
 // THIS IS A TEMP MODULE KYLEAN.
 // will be possible to customise in custom triggers
-object Titles : Module("Titles") {
+object Titles : Module("Titles", desc = "temp module") {
 
     private val autoPet by BooleanSetting("Petrules", desc = "Show title upon petrule chat message")
     private val invincibilityProc by BooleanSetting("Invincibility", desc = "Show title upon bonzo/spirit/phoenix proc")

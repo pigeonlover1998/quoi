@@ -30,7 +30,10 @@ import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
 import kotlin.coroutines.resume
 
 // Kyleen
-object AutoMask : Module("Auto Mask") {
+object AutoMask : Module(
+    "Auto Mask",
+    desc = "Automatically swaps to invincibility item."
+) {
 
     private val dungeonsOnly by BooleanSetting("Dungeons only")
     private val P3Only by BooleanSetting("Phase 3 only")

@@ -18,7 +18,8 @@ import quoi.utils.EntityUtils.playerEntitiesNoSelf
 import quoi.utils.EntityUtils.renderPos
 
 object PlayerESP : Module(
-    "Player ESP"
+    "Player ESP",
+    desc = "Highlights players through walls."
 ) {
     private val tracerDropdown by DropdownSetting("Tracer").collapsible()
     private val tracer by BooleanSetting("Toggle").json("Tracer toggle").withDependency(tracerDropdown)

@@ -15,8 +15,9 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 
 // Kyleen
-object BarrierBoom : Module(
+object BarrierBoom : Module( // todo move to triggerbot module
     "Barrier Boom",
+    desc = "Automatically blows up Goldor fight gates.",
     area = Island.Dungeon(7, inBoss = true)
 ) {
 

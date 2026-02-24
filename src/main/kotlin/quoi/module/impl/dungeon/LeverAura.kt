@@ -20,8 +20,9 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
 
 // Kyleen
-object LeverAura : Module(
+object LeverAura : Module( // todo use block aura
     "Lever Aura",
+    desc = "Automatically flicks levers in goldor fight.",
     area = Island.Dungeon(7, inBoss = true)
 ) {
 

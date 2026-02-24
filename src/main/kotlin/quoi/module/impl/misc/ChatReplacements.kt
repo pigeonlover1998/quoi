@@ -8,7 +8,7 @@ import quoi.utils.ChatUtils.modMessage
 import quoi.utils.ChatUtils.say
 import quoi.utils.StringUtils.noControlCodes
 
-object ChatReplacements : Module("Chat Replacements") { // THIS IS A TEMP MODULE. todo replace with custom hiders
+object ChatReplacements : Module("Chat Replacements", desc = "temp") { // THIS IS A TEMP MODULE. todo replace with custom hiders
     private val chatEmotes by BooleanSetting("Chat emotes")
     private val cleanerDungeons by BooleanSetting("Cleaner dungeons")
     private val cleanerPf by BooleanSetting("Cleaner PF")

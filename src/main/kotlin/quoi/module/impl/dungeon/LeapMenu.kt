@@ -51,11 +51,6 @@ object LeapMenu : Module(
     private val botLeft by KeybindSetting("Bottom left", CatKeys.KEY_3, desc = "Leaps to the third person in the menu.").excluding(CatKeys.KEY_E)
     private val botRight by KeybindSetting("Bottom right", CatKeys.KEY_4, desc = "Leaps to the fourth person in the menu.").excluding(CatKeys.KEY_E)
 
-    private val imageCacheMap = mutableMapOf<String, Int>()
-//    private val popup by PopupSetting("popup") {
-//        popup()
-//    }
-
     init {
 
         command.sub("order") { p1: String?, p2: String?, p3: String?, p4: String? ->
@@ -106,13 +101,6 @@ object LeapMenu : Module(
                             constrain(xPos, yPos, w, h),
                             colour = bgCol
                         ) {
-//                            if (renderHeads) image(
-//                                textureId = (mc.textureManager?.getTexture(
-//                                    teammate.locationSkin ?: mc.player?.skin?.body?.texturePath()
-//                                    ?: return@forEachIndexed
-//                                )?.texture as? GlTexture)?.glId() ?: 0,
-//                                constrain(w = 30.percent, h = AspectRatio(1f))
-//                            )
                             column(constrain(x = 2.percent, w = Fill, h = Fill), gap = 5.percent) {
                                 divider(10.percent)
                                 if (!onlyClass) section(30.percent) {
@@ -176,89 +164,4 @@ object LeapMenu : Module(
         mc.player?.clickSlot(slot, screenHandler.menu.containerId)
         modMessage(literal("Leaping to ").append(literal(name).withColor(colour.rgb)).append(literal(".")))
     }
-
-    private val teammates = listOf(
-        DungeonPlayer("HealerFunny", DungeonClass.Archer, 32, ResourceLocation.withDefaultNamespace("textures/entity/steve.png"), colour = Colour.MINECRAFT_AQUA),
-        DungeonPlayer("12345678910156464646", DungeonClass.Tank, 28, ResourceLocation.withDefaultNamespace("textures/entity/steve.png"), colour = Colour.MINECRAFT_GREEN),
-        DungeonPlayer("alogus", DungeonClass.Healer, 16, ResourceLocation.withDefaultNamespace("textures/entity/steve.png"), isDead = true, colour = Colour.MINECRAFT_GOLD),
-        DungeonPlayer("alongus", DungeonClass.Archer, 45, ResourceLocation.withDefaultNamespace("textures/entity/steve.png"), colour = Colour.MINECRAFT_GRAY)
-    )
-
-//    private fun ElementScope<*>.popup() = group(size(350.px, 350.px)) { // I cannot be asked making it right now
-//        val halfW = 350f / 2
-//        val halfH = 350f / 2
-//
-//        customOrder.forEachIndexed { i, _ ->
-//
-//            val col = i % 2
-//            val row = i / 2
-//
-//            val xPos = if (col == 0) 0f else halfW
-//            val yPos = if (row == 0) 0f else halfH
-//
-//            var msg = false
-//
-//            block(
-//                constrain(xPos.px, yPos.px, 50.percent, 50.percent),
-//                colour = theme.panel.withAlpha(100),
-//                radius = 3.radius()
-//            ) {
-//                outline(theme.border, thickness = 2.px)
-//
-//                textSupplied(
-//                    supplier = { customOrder[i] },
-//                    size = theme.textSize,
-//                    colour = theme.textPrimary
-//                )
-//
-//                draggable(coerce = false)
-//
-//                onRelease {
-//                    val x = element.x + element.width / 2
-//                    val y = element.y + element.height / 2
-//
-//                    val parentX = element.parent?.x ?: 0f
-//                    val parentY = element.parent?.y ?: 0f
-//
-//                    var target = -1
-//                    var minDist = Float.MAX_VALUE
-//
-//                    for (j in 0 until customOrder.size) {
-//                        if (j != i) {
-//                            val tCol = j % 2
-//                            val tRow = j / 2
-//
-//                            val localTargetX = (if (tCol == 0) 0f else halfW) + (halfW / 2)
-//                            val localTargetY = (if (tRow == 0) 0f else halfH) + (halfH / 2)
-//
-//                            val otherX = parentX + localTargetX
-//                            val otherY = parentY + localTargetY
-//
-//                            val dist = hypot(x - otherX, y - otherY)
-//
-//                            if (dist < 50.0 && dist < minDist) {
-//                                minDist = dist
-//                                target = j
-//                            }
-//                        }
-//                    }
-//
-//                    if (target != -1) {
-//                        Collections.swap(customOrder, i, target)
-//                        msg = true
-//                        this@popup.redraw()
-//                    }
-//
-//                    (element.constraints.x as? Pixel)?.pixels = xPos
-//                    (element.constraints.y as? Pixel)?.pixels = yPos
-//
-//                    element.redraw()
-//                }
-//
-//                onRemove {
-//                    if (msg) modMessage("Leap order set to: ${customOrder.joinToString(", ")}")
-//                }
-//            }
-//        }
-//    }
 }

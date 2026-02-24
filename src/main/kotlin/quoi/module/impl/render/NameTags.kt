@@ -26,7 +26,8 @@ import net.minecraft.network.chat.MutableComponent
 import kotlin.math.pow
 
 object NameTags : Module(
-    "Name Tags"
+    "Name Tags",
+    desc = "Customisable nametags for entities."
 ) {
     private val customTagDropdown by DropdownSetting("Custom nametags").collapsible()
     private val customTag by BooleanSetting("Toggle").json("Custom nametags toggle").withDependency(customTagDropdown)

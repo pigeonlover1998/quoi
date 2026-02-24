@@ -18,7 +18,7 @@ import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket
 import net.minecraft.world.level.block.Blocks
 
 // Kyleen
-object GhostBlocks : Module(
+object GhostBlocks : Module( // this shit seems so fucking useless.
     "Ghost Blocks",
     desc = "Set useless levers in lights device to air. /gb help"
 ) {

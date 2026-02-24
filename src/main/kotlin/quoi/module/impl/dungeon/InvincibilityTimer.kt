@@ -25,7 +25,7 @@ import quoi.utils.ui.textPair
 @AlwaysActive
 object InvincibilityTimer : Module(
     "Invincibility Timer",
-    desc = "Slightly Better"
+    desc = "Gives visual information about your invincibility times."
 ) {
     private val dungeonOnly by BooleanSetting("Dungeons only", desc = "Active in dungeons only.")
     private val bossOnly by BooleanSetting("Boss only", desc = "Active in boss room only.")

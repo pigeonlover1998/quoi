@@ -24,11 +24,14 @@ import net.minecraft.world.entity.ambient.Bat
 import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.world.entity.monster.EnderMan
 import net.minecraft.world.entity.player.Player
+import quoi.utils.ChatUtils.modMessage
 
 object DungeonESP : Module(
     "Dungeon ESP",
+    desc = "Highlights various dungeon entities.",
     area = Island.Dungeon(inClear = true)
 ) {
+    private val test by BooleanSetting("test")
     private val teammateClassGlow by BooleanSetting("Teammate class glow", true, desc = "Highlights dungeon teammates based on their class colour.")
     private val starEsp by BooleanSetting("Starred mobs")
 
@@ -104,14 +107,17 @@ object DungeonESP : Module(
 
     private fun getColour(entity: Entity) = when (entity) {
         is Bat if (entity.maxHealth.equalsOneOf(100f, 200f, 400f, 800f)) -> colourBat to colourBatFill
-        is EnderMan if (entity.name.string.noControlCodes == "Dinnerbone") -> colourStar to colourStarFill
+        is EnderMan if (entity.name.string.noControlCodes == "Dinnerbone") -> {
+            if (test) modMessage(entity.displayName)
+            colourStar to colourStarFill
+        }
         is ArmorStand -> {
             handleStand(entity)
             null
         }
         is Player -> with(entity.name.string) {
-            if (this.contains("Shadow Assassin")) colourSA to colourSAFill
-            else if (this.equalsOneOf("Diamond Guy", "Lost Adventurer")) colourStar to colourStarFill
+            if (contains("Shadow Assassin")) colourSA to colourSAFill
+            else if (equalsOneOf("Diamond Guy", "Lost Adventurer")) colourStar to colourStarFill
             else null
         }
         else -> null

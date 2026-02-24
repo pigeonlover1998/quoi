@@ -30,7 +30,7 @@ import quoi.utils.ui.textPair
 import kotlinx.coroutines.launch
 import net.minecraft.world.phys.BlockHitResult
 
-object Test : Module("Test") {
+object Test : Module("Test", desc = "Dev module for testing.") {
     val selectedTheme2 by SelectorSetting("Theme2", "Light", listOf("Light", "Dark", "Custom"))
     val selectedTheme by SelectorSetting("Theme", "Light", listOf("Light", "Dark", "Custom"))
 

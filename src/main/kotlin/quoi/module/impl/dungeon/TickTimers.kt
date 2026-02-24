@@ -20,6 +20,7 @@ import quoi.utils.ui.rendering.NVGRenderer.minecraftFont
 
 object TickTimers : Module(
     "Tick Timers",
+    desc = "Displays tick timers for floor seven boss fight.",
     area = Island.Dungeon(7, inBoss = true)
 ) {
     private val showInTicks by BooleanSetting("Show in ticks")
@@ -77,7 +78,6 @@ object TickTimers : Module(
                     goldorStart = -1
                     goldorTick = -1
                 }
-//                padHud.enabled && message.matches(stormStartRegex) -> padTick = -1
                 padHud.enabled && message.matches(stormPadRegex) -> padTick = 20
             }
         }

@@ -34,7 +34,8 @@ import java.util.*
 
 // modified https://github.com/Hypericat/NoobRoutes/blob/main/src/main/kotlin/noobroutes/features/dungeon/SecretAura.kt
 object SecretAura : Module(
-    "Secret Aura"
+    "Secret Aura",
+    desc = "Automatically collects secrets."
 ) {
     private val chestRange by NumberSetting("Chest range", 6.2, 2.1, 6.5, 0.1, desc = "Maximum range for secret aura.")
     private val skullRange by NumberSetting("Skull range", 4.7, 2.1, 4.7, 0.1, desc = "Maximum range for secret aura when clicking skulls.")
