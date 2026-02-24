@@ -31,6 +31,7 @@ import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
 import net.minecraft.world.phys.BlockHitResult
 import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.ui.rendering.NVGRenderer
+import kotlin.collections.sortedBy
 
 object QuoiCommand {
     val command = BaseCommand("quoi", "requise") {
@@ -84,14 +85,30 @@ object QuoiCommand {
                 modMessage("Area: $currentArea, Sub: $subarea, Server: $currentServer, Floor: ${Dungeon.floor?.name}")
             }
 
-            "featurelist" {
+            "featurelist" { md: Boolean? ->
                 val featureList = StringBuilder()
 
                 for ((category, modulesInCategory) in ModuleManager.modules.groupBy { it.category }.entries) {
-                    featureList.appendLine("Category: ${category.name.capitaliseFirst()}")
-                    for (module in modulesInCategory.sortedByDescending {
-                        NVGRenderer.textWidth(it.name, 16f, NVGRenderer.defaultFont)
-                    }) featureList.appendLine("- ${module.name}: ${module.desc}")
+                    val categoryName = category.name.capitaliseFirst()
+
+                    if (md == true) {
+                        featureList.appendLine("<details>")
+                        featureList.appendLine("<summary><b>$categoryName</b></summary>")
+                        featureList.appendLine()
+                    } else {
+                        featureList.appendLine("# $categoryName")
+                    }
+
+                    for (module in modulesInCategory.sortedBy { it.name }) {
+                        featureList.appendLine("- **${module.name}**")
+                        if (module.desc.isNotEmpty()) featureList.appendLine("  - ${module.desc}")
+                    }
+
+                    if (md == true) {
+                        featureList.appendLine()
+                        featureList.appendLine("</details>")
+                    }
+
                     featureList.appendLine()
                 }
 
