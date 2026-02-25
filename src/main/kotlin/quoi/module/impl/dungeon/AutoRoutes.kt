@@ -43,18 +43,21 @@ import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import quoi.api.skyblock.Island
+import quoi.api.skyblock.dungeon.Dungeon.inClear
 import quoi.api.skyblock.invoke
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
 object AutoRoutes : Module( // todo maybe split it in two files
     "Auto Routes",
-    desc = "",
+    desc = "UNTESTED. USE AT YOUR OWN RISK. /route",
     area = Island.Dungeon(inClear = true)
 ) {
-    val zeroTick by BooleanSetting("Zero tick")
+    val zeroTick by BooleanSetting("Zero tick").onValueChanged { _, new ->
+        if (new) modMessage("&cUse at your own risk!", prefix = "&b[ZeroTick]")
+    }
     private val style by SelectorSetting("Style", "Box", listOf("Box", "Ellipse"))
-    private val colour by ColourSetting("Colour (inactive)", Colour.MINECRAFT_AQUA, desc = "Colour for the Boss ESP")
+    private val colour by ColourSetting("Colour (inactive)", Colour.MINECRAFT_AQUA)
     private val colour2 by ColourSetting("Colour (active)", Colour.WHITE)
     private val thickness by NumberSetting("Thickness", 4f, 1f, 8f, 0.5f)
 
@@ -195,16 +198,17 @@ object AutoRoutes : Module( // todo maybe split it in two files
     }
 
     private fun registerCommands() {
-        val ar = BaseCommand("ar").requires("&cYou have to be in a dungeon!") { enabled /*&& Dungeon.inClear && currentRoom != null*/ }
+        val ar = BaseCommand("route").requires("&cYou have to be in a dungeon!") { enabled && inClear && currentRoom != null }
 
         ar.sub("em") {
             editMode = !editMode
             modMessage("Edit mode ${if (editMode) "&aenabled" else "&cdisabled"}&r!")
             unsubscribeDBEditor()
-        }
+        }.description("Toggles edit mode.")
 
-        ar.sub("remove") { range: Double? -> removeRings(range) } // todo fix
+        ar.sub("remove") { range: Double? -> removeRings(range) }.description("Removes rings in range.")
         ar.sub("remove") { name: String, range: Double? -> removeRings(range, name) }
+            .description("Removes rings in range by name.")
             .suggests("name", actionEntries.map { it.first })
 
         ar.sub("rmlast") {
@@ -217,7 +221,7 @@ object AutoRoutes : Module( // todo maybe split it in two files
 
             routes.save()
             modMessage("Removed &e${last.action.typeName}&r!")
-        }
+        }.description("Removes last placed ring in current room.")
 
         ar.sub("undo") {
             val roomName = currentRoom?.name ?: return@sub modMessage("&cUnable to get current room.")
@@ -231,21 +235,22 @@ object AutoRoutes : Module( // todo maybe split it in two files
 
             routes.save()
             modMessage("Restored &e${last.joinToString("&r,&e ") { it.action.typeName }}&r!")
-        }
+        }.description("Restores last removed ring(-s).")
 
         ar.sub("edit") { args: GreedyString? ->
             val ring = currentRings.firstOrNull()
                 ?: return@sub modMessage("&cYou need to stand in a ring!")
             editRing(ring, args)
-        }.withEditMode().suggestArgs()
+        }.description("Modifies arguments of ring you're standing in.")
+        .withEditMode().suggestArgs()
 
         ar.sub("edit") { name: String, args: GreedyString? ->
             val ring = currentRings.firstOrNull { it.action.typeName.equals(name, true) }
                 ?: return@sub modMessage("&cNo &r$name&c ring found!")
             editRing(ring, args)
-        }.withEditMode()
+        }.description("Modifies arguments of ring you're standing in by name.")
+        .withEditMode().suggestArgs()
         .suggests("name") { currentRings.map { it.action.typeName } }
-        .suggestArgs()
 
         ar.sub("editdb") {
             if (breakerRing == null) {
@@ -256,9 +261,11 @@ object AutoRoutes : Module( // todo maybe split it in two files
                 unsubscribeDBEditor()
                 modMessage("Dungeon breaker editor &cdisabled&r.")
             }
-        }.withEditMode()
+        }.description("Toggles dungeon breaker ring editor.").withEditMode()
 
-        val add = ar.sub("add").suggests("add", actionEntries.map { it.first })
+        val add = ar.sub("add")
+            .description("Adds specified ring.")
+            .suggests("add", actionEntries.map { it.first })
 
         add.sub("etherwarp") { args: GreedyString? ->
             addRing(EtherwarpAction(currentRoom!!.getRelativeYaw(player.yaw), player.pitch), args)

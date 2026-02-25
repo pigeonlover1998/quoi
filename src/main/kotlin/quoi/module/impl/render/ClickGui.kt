@@ -75,7 +75,7 @@ object ClickGui : Module(
     
     private val prefixDropdown by DropdownSetting("Prefix settings").collapsible()
     val prefixText by StringSetting("Prefix", "quoi!").withDependency(prefixDropdown)
-    val prefixColour by ColourSetting("Prefix colour", Colour.PINK).withDependency(prefixDropdown)
+    val prefixColour by ColourSetting("Prefix colour", Colour.GREEN).withDependency(prefixDropdown)
     val bracketsColour by ColourSetting("Brackets colour", Colour.WHITE).withDependency(prefixDropdown)
 
     private val fpsHud by TextHud("Fps display") {
