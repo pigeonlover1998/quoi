@@ -1,4 +1,5 @@
 [![discord badge](https://img.shields.io/discord/1371490329508839455?label=discord&color=9089DA&logo=discord&style=for-the-badge)](https://discord.gg/QCWgrQ57pN)
+![minecraft-version](https://img.shields.io/badge/Minecraft-1.21.10-6BAA57?style=for-the-badge&logoColor=white)
 [![downloads](https://img.shields.io/github/downloads/pigeonlover1998/quoi/total?style=for-the-badge)](https://github.com/pigeonlover1998/quoi)
 
 `/quoi`
