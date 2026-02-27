@@ -62,6 +62,7 @@ object ModuleManager {
             AntiNick,
             AutoClicker,
             Inventory,
+            ItemAnimations,
 //            CustomTriggers,
 
             // PLAYER

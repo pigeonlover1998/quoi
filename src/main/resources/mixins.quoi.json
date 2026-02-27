@@ -32,6 +32,7 @@
     "GuiMessageLineMixin",
     "GuiMixin",
     "ItemCooldownsMixin",
+    "ItemInHandRendererMixin",
     "KeyboardHandlerMixin",
     "LevelChunkMixin",
     "LeverBlockMixin",

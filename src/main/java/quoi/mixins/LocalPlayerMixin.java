@@ -1,5 +1,9 @@
 package quoi.mixins;
 
+import net.minecraft.world.InteractionHand;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import quoi.module.impl.misc.ItemAnimations;
 import quoi.module.impl.player.Tweaks;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mojang.authlib.GameProfile;
@@ -27,5 +31,13 @@ public class LocalPlayerMixin extends AbstractClientPlayer {
             return this.isShiftKeyDown() && !this.getAbilities().flying;
         }
         return original;
+    }
+
+    @Inject(
+            method = "swing",
+            at = @At("HEAD")
+    )
+    private void quoi$onSwing(InteractionHand hand, CallbackInfo ci) {
+        ItemAnimations.INSTANCE.onSwing();
     }
 }
