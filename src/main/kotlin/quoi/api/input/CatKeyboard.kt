@@ -39,27 +39,6 @@ object CatKeyboard {
         override val isAltDown get() = isLeftAltDown || isRightAltDown
     }
 
-    fun getEventKeyState(): Boolean {
-        return false
-    }
-
-    fun getEventKey(): Int {
-        //#if FABRIC
-        //$$ // idk
-        //#else
-//        return Keyboard.getEventKey()
-        //#endif
-        return 1
-    }
-
-//    fun getEventCharacter(): Char {
-//        //#if FABRIC
-//        //$$ // idk
-//        //#else
-//        return Keyboard.getEventCharacter()
-//        //#endif
-//    }
-
     @JvmStatic
     fun getKeyName(key: Int): String? {
         if (key == CatKeys.KEY_NONE) return "None"

@@ -23,4 +23,12 @@ object CatMouse {
         val state = GLFW.glfwGetMouseButton(mc.window.handle(), code)
         return state == GLFW.GLFW_PRESS || state == GLFW.GLFW_REPEAT
     }
+
+    val mx: Float get() = mc.mouseHandler.xpos().toFloat()
+
+    val my: Float get() = mc.mouseHandler.ypos().toFloat()
+
+    fun setCursor(cursor: Long) {
+        GLFW.glfwSetCursor(mc.window.handle(), cursor)
+    }
 }

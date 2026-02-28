@@ -14,6 +14,12 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.Blocks
 
 // Kyleen
+
+/**
+ * modified Odin (BSD 3-Clause)
+ * copyright (c) 2026 odtheking
+ * original: https://github.com/odtheking/Odin/blob/main/odinclient/src/main/kotlin/me/odinclient/features/impl/floor7/FuckDiorite.kt
+ */
 object FuckDiorite : Module(
     "Fuck Diorite",
     desc = "Replaces the pillars in the storm fight with glass.",

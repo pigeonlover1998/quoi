@@ -4,9 +4,9 @@ import quoi.api.abobaui.AbobaUI
 import quoi.api.events.core.EventBus.on
 import quoi.api.events.GuiEvent
 import quoi.api.events.RenderEvent
+import quoi.api.input.CatMouse.mx
+import quoi.api.input.CatMouse.my
 import quoi.utils.height
-import quoi.utils.ui.MouseUtils.mx
-import quoi.utils.ui.MouseUtils.my
 import quoi.utils.width
 
 class UIOverlay(ui: AbobaUI.Instance) : UIHandler(ui) {

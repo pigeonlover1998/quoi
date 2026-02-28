@@ -25,6 +25,7 @@ import quoi.utils.ui.rendering.NVGRenderer.minecraftFont
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
+import quoi.api.input.CatMouse
 import kotlin.reflect.KProperty0
 import kotlin.reflect.jvm.isAccessible
 
@@ -43,15 +44,15 @@ inline fun ElementScope<*>.onHover(duration: Float, crossinline block: () -> Uni
 
 fun ElementScope<*>.cursor(shape: Long) {
     onMouseEnter {
-        MouseUtils.setCursor(shape)
+        CatMouse.setCursor(shape)
     }
 
     onMouseExit {
-        MouseUtils.setCursor(CursorShape.NORMAL)
+        CatMouse.setCursor(CursorShape.NORMAL)
     }
 
     ui.main.registerEventUnit(Lifetime.Uninitialised) {
-        MouseUtils.setCursor(CursorShape.NORMAL)
+        CatMouse.setCursor(CursorShape.NORMAL)
     }
 }
 

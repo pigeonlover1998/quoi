@@ -16,6 +16,7 @@ import java.util.*
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/dungeon/DungeonEnums.kt
  */
+
 /**
  * Data class representing a player in a dungeon, including their name, class, skin location, and associated player entity.
  *

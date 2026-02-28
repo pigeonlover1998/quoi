@@ -25,6 +25,10 @@ import net.minecraft.world.level.saveddata.maps.MapDecorationTypes
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData
 import kotlin.time.Duration
 
+/**
+ * from Stella (LGPL-3.0) (c) Eclipse-5214
+ * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/map/MapScanner.kt
+ */
 object MapItemScanner {
 
     data class RoomClearInfo(

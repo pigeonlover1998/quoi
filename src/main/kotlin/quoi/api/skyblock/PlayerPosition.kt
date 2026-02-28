@@ -3,6 +3,10 @@ package quoi.api.skyblock
 import quoi.utils.lerp
 import quoi.utils.lerpAngle
 
+/**
+ * from Stella (LGPL-3.0) (c) Eclipse-5214
+ * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/players/DungeonPlayerPosition.kt
+ */
 class PlayerPosition {
     val raw = PosData()
 

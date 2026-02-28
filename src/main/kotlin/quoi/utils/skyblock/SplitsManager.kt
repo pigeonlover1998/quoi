@@ -12,7 +12,7 @@ import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.noControlCodes
 
 /**
- * from OdinFabric (BSD 3-Clause)
+ * modified OdinFabric (BSD 3-Clause)
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/SplitsManager.kt
  */

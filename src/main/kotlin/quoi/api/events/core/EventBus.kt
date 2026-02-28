@@ -36,7 +36,7 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.item.ItemEntity
 import java.util.concurrent.ConcurrentHashMap
 
-// modified zen
+// modified zen, their repo is taken down.
 object EventBus { // todo cleanup
     val events = ConcurrentHashMap<Class<*>, MutableSet<PrioritisedCallback<*>>>()
     data class PrioritisedCallback<T>(val priority: Int, val callback: T.() -> Unit)

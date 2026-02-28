@@ -4,7 +4,7 @@ import quoi.api.colour.Colour
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 
-enum class Structure( // todo cleanup
+enum class Structure( // todo cleanup some day
     val colour: Colour,
     val blocks: List<Block?>,
     val type: StructureType,
@@ -16,7 +16,7 @@ enum class Structure( // todo cleanup
     val canBeMultiple: Boolean = false
 ) {
     QUEEN(
-        Colour.Companion.ORANGE,
+        Colour.ORANGE,
         listOf( // todo fix
             Blocks.STONE,
             Blocks.ACACIA_LOG,
@@ -30,7 +30,7 @@ enum class Structure( // todo cleanup
     ),
 
     DIVAN(
-        Colour.Companion.BLUE,
+        Colour.BLUE,
         listOf(
             Blocks.QUARTZ_PILLAR,
             Blocks.QUARTZ_STAIRS,
@@ -41,7 +41,7 @@ enum class Structure( // todo cleanup
     ),
 
     CITY(
-        Colour.Companion.WHITE,
+        Colour.WHITE,
         listOf(
             Blocks.COBBLESTONE,
             Blocks.COBBLESTONE,
@@ -56,7 +56,7 @@ enum class Structure( // todo cleanup
     ),
 
     TEMPLE(
-        Colour.Companion.MINECRAFT_DARK_GREEN,
+        Colour.MINECRAFT_DARK_GREEN,
         listOf(
             Blocks.BEDROCK,
             Blocks.BEDROCK,
@@ -71,7 +71,7 @@ enum class Structure( // todo cleanup
     ),
 
     KING(
-        Colour.Companion.MINECRAFT_YELLOW,
+        Colour.MINECRAFT_YELLOW,
         listOf(
             Blocks.RED_WOOL,
             Blocks.DARK_OAK_STAIRS,
@@ -82,7 +82,7 @@ enum class Structure( // todo cleanup
     ),
 
     BAL(
-        Colour.Companion.MINECRAFT_RED,
+        Colour.MINECRAFT_RED,
         listOf(
             Blocks.LAVA,
             Blocks.BARRIER,
@@ -100,7 +100,7 @@ enum class Structure( // todo cleanup
     ),
 
     FAIRY_GROTTO( // todo figure specific types of grottos
-        Colour.Companion.PINK,
+        Colour.PINK,
         listOf(
             Blocks.MAGENTA_STAINED_GLASS
         ),
@@ -124,7 +124,7 @@ enum class Structure( // todo cleanup
 //    ),
 
     RUINS_GROTTO_1(
-        Colour.Companion.PINK,
+        Colour.PINK,
         listOf(
             Blocks.STONE,
             Blocks.LANTERN,
@@ -135,7 +135,7 @@ enum class Structure( // todo cleanup
     ),
 
     RUINS_GROTTO_2(
-        Colour.Companion.PINK,
+        Colour.PINK,
         listOf( // todo fix idk why no work
             Blocks.STONE,
             Blocks.LANTERN,
@@ -148,7 +148,7 @@ enum class Structure( // todo cleanup
     ),
 
     RUINS_GROTTO_3(
-        Colour.Companion.PINK,
+        Colour.PINK,
         listOf(
             Blocks.STONE,
             Blocks.DIRT,
@@ -161,7 +161,7 @@ enum class Structure( // todo cleanup
     ),
 
     SHRINE_GROTTO(
-        Colour.Companion.PINK,
+        Colour.PINK,
         listOf(
             Blocks.LANTERN,
             Blocks.STONE,
@@ -176,7 +176,7 @@ enum class Structure( // todo cleanup
     ),
 
     SPIRAL_GROTTO(
-        Colour.Companion.PINK,
+        Colour.PINK,
         listOf(
             Blocks.POLISHED_ANDESITE,
             Blocks.STONE_BRICKS,
@@ -193,7 +193,7 @@ enum class Structure( // todo cleanup
     ),
 
     WATERFALL_GROTTO(
-        Colour.Companion.PINK,
+        Colour.PINK,
         listOf(
             Blocks.MAGENTA_STAINED_GLASS,
             Blocks.STONE, Blocks.STONE, Blocks.STONE, Blocks.STONE, Blocks.STONE,
@@ -206,7 +206,7 @@ enum class Structure( // todo cleanup
     ),
 
     GOBLIN_HALL(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.SPRUCE_PLANKS,
             null,
@@ -227,7 +227,7 @@ enum class Structure( // todo cleanup
     ),
 
     GOBLIN_RING(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.OAK_FENCE,
             Blocks.SKELETON_SKULL,
@@ -241,7 +241,7 @@ enum class Structure( // todo cleanup
     ),
 
     GRUNT_BRIDGE(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.STONE_BRICK_STAIRS,
             null, null, null, null,
@@ -258,7 +258,7 @@ enum class Structure( // todo cleanup
     ),
 
     CORLEONE_DOCK(
-        Colour.Companion.BLACK,
+        Colour.BLACK,
         listOf(
             Blocks.POLISHED_GRANITE,
             Blocks.WATER,
@@ -274,7 +274,7 @@ enum class Structure( // todo cleanup
     ),
 
     CORLEONE_HOLE( // todo fix some day
-        Colour.Companion.BLACK,
+        Colour.BLACK,
         listOf(
             Blocks.SMOOTH_STONE_SLAB,
             null, null, null, null, null, null, null, null, null, null, null, null, null,
@@ -288,7 +288,7 @@ enum class Structure( // todo cleanup
     ),
 
     GRUNT_RAILS_1(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.SPRUCE_PLANKS,
             null,
@@ -301,7 +301,7 @@ enum class Structure( // todo cleanup
     ),
 
     GRUNT_HERO_STATUE(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.SMOOTH_STONE_SLAB,
             Blocks.DIORITE,
@@ -317,7 +317,7 @@ enum class Structure( // todo cleanup
     ),
 
     SMALL_GRUNT_BRIDGE(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.SPRUCE_STAIRS,
             Blocks.SPRUCE_STAIRS,
@@ -331,7 +331,7 @@ enum class Structure( // todo cleanup
     ),
 
     KEY_GUARDIAN_SPIRAL(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.JUNGLE_STAIRS,
             Blocks.JUNGLE_PLANKS,
@@ -349,7 +349,7 @@ enum class Structure( // todo cleanup
     ),
 
     SLUDGE_WATERFALLS(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.STONE,
             Blocks.DIRT,
@@ -365,7 +365,7 @@ enum class Structure( // todo cleanup
     ),
 
     SLUDGE_BRIDGES(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.JUNGLE_PLANKS,
             Blocks.JUNGLE_PLANKS,
@@ -383,7 +383,7 @@ enum class Structure( // todo cleanup
     ),
 
     YOG_BRIDGE(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.STONE_BRICKS,
             Blocks.STONE_BRICK_STAIRS,
@@ -405,7 +405,7 @@ enum class Structure( // todo cleanup
     ),
 
     ODAWA(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.JUNGLE_LOG,
             Blocks.SPRUCE_STAIRS,
@@ -423,7 +423,7 @@ enum class Structure( // todo cleanup
     ),
 
     MINI_JUNGLE_TEMPLE(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.POLISHED_ANDESITE,
             Blocks.ANDESITE,
@@ -444,7 +444,7 @@ enum class Structure( // todo cleanup
     ),
 
     PRECURSOR_TRIPWIRE_CHAMBER(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.DIORITE,
             Blocks.DIORITE,
@@ -465,7 +465,7 @@ enum class Structure( // todo cleanup
     ),
 
     PRECURSOR_TALL_PILLARS(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.POLISHED_DIORITE,
             Blocks.POLISHED_DIORITE,
@@ -492,7 +492,7 @@ enum class Structure( // todo cleanup
     ),
 
     GOBLIN_HOLE_CAMP(
-        Colour.Companion.GREY,
+        Colour.GREY,
         listOf(
             Blocks.NETHERRACK,
             Blocks.NETHERRACK,
@@ -505,7 +505,7 @@ enum class Structure( // todo cleanup
     ),
 
     GOLDEN_DRAGON(
-        Colour.Companion.CYAN,
+        Colour.CYAN,
         listOf(
             Blocks.STONE,
             Blocks.RED_TERRACOTTA,

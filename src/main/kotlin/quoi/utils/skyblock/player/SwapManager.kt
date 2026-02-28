@@ -21,50 +21,50 @@ object SwapManager {
     private var hasSwappedThisTick: Boolean = false
 
     fun init() {
-        command.sub("testzerotick") {
-            scope.launch {
-                modMessage("starting 0 tick test", id = "start0test".hashCode())
-
-                modMessage("1. 0 tick block", prefix = "", id = "0test1".hashCode())
-                val initialSlot = mc.player?.inventory?.selectedSlot ?: 0
-                val target1 = (initialSlot + 1) % 8
-                val target2 = (initialSlot + 2) % 8
-
-                val r1 = swapToSlot(target1)
-                val r2 = swapToSlot(target2)
-
-                if (r1 == SwapResult.SUCCESS && r2 == SwapResult.TOO_FAST) {
-                    modMessage("&aPASS: first allowed, second blocked in same tick", prefix = "", id = "0test1pass".hashCode())
-                } else {
-                    modMessage("&cFAIL: r1=$r1, r2=$r2")
-                }
-                wait(5)
-
-                modMessage("2. slot recovery", prefix = "", id = "0test2".hashCode())
-                val currentSlot = mc.player?.inventory?.selectedSlot
-                if (currentSlot == target1) {
-                    modMessage("&aPASS: client slot synced with server slot ($target1)", prefix = "", id = "0test2pass".hashCode())
-                } else {
-                    modMessage("&cFAIL: client slot $currentSlot, expected $target1")
-                }
-
-                wait(5)
-
-                modMessage("3. raw", prefix = "", id = "0test3".hashCode())
-                val target3 = (initialSlot + 3) % 8
-                mc.player!!.inventory.selectedSlot = target3
-                mc.connection?.send(ServerboundSetCarriedItemPacket(target3))
-
-                val r3 = swapToSlot((target3 + 1) % 8)
-                if (r3 == SwapResult.TOO_FAST) {
-                    modMessage("&aPASS: raw triggered 0t protection", prefix = "", id = "0test3pass".hashCode())
-                } else {
-                    modMessage("&cFAIL: swaptoslot allowed after raw swap. result: $r3")
-                }
-
-                modMessage("complette. current server slot: §6$lastKnownServerSlot", id = "end0test".hashCode())
-            }
-        }
+//        command.sub("testzerotick") {
+//            scope.launch {
+//                modMessage("starting 0 tick test", id = "start0test".hashCode())
+//
+//                modMessage("1. 0 tick block", prefix = "", id = "0test1".hashCode())
+//                val initialSlot = mc.player?.inventory?.selectedSlot ?: 0
+//                val target1 = (initialSlot + 1) % 8
+//                val target2 = (initialSlot + 2) % 8
+//
+//                val r1 = swapToSlot(target1)
+//                val r2 = swapToSlot(target2)
+//
+//                if (r1 == SwapResult.SUCCESS && r2 == SwapResult.TOO_FAST) {
+//                    modMessage("&aPASS: first allowed, second blocked in same tick", prefix = "", id = "0test1pass".hashCode())
+//                } else {
+//                    modMessage("&cFAIL: r1=$r1, r2=$r2")
+//                }
+//                wait(5)
+//
+//                modMessage("2. slot recovery", prefix = "", id = "0test2".hashCode())
+//                val currentSlot = mc.player?.inventory?.selectedSlot
+//                if (currentSlot == target1) {
+//                    modMessage("&aPASS: client slot synced with server slot ($target1)", prefix = "", id = "0test2pass".hashCode())
+//                } else {
+//                    modMessage("&cFAIL: client slot $currentSlot, expected $target1")
+//                }
+//
+//                wait(5)
+//
+//                modMessage("3. raw", prefix = "", id = "0test3".hashCode())
+//                val target3 = (initialSlot + 3) % 8
+//                mc.player!!.inventory.selectedSlot = target3
+//                mc.connection?.send(ServerboundSetCarriedItemPacket(target3))
+//
+//                val r3 = swapToSlot((target3 + 1) % 8)
+//                if (r3 == SwapResult.TOO_FAST) {
+//                    modMessage("&aPASS: raw triggered 0t protection", prefix = "", id = "0test3pass".hashCode())
+//                } else {
+//                    modMessage("&cFAIL: swaptoslot allowed after raw swap. result: $r3")
+//                }
+//
+//                modMessage("complette. current server slot: §6$lastKnownServerSlot", id = "end0test".hashCode())
+//            }
+//        }
 
         on<TickEvent.Start> (EventPriority.HIGHEST) { hasSwappedThisTick = false }
 

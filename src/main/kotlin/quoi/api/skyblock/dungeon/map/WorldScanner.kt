@@ -16,6 +16,10 @@ import quoi.utils.WorldUtils
 import quoi.utils.WorldUtils.worldToMap
 import java.util.*
 
+/**
+ * from Stella (LGPL-3.0) (c) Eclipse-5214
+ * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/map/WorldScanner.kt
+ */
 object WorldScanner {
     val availableComponents = ScanUtils.getScanCoords().toMutableList()
     var lastIdx: Int? = null

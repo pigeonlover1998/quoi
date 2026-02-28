@@ -286,13 +286,11 @@ object ClickGui : Module(
 
             var lastEnabled = module.enabled
             onAdd {
-//            operation {
                 if (lastEnabled != module.enabled) {
                     lastEnabled = module.enabled
                     col.swap()
                     redraw()
                 }
-                false
             }
 
             onClick(button = 0) {

@@ -9,10 +9,9 @@ import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
-/*
- * Modified from SkyHanni code
- * Under LGPL 2.1 License
- * https://github.com/hannibal002/SkyHanni/blob/beta/src/main/java/at/hannibal2/skyhanni/utils/SimpleTimeMark.kt
+/**
+ * from Stella (LGPL-3.0) (c) Eclipse-5214
+ * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/TimeUtils.kt
  */
 @JvmInline
 value class SimpleTimeMark(val millis: Long) : Comparable<SimpleTimeMark> {
