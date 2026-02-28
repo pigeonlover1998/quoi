@@ -38,6 +38,6 @@ public class LocalPlayerMixin extends AbstractClientPlayer {
             at = @At("HEAD")
     )
     private void quoi$onSwing(InteractionHand hand, CallbackInfo ci) {
-        ItemAnimations.INSTANCE.onSwing();
+        ItemAnimations.onSwing();
     }
 }
