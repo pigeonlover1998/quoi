@@ -9,6 +9,7 @@ import quoi.utils.WorldUtils.state
 import quoi.utils.skyblock.player.SwapManager
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.item.ItemStack
@@ -72,34 +73,46 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
 
             if (realPos.distToCenterSqr(player.x, player.y, player.z) > 25.0) continue
 
-            val clipResult = level.clip(
-                ClipContext(
-                    player.eyePosition,
-                    Vec3.atCenterOf(realPos),
-                    ClipContext.Block.COLLIDER,
-                    ClipContext.Fluid.NONE,
-                    player
+//            val clipResult = level.clip(
+//                ClipContext(
+//                    player.eyePosition,
+//                    Vec3.atCenterOf(realPos),
+//                    ClipContext.Block.COLLIDER,
+//                    ClipContext.Fluid.NONE,
+//                    player
+//                )
+//            )
+
+            mc.connection?.send(
+                ServerboundPlayerActionPacket(
+                    ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,
+                    realPos,
+                    Direction.UP
                 )
             )
+            player.swing(InteractionHand.MAIN_HAND)
+            recentlyBroken[realPos] = System.currentTimeMillis()
+            chargesUsed++
+            wait(1)
 
-            if (/*clipResult.type == HitResult.Type.BLOCK && */clipResult.blockPos == realPos)  {
-                mc.connection?.send(
-                    ServerboundPlayerActionPacket(
-                        ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,
-                        realPos,
-                        clipResult.direction
-                    )
-                )
-
-                mc.execute {
-                    player.swing(InteractionHand.MAIN_HAND)
-                    level.removeBlock(realPos, false)
-                }
-
-                recentlyBroken[realPos] = System.currentTimeMillis()
-                chargesUsed++
-                wait(1)
-            }
+//            if (/*clipResult.type == HitResult.Type.BLOCK && */clipResult.blockPos == realPos)  {
+//                mc.connection?.send(
+//                    ServerboundPlayerActionPacket(
+//                        ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,
+//                        realPos,
+//                        clipResult.direction
+//                    )
+//                )
+//
+//                mc.execute {
+//                    player.swing(InteractionHand.MAIN_HAND)
+//                    level.removeBlock(realPos, false)
+//                }
+//
+//                recentlyBroken[realPos] = System.currentTimeMillis()
+//                chargesUsed++
+//                wait(1)
+//            }
         }
     }
 

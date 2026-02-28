@@ -48,8 +48,6 @@ import quoi.api.skyblock.invoke
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.StringUtils.width
 import quoi.utils.render.DrawContextUtils.drawString
-import java.io.PrintWriter
-import java.io.StringWriter
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
@@ -128,7 +126,7 @@ object AutoRoutes : Module( // todo maybe split it in two files
                         if (error is CancellationException) return@launch
                         modMessage(
                             ChatUtils.button(
-                                "&cError occurred while executing ring &e${ring.action.typeName}",
+                                "&cError occurred while executing ring &e${ring.action.typeName} &7(click to copy)",
                                 command = "/quoidev copy ${error.stackTraceToString()}",
                                 hoverText = "Click to copy"
                             )
