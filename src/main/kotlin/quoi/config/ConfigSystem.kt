@@ -9,7 +9,11 @@ import com.google.gson.internal.Streams
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import quoi.utils.ChatUtils
+import quoi.utils.ChatUtils.modMessage
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.findAnnotation
@@ -42,7 +46,21 @@ object ConfigSystem {
     fun save(file: File, data: Any) = runCatching {
         val tmpFile = File(file.parent, "${file.name}.tmp") // should prevent corruption on err
         tmpFile.writer().use { gson.toJson(data, it) }
-        tmpFile.renameTo(file)
+        Files.move(
+            tmpFile.toPath(),
+            file.toPath(),
+            StandardCopyOption.REPLACE_EXISTING,
+            StandardCopyOption.ATOMIC_MOVE
+        )
+    }.onFailure {
+        modMessage(
+            ChatUtils.button(
+                "&cError occurred while saving the config ${file.name} &7(click to copy)",
+                command = "/quoidev copy ${it.stackTraceToString()}",
+                hoverText = "Click to copy"
+            )
+        )
+        it.printStackTrace()
     }
 }
 
