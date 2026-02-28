@@ -31,7 +31,6 @@ object DungeonESP : Module(
     desc = "Highlights various dungeon entities.",
     area = Island.Dungeon(inClear = true)
 ) {
-    private val test by BooleanSetting("test")
     private val teammateClassGlow by BooleanSetting("Teammate class glow", true, desc = "Highlights dungeon teammates based on their class colour.")
     private val starEsp by BooleanSetting("Starred mobs")
 
@@ -108,7 +107,6 @@ object DungeonESP : Module(
     private fun getColour(entity: Entity) = when (entity) {
         is Bat if (entity.maxHealth.equalsOneOf(100f, 200f, 400f, 800f)) -> colourBat to colourBatFill
         is EnderMan if (entity.name.string.noControlCodes == "Dinnerbone") -> {
-            if (test) modMessage(entity.displayName)
             colourStar to colourStarFill
         }
         is ArmorStand -> {
