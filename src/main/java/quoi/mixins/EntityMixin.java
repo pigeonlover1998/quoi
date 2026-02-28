@@ -41,19 +41,6 @@ public class EntityMixin implements IEntityGlow {
     public void quoi$setForceGlow(boolean value) {
         this.forceGlow = value;
     }
-    
-    @ModifyVariable(
-            method = "setSwimming",
-            at = @At("HEAD"),
-            ordinal = 0,
-            argsOnly = true
-    )
-    private boolean disableSwim(boolean value) {
-        if (!shouldSb(Tweaks.getDisableSwimming())) return value;
-        Entity that = (Entity) (Object) this;
-        if (!(that instanceof LocalPlayer)) return value;
-        return false;
-    }
 
     @Inject(
             method = "isCurrentlyGlowing",

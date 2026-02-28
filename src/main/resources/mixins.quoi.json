@@ -43,7 +43,6 @@
     "MouseHandlerMixin",
     "MultiPlayerGameModeMixin",
     "NameTagFeatureRendererMixin",
-    "PlayerMixin",
     "ScreenEffectRendererMixin",
     "ScreenMixin",
     "SkullBlockMixin",

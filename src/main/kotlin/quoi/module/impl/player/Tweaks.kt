@@ -17,7 +17,6 @@ object Tweaks : Module(
     private val skyblockOnly by DropdownSetting("Skyblock only", desc = "Hypixel skyblock only features").collapsible()
     @JvmStatic val legacySneakHeight by BooleanSetting("Legacy sneak height", desc = "Reverts sneak height to pre 1.13 height.").withDependency(skyblockOnly)
     @JvmStatic val sneakLagFix by BooleanSetting("Sneak lag fix", desc = "idkman sometimes it works sometimes it doesn't.").withDependency(skyblockOnly)
-    @JvmStatic val disableSwimming by BooleanSetting("Disable swimming", desc = "Disables swimming animation.").withDependency(skyblockOnly)
     @JvmStatic val disableItemCooldowns by BooleanSetting("Disable item cooldowns", desc = "Disables item cooldowns such as ender pearls.").withDependency(skyblockOnly)
     @JvmStatic val fixInteract by BooleanSetting("Fix interaction", desc = "Fixes a bug where you can't interact when SA jumps the player.").withDependency(skyblockOnly) // todo move to no interact module
 
