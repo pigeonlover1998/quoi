@@ -220,7 +220,7 @@ object AutoRoutes : Module( // todo maybe split it in two files
     }
 
     private fun registerCommands() {
-        val ar = BaseCommand("route").requires("&cYou have to be in a dungeon!") { enabled && inClear && currentRoom != null }
+        val ar = BaseCommand("route").requires("&cEnable the module and be in a dungeon!") { enabled && inClear && currentRoom != null }
 
         ar.sub("em") {
             editMode = !editMode
@@ -258,6 +258,21 @@ object AutoRoutes : Module( // todo maybe split it in two files
             routes.save()
             modMessage("Restored &e${last.joinToString("&r,&e ") { it.action.typeName }}&r!")
         }.description("Restores last removed ring(-s).")
+
+        ar.sub("clear") {
+            val roomName = currentRoom?.name ?: return@sub modMessage("&cUnable to get current room.")
+            val rings = routes[roomName] ?: return@sub modMessage("$roomName &chas no routes.")
+
+            if (rings.isEmpty()) return@sub modMessage("$roomName &chas no routes to clear.")
+
+            removedRings.getOrPut(roomName) { mutableListOf() }.add(ArrayList(rings))
+
+            val count = rings.size
+            rings.clear()
+            routes.save()
+
+            modMessage("Cleared &c$count&r rings in $roomName! &7(Use /route undo to restore)")
+        }.description("Clears all routes in the current room.")
 
         ar.sub("edit") { args: GreedyString? ->
             val ring = currentRings.firstOrNull()
@@ -321,7 +336,7 @@ object AutoRoutes : Module( // todo maybe split it in two files
         if (interactListener != null) unsubscribeDBEditor()
         breakerRing = ring
 
-        modMessage("Dungeon baker editor &aenabled&r.")
+        modMessage("Dungeon breaker editor &aenabled&r.")
 
         interactListener = EventBus.on<PacketEvent.Sent> {
             if (packet !is ServerboundUseItemOnPacket) return@on
@@ -373,8 +388,8 @@ object AutoRoutes : Module( // todo maybe split it in two files
     }
 
     private fun editRing(ring: RouteRing, input: GreedyString?) {
-        val room = currentRoom ?: return modMessage("Unable to get current room")
-        val rings = routes[room.name] ?: return modMessage("${room.name} has no rings")
+        val room = currentRoom ?: return modMessage("&cUnable to get current room")
+        val rings = routes[room.name] ?: return modMessage("${room.name} &chas no rings.")
 
         val index = rings.indexOf(ring)
         if (index == -1) return modMessage("&cCouldn't find ring in the config.")
@@ -397,17 +412,17 @@ object AutoRoutes : Module( // todo maybe split it in two files
     }
 
     private fun removeRings(range: Double?, name: String? = null) {
-        val room = currentRoom ?: return modMessage("Unable to get current room")
+        val room = currentRoom ?: return modMessage("&cUnable to get current room")
         val r = range ?: 2.0
 
-        val current = routes[room.name] ?: return modMessage("${room.name} has no rings")
+        val current = routes[room.name] ?: return modMessage("${room.name} &chas no rings.")
 
         val ringsInRange = current.filter { ring ->
             (name?.let { ring.action.typeName == name } ?: true) &&
             player.boundingBox.inflate(r).intersects(ring.boundingBox(room))
         }
 
-        if (ringsInRange.isEmpty()) return modMessage("No rings in range")
+        if (ringsInRange.isEmpty()) return modMessage("&cNo rings in range")
 
         current.removeAll(ringsInRange)
         removedRings.getOrPut(room.name) { mutableListOf() }.add(ringsInRange.toMutableList())
@@ -485,8 +500,8 @@ object AutoRoutes : Module( // todo maybe split it in two files
                 "delay" -> delay = value.toIntOrNull()
                 "await" -> arguments.add(AwaitArgument(value.toIntOrNull()))
                 "block" -> {
-                    val blockPos = rayCast(distance = 999.0) ?: return@forEach modMessage("Failed to get block")
-                    val relative = currentRoom?.getRelativeCoords(blockPos) ?: return@forEach modMessage("Failed to get relative coords")
+                    val blockPos = rayCast(distance = 999.0) ?: return@forEach modMessage("&cFailed to get block")
+                    val relative = currentRoom?.getRelativeCoords(blockPos) ?: return@forEach modMessage("&cFailed to get relative coords")
                     val name = value.ifEmpty { blockPos.state?.block?.registryName ?: return@forEach }
                     arguments.add(BlockArgument(name, relative))
                 }
