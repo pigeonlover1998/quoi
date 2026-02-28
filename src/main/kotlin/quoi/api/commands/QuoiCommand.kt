@@ -55,6 +55,10 @@ object QuoiCommand {
     init {
 
         with(devCommand) {
+            "copy" { string: GreedyString ->
+                mc.keyboardHandler.clipboard = string.string
+            }
+
             "simulate" { message: GreedyString ->
                 EventBus.onPacketReceived(ClientboundSystemChatPacket(literal(message.string), false))
                 modMessage("simulated: ${message.string}")

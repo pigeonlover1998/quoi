@@ -90,9 +90,11 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
                         clipResult.direction
                     )
                 )
-                player.swing(InteractionHand.MAIN_HAND)
 
-                level.removeBlock(realPos, false)
+                mc.execute {
+                    player.swing(InteractionHand.MAIN_HAND)
+                    level.removeBlock(realPos, false)
+                }
 
                 recentlyBroken[realPos] = System.currentTimeMillis()
                 chargesUsed++
