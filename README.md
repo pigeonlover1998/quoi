@@ -8,54 +8,55 @@
 <summary><b>Dungeon</b></summary>
 
 - **Auto Align**
-    - Automatically completes arrows align device.
+  - Automatically completes arrows align device.
 - **Auto Close Chest**
-    - Automatically closes secret chests.
+  - Automatically closes secret chests.
 - **Auto Mask**
-    - Automatically swaps to invincibility item.
+  - Automatically swaps to invincibility item.
 - **Auto Routes**
+  - /route
 - **AutoSS**
-    - Automatically completes Simon says device.
+  - Automatically completes Simon says device.
 - **Barrier Boom**
-    - Automatically blows up Goldor fight gates.
+  - Automatically blows up Goldor fight gates.
 - **Boss ESP**
-    - Highlights floor seven bosses.
+  - Highlights floor seven bosses.
 - **Cancel Interact**
 - **Dungeon Abilities**
-    - Automatically uses abilities.
+  - Automatically uses abilities.
 - **Dungeon Breaker**
 - **Dungeon ESP**
-    - Highlights various dungeon entities.
+  - Highlights various dungeon entities.
 - **Fuck Diorite**
-    - Replaces the pillars in the storm fight with glass.
+  - Replaces the pillars in the storm fight with glass.
 - **Full Block Hitboxes**
-    - Increases the hitboxes of buttons, chests, levers, and skulls to be 1x1 blocks.
+  - Increases the hitboxes of buttons, chests, levers, and skulls to be 1x1 blocks.
 - **Ghost Blocks**
-    - Set useless levers in lights device to air. /gb help
+  - Set useless levers in lights device to air. /gb help
 - **Inventory Walk**
-    - Allows movement in containers.
+  - Allows movement in containers.
 - **Invincibility Timer**
-    - Gives visual information about your invincibility times.
+  - Gives visual information about your invincibility times.
 - **Leap Menu**
-    - Adds a custom leap menu.
+  - Adds a custom leap menu.
 - **Lever Aura**
-    - Automatically flicks levers in goldor fight.
+  - Automatically flicks levers in goldor fight.
 - **Necron Platform Highlight**
-    - Highlights 3x3 area to mine after Goldor dies.
+  - Highlights 3x3 area to mine after Goldor dies.
 - **Secret Aura**
-    - Automatically collects secrets.
+  - Automatically collects secrets.
 - **Secret TriggerBot**
-    - Automatically collects secrets when looking at them.
+  - Automatically collects secrets when looking at them.
 - **Secrets**
-    - Highlights collected secrets.
+  - Highlights collected secrets.
 - **Shadow Assassin Alert**
-    - Sends an alert when SA jumps you.
+  - Sends an alert when SA jumps you.
 - **Splits**
-    - Shows timers for various phases
+  - Shows timers for various phases
 - **Terminal Aura**
-    - Automatically opens terminals.
+  - Automatically opens terminals.
 - **Tick Timers**
-    - Displays tick timers for floor seven boss fight.
+  - Displays tick timers for floor seven boss fight.
 
 </details>
 
@@ -63,27 +64,29 @@
 <summary><b>Misc</b></summary>
 
 - **AntiNick**
-    - Detects nicked players.
+  - Detects nicked players.
 - **Auto Clicker**
-    - A simple auto clicker for both left and right click. Activates when the corresponding key is being held down.
+  - A simple auto clicker for both left and right click. Activates when the corresponding key is being held down.
 - **Auto Dialogue**
-    - Automatically continues dialogues with NPCs.
+  - Automatically continues dialogues with NPCs.
 - **Auto GFS**
-    - Automatically refills certain items from your sacks.
+  - Automatically refills certain items from your sacks.
 - **Chat**
-    - Various chat related tweaks.
+  - Various chat related tweaks.
 - **Chat Replacements**
-    - temp
+  - temp
 - **Inventory**
-    - Various quality of life features for inventory GUIs
+  - Various quality of life features for inventory GUIs
+- **Item Animations**
+  - Changes how the held item looks on screen
 - **Pet Keybinds**
-    - Keybinds for the pets menu.
+  - Keybinds for the pets menu.
 - **Test**
-    - Dev module for testing.
+  - Dev module for testing.
 - **Titles**
-    - temp module
+  - temp module
 - **Wardrobe Keybinds**
-    - Keybinds for wardrobe.
+  - Keybinds for wardrobe.
 
 </details>
 
@@ -91,11 +94,11 @@
 <summary><b>Player</b></summary>
 
 - **Auto Sprint**
-    - Automatically sprints.
+  - Automatically sprints.
 - **Player Display**
-    - Hud displays for various skyblock stats.
+  - Hud displays for various skyblock stats.
 - **Tweaks**
-    - Various player tweaks.
+  - Various player tweaks.
 
 </details>
 
@@ -104,15 +107,15 @@
 
 - **Click GUI**
 - **Etherwarp Overlay**
-    - Renders a box at the location where the etherwarp is going to be at.
+  - Renders a box at the location where the etherwarp is going to be at.
 - **Name Tags**
-    - Customisable nametags for entities.
+  - Customisable nametags for entities.
 - **Nick Hider**
-    - Visually hides player name.
+  - Visually hides player name.
 - **Player ESP**
-    - Highlights players through walls.
+  - Highlights players through walls.
 - **Render Optimiser**
-    - Various render optimisation features.
+  - Various render optimisation features.
 
 </details>
 
