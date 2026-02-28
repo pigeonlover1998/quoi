@@ -118,11 +118,13 @@ object ClickGui : Module(
         )
     }.setting()
 
-    val categoryData by MapSetting("category data", mutableMapOf<Category, CategoryData>()).also { setting ->
+    private val categoryData by MapSetting("category data", mutableMapOf<Category, CategoryData>()).also { setting ->
         Category.entries.forEach {
             setting.value[it] = CategoryData(x = 10f + 265f * it.ordinal, y = 10f, extended = true)
         }
     }
+    
+    private var currentPet by StringSetting("Current pet", "").hide() // just for cfg
 
     override fun onKeybind() {
         open(clickGui)
@@ -138,29 +140,10 @@ object ClickGui : Module(
         }.description("Shows ping.")
     }
 
-    private val Double.formatPing get() = "§${
-        when {
-            this < 50.0 -> "a"// Colour.MINECRAFT_GREEN
-            this < 100.0 -> "2"// Colour.MINECRAFT_DARK_GREEN
-            this < 150.0 -> "e"// Colour.MINECRAFT_YELLOW
-            this < 200.0 -> "6"// Colour.MINECRAFT_GOLD
-            else -> "c"// Colour.MINECRAFT_RED
-        }
-    }%.2f §7ms".format(this)
-
-    private fun Float.formatTps(decimals: Int = 0) = (this - 15).percentColour(5.0) + this.toFixed(decimals)
-
-
     val moduleSize = 30.0f
 
     var clickGui = clickGui()
         private set
-
-    private fun reopen() {
-        mc.setScreen(null)
-        clickGui = clickGui()
-        open(clickGui)
-    }
 
     private fun clickGui() = aboba("Quoi! Click Gui") {
         val moduleScopes = arrayListOf<Pair<Module, ElementScope<*>>>()
@@ -358,6 +341,29 @@ object ClickGui : Module(
             popup?.closePopup()
             popup = null
         }
+    }
+    
+    fun currentPet() = currentPet
+    fun updateCurrentPet(str: String) {
+        currentPet = str
+    }
+
+    private val Double.formatPing get() = "§${
+        when {
+            this < 50.0 -> "a"// Colour.MINECRAFT_GREEN
+            this < 100.0 -> "2"// Colour.MINECRAFT_DARK_GREEN
+            this < 150.0 -> "e"// Colour.MINECRAFT_YELLOW
+            this < 200.0 -> "6"// Colour.MINECRAFT_GOLD
+            else -> "c"// Colour.MINECRAFT_RED
+        }
+    }%.2f §7ms".format(this)
+
+    private fun Float.formatTps(decimals: Int = 0) = (this - 15).percentColour(5.0) + this.toFixed(decimals)
+
+    private fun reopen() {
+        mc.setScreen(null)
+        clickGui = clickGui()
+        open(clickGui)
     }
 
     data class CategoryData(var x: Float, var y: Float, var extended: Boolean) {

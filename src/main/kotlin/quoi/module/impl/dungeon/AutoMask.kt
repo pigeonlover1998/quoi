@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
+import quoi.api.skyblock.SkyblockPlayer
 import kotlin.coroutines.resume
 
 // Kyleen
@@ -180,8 +181,8 @@ object AutoMask : Module(
     }
 
     private fun handleMaskProc(nextMask: String) {
-        val bonzoCooldown = InvincibilityTimer.InvincibilityType.BONZO.currentCooldown
-        val spiritCooldown = InvincibilityTimer.InvincibilityType.SPIRIT.currentCooldown
+        val bonzoCooldown = SkyblockPlayer.InvincibilityType.BONZO.currentCooldown
+        val spiritCooldown = SkyblockPlayer.InvincibilityType.SPIRIT.currentCooldown
 
         if (ee3 && Dungeon.inBoss && Dungeon.inP3 && checkEE3Coords() && bonzoCooldown > 0 && spiritCooldown > 0) {
             ee3State = EE3State.SWAP_TO_ROD

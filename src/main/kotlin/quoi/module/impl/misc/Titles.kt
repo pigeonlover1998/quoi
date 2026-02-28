@@ -1,6 +1,7 @@
 package quoi.module.impl.misc
 
 import quoi.api.events.ChatEvent
+import quoi.api.skyblock.SkyblockPlayer.AUTOPET_REGEX
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.withDependency
@@ -27,8 +28,6 @@ object Titles : Module("Titles", desc = "temp module") {
     private val playSound by BooleanSetting("Play sound", desc = "Plays a sound when title pops up").withDependency(titleSettings)
     private val soundSettings = createSoundSettings("Title", titleSettings) { playSound }
 
-    private val autopetRegex = Regex("Autopet.*?equipped your.*?\\[Lvl \\d+] (.*?)!.*VIEW RULE")
-
     init {
         on<ChatEvent.Packet> {
             if (dungeonsOnly && !Dungeon.inDungeons) return@on
@@ -36,7 +35,7 @@ object Titles : Module("Titles", desc = "temp module") {
             val cleanMessage = message.noControlCodes
 
             if (autoPet) {
-                autopetRegex.find(message)?.groupValues?.get(1)?.let { stupid(it.trim()) }
+                AUTOPET_REGEX.find(message)?.groupValues?.get(1)?.let { stupid(it.trim()) }
             }
 
             if (invincibilityProc) {
