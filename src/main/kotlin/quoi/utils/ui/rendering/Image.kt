@@ -8,6 +8,11 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.file.Files
 
+/**
+ * from OdinFabric (BSD 3-Clause)
+ * copyright (c) 2025-2026 odtheking
+ * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/ui/rendering/Image.kt
+ */
 class Image(
     val identifier: String,
     var isSVG: Boolean = false,

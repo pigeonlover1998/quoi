@@ -7,7 +7,10 @@ import quoi.api.skyblock.dungeon.map.utils.ScanUtils
 import quoi.api.skyblock.dungeon.map.utils.WorldScanUtils
 import quoi.utils.WorldUtils
 
-// https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/map/Door.kt
+/**
+ * from Stella (LGPL-3.0) (c) Eclipse-5214
+ * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/map/Door.kt
+ */
 class Door(val worldPos: Pair<Int, Int>, val componentPos: Pair<Int, Int>) {
 
     var opened: Boolean = false

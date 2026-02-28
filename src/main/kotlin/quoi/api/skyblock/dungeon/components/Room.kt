@@ -19,7 +19,10 @@ import net.minecraft.util.Mth.wrapDegrees
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.Vec3
 
-// https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/map/Room.kt
+/**
+ * modified Stella (LGPL-3.0) (c) Eclipse-5214
+ * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/map/Room.kt
+ */
 class Room(
     initialComponent: Pair<Int, Int>,
     var height: Int? = null

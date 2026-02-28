@@ -15,6 +15,11 @@ import net.minecraft.client.renderer.MultiBufferSource
 import org.joml.Matrix3x2f
 import org.lwjgl.opengl.GL13
 
+/**
+ * from OdinFabric (BSD 3-Clause)
+ * copyright (c) 2025-2026 odtheking
+ * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/ui/rendering/NVGPIPRenderer.kt
+ */
 class NVGSpecialRenderer(vertexConsumers: MultiBufferSource.BufferSource)
     : PictureInPictureRenderer<NVGSpecialRenderer.NVGRenderState>(vertexConsumers) {
 

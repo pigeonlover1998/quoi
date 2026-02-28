@@ -2,6 +2,10 @@ package quoi.utils
 
 import net.minecraft.world.level.block.Blocks
 
+/**
+ * from devonian (GPL-3.0) (c) Synnerz
+ * original: https://github.com/Synnerz/devonian/blob/1.21.10/src/main/kotlin/com/github/synnerz/devonian/utils/BlockTypes.kt
+ */
 object BlockTypes {
     val Interactable = setOf(
         Blocks.DISPENSER,

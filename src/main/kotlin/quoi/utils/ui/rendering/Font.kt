@@ -5,6 +5,11 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+/**
+ * modified OdinFabric (BSD 3-Clause)
+ * copyright (c) 2025-2026 odtheking
+ * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/ui/rendering/Font.kt
+ */
 class Font {
     val name: String
     private val resourcePath: String?

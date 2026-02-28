@@ -18,6 +18,11 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
 
+/**
+ * from OdinFabric (BSD 3-Clause)
+ * copyright (c) 2025-2026 odtheking
+ * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/ui/rendering/NVGRenderer.kt
+ */
 object NVGRenderer {
 
     private val nvgPaint = NVGPaint.malloc()

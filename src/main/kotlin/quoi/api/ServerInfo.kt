@@ -13,7 +13,10 @@ import net.minecraft.network.protocol.ping.ServerboundPingRequestPacket
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ConcurrentSkipListSet
 
-// modified https://github.com/Synnerz/devonian/blob/1.21.10/src/main/kotlin/com/github/synnerz/devonian/api/Ping.kt
+/**
+ * modified devonian (GPL-3.0) (c) Synnerz
+ * original: https://github.com/Synnerz/devonian/blob/1.21.10/src/main/kotlin/com/github/synnerz/devonian/api/Ping.kt
+ */
 object ServerInfo {
     private var lastBeat = 0L
 

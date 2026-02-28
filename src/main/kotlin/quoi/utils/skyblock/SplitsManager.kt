@@ -11,7 +11,11 @@ import quoi.api.skyblock.dungeon.Dungeon
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.noControlCodes
 
-// https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/SplitsManager.kt
+/**
+ * from OdinFabric (BSD 3-Clause)
+ * copyright (c) 2025-2026 odtheking
+ * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/SplitsManager.kt
+ */
 object SplitsManager {
 
     var currentSplits: List<Split> = emptyList()

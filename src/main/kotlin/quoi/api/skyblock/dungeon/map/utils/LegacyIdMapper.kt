@@ -9,6 +9,10 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.Property
 import kotlin.jvm.optionals.getOrNull
 
+/**
+ * from Stella (LGPL-3.0) (c) Eclipse-5214
+ * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/LegIDs.kt
+ */
 object LegacyIdMapper {
     val legacyBlockIdMap = mapOf(
         "minecraft:air" to 0,

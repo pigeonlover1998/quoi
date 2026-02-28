@@ -4,6 +4,11 @@ import quoi.QuoiMod.mc
 import quoi.api.events.ChatEvent
 import quoi.api.events.core.EventBus.on
 
+/**
+ * from OdinFabric (BSD 3-Clause)
+ * copyright (c) 2025-2026 odtheking
+ * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/PartyUtils.kt
+ */
 object PartyUtils {
 
     private val joinedSelf = Regex("^You have joined ((?:\\[[^]]*?])? ?)?(\\w{1,16})'s? party!$")

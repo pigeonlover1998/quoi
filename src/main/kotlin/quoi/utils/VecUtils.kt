@@ -11,6 +11,11 @@ import kotlin.math.atan2
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+/**
+ * modified OdinFabric (BSD 3-Clause)
+ * copyright (c) 2025-2026 odtheking
+ * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/me/odinmain/utils/VecUtils.kt
+ */
 operator fun Vec3.component1(): Double = x
 operator fun Vec3.component2(): Double = y
 operator fun Vec3.component3(): Double = z

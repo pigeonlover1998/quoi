@@ -5,7 +5,10 @@ import quoi.api.skyblock.dungeon.components.DiscoveredRoom
 import quoi.api.skyblock.dungeon.components.Door
 import quoi.api.skyblock.dungeon.components.Room
 
-// https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/utils/ScanUtils.kt
+/**
+ * from Stella (LGPL-3.0) (c) Eclipse-5214
+ * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/utils/ScanUtils.kt
+ */
 object ScanUtils {
 
     val rooms = Array<Room?>(36) { null }

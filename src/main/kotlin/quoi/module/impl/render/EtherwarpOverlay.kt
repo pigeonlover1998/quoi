@@ -26,7 +26,11 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 
 // Kyleen
-// https://github.com/Synnerz/devonian/blob/1.21.10/src/main/kotlin/com/github/synnerz/devonian/features/misc/EtherwarpOverlay.kt
+
+/**
+ * modified devonian (GPL-3.0) (c) Synnerz
+ * original: https://github.com/Synnerz/devonian/blob/1.21.10/src/main/kotlin/com/github/synnerz/devonian/features/misc/EtherwarpOverlay.kt
+ */
 object EtherwarpOverlay : Module (
     "Etherwarp Overlay",
     desc = "Renders a box at the location where the etherwarp is going to be at."
@@ -76,7 +80,7 @@ object EtherwarpOverlay : Module (
 
             dist = 57 + tuners
         }
-        on<RenderEvent.World> {
+        on<RenderEvent.World> { // todo recode
             failReason = ""
 
             if (dist == 0) return@on

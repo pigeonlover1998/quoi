@@ -128,6 +128,9 @@
 ## Discord
 https://discord.gg/QCWgrQ57pN
 
+## Licence Note
+GPL-3.0, but I don't give a single fuck if you use it without crediting. Do whatever.
+
 ## Credits
 - [Odin](https://github.com/odtheking/OdinFabric) - NanoVG implementation, world renderer, and module config system
 - [Zen](https://github.com/StellariumMC/zen) - Event manager inspiration

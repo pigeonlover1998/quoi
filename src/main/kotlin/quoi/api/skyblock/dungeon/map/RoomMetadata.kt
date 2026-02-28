@@ -4,7 +4,11 @@ import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.components.Room
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
-// https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/utils/RoomMetadata.kt
+
+/**
+ * from Stella (LGPL-3.0) (c) Eclipse-5214
+ * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/utils/RoomMetadata.kt
+ */
 data class RoomMetadata(
     val name: String,
     val type: String,

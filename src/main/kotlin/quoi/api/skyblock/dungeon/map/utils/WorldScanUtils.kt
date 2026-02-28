@@ -4,7 +4,10 @@ import quoi.QuoiMod.mc
 import quoi.utils.WorldUtils
 import net.minecraft.core.BlockPos
 
-// https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/utils/WorldScanUtils.kt
+/**
+ * from Stella (LGPL-3.0) (c) Eclipse-5214
+ * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/utils/WorldScanUtils.kt
+ */
 object WorldScanUtils {
     val blacklist = setOf(5, 54, 146)
 

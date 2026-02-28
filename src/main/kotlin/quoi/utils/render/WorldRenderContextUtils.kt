@@ -17,6 +17,11 @@ import net.minecraft.world.phys.Vec3
 import org.joml.Vector3f
 import kotlin.math.pow
 
+/**
+ * from OdinFabric (BSD 3-Clause)
+ * copyright (c) 2025-2026 odtheking
+ * original: no longer exists, fuck off
+ */
 private val ALLOCATOR = ByteBufferBuilder(1536)
 
 private fun camera() = mc.gameRenderer.mainCamera

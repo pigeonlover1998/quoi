@@ -6,6 +6,10 @@ import kotlin.math.floor
 import kotlin.math.sign
 import kotlin.math.sqrt
 
+/**
+ * from devonian (GPL-3.0) (c) Synnerz
+ * original: https://github.com/Synnerz/devonian/blob/1.21.10/src/main/kotlin/com/github/synnerz/devonian/utils/math/DDA.kt
+ */
 class DDA(x: Double, y: Double, z: Double, dx: Double, dy: Double, dz: Double) : Enumeration<BlockPos> {
     private var x = floor(x).toInt()
     private var y = floor(y).toInt()

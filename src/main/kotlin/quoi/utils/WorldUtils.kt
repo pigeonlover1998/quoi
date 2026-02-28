@@ -10,6 +10,10 @@ import net.minecraft.world.level.GameType
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 
+/**
+ * modified Stella (LGPL-3.0) (c) Eclipse-5214
+ * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/WorldUtils.kt
+ */
 object WorldUtils {
     val world: ClientLevel? get() = mc.level
 

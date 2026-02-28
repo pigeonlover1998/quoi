@@ -12,6 +12,11 @@ import net.minecraft.resources.ResourceLocation
 import java.util.*
 
 /**
+ * from OdinFabric (BSD 3-Clause)
+ * copyright (c) 2025-2026 odtheking
+ * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/dungeon/DungeonEnums.kt
+ */
+/**
  * Data class representing a player in a dungeon, including their name, class, skin location, and associated player entity.
  *
  * @property name The name of the player.
@@ -191,13 +196,16 @@ enum class M7Phases(val displayName: String) {
     P1("P1"), P2("P2"), P3("P3"), P4("P4"), P5("P5"), Unknown("Unknown");
 }
 
-
+/**
+ * from Stella (LGPL-3.0) (c) Eclipse-5214
+ * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/skyblock/dungeons/utils/Enums.kt
+ */
 enum class Checkmark(
     val texture: ResourceLocation?,
     val colorCode: String
 ) {
     NONE(null, "§7"),
-    WHITE(ResourceLocation.fromNamespaceAndPath("quoi", "stellanav/clear/bloommapwhitecheck"), "§f"),
+    WHITE(ResourceLocation.fromNamespaceAndPath("quoi", "stellanav/clear/bloommapwhitecheck"), "§f"), // todo impl some day
     GREEN(ResourceLocation.fromNamespaceAndPath("quoi", "stellanav/clear/bloommapgreencheck"), "§a"),
     FAILED(ResourceLocation.fromNamespaceAndPath("quoi", "stellanav/clear/bloommapfailedroom"), "§c"),
     UNEXPLORED(ResourceLocation.fromNamespaceAndPath("quoi", "stellanav/clear/bloommapquestionmark"), "§7"),
