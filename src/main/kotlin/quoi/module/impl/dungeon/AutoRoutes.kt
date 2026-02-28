@@ -45,17 +45,18 @@ import net.minecraft.world.phys.Vec3
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon.inClear
 import quoi.api.skyblock.invoke
+import quoi.utils.StringUtils.noControlCodes
+import quoi.utils.StringUtils.width
+import quoi.utils.render.DrawContextUtils.drawString
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
 object AutoRoutes : Module( // todo maybe split it in two files
     "Auto Routes",
-    desc = "UNTESTED. USE AT YOUR OWN RISK. /route",
+    desc = "/route",
     area = Island.Dungeon(inClear = true)
 ) {
-    val zeroTick by BooleanSetting("Zero tick").onValueChanged { _, new ->
-        if (new) modMessage("&cUse at your own risk!", prefix = "&b[ZeroTick]")
-    }
+    val zeroTick by BooleanSetting("Zero tick")
     private val style by SelectorSetting("Style", "Box", listOf("Box", "Ellipse"))
     private val colour by ColourSetting("Colour (inactive)", Colour.MINECRAFT_AQUA)
     private val colour2 by ColourSetting("Colour (active)", Colour.WHITE)
@@ -96,7 +97,16 @@ object AutoRoutes : Module( // todo maybe split it in two files
             visitedRings.retainAll(currentRings)
             awaitingRings.retainAll(currentRings)
 
-            for (ring in rings) {
+            val prioritisedRings = rings.sortedByDescending {
+                when (it.action) {
+                    is DungeonBreakerAction -> 150
+                    is BoomAction -> 100
+                    is UseItemAction -> 50
+                    else -> 0
+                }
+            }
+
+            for (ring in prioritisedRings) {
                 if (ring !in currentRings) continue
                 if (ring in visitedRings) continue
                 if (!ring.checkArgs()) continue
@@ -157,18 +167,24 @@ object AutoRoutes : Module( // todo maybe split it in two files
             }
         }
 
+        on<RenderEvent.Overlay> {
+            if (!editMode) return@on
+            val lines = listOfNotNull("Edit mode", breakerRing?.let { "&6DB Editor" })
+            lines.forEachIndexed { i, string ->
+                val x = (scaledWidth - string.noControlCodes.width()) / 2f
+                val y = scaledHeight / 2f + 10 + i * 10
+                ctx.drawString(string, x, y)
+            }
+        }
+
         on<MouseEvent.Click> {
             if (button != 0) return@on
 
-            val firedRings = currentRings.filter { it in visitedRings }
+            val stupid = currentRings.filter { it in awaitingRings && it !in visitedRings }
 
-            if (firedRings.isNotEmpty()) {
-                visitedRings.removeAll(firedRings.toSet())
-                completedAwaits.removeAll(firedRings.toSet())
+            if (stupid.isNotEmpty()) {
+                secretsAwaited = 999
                 currentJob?.cancel()
-                secretsAwaited = 999
-            } else if (awaitingRings.isNotEmpty()) {
-                secretsAwaited = 999
             }
         }
 
@@ -190,7 +206,7 @@ object AutoRoutes : Module( // todo maybe split it in two files
     fun registerAwait(ring: RouteRing) {
         if (ring in awaitingRings) return
 
-        if (awaitingRings.isEmpty() && secretsAwaited != 999) {
+        if (awaitingRings.isEmpty()) {
             secretsAwaited = 0
             batIds.clear()
         }
@@ -284,8 +300,12 @@ object AutoRoutes : Module( // todo maybe split it in two files
         }.suggests("name", "hyperion", "enderpearl", "aspectofthevoid").suggestArgs()
 
         add.sub("dungeon_breaker") { args: GreedyString? ->
-            if (addRing(DungeonBreakerAction(), args))
-                modMessage("Do /something something to edit")
+            val ring = addRing(DungeonBreakerAction(), args)
+            ring?.let {
+                editMode = true
+                editDBRing(it)
+                modMessage("Do &7/route editdb&r to finish editing")
+            }
         }.suggestArgs()
 
         ar.register()
@@ -386,7 +406,7 @@ object AutoRoutes : Module( // todo maybe split it in two files
         current.removeAll(ringsInRange)
         removedRings.getOrPut(room.name) { mutableListOf() }.add(ringsInRange.toMutableList())
         routes.save()
-        modMessage("Removed ${ringsInRange.joinToString(", ") { it.action.typeName }}")
+        modMessage("Removed ${ringsInRange.joinToString(", ") { "&e${it.action.typeName}&r" }}")
     }
 
     private fun SubCommand.suggestArgs() = suggestsCtx("args") { ctx ->
@@ -416,8 +436,8 @@ object AutoRoutes : Module( // todo maybe split it in two files
 
     private fun SubCommand.withEditMode() = requires("&cEdit mode is disabled!") { editMode }
 
-    private fun addRing(action: RingAction, input: GreedyString?): Boolean {
-        val room = currentRoom ?: return false.also { modMessage("&cNo room detected") }
+    private fun addRing(action: RingAction, input: GreedyString?): RouteRing? {
+        val room = currentRoom ?: return null.also { modMessage("&cNo room detected") }
         var (x, y, z) = room.getRelativeCoords(player.position())
         val args = parseArgs(input)
 
@@ -438,7 +458,7 @@ object AutoRoutes : Module( // todo maybe split it in two files
         routes.getOrPut(room.name) { mutableListOf() }.add(ring)
         routes.save()
         modMessage("Added &e${action.typeName}&r!")
-        return true
+        return ring
     }
 
     private fun parseArgs(input: GreedyString?): RingArgs {

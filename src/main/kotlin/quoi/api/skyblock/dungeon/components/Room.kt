@@ -177,8 +177,8 @@ class Room(
     fun getRealCoords(local: BlockPos) = local.unrotate(currentRotation).offset(Vec3i(cornerDx, 0, cornerDz))
     fun getRealCoords(vec: Vec3) = vec.unrotate(currentRotation).add(cornerDxDouble, 0.0, cornerDzDouble)
 
-    fun getRelativeYaw(yaw: Float) = wrapDegrees(yaw + rotationNumber * 90f)
-    fun getRealYaw(yaw: Float) = wrapDegrees(yaw - rotationNumber * 90f)
+    fun getRelativeYaw(yaw: Float) = yaw + currentRotation
+    fun getRealYaw(yaw: Float) = wrapDegrees(yaw - currentRotation)
 
     companion object {
         private val ROTATION_OFFSETS = listOf(

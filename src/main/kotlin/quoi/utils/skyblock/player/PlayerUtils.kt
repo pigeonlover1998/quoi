@@ -28,6 +28,7 @@ import net.minecraft.network.HashedStack
 import net.minecraft.network.protocol.game.*
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
+import net.minecraft.util.Mth.wrapDegrees
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.inventory.ClickType
 import net.minecraft.world.item.ItemStack
@@ -337,7 +338,7 @@ object PlayerUtils {
     }
 
     var LocalPlayer.yaw
-        get() = this.yRot
+        get() = wrapDegrees(this.yRot)
         set(v) {
             this.yRot = v
             this.yHeadRot = v

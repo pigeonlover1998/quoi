@@ -17,25 +17,32 @@ import net.minecraft.world.InteractionHand
 @TypeName("etherwarp")
 class EtherwarpAction(val yaw: Float = 0f, val pitch: Float = 0f) : RingAction {
     override suspend fun execute(player: LocalPlayer) {
-        mc.options.keyShift.isDown = true
+        val room = currentRoom ?: return
+        if (!mc.options.keyShift.isDown) {
+            mc.options.keyShift.isDown = true
+            wait(1)
+        }
         if (!SwapManager.swapById("ASPECT_OF_THE_VOID", "ASPECT_OF_THE_END").success) {
             modMessage("Aotv not found retard")
             return
         }
         if (AutoRoutes.zeroTick) {
-            val room = currentRoom ?: return
             val rings = AutoRoutes.routes[room.name] ?: return
 
             val index = rings.indexOfFirst { it.action === this }
             if (index == -1) return
-
-            var sent = 0
 
             for (i in index until rings.size) {
                 val ring = rings[i]
                 val action = ring.action
 
                 if (action !is EtherwarpAction) break
+
+                if (i > index) {
+                    if (ring.arguments?.any { it is AwaitArgument } == true || !ring.checkArgs()) {
+                        break
+                    }
+                }
 
                 mc.connection!!.send(
                     ServerboundUseItemPacket(
@@ -46,21 +53,14 @@ class EtherwarpAction(val yaw: Float = 0f, val pitch: Float = 0f) : RingAction {
                     )
                 )
 
-                sent++
-
                 if (i > index) {
                     AutoRoutes.visitedRings.add(ring)
                 }
-
-                if (ring.arguments?.any { it is AwaitArgument } == true) {
-                    break
-                }
             }
-            modMessage("&zero tick shit sent $sent packets")
 
         } else {
-            player.rotate(yaw, pitch)
-            wait(1)
+            player.rotate(room.getRealYaw(yaw), pitch)
+//            wait(1)
             PlayerUtils.interact()
         }
     }

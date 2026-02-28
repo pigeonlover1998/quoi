@@ -9,13 +9,14 @@ import quoi.utils.WorldUtils.state
 import quoi.utils.skyblock.player.SwapManager
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
-import net.minecraft.core.component.DataComponents
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ClipContext
-import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
+import quoi.utils.StringUtils.noControlCodes
+import quoi.utils.skyblock.ItemUtils.lore
+import quoi.utils.skyblock.ItemUtils.skyblockId
 
 @TypeName("dungeon_breaker")
 class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingAction {
@@ -30,6 +31,15 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
         clearCooldownCache()
 
         if (blocks.isEmpty()) return
+
+        val needsBreaking = blocks.any { relativePos ->
+            val realPos = room.getRealCoords(relativePos)
+            !recentlyBroken.containsKey(realPos) &&
+            level.isLoaded(realPos) &&
+            realPos.state?.isAir == false
+        }
+
+        if (!needsBreaking) return
 
         val breakerSlot = (0..8).find { slot -> // todo make it a util
             getBreakerCharges(player.inventory.getItem(slot)) > 0
@@ -58,10 +68,7 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
 
             if (recentlyBroken.containsKey(realPos)) continue
 
-            if (!level.isLoaded(realPos) || realPos.state?.isAir == true) {
-                recentlyBroken[realPos] = System.currentTimeMillis()
-                continue
-            }
+            if (!level.isLoaded(realPos) || realPos.state?.isAir == true) continue
 
             if (realPos.distToCenterSqr(player.x, player.y, player.z) > 25.0) continue
 
@@ -69,13 +76,13 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
                 ClipContext(
                     player.eyePosition,
                     Vec3.atCenterOf(realPos),
-                    ClipContext.Block.OUTLINE,
+                    ClipContext.Block.COLLIDER,
                     ClipContext.Fluid.NONE,
                     player
                 )
             )
 
-            if (clipResult.type == HitResult.Type.BLOCK && clipResult.blockPos == realPos)  {
+            if (/*clipResult.type == HitResult.Type.BLOCK && */clipResult.blockPos == realPos)  {
                 mc.connection?.send(
                     ServerboundPlayerActionPacket(
                         ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,
@@ -84,6 +91,8 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
                     )
                 )
                 player.swing(InteractionHand.MAIN_HAND)
+
+                level.removeBlock(realPos, false)
 
                 recentlyBroken[realPos] = System.currentTimeMillis()
                 chargesUsed++
@@ -98,8 +107,15 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
     }
 
     private fun getBreakerCharges(stack: ItemStack): Int { // todo make it a util
-        if (stack.isEmpty) return 0
-        val usedCharge = stack.get(DataComponents.DAMAGE) ?: return 0
-        return 20 - (usedCharge / 78)
+        if (stack.isEmpty || stack.skyblockId != "DUNGEONBREAKER") return 0
+
+        val lore = stack.lore ?: return 0
+        val loreStringList = lore.asSequence().map { it.noControlCodes }
+
+        val charges = loreStringList.firstNotNullOfOrNull { line ->
+            Regex("Charges: (\\d+)/(\\d+)⸕").find(line)?.groupValues?.get(1)?.toIntOrNull()
+        } ?: 0
+
+        return charges
     }
 }
