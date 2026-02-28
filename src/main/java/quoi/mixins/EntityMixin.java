@@ -42,6 +42,20 @@ public class EntityMixin implements IEntityGlow {
         this.forceGlow = value;
     }
 
+    @ModifyVariable(
+            method = "setSwimming",
+            at = @At("HEAD"),
+            ordinal = 0,
+            argsOnly = true
+    )
+    private boolean disableSwim(boolean value) {
+        if (!shouldSb(Tweaks.getDisableCrawling())) return value;
+        Entity entity = (Entity) (Object) this;
+        if (!(entity instanceof LocalPlayer)) return value;
+        if (entity.isSwimming()) return value;
+        return false;
+    }
+
     @Inject(
             method = "isCurrentlyGlowing",
             at = @At("HEAD"),
