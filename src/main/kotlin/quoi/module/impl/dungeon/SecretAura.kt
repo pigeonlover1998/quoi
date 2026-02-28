@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity
 import net.minecraft.world.level.block.entity.SkullBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.AABB
+import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import java.util.*
 
 // modified https://github.com/Hypericat/NoobRoutes/blob/main/src/main/kotlin/noobroutes/features/dungeon/SecretAura.kt
@@ -86,6 +87,10 @@ object SecretAura : Module(
                 }
 
                 false
+            }
+
+            currentRoom?.let { room ->
+                if (room.name in setOf("Higher Blaze", "Lower Blaze", "Three Weirdos", "Water Board")) return@on
             }
 
             var blockCandidate = BlockDistance(Blocks.AIR, BlockPos(Int.MAX_VALUE, 69, Int.MIN_VALUE), Double.POSITIVE_INFINITY)
