@@ -43,6 +43,10 @@ object AutoBloodRush : Module(
     private val leaf1 = BlockPos(7, 88, 13)
     private val leaf2 = BlockPos(20, 88, 11)
 
+    /**
+     * block: 15 72 14 lea: 20 90 13
+     */
+
     private val leafCoords: BlockPos
         get() {
             val room = currentRoom!!
