@@ -66,6 +66,7 @@ object AutoRoutes : Module( // todo maybe split it in two files
     private val style by SelectorSetting("Style", "Box", listOf("Box", "Filled box", "Cylinder"))
     private val multicolour by BooleanSetting("Multicolour")
     private val colour by ColourSetting("Colour", Colour.CYAN).withDependency { !multicolour }
+    private val fillColour by ColourSetting("Fill colour", Colour.CYAN.withAlpha(0.5f), allowAlpha = true).withDependency { style.selected == "Filled box" && !multicolour }
     private val activeCol by ColourSetting("Active colour", Colour.WHITE)
 
     val actionEntries by lazy { typedEntries<RingAction>() }
@@ -557,5 +558,5 @@ object AutoRoutes : Module( // todo maybe split it in two files
     )
 
     private fun RouteRing.colour() = if (multicolour) colours[this.action.typeName]?.value ?: Colour.WHITE else colour
-    private fun RouteRing.fillColour() = fillColours[this.action.typeName]?.value ?: Colour.WHITE
+    private fun RouteRing.fillColour() = if (multicolour) fillColours[this.action.typeName]?.value ?: Colour.WHITE else fillColour
 }

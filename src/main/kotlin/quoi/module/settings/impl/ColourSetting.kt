@@ -16,7 +16,6 @@ import quoi.utils.ui.cursor
 import quoi.utils.ui.elements.colourPicker
 import quoi.utils.ui.popupX
 import quoi.utils.ui.popupY
-import quoi.utils.ui.watch
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
@@ -32,19 +31,36 @@ class ColourSetting(
 
     override var value: Colour.HSB = default.copy()
         set(value) {
-            storedValue.saturation = value.saturation
-            storedValue.brightness = value.brightness
-            storedValue.alpha = value.alpha
+            if (stupid) {
+                field = value
+                return
+            }
 
             if (!rainbow) {
-                storedValue.hue = value.hue
+                storedValue = value.copy()
                 field = value
+            } else {
+                storedValue.alpha = value.alpha
+                field = hsb { Colour.RAINBOW.withAlpha(storedValue.alpha).toHSB() }
             }
         }
 
+    private var stupid = false
     private var storedValue: Colour.HSB = default
     var rainbow: Boolean = false
-        private set
+        private set(enabled) {
+            if (field == enabled) return
+            field = enabled
+
+            stupid = true
+            value = if (enabled)
+                hsb { Colour.RAINBOW.withAlpha(storedValue.alpha).toHSB() }
+            else
+                storedValue.copy()
+
+            stupid = false
+        }
+
 
     override fun reset() {
         value = default.copy()
@@ -61,8 +77,8 @@ class ColourSetting(
         if (element.isJsonObject) {
             val obj = element.asJsonObject
             storedValue = Colour.RGB(hexToRGBA(obj["colour"].asString)).toHSB()
+            value = storedValue
             rainbow = obj["rainbow"]?.asBoolean ?: false
-            value = if (rainbow) hsb { Colour.RAINBOW.withAlpha(storedValue.alpha).toHSB() } else storedValue
             return
         }
 
@@ -104,18 +120,6 @@ class ColourSetting(
                     pos = at(popupX(gap = 0f), popupY(corner = true))
                 )
                 true
-            }
-
-            watch(::rainbow, immediate = true) { enabled ->
-                if (enabled) { // schizo but works ig
-                    val provider = hsb { Colour.RAINBOW.withAlpha(storedValue.alpha).toHSB() }
-                    rainbow = false
-                    value = provider
-                    rainbow = true
-                } else {
-                    rainbow = false
-                    value = storedValue
-                }
             }
         }
 
