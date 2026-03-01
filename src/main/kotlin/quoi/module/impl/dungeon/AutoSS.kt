@@ -221,7 +221,7 @@ object AutoSS : Module(
     }
 
     private fun start() {
-        if (!Dungeon.isDead) return
+        if (Dungeon.isDead) return
         if (player.distanceToSqr(startButton.center) > 25) return
 
         if (!startSequenceActive && !doingSS) {
@@ -235,7 +235,7 @@ object AutoSS : Module(
     }
 
     private fun clickButton(pos: BlockPos) {
-        if (!Dungeon.isDead) return
+        if (Dungeon.isDead) return
         if (player.distanceToSqr(pos.center) > 25) return
 
         clickedButton = pos
