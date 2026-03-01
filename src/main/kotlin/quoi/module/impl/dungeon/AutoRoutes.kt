@@ -56,7 +56,9 @@ object AutoRoutes : Module( // todo maybe split it in two files
     desc = "/route",
     area = Island.Dungeon(inClear = true)
 ) {
-    val zeroTick by BooleanSetting("Zero tick")
+    val zeroTick by BooleanSetting("Zero tick").onValueChanged { _, new ->
+        if (new) modMessage("&cVery buggy.", prefix = "[ZeroTick]")
+    }
     private val style by SelectorSetting("Style", "Box", listOf("Box", "Ellipse"))
     private val colour by ColourSetting("Colour (inactive)", Colour.MINECRAFT_AQUA)
     private val colour2 by ColourSetting("Colour (active)", Colour.WHITE)

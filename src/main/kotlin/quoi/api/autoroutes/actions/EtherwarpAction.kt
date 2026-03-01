@@ -20,7 +20,7 @@ class EtherwarpAction(val yaw: Float = 0f, val pitch: Float = 0f) : RingAction {
         val room = currentRoom ?: return
         if (!mc.options.keyShift.isDown) {
             mc.options.keyShift.isDown = true
-            wait(1)
+            wait(2)
         }
         if (!SwapManager.swapById("ASPECT_OF_THE_VOID", "ASPECT_OF_THE_END").success) {
             modMessage("Aotv not found retard")

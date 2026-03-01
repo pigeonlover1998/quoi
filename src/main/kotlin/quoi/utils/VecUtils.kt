@@ -168,3 +168,60 @@ fun rayCast(
     val delta = lookVec.scale(distance)
     return rayCast(origin, delta, firstBlock)
 }
+
+fun rayCastVec(
+    x: Double, y: Double, z: Double,
+    dx: Double, dy: Double, dz: Double,
+    firstBlock: Boolean = false
+): Vec3? {
+    val w = world ?: return null
+
+    val startVec = Vec3(x, y, z)
+    val endVec = Vec3(x + dx, y + dy, z + dz)
+
+    for (bp in DDA(x, y, z, dx, dy, dz)) {
+        val bs = w.getBlockState(bp)
+        val isTarget = if (firstBlock) !bs.isAir else !BlockTypes.AirLike.contains(bs.block)
+
+        if (isTarget) {
+
+            val shape = bs.getShape(w, bp)
+            val hitResult = shape.clip(startVec, endVec, bp)
+
+            if (hitResult != null) {
+                return hitResult.location
+            }
+
+            val aabb = AABB(bp)
+            val fallbackHit = aabb.clip(startVec, endVec)
+            if (fallbackHit.isPresent) {
+                return fallbackHit.get()
+            }
+
+            return Vec3(bp.x + 0.5, bp.y + 0.5, bp.z + 0.5)
+        }
+    }
+
+    return null
+}
+
+fun rayCastVec(vec3: Vec3, vec31: Vec3, firstBlock: Boolean = false): Vec3? =
+    rayCastVec(vec3.x, vec3.y, vec3.z, vec31.x, vec31.y, vec31.z, firstBlock)
+
+fun rayCastVec(
+    lookVec: Vec3 = mc.player!!.getViewVector(mc.deltaTracker.getGameTimeDeltaPartialTick(false)),
+    distance: Double = 61.0,
+    firstBlock: Boolean = false
+): Vec3? {
+    val player = mc.player ?: return null
+    val pt = mc.deltaTracker.getGameTimeDeltaPartialTick(false)
+
+    val origin = Vec3(
+        player.x,
+        player.getEyePosition(pt).y,
+        player.z
+    )
+
+    val delta = lookVec.scale(distance)
+    return rayCastVec(origin, delta, firstBlock)
+}
