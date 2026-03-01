@@ -13,9 +13,14 @@ import quoi.utils.skyblock.player.SwapManager
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket
 import net.minecraft.world.InteractionHand
+import quoi.api.colour.Colour
 
 @TypeName("etherwarp")
 class EtherwarpAction(val yaw: Float = 0f, val pitch: Float = 0f) : RingAction {
+
+    override val colour: Colour
+        get() = Colour.CYAN
+
     override suspend fun execute(player: LocalPlayer) {
         val room = currentRoom ?: return
         if (!mc.options.keyShift.isDown) {

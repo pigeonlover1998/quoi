@@ -45,9 +45,13 @@ import net.minecraft.world.phys.Vec3
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon.inClear
 import quoi.api.skyblock.invoke
+import quoi.module.settings.Setting.Companion.json
+import quoi.module.settings.Setting.Companion.withDependency
+import quoi.module.settings.impl.DropdownSetting
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.StringUtils.width
 import quoi.utils.render.DrawContextUtils.drawString
+import quoi.utils.render.drawStyledBox
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
@@ -59,13 +63,28 @@ object AutoRoutes : Module( // todo maybe split it in two files
     val zeroTick by BooleanSetting("Zero tick").onValueChanged { _, new ->
         if (new) modMessage("&cVery buggy.", prefix = "[ZeroTick]")
     }
-    private val style by SelectorSetting("Style", "Box", listOf("Box", "Ellipse"))
-    private val colour by ColourSetting("Colour (inactive)", Colour.MINECRAFT_AQUA)
-    private val colour2 by ColourSetting("Colour (active)", Colour.WHITE)
+    private val style by SelectorSetting("Style", "Box", listOf("Box", "Filled box", "Cylinder"))
+    private val multicolour by BooleanSetting("Multicolour")
+    private val colour by ColourSetting("Colour", Colour.CYAN).withDependency { !multicolour }
+    private val activeCol by ColourSetting("Active colour", Colour.WHITE)
+
+    val actionEntries by lazy { typedEntries<RingAction>() }
+
+    private val colourDropdown by DropdownSetting("Colours").collapsible().withDependency { multicolour }
+    private val colours = actionEntries.associate { (name, action) ->
+        val set = ColourSetting(name, action().colour).withDependency(colourDropdown) { multicolour }
+        this.register(set)
+        name to set
+    }
+    private val fillColourDropdown by DropdownSetting("Fill colours").collapsible().withDependency { style.selected == "Filled box" && multicolour }
+    private val fillColours = actionEntries.associate { (name, action) ->
+        val set = ColourSetting(name, action().colour.withAlpha(0.5f), allowAlpha = true).json("$name fill").withDependency(fillColourDropdown) { style.selected == "Filled box" && multicolour }
+        this.register(set)
+        name to set
+    }
     private val thickness by NumberSetting("Thickness", 4f, 1f, 8f, 0.5f)
 
     val routes: ConfigMap<String, MutableList<RouteRing>> by configMap("auto_routes.json")
-    val actionEntries by lazy { typedEntries<RingAction>() }
 
     var editMode = false
 
@@ -144,12 +163,27 @@ object AutoRoutes : Module( // todo maybe split it in two files
         on<RenderEvent.World> {
             val room = currentRoom ?: return@on
             val rings = routes[room.name] ?: return@on
+
+            val isShitCylinder = style.selected == "Cylinder"
+
             rings.forEach { ring ->
-                val col = if (ring in currentRings) colour2 else colour
-                val vec = room.getRealCoords(Vec3(ring.x, ring.y, ring.z))
-                val r = ring.radius.toFloat() / 2
-                if (style.selected == "Ellipse") ctx.drawCylinder(vec, r, 0.1f, col, thickness = thickness, depth = true) // looks like fucking shit
-                else ctx.drawWireFrameBox(ring.boundingBox(room), col, thickness, depth = true)
+                if (ring.action is StartAction) return@forEach
+
+                val col = if (ring in currentRings) activeCol else ring.colour()
+                if (isShitCylinder) {
+                    val r = ring.radius.toFloat() / 2
+                    ctx.drawCylinder(room.getRealCoords(Vec3(ring.x, ring.y, ring.z)), r, 0.1f, col, thickness = thickness, depth = true) // looks like fucking shit
+                } else {
+                    ctx.drawStyledBox(style.selected, ring.boundingBox(room), col, ring.fillColour(), thickness, depth = false)
+                }
+            }
+
+            rings.forEach { ring ->
+                if (ring.action is StartAction) {
+                    val aabb = ring.boundingBox(room).deflate(0.05).move(0.0, -1.0, 0.0)
+                    ctx.drawStyledBox(style.selected, aabb, ring.colour(), ring.fillColour(), thickness, depth = false)
+                    return@forEach
+                }
             }
 
 
@@ -330,6 +364,10 @@ object AutoRoutes : Module( // todo maybe split it in two files
                 modMessage("Do &7/route editdb&r to finish editing")
             }
         }.suggestArgs()
+
+        add.sub("start") {
+            addRing(StartAction(), null)
+        }
 
         ar.register()
     }
@@ -517,4 +555,7 @@ object AutoRoutes : Module( // todo maybe split it in two files
         val radius: Double = 1.0,
         val delay: Int? = null
     )
+
+    private fun RouteRing.colour() = if (multicolour) colours[this.action.typeName]?.value ?: Colour.WHITE else colour
+    private fun RouteRing.fillColour() = fillColours[this.action.typeName]?.value ?: Colour.WHITE
 }

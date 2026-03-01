@@ -1,17 +1,16 @@
 package quoi.api.autoroutes.actions
 
-import quoi.config.TypeName
-import quoi.utils.ChatUtils
 import net.minecraft.client.player.LocalPlayer
 import quoi.api.colour.Colour
+import quoi.config.TypeName
 
-@TypeName("command")
-class CommandAction(val command: String = "") : RingAction {
+@TypeName("start")
+class StartAction : RingAction {
 
     override val colour: Colour
-        get() = Colour.WHITE
+        get() = Colour.GREEN
 
     override suspend fun execute(player: LocalPlayer) {
-        ChatUtils.commandAny(command)
+        // nottin
     }
 }

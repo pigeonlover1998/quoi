@@ -15,6 +15,7 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.Vec3
+import quoi.api.colour.Colour
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.skyblock.ItemUtils.lore
 import quoi.utils.skyblock.ItemUtils.skyblockId
@@ -24,6 +25,9 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
 
     @Transient
     private val recentlyBroken = mutableMapOf<BlockPos, Long>()
+
+    override val colour: Colour
+        get() = Colour.ORANGE
 
     override suspend fun execute(player: LocalPlayer) {
         val level = mc.level ?: return

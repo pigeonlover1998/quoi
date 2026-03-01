@@ -10,6 +10,7 @@ import quoi.utils.skyblock.player.PlayerUtils.rotate
 import quoi.utils.skyblock.player.PlayerUtils.yaw
 import quoi.utils.skyblock.player.SwapManager
 import net.minecraft.client.player.LocalPlayer
+import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 
 @TypeName("use_item")
@@ -22,6 +23,9 @@ class UseItemAction(
 
     @Transient
     private val regex = Regex("[_\\-\\s]")
+
+    override val colour: Colour
+        get() = Colour.BROWN
 
     override suspend fun execute(player: LocalPlayer) {
         val item = getName(player)
