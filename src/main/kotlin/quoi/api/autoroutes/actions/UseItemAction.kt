@@ -10,6 +10,7 @@ import quoi.utils.skyblock.player.PlayerUtils.rotate
 import quoi.utils.skyblock.player.PlayerUtils.yaw
 import quoi.utils.skyblock.player.SwapManager
 import net.minecraft.client.player.LocalPlayer
+import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 
 @TypeName("use_item")
 class UseItemAction(
@@ -31,7 +32,7 @@ class UseItemAction(
         }
 
         if (SwapManager.swapByName(item).success) {
-            player.rotate(yaw, pitch)
+            player.rotate(currentRoom!!.getRealYaw(yaw), pitch)
             wait(1)
             repeat(times ?: 1) {
                 PlayerUtils.interact()

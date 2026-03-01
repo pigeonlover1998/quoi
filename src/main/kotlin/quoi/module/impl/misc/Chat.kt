@@ -54,7 +54,7 @@ object Chat : Module(
             }
 
             if (isCommand) {
-                socialCommands.firstOrNull { message.startsWith(it, true) }?.let { cmd ->
+                socialCommands.firstOrNull { message.equals(it, true) || message.startsWith("$it ", true) }?.let { cmd ->
                     val isPm = socialCommands.drop(4).any { message.startsWith(it) }
                     val text = message.removePrefix(cmd).trimStart()
                     val shit = if (isPm) text.split(" ").first() else ""
