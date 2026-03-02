@@ -48,7 +48,7 @@ object SecretAura : Module(
 
     private val swing by BooleanSetting("Swing hand", desc = "Makes secret aura swing hand on click.")
     private val dungeonsOnly by BooleanSetting("Dungeons only", true, desc = "Makes secret aura only work in dungeons.")
-
+//shit
     private val creeperBeams by BooleanSetting("Creeper Beams", true)
     private val threeWeirdos by BooleanSetting("Three Weirdos", false)
     private val ticTacToe by BooleanSetting("Tic-Tac-Toe", true)
