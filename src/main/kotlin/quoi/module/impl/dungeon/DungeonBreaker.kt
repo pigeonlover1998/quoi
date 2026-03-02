@@ -98,6 +98,7 @@ object DungeonBreaker : Module(
 
         dungeonBreakerCommand.sub("clear") {
             breakerBlocks.clear()
+            activeBreakerBlocks.clear()
             modMessage("&cCleared all dungeon breaker blocks.")
         }.description("Remove all saved breaker blocks.")
 
@@ -251,9 +252,7 @@ object DungeonBreaker : Module(
             when (message.noControlCodes) {
                 "[BOSS] Maxor: WELL! WELL! WELL! LOOK WHO'S HERE!" -> {
                     activeBreakerBlocks.clear()
-                    activeBreakerBlocks.addAll(
-                        if (breakerBlocks.isEmpty()) defaultBreakerPreset else breakerBlocks
-                    )
+                    activeBreakerBlocks.addAll(breakerBlocks)
                 }
             }
         }

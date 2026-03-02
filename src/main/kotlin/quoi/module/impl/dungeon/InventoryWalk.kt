@@ -4,12 +4,14 @@ import quoi.api.events.GuiEvent
 import quoi.api.events.TickEvent
 import quoi.module.Module
 import quoi.module.settings.impl.NumberSetting
+import quoi.module.settings.impl.BooleanSetting
 import com.mojang.blaze3d.platform.InputConstants
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.gui.screens.ChatScreen
-import org.lwjgl.glfw.GLFW
+import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen
+import org.lwjgl.glfw.GLFW
 
 // Kyleen
 object InventoryWalk : Module(
@@ -18,7 +20,10 @@ object InventoryWalk : Module(
 ) {
 
     private val clickDelay = NumberSetting("Click Delay", 6.0, 3.0, 12.0, 1.0)
+    private val blacklist = BooleanSetting("Blacklist", desc = "Stops movement in sell guis + terminals.")
+
     private var delay = 0
+    private val blacklistedTitles = listOf("Trades", "Booster Cookie", "Farm Merchant", "Ophelia", "Correct all the panes!", "Change all to same color!", "Click in order!", "What starts with:", "Select all the", "Click the button on time!")
 
     private val movementKeys: List<KeyMapping>
         get() = listOf(
@@ -31,10 +36,17 @@ object InventoryWalk : Module(
         )
 
     init {
-        addSettings(clickDelay)
+        addSettings(clickDelay, blacklist)
 
         on<TickEvent.Start> {
-            if (mc.screen is ChatScreen || mc.screen is AbstractSignEditScreen) return@on
+            val screen = mc.screen ?: return@on
+
+            if (screen is ChatScreen || screen is AbstractSignEditScreen) return@on
+
+            if (blacklist.value && isBlacklisted(screen)) {
+                movementKeys.forEach { it.isDown = false }
+                return@on
+            }
 
             if (AutoMask.isSwapping) {
                 movementKeys.forEach { it.isDown = false }
@@ -59,6 +71,11 @@ object InventoryWalk : Module(
             movementKeys.forEach { it.isDown = false }
             delay = clickDelay.value.toInt()
         }
+    }
+
+    private fun isBlacklisted(screen: Screen): Boolean {
+        val title = screen.title.string
+        return blacklistedTitles.any { title.contains(it) }
     }
 
     private fun handleMovement() {
