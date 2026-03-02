@@ -48,6 +48,17 @@ object SecretAura : Module(
 
     private val swing by BooleanSetting("Swing hand", desc = "Makes secret aura swing hand on click.")
     private val dungeonsOnly by BooleanSetting("Dungeons only", true, desc = "Makes secret aura only work in dungeons.")
+//shit
+    private val creeperBeams by BooleanSetting("Creeper Beams", true)
+    private val threeWeirdos by BooleanSetting("Three Weirdos", false)
+    private val ticTacToe by BooleanSetting("Tic-Tac-Toe", true)
+    private val waterBoard by BooleanSetting("Water Board", false)
+    private val teleportMaze by BooleanSetting("Teleport Maze", true)
+    private val higherOrLower by BooleanSetting("Higher or Lower", true)
+    private val boulder by BooleanSetting("Boulder", true)
+    private val iceFill by BooleanSetting("Ice Fill", true)
+    private val icePath by BooleanSetting("Ice Path", true)
+    private val quiz by BooleanSetting("Quiz", true)
 
     private val REDSTONE_KEY = UUID.fromString("fed95410-aba1-39df-9b95-1d4f361eb66e")
     private val WITHER_ESSENCE = UUID.fromString("e0f3e929-869e-3dca-9504-54c666ee6f23")
@@ -90,7 +101,7 @@ object SecretAura : Module(
             }
 
             currentRoom?.let { room ->
-                if (room.data.name in setOf("Higher Blaze", "Lower Blaze", "Three Weirdos", "Water Board")) return@on
+                if (isPuzzleRoomDisabled(room.data.name)) return@on
             }
 
             var blockCandidate = BlockDistance(Blocks.AIR, BlockPos(Int.MAX_VALUE, 69, Int.MIN_VALUE), Double.POSITIVE_INFINITY)
@@ -223,6 +234,22 @@ object SecretAura : Module(
 
         if (currentBlock === Blocks.REDSTONE_BLOCK) {
             blocksDone.add(pos)
+        }
+    }
+
+    private fun isPuzzleRoomDisabled(roomName: String): Boolean {
+        return when (roomName.lowercase()) {
+            "creeper beams" -> !creeperBeams
+            "three weirdos" -> !threeWeirdos
+            "tic tac toe" -> !ticTacToe
+            "water board" -> !waterBoard
+            "teleport maze" -> !teleportMaze
+            "higher or lower" -> !higherOrLower
+            "boulder" -> !boulder
+            "ice fill" -> !iceFill
+            "ice path" -> !icePath
+            "quiz" -> !quiz
+            else -> false
         }
     }
 
