@@ -5,7 +5,7 @@ import quoi.api.colour.Colour
 import quoi.api.skyblock.PlayerPosition
 import quoi.api.skyblock.dungeon.components.Room
 import quoi.api.skyblock.dungeon.map.MapItemScanner
-import quoi.module.impl.dungeon.DungeonMap
+//import quoi.module.impl.dungeon.DungeonMap
 import quoi.utils.equalsOneOf
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.resources.ResourceLocation
@@ -215,29 +215,29 @@ enum class Checkmark(
 
 enum class RoomType(
     val displayName: String,
-    val colour: Colour
+    val colour: Colour = Colour.WHITE
 ) {
-    NORMAL("Normal", DungeonMap.normalRoom),
-    PUZZLE("Puzzle", DungeonMap.puzzleRoom),
-    TRAP("Trap", DungeonMap.trapRoom),
-    YELLOW("Yellow", DungeonMap.miniRoom),
-    BLOOD("Blood", DungeonMap.bloodRoom),
-    FAIRY("Fairy", DungeonMap.fairyRoom),
-    RARE("Rare", DungeonMap.rareRoom),
-    ENTRANCE("Entrance", DungeonMap.entranceRoom),
-    UNKNOWN("Unknown", DungeonMap.unknownRoom);
+    NORMAL("Normal", /*DungeonMap.normalRoom*/),
+    PUZZLE("Puzzle", /*DungeonMap.puzzleRoom*/),
+    TRAP("Trap", /*DungeonMap.trapRoom*/),
+    YELLOW("Yellow", /*DungeonMap.miniRoom*/),
+    BLOOD("Blood", /*DungeonMap.bloodRoom*/),
+    FAIRY("Fairy", /*DungeonMap.fairyRoom*/),
+    RARE("Rare", /*DungeonMap.rareRoom*/),
+    ENTRANCE("Entrance", /*DungeonMap.entranceRoom*/),
+    UNKNOWN("Unknown", /*DungeonMap.unknownRoom*/);
 
     fun isNormal() = !this.equalsOneOf(PUZZLE, UNKNOWN)
 }
 
 enum class DoorType(
     val displayName: String,
-    val colour: Colour
+    val colour: Colour = Colour.WHITE
 ) {
-    NORMAL("Normal", DungeonMap.normalDoor),
-    WITHER("Wither", DungeonMap.witherDoor),
-    BLOOD("Blood", DungeonMap.bloodDoor),
-    ENTRANCE("Entrance", DungeonMap.entranceDoor);
+    NORMAL("Normal", /*DungeonMap.normalDoor*/),
+    WITHER("Wither", /*DungeonMap.witherDoor*/),
+    BLOOD("Blood", /*DungeonMap.bloodDoor*/),
+    ENTRANCE("Entrance", /*DungeonMap.entranceDoor*/);
 }
 
 enum class DoorState { UNDISCOVERED, DISCOVERED }

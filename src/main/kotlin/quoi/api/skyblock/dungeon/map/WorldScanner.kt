@@ -48,7 +48,7 @@ object WorldScanner {
                 val currRoom = ScanUtils.rooms.getOrNull(idx)
 
                 if (prevRoom != null && currRoom != null && prevRoom != currRoom) {
-                    DungeonEvent.Room.Enter(currRoom, prevRoom)
+//                    DungeonEvent.Room.Enter(currRoom, prevRoom)
                 }
 
 //                if (lastIdx == idx) return@on
@@ -107,7 +107,7 @@ object WorldScanner {
                 room = Room(x to z, roofHeight).scan()
                 ScanUtils.rooms[idx] = room
                 ScanUtils.uniqueRooms.add(room)
-                DungeonEvent.Room.Scan(room).post()
+//                DungeonEvent.Room.Scan(room).post()
             }
 
             // Scan neighbors *before* claiming this room index

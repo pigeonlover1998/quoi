@@ -90,7 +90,7 @@ object SecretAura : Module(
             }
 
             currentRoom?.let { room ->
-                if (room.name in setOf("Higher Blaze", "Lower Blaze", "Three Weirdos", "Water Board")) return@on
+                if (room.data.name in setOf("Higher Blaze", "Lower Blaze", "Three Weirdos", "Water Board")) return@on
             }
 
             var blockCandidate = BlockDistance(Blocks.AIR, BlockPos(Int.MAX_VALUE, 69, Int.MIN_VALUE), Double.POSITIVE_INFINITY)

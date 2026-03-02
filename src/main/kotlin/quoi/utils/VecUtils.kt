@@ -6,8 +6,10 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
 import kotlin.math.PI
 import kotlin.math.atan2
+import kotlin.math.floor
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -16,6 +18,9 @@ import kotlin.math.sqrt
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/me/odinmain/utils/VecUtils.kt
  */
+
+data class Vec2(val x: Int, val z: Int)
+
 operator fun Vec3.component1(): Double = x
 operator fun Vec3.component2(): Double = y
 operator fun Vec3.component3(): Double = z
@@ -41,6 +46,68 @@ fun Vec3.rotate(rotation: Int): Vec3 =
     }
 
 fun Vec3.unrotate(rotation: Int): Vec3 = rotate(360 - rotation)
+
+/**
+ * Rotates a Vec3 around the given rotation.
+ * @param rotation The rotation to rotate around
+ * @return The rotated Vec3
+ */
+fun BlockPos.rotateAroundNorth(rotation: Rotations): BlockPos =
+    when (rotation) {
+        Rotations.NORTH -> BlockPos(-this.x, this.y, -this.z)
+        Rotations.WEST ->  BlockPos(-this.z, this.y, this.x)
+        Rotations.SOUTH -> BlockPos(this.x, this.y, this.z)
+        Rotations.EAST ->  BlockPos(this.z, this.y, -this.x)
+        else -> this
+    }
+
+/**
+ * Rotates a Vec3 to the given rotation.
+ * @param rotation The rotation to rotate to
+ * @return The rotated Vec3
+ */
+fun BlockPos.rotateToNorth(rotation: Rotations): BlockPos =
+    when (rotation) {
+        Rotations.NORTH -> BlockPos(-this.x, this.y, -this.z)
+        Rotations.WEST ->  BlockPos(this.z, this.y, -this.x)
+        Rotations.SOUTH -> BlockPos(this.x, this.y, this.z)
+        Rotations.EAST ->  BlockPos(-this.z, this.y, this.x)
+        else -> this
+    }
+
+fun Vec3.rotateAroundNorth(rotation: Rotations): Vec3 =
+    when (rotation) {
+        Rotations.NORTH -> Vec3(-x, y, -z)
+        Rotations.WEST  -> Vec3(-z, y, x)
+        Rotations.SOUTH -> Vec3(x, y, z)
+        Rotations.EAST  -> Vec3(z, y, -x)
+        else -> this
+    }
+
+fun Vec3.rotateToNorth(rotation: Rotations): Vec3 =
+    when (rotation) {
+        Rotations.NORTH -> Vec3(-x, y, -z)
+        Rotations.WEST  -> Vec3(z, y, -x)
+        Rotations.SOUTH -> Vec3(x, y, z)
+        Rotations.EAST  -> Vec3(-z, y, x)
+        else -> this
+    }
+//
+//fun Vec3.rotateAroundNorth(rotation: Rotations): Vec3 { // fixes my stupidity
+//    val ix = floor(x).toInt()
+//    val iy = floor(y).toInt()
+//    val iz = floor(z).toInt()
+//    val rotatedBlock = BlockPos(ix, iy, iz).rotateAroundNorth(rotation)
+//    return Vec3(rotatedBlock.x + (x - ix), rotatedBlock.y + (y - iy), rotatedBlock.z + (z - iz))
+//}
+//
+//fun Vec3.rotateToNorth(rotation: Rotations): Vec3 {
+//    val ix = floor(x).toInt()
+//    val iy = floor(y).toInt()
+//    val iz = floor(z).toInt()
+//    val rotatedBlock = BlockPos(ix, iy, iz).rotateToNorth(rotation)
+//    return Vec3(rotatedBlock.x + (x - ix), rotatedBlock.y + (y - iy), rotatedBlock.z + (z - iz))
+//}
 
 /**
  * Multiplies every coordinate of a Vec3 by the given factor.

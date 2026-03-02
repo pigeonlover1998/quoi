@@ -48,14 +48,17 @@ import quoi.api.skyblock.invoke
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.Setting.Companion.withDependency
 import quoi.module.settings.impl.DropdownSetting
+import quoi.utils.ChatUtils.literal
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.StringUtils.width
 import quoi.utils.render.DrawContextUtils.drawString
+import quoi.utils.render.drawLine
 import quoi.utils.render.drawStyledBox
+import quoi.utils.render.drawText
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.math.roundToInt
+import kotlin.math.floor
 
-object AutoRoutes : Module( // todo maybe split it in two files
+object AutoRoutes : Module( // todo maybe split it in two files // FIXME my scroll wheel is begging
     "Auto Routes",
     desc = "/route",
     area = Island.Dungeon(inClear = true)
@@ -84,21 +87,25 @@ object AutoRoutes : Module( // todo maybe split it in two files
         name to set
     }
     private val thickness by NumberSetting("Thickness", 4f, 1f, 8f, 0.5f)
+    val height by NumberSetting("Height", 0.1f, 0.1f, 1f, 0.1f)
 
     val routes: ConfigMap<String, MutableList<RouteRing>> by configMap("auto_routes.json")
 
-    var editMode = false
+    private var editMode = false
+    private var currentChain: String? = null
 
-    val currentRings = hashSetOf<RouteRing>()
+    private val currentRings = hashSetOf<RouteRing>()
     val visitedRings = hashSetOf<RouteRing>()
+    val completedChainNodes = hashSetOf<RouteRing>()
     val completedAwaits = hashSetOf<RouteRing>()
 
-    val awaitingRings = hashSetOf<RouteRing>()
+    private val awaitingRings = hashSetOf<RouteRing>()
     val batIds = hashSetOf<Int>()
     var secretsAwaited = 0
 
     private var currentJob: Job? = null
-    private val removedRings: MutableMap<String, MutableList<MutableList<RouteRing>>> = mutableMapOf()
+    private val removedRings = mutableMapOf<String, MutableList<List<Pair<Int, RouteRing>>>>()
+    private val addHistory = mutableMapOf<String, MutableList<RouteRing>>()
 
     private val breakerCache = mutableMapOf<DungeonBreakerAction, List<Pair<BlockPos, AABB>>>()
     private var breakerRing: RouteRing? = null
@@ -109,7 +116,7 @@ object AutoRoutes : Module( // todo maybe split it in two files
         registerCommands()
         on<TickEvent.End> {
             val room = currentRoom ?: return@on
-            val rings = routes[room.name] ?: return@on
+            val rings = routes[room.data.name] ?: return@on
             currentRings.clear()
             rings.filterTo(currentRings) { it.inside(room) }
             lastClickedBlock = null
@@ -133,7 +140,22 @@ object AutoRoutes : Module( // todo maybe split it in two files
                 if (ring in visitedRings) continue
                 if (!ring.checkArgs()) continue
 
+                if (!ring.chain.isNullOrEmpty()) {
+                    val chainRings = rings.filter { it.chain == ring.chain }
+                    val index = chainRings.indexOf(ring)
+
+                    if (index == 0) {
+                        val nextRings = chainRings.drop(1).toSet()
+                        completedChainNodes.removeAll(nextRings)
+                    } else {
+                        if (ring in completedChainNodes) continue
+                        val parent = chainRings[index - 1]
+                        if (parent !in completedChainNodes) continue
+                    }
+                }
+
                 visitedRings.add(ring)
+                completedChainNodes.add(ring)
                 awaitingRings.remove(ring)
 
                 currentJob = scope.launch {
@@ -163,25 +185,52 @@ object AutoRoutes : Module( // todo maybe split it in two files
 
         on<RenderEvent.World> {
             val room = currentRoom ?: return@on
-            val rings = routes[room.name] ?: return@on
+            val rings = routes[room.data.name] ?: return@on
 
+            val chainPoints = mutableMapOf<String, Vec3>()
+            val chainIndices = mutableMapOf<String, Int>()
             val isShitCylinder = style.selected == "Cylinder"
 
             rings.forEach { ring ->
                 if (ring.action is StartAction) return@forEach
 
+                val pos = room.getRealCoords(Vec3(ring.x, ring.y, ring.z))
+
                 val col = if (ring in currentRings) activeCol else ring.colour()
                 if (isShitCylinder) {
                     val r = ring.radius.toFloat() / 2
-                    ctx.drawCylinder(room.getRealCoords(Vec3(ring.x, ring.y, ring.z)), r, 0.1f, col, thickness = thickness, depth = true) // looks like fucking shit
+                    ctx.drawCylinder(pos, r, height, col, thickness = thickness, depth = true) // looks like fucking shit
                 } else {
-                    ctx.drawStyledBox(style.selected, ring.boundingBox(room), col, ring.fillColour(), thickness, depth = false)
+                    ctx.drawStyledBox(style.selected, ring.boundingBox(room), col, ring.fillColour(), thickness, depth = true)
+                }
+
+                val chain = ring.chain ?: return@forEach
+
+                chainPoints[chain]?.let { prev ->
+                    ctx.drawLine(
+                        points = listOf(prev, pos),
+                        colour = activeCol.withAlpha(100),
+                        depth = true,
+                        thickness = thickness / 2f
+                    )
+                }
+                chainPoints[chain] = pos
+
+                if (editMode) {
+                    val index = chainIndices[chain] ?: 0
+                    chainIndices[chain] = index + 1
+                    ctx.drawText(
+                        text = literal("$index"),
+                        pos = pos.add(0.0, 0.3, 0.0),
+                        scale = 1.2f,
+                        depth = true
+                    )
                 }
             }
 
             rings.forEach { ring ->
                 if (ring.action is StartAction) {
-                    val aabb = ring.boundingBox(room).deflate(0.05).move(0.0, -1.0, 0.0)
+                    val aabb = ring.boundingBox(room).deflate(0.05)
                     ctx.drawStyledBox(style.selected, aabb, ring.colour(), ring.fillColour(), thickness, depth = false)
                     return@forEach
                 }
@@ -211,8 +260,10 @@ object AutoRoutes : Module( // todo maybe split it in two files
         }
 
         on<RenderEvent.Overlay> {
-            if (!editMode) return@on
-            val lines = listOfNotNull("Edit mode", breakerRing?.let { "&6DB Editor" })
+            val lines = mutableListOf<String>()
+            if (editMode) lines.add("Edit mode")
+            if (breakerRing != null) lines.add("&6DB Editor")
+            if (currentChain != null) lines.add("&bChain: $currentChain")
             lines.forEachIndexed { i, string ->
                 val x = (scaledWidth - string.noControlCodes.width()) / 2f
                 val y = scaledHeight / 2f + 10 + i * 10
@@ -233,9 +284,11 @@ object AutoRoutes : Module( // todo maybe split it in two files
 
         on<WorldEvent.Change> {
             visitedRings.clear()
+            completedChainNodes.clear()
             completedAwaits.clear()
             breakerCache.clear()
             currentJob?.cancel()
+            addHistory.clear()
 
             awaitingRings.clear()
             batIds.clear()
@@ -265,50 +318,77 @@ object AutoRoutes : Module( // todo maybe split it in two files
             unsubscribeDBEditor()
         }.description("Toggles edit mode.")
 
+        ar.sub("chain") { name: String ->
+            if (name.equals("none", ignoreCase = true)) {
+                currentChain = null
+                modMessage("Chaining &cdisabled&r.")
+            } else {
+                currentChain = name
+                modMessage("Active chain set to &e$name&r!")
+            }
+        }.description("Sets the chain for newly placed rings. Use &7none&r to clear.")
+        .suggests {
+            val chains = currentRoom?.data?.name?.let {
+                routes[it]?.mapNotNull { r -> r.chain }?.distinct()
+            } ?: emptyList()
+            listOf("none") + chains
+        }
+
         ar.sub("remove") { range: Double? -> removeRings(range) }.description("Removes rings in range.")
         ar.sub("remove") { name: String, range: Double? -> removeRings(range, name) }
             .description("Removes rings in range by name.")
             .suggests("name", actionEntries.map { it.first })
 
         ar.sub("rmlast") {
-            val roomName = currentRoom?.name ?: return@sub modMessage("&cUnable to get current room.")
+            val roomName = currentRoom?.data?.name ?: return@sub modMessage("&cUnable to get current room.")
             val rings = routes[roomName] ?: return@sub modMessage("$roomName &chas no rings.")
-            if (rings.isEmpty()) return@sub modMessage("$roomName &chas no rings.")
+            val history = addHistory[roomName] ?: return@sub modMessage("&cNo placement history for $roomName.")
+            if (history.isEmpty()) return@sub modMessage("&cNo rings to remove.")
 
-            val last = rings.removeLast()
-            removedRings.getOrPut(roomName) { mutableListOf() }.add(mutableListOf(last))
+            val last = history.removeLast()
+            val index = rings.indexOf(last)
 
-            routes.save()
-            modMessage("Removed &e${last.action.typeName}&r!")
+            if (index != -1) {
+                rings.removeAt(index)
+                removedRings.getOrPut(roomName) { mutableListOf() }.add(listOf(index to last))
+
+                routes.save()
+                modMessage("Removed &e${last.action.typeName}&r!")
+            }
         }.description("Removes last placed ring in current room.")
 
         ar.sub("undo") {
-            val roomName = currentRoom?.name ?: return@sub modMessage("&cUnable to get current room.")
+            val roomName = currentRoom?.data?.name ?: return@sub modMessage("&cUnable to get current room.")
             val undoStack = removedRings[roomName] ?: return@sub modMessage("&cNothing to undo.")
             if (undoStack.isEmpty()) return@sub modMessage("&cNothing to undo.")
 
             val last = undoStack.removeLast()
 
             val routeList = routes.getOrPut(roomName) { mutableListOf() }
-            routeList.addAll(last)
-
+            last.sortedBy { it.first }.forEach { (i, ring) ->
+                if (i in 0..routeList.size) {
+                    routeList.add(i, ring)
+                } else {
+                    routeList.add(ring)
+                }
+            }
             routes.save()
-            modMessage("Restored &e${last.joinToString("&r,&e ") { it.action.typeName }}&r!")
+            modMessage("Restored &e${last.joinToString("&r,&e ") { it.second.action.typeName }}&r!")
         }.description("Restores last removed ring(-s).")
 
         ar.sub("clear") {
-            val roomName = currentRoom?.name ?: return@sub modMessage("&cUnable to get current room.")
+            val roomName = currentRoom?.data?.name ?: return@sub modMessage("&cUnable to get current room.")
             val rings = routes[roomName] ?: return@sub modMessage("$roomName &chas no routes.")
 
             if (rings.isEmpty()) return@sub modMessage("$roomName &chas no routes to clear.")
 
-            removedRings.getOrPut(roomName) { mutableListOf() }.add(ArrayList(rings))
+            val all = rings.mapIndexed { index, routeRing -> index to routeRing }
+            removedRings.getOrPut(roomName) { mutableListOf() }.add(all)
 
-            val count = rings.size
             rings.clear()
             routes.save()
 
-            modMessage("Cleared &c$count&r rings in $roomName! &7(Use /route undo to restore)")
+            modMessage("Cleared &c${all.size}&r rings in $roomName! &7(Use /route undo to restore)")
         }.description("Clears all routes in the current room.")
 
         ar.sub("edit") { args: GreedyString? ->
@@ -405,7 +485,7 @@ object AutoRoutes : Module( // todo maybe split it in two files
 
             if (!blocks.remove(relativePos)) blocks.add(relativePos)
 
-            val rings = routes[room.name] ?: return@on
+            val rings = routes[room.data.name] ?: return@on
             val index = rings.indexOf(editing)
             if (index == -1) return@on
 
@@ -430,22 +510,48 @@ object AutoRoutes : Module( // todo maybe split it in two files
 
     private fun editRing(ring: RouteRing, input: GreedyString?) {
         val room = currentRoom ?: return modMessage("&cUnable to get current room")
-        val rings = routes[room.name] ?: return modMessage("${room.name} &chas no rings.")
+        val rings = routes[room.data.name] ?: return modMessage("${room.data.name} &chas no rings.")
 
         val index = rings.indexOf(ring)
         if (index == -1) return modMessage("&cCouldn't find ring in the config.")
 
         val newValues = parseArgs(input)
+        val chain = if (newValues.chain.equals("none", true)) null else (newValues.chain ?: ring.chain)
 
         val updatedRing = ring.copy(
             arguments = newValues.arguments.takeIf { it.isNotEmpty() } ?: ring.arguments,
             radius = if (input?.string?.contains("radius:") == true) newValues.radius else ring.radius,
-            delay = if (input?.string?.contains("delay:") == true) newValues.delay else ring.delay
+            delay = if (input?.string?.contains("delay:") == true) newValues.delay else ring.delay,
+            chain = chain
         )
 
-        rings[index] = updatedRing
-        routes.save()
+        if (newValues.index != null && !chain.isNullOrEmpty()) {
+            val chainRings = rings.filter { it.chain == chain }.toMutableList()
+            chainRings.remove(ring)
+            val targetPos = newValues.index
 
+            rings.removeAt(index)
+            if (targetPos in 0..chainRings.size) {
+                val insertIndex =
+                    if (targetPos == 0)
+                        if (chainRings.isEmpty()) rings.size else rings.indexOf(chainRings.first())
+                    else
+                        rings.indexOf(chainRings[targetPos - 1]) + 1
+
+                rings.add(insertIndex, updatedRing)
+            } else {
+                rings.add(updatedRing)
+            }
+        } else {
+            rings[index] = updatedRing
+        }
+
+        addHistory[room.data.name]?.let { history ->
+            val i = history.indexOf(ring)
+            if (i != -1) history[i] = updatedRing
+        }
+
+        routes.save()
         currentRings.remove(ring)
         currentRings.add(updatedRing)
 
@@ -456,19 +562,22 @@ object AutoRoutes : Module( // todo maybe split it in two files
         val room = currentRoom ?: return modMessage("&cUnable to get current room")
         val r = range ?: 2.0
 
-        val current = routes[room.name] ?: return modMessage("${room.name} &chas no rings.")
+        val current = routes[room.data.name] ?: return modMessage("${room.data.name} &chas no rings.")
 
-        val ringsInRange = current.filter { ring ->
-            (name?.let { ring.action.typeName == name } ?: true) &&
-            player.boundingBox.inflate(r).intersects(ring.boundingBox(room))
+        val ringsInRange = current.mapIndexedNotNull { i, ring ->
+            if ((name?.let { ring.action.typeName == name } ?: true) &&
+                player.boundingBox.inflate(r).intersects(ring.boundingBox(room))) {
+                i to ring
+            } else null
         }
 
         if (ringsInRange.isEmpty()) return modMessage("&cNo rings in range")
 
-        current.removeAll(ringsInRange)
-        removedRings.getOrPut(room.name) { mutableListOf() }.add(ringsInRange.toMutableList())
+        ringsInRange.reversed().forEach { (index, _) -> current.removeAt(index) }
+        removedRings.getOrPut(room.data.name) { mutableListOf() }.add(ringsInRange)
+
         routes.save()
-        modMessage("Removed ${ringsInRange.joinToString(", ") { "&e${it.action.typeName}&r" }}")
+        modMessage("Removed ${ringsInRange.joinToString(", ") { "&e${it.second.action.typeName}&r" }}")
     }
 
     private fun SubCommand.suggestArgs() = suggestsCtx("args") { ctx ->
@@ -480,7 +589,14 @@ object AutoRoutes : Module( // todo maybe split it in two files
             "delay" to { listOf("100", "500") },
             "radius" to { listOf("2", "3.5", "4") },
             "block" to { legacyBlockIdMap.keys.map { it.replace("minecraft:", "") } },
-            "await" to { listOf("2", "3", "4") }
+            "await" to { listOf("2", "3", "4") },
+            "chain" to {
+                val chains = currentRoom?.data?.name?.let {
+                    routes[it]?.mapNotNull { r -> r.chain }?.distinct()
+                } ?: emptyList()
+                listOf("none") + chains
+            },
+            "index" to { listOf("0", "1", "2", "3") }
         )
 
         val parts = currentArg.split(":", limit = 2)
@@ -502,10 +618,11 @@ object AutoRoutes : Module( // todo maybe split it in two files
         val room = currentRoom ?: return null.also { modMessage("&cNo room detected") }
         var (x, y, z) = room.getRelativeCoords(player.position())
         val args = parseArgs(input)
+        val chain = if (args.chain.equals("none", true)) null else args.chain ?: currentChain
 
-        x = (x * 2).roundToInt() / 2.0
-        y = (y * 2).roundToInt() / 2.0
-        z = (z * 2).roundToInt() / 2.0
+        x = floor(x) + 0.5
+        y = floor(y)
+        z = floor(z) + 0.5
 
         val ring = RouteRing(
             x = x,
@@ -514,12 +631,46 @@ object AutoRoutes : Module( // todo maybe split it in two files
             action = action,
             arguments = args.arguments,
             radius = args.radius,
-            delay = args.delay
+            delay = args.delay,
+            chain = chain
         )
 
-        routes.getOrPut(room.name) { mutableListOf() }.add(ring)
+        val rings = routes.getOrPut(room.data.name) { mutableListOf() }
+
+        if (args.index != null && !chain.isNullOrEmpty()) {
+            val chainRings = rings.filter { it.chain == chain }
+            val targetPos = args.index
+
+            if (targetPos in 0..chainRings.size) {
+                val insertIndex =
+                    if (targetPos == 0)
+                        if (chainRings.isEmpty()) rings.size else rings.indexOf(chainRings.first())
+                    else
+                        rings.indexOf(chainRings[targetPos - 1]) + 1
+
+                rings.add(insertIndex, ring)
+                modMessage("Inserted &e${action.typeName}&r as step &7#$targetPos&r in chain &b$chain&r!")
+            } else {
+                rings.add(ring)
+                modMessage("Added &e${action.typeName}&r to chain &b$chain&r (index out of bounds)!")
+            }
+        } else {
+            val standingInChainRing = currentRings.filter { it.chain != null && it.chain == chain }.maxByOrNull { rings.indexOf(it) }
+
+            if (standingInChainRing != null) {
+                val insertIndex = rings.indexOf(standingInChainRing) + 1
+                rings.add(insertIndex, ring)
+                modMessage("Inserted &e${action.typeName}&r after current step in chain '&b$chain&r'!")
+            } else {
+                rings.add(ring)
+                if (chain != null) modMessage("Added &e${action.typeName}&r to chain '&b$chain&r'!")
+                else modMessage("Added &e${action.typeName}&r!")
+            }
+        }
+
+        addHistory.getOrPut(room.data.name) { mutableListOf() }.add(ring)
+
         routes.save()
-        modMessage("Added &e${action.typeName}&r!")
         return ring
     }
 
@@ -530,6 +681,8 @@ object AutoRoutes : Module( // todo maybe split it in two files
         val arguments = mutableListOf<RingArgument>()
         var radius = 1.0
         var delay: Int? = null
+        var chain: String? = null
+        var index: Int? = null
 
         str.split(" ").forEach { arg ->
             val parts = arg.split(":", limit = 2)
@@ -539,6 +692,8 @@ object AutoRoutes : Module( // todo maybe split it in two files
             when (key) {
                 "radius" -> radius = value.toDoubleOrNull() ?: 1.0
                 "delay" -> delay = value.toIntOrNull()
+                "chain" -> chain = value
+                "index" -> index = value.toIntOrNull()
                 "await" -> arguments.add(AwaitArgument(value.toIntOrNull()))
                 "block" -> {
                     val blockPos = rayCast(distance = 999.0) ?: return@forEach modMessage("&cFailed to get block")
@@ -548,13 +703,16 @@ object AutoRoutes : Module( // todo maybe split it in two files
                 }
             }
         }
-        return RingArgs(arguments, radius, delay)
+        return RingArgs(arguments, radius, delay, chain, index)
     }
 
     private data class RingArgs(
         val arguments: List<RingArgument> = emptyList(),
         val radius: Double = 1.0,
-        val delay: Int? = null
+        val delay: Int? = null,
+        val chain: String? = null,
+        val index: Int? = null,
+        val chainProvided: Boolean = false
     )
 
     private fun RouteRing.colour() = if (multicolour) colours[this.action.typeName]?.value ?: Colour.WHITE else colour

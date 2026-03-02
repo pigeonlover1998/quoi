@@ -1,5 +1,6 @@
 package quoi.api.autoroutes.actions
 
+import kotlinx.coroutines.withTimeoutOrNull
 import quoi.QuoiMod.mc
 import quoi.api.autoroutes.arguments.AwaitArgument
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
@@ -14,6 +15,7 @@ import net.minecraft.client.player.LocalPlayer
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket
 import net.minecraft.world.InteractionHand
 import quoi.api.colour.Colour
+import quoi.utils.rayCast
 
 @TypeName("etherwarp")
 class EtherwarpAction(val yaw: Float = 0f, val pitch: Float = 0f) : RingAction {
@@ -32,7 +34,7 @@ class EtherwarpAction(val yaw: Float = 0f, val pitch: Float = 0f) : RingAction {
             return
         }
         if (AutoRoutes.zeroTick) {
-            val rings = AutoRoutes.routes[room.name] ?: return
+            val rings = AutoRoutes.routes[room.data.name] ?: return
 
             val index = rings.indexOfFirst { it.action === this }
             if (index == -1) return
@@ -65,7 +67,11 @@ class EtherwarpAction(val yaw: Float = 0f, val pitch: Float = 0f) : RingAction {
 
         } else {
             player.rotate(room.getRealYaw(yaw), pitch)
-//            wait(1)
+            withTimeoutOrNull(500) {
+                while (rayCast() == null) {
+                    wait(1)
+                }
+            }
             PlayerUtils.interact()
         }
     }

@@ -1,24 +1,5 @@
 package quoi.api.skyblock.dungeon
 
-import quoi.QuoiMod.mc
-import quoi.QuoiMod.scope
-import quoi.api.colour.Colour
-import quoi.api.events.PacketEvent
-import quoi.api.events.WorldEvent
-import quoi.api.events.core.EventBus.on
-import quoi.api.skyblock.Island
-import quoi.api.skyblock.Location
-import quoi.api.skyblock.dungeon.components.DiscoveredRoom
-import quoi.api.skyblock.dungeon.components.Door
-import quoi.api.skyblock.dungeon.components.Room
-import quoi.api.skyblock.dungeon.map.RoomRegistry
-import quoi.api.skyblock.dungeon.map.WorldScanner
-import quoi.api.skyblock.dungeon.map.utils.MapItemUtils
-import quoi.api.skyblock.dungeon.map.utils.ScanUtils
-import quoi.module.impl.dungeon.LeapMenu
-import quoi.utils.StringUtils.noControlCodes
-import quoi.utils.equalsOneOf
-import quoi.utils.romanToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.minecraft.core.BlockPos
@@ -30,6 +11,21 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.SkullBlock
 import net.minecraft.world.level.block.entity.SkullBlockEntity
 import net.minecraft.world.level.block.state.BlockState
+import quoi.QuoiMod.mc
+import quoi.QuoiMod.scope
+import quoi.api.colour.Colour
+import quoi.api.events.PacketEvent
+import quoi.api.events.WorldEvent
+import quoi.api.events.core.EventBus.on
+import quoi.api.skyblock.Island
+import quoi.api.skyblock.Location
+import quoi.api.skyblock.dungeon.components.Room
+import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
+import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
+import quoi.module.impl.dungeon.LeapMenu
+import quoi.utils.StringUtils.noControlCodes
+import quoi.utils.equalsOneOf
+import quoi.utils.romanToInt
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToLong
@@ -133,23 +129,23 @@ object Dungeon {
     inline val princeKilled: Boolean
         get() = dungeonStats.princeKilled
 
-    inline val currentRoom: Room?
+    inline val currentRoom: OdonRoom?
         get() = ScanUtils.currentRoom
 
-    inline val rooms: Array<Room?>
-        get() = ScanUtils.rooms
-
-    inline val discoveredRooms: MutableMap<String, DiscoveredRoom>
-        get() = ScanUtils.discoveredRooms
-
-    inline val uniqueRooms: MutableSet<Room>
-        get() = ScanUtils.uniqueRooms
-
-    inline val doors: Array<Door?>
-        get() = ScanUtils.doors
-
-    inline val uniqueDoors: MutableSet<Door>
-        get() = ScanUtils.uniqueDoors
+//    inline val rooms: Array<Room?>
+//        get() = ScanUtils.rooms
+//
+//    inline val discoveredRooms: MutableMap<String, DiscoveredRoom>
+//        get() = ScanUtils.discoveredRooms
+//
+//    inline val uniqueRooms: MutableSet<Room>
+//        get() = ScanUtils.uniqueRooms
+//
+//    inline val doors: Array<Door?>
+//        get() = ScanUtils.doors
+//
+//    inline val uniqueDoors: MutableSet<Door>
+//        get() = ScanUtils.uniqueDoors
 //
 //    inline val passedRooms: Set<Room>
 //        get() = DungeonListener.passedRooms
@@ -205,9 +201,10 @@ object Dungeon {
     private var expectingBloodUpdate = false
 
     fun init() {
-        RoomRegistry.loadRooms()
-        WorldScanner.init()
-        MapItemUtils.init()
+//        RoomRegistry.loadRooms()
+//        WorldScanner.init()
+//        MapItemUtils.init()
+        ScanUtils.init()
 
         on<WorldEvent.Change> {
             Blessing.entries.forEach { it.reset() }
@@ -225,9 +222,9 @@ object Dungeon {
             p3TermsCompleted = false
             p3GateDestroyed = false
 
-            MapItemUtils.reset()
-            WorldScanner.reset()
-            ScanUtils.reset()
+//            MapItemUtils.reset()
+//            WorldScanner.reset()
+//            ScanUtils.reset()
         }
 
 //        on<RoomEnterEvent>(priority = 100) {

@@ -11,8 +11,8 @@ import quoi.api.skyblock.Location.currentServer
 import quoi.api.skyblock.Location.inSkyblock
 import quoi.api.skyblock.Location.subarea
 import quoi.api.skyblock.dungeon.Dungeon
-import quoi.api.skyblock.dungeon.Dungeon.uniqueRooms
-import quoi.api.skyblock.dungeon.map.utils.ScanUtils.currentRoom
+//import quoi.api.skyblock.dungeon.Dungeon.uniqueRooms
+//import quoi.api.skyblock.dungeon.map.utils.ScanUtils.currentRoom
 import quoi.module.ModuleManager
 import quoi.module.impl.misc.Chat
 import quoi.module.impl.render.ClickGui.clickGui
@@ -29,6 +29,8 @@ import quoi.utils.ui.hud.HudManager
 import quoi.utils.ui.screens.UIScreen.Companion.open
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
 import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.Vec3
+import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.ui.rendering.NVGRenderer
 import kotlin.collections.sortedBy
@@ -66,8 +68,8 @@ object QuoiCommand {
 
             "currentroom" {
                 currentRoom?.let {
-                    modMessage("Current room: ${it.name}")
-                    modMessage("DATA: CORNER: ${it.corner} ROTATION: ${it.rotation} ")
+                    modMessage("Current room: ${it.data.name}")
+                    modMessage("DATA: CORNER: ${it.clayPos} ROTATION: ${it.rotation.deg} ")
                 }
             }
 
@@ -77,13 +79,16 @@ object QuoiCommand {
                     currentRoom?.getRelativeCoords(it.blockPos)?.let { vec2 ->
                         modMessage("Relative coords: ${vec2.x}, ${vec2.z}")
                     }
+                    currentRoom?.getRelativeCoords(Vec3(it.blockPos))?.let { vec2 ->
+                        modMessage("Relative coords: ${vec2.x}, ${vec2.z}")
+                    }
 
                 }
             }
 
-            "rooms" {
-                modMessage("Rooms: ${uniqueRooms.joinToString(", ") { it.name }}")
-            }
+//            "rooms" {
+//                modMessage("Rooms: ${uniqueRooms.joinToString(", ") { it.name }}")
+//            }
 
             "area" {
                 modMessage("Area: $currentArea, Sub: $subarea, Server: $currentServer, Floor: ${Dungeon.floor?.name}")
