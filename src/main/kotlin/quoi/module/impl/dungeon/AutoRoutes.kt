@@ -5,6 +5,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import quoi.QuoiMod.scope
@@ -105,6 +106,7 @@ object AutoRoutes : Module( // todo maybe split it in two files // FIXME my scro
     private var breakerRing: RouteRing? = null
     private var interactListener: EventBus.EventListener? = null
     private var lastClickedBlock: BlockPos? = null
+    private var dbLcmMode = false
 
     init {
         registerCommands()
@@ -424,6 +426,11 @@ object AutoRoutes : Module( // todo maybe split it in two files // FIXME my scro
             }
         }.description("Toggles dungeon breaker ring editor.").withEditMode()
 
+        ar.sub("dblcm") {
+            dbLcmMode = !dbLcmMode
+            modMessage("Dungeon breaker left-click editmode ${if (dbLcmMode) "&aenabled" else "&cdisabled"}&r.")
+        }.description("Toggles left-click block add mode.")
+
         val add = ar.sub("add")
             .description("Adds specified ring.")
             .suggests("add", actionEntries.map { it.first })
@@ -467,13 +474,25 @@ object AutoRoutes : Module( // todo maybe split it in two files // FIXME my scro
         modMessage("Dungeon breaker editor &aenabled&r.")
 
         interactListener = EventBus.on<PacketEvent.Sent> {
-            if (packet !is ServerboundUseItemOnPacket) return@on
+            //if (packet !is ServerboundUseItemOnPacket) return@on
             val room = currentRoom ?: return@on
 
             val editing = breakerRing ?: return@on
             val action = editing.action as? DungeonBreakerAction ?: return@on
 
-            val pos = packet.hitResult.blockPos
+            val pos = when (packet) {
+                is ServerboundUseItemOnPacket -> {
+                    if (dbLcmMode) return@on
+                    packet.hitResult.blockPos
+                }
+                is ServerboundPlayerActionPacket -> {
+                    if (!dbLcmMode) return@on
+                    if (packet.action != ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) return@on
+                    packet.pos
+                }
+                else -> return@on
+            }
+
             if (lastClickedBlock == pos || isProtectedBlock(pos)) return@on
             lastClickedBlock = pos
 
