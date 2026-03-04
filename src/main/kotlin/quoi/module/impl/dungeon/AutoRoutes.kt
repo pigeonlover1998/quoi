@@ -89,7 +89,6 @@ object AutoRoutes : Module(
     private val awaitingRings = hashSetOf<RouteRing>()
     val batIds = hashSetOf<Int>()
     var secretsAwaited = 0
-    var dbLcmMode = false
     private var shouldDelay = false
 
     private var currentJob: Job? = null
@@ -100,6 +99,7 @@ object AutoRoutes : Module(
     internal var breakerRing: RouteRing? = null
     internal var interactListener: EventBus.EventListener? = null
     internal var lastClickedBlock: BlockPos? = null
+    internal var dbLcmMode = false
 
     internal val ar = BaseCommand("route").requires("&cEnable the module and be in a dungeon!") { enabled && inClear && currentRoom != null }
     internal val add = ar.sub("add").description("Adds specified ring.").suggests("add", actionEntries.map { it.first })
