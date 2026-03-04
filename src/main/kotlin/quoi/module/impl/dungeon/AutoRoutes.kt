@@ -74,7 +74,6 @@ object AutoRoutes : Module(
     private val thickness by NumberSetting("Thickness", 4f, 1f, 8f, 0.5f)
     val height by NumberSetting("Height", 0.1f, 0.1f, 1f, 0.1f)
     private val interactDelay by NumberSetting("Interact delay", 2, 0, 6, 1, unit = "t")
-    val dbLcmMode by BooleanSetting("Left-click db rings", desc = "Left-Click to add blocks when in dungeonbreaker rings editmode")
 
     val routes: ConfigMap<String, MutableList<RouteRing>> by configMap("auto_routes.json")
 
