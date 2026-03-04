@@ -81,6 +81,10 @@ object SecretAura : Module(
     }
 
     init {
+        command.sub("clearaura") {
+            clear()
+        }
+
         on<WorldEvent.Change> {
             clear()
         }
