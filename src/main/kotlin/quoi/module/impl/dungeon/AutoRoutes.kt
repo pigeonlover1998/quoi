@@ -4,29 +4,20 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.minecraft.core.BlockPos
-import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket
-import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import quoi.QuoiMod.scope
 import quoi.api.autoroutes.RouteRing
 import quoi.api.autoroutes.actions.*
-import quoi.api.autoroutes.arguments.AwaitArgument
-import quoi.api.autoroutes.arguments.BlockArgument
-import quoi.api.autoroutes.arguments.RingArgument
+import quoi.api.autoroutes.registerCommands
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
 import quoi.api.commands.internal.BaseCommand
-import quoi.api.commands.internal.GreedyString
-import quoi.api.commands.internal.SubCommand
-import quoi.api.commands.parsers.arg
 import quoi.api.events.*
 import quoi.api.events.core.EventBus
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.api.skyblock.dungeon.Dungeon.inClear
-import quoi.api.skyblock.dungeon.Dungeon.isProtectedBlock
-import quoi.api.skyblock.dungeon.map.utils.LegacyIdMapper.legacyBlockIdMap
 import quoi.api.skyblock.invoke
 import quoi.config.ConfigMap
 import quoi.config.configMap
@@ -36,22 +27,23 @@ import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.Setting.Companion.withDependency
 import quoi.module.settings.impl.*
-import quoi.utils.*
+import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.literal
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.wait
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.StringUtils.width
-import quoi.utils.WorldUtils.registryName
 import quoi.utils.WorldUtils.state
+import quoi.utils.aabb
 import quoi.utils.render.*
 import quoi.utils.render.DrawContextUtils.drawString
+import quoi.utils.scaledHeight
+import quoi.utils.scaledWidth
 import quoi.utils.skyblock.player.PlayerUtils.pitch
 import quoi.utils.skyblock.player.PlayerUtils.yaw
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.math.floor
 
-object AutoRoutes : Module( // todo maybe split it in two files // FIXME my scroll wheel is begging
+object AutoRoutes : Module(
     "Auto Routes",
     desc = "/route",
     area = Island.Dungeon(inClear = true)
@@ -85,10 +77,11 @@ object AutoRoutes : Module( // todo maybe split it in two files // FIXME my scro
 
     val routes: ConfigMap<String, MutableList<RouteRing>> by configMap("auto_routes.json")
 
-    private var editMode = false
-    private var currentChain: String? = null
+    // todo make internal shit less schizo
+    internal var editMode = false
+    internal var currentChain: String? = null
 
-    private val currentRings = hashSetOf<RouteRing>()
+    internal val currentRings = hashSetOf<RouteRing>()
     val visitedRings = hashSetOf<RouteRing>()
     val completedChainNodes = hashSetOf<RouteRing>()
     val completedAwaits = hashSetOf<RouteRing>()
@@ -99,14 +92,17 @@ object AutoRoutes : Module( // todo maybe split it in two files // FIXME my scro
     private var shouldDelay = false
 
     private var currentJob: Job? = null
-    private val removedRings = mutableMapOf<String, MutableList<List<Pair<Int, RouteRing>>>>()
-    private val addHistory = mutableMapOf<String, MutableList<RouteRing>>()
+    internal val removedRings = mutableMapOf<String, MutableList<List<Pair<Int, RouteRing>>>>()
+    internal val addHistory = mutableMapOf<String, MutableList<RouteRing>>()
 
-    private val breakerCache = mutableMapOf<DungeonBreakerAction, List<Pair<BlockPos, AABB>>>()
-    private var breakerRing: RouteRing? = null
-    private var interactListener: EventBus.EventListener? = null
-    private var lastClickedBlock: BlockPos? = null
-    private var dbLcmMode = false
+    internal val breakerCache = mutableMapOf<DungeonBreakerAction, List<Pair<BlockPos, AABB>>>()
+    internal var breakerRing: RouteRing? = null
+    internal var interactListener: EventBus.EventListener? = null
+    internal var lastClickedBlock: BlockPos? = null
+    internal var dbLcmMode = false
+
+    internal val ar = BaseCommand("route").requires("&cEnable the module and be in a dungeon!") { enabled && inClear && currentRoom != null }
+    internal val add = ar.sub("add").description("Adds specified ring.").suggests("add", actionEntries.map { it.first })
 
     init {
         registerCommands()
@@ -289,7 +285,6 @@ object AutoRoutes : Module( // todo maybe split it in two files // FIXME my scro
             awaitingRings.clear()
             batIds.clear()
             secretsAwaited = 0
-            shouldDelay = false
         }
 
         on<DungeonEvent.Secret.Interact> {
@@ -318,437 +313,9 @@ object AutoRoutes : Module( // todo maybe split it in two files // FIXME my scro
         }
     }
 
-    private fun registerCommands() {
-        val ar = BaseCommand("route").requires("&cEnable the module and be in a dungeon!") { enabled && inClear && currentRoom != null }
-
-        ar.sub("em") {
-            editMode = !editMode
-            modMessage("Edit mode ${if (editMode) "&aenabled" else "&cdisabled"}&r!")
-            unsubscribeDBEditor()
-        }.description("Toggles edit mode.")
-
-        ar.sub("chain") { name: String ->
-            if (name.equals("none", ignoreCase = true)) {
-                currentChain = null
-                modMessage("Chaining &cdisabled&r.")
-            } else {
-                currentChain = name
-                modMessage("Active chain set to &e$name&r!")
-            }
-        }.description("Sets the chain for newly placed rings. Use &7none&r to clear.")
-        .suggests {
-            val chains = currentRoom?.data?.name?.let {
-                routes[it]?.mapNotNull { r -> r.chain }?.distinct()
-            } ?: emptyList()
-            listOf("none") + chains
-        }
-
-        ar.sub("remove") { range: Double? -> removeRings(range) }.description("Removes rings in range.")
-        ar.sub("remove") { name: String, range: Double? -> removeRings(range, name) }
-            .description("Removes rings in range by name.")
-            .suggests("name", actionEntries.map { it.first })
-
-        ar.sub("rmlast") {
-            val roomName = currentRoom?.data?.name ?: return@sub modMessage("&cUnable to get current room.")
-            val rings = routes[roomName] ?: return@sub modMessage("$roomName &chas no rings.")
-            val history = addHistory[roomName] ?: return@sub modMessage("&cNo placement history for $roomName.")
-            if (history.isEmpty()) return@sub modMessage("&cNo rings to remove.")
-
-            val last = history.removeLast()
-            val index = rings.indexOf(last)
-
-            if (index != -1) {
-                rings.removeAt(index)
-                removedRings.getOrPut(roomName) { mutableListOf() }.add(listOf(index to last))
-
-                routes.save()
-                modMessage("Removed &e${last.action.typeName}&r!")
-            }
-        }.description("Removes last placed ring in current room.")
-
-        ar.sub("undo") {
-            val roomName = currentRoom?.data?.name ?: return@sub modMessage("&cUnable to get current room.")
-            val undoStack = removedRings[roomName] ?: return@sub modMessage("&cNothing to undo.")
-            if (undoStack.isEmpty()) return@sub modMessage("&cNothing to undo.")
-
-            val last = undoStack.removeLast()
-
-            val routeList = routes.getOrPut(roomName) { mutableListOf() }
-            last.sortedBy { it.first }.forEach { (i, ring) ->
-                if (i in 0..routeList.size) {
-                    routeList.add(i, ring)
-                } else {
-                    routeList.add(ring)
-                }
-            }
-            routes.save()
-            modMessage("Restored &e${last.joinToString("&r,&e ") { it.second.action.typeName }}&r!")
-        }.description("Restores last removed ring(-s).")
-
-        ar.sub("clear") {
-            val roomName = currentRoom?.data?.name ?: return@sub modMessage("&cUnable to get current room.")
-            val rings = routes[roomName] ?: return@sub modMessage("$roomName &chas no routes.")
-
-            if (rings.isEmpty()) return@sub modMessage("$roomName &chas no routes to clear.")
-
-            val all = rings.mapIndexed { index, routeRing -> index to routeRing }
-            removedRings.getOrPut(roomName) { mutableListOf() }.add(all)
-
-            rings.clear()
-            routes.save()
-
-            modMessage("Cleared &c${all.size}&r rings in $roomName! &7(Use /route undo to restore)")
-        }.description("Clears all routes in the current room.")
-
-        ar.sub("edit") { args: GreedyString? ->
-            val ring = currentRings.firstOrNull()
-                ?: return@sub modMessage("&cYou need to stand in a ring!")
-            editRing(ring, args)
-        }.description("Modifies arguments of ring you're standing in.")
-        .withEditMode().suggestArgs()
-
-        ar.sub("edit") { name: String, args: GreedyString? ->
-            val ring = currentRings.firstOrNull { it.action.typeName.equals(name, true) }
-                ?: return@sub modMessage("&cNo &r$name&c ring found!")
-            editRing(ring, args)
-        }.description("Modifies arguments of ring you're standing in by name.")
-        .withEditMode().suggestArgs()
-        .suggests("name") { currentRings.map { it.action.typeName } }
-
-        ar.sub("editdb") {
-            if (breakerRing == null) {
-                val ring = currentRings.firstOrNull { it.action is DungeonBreakerAction }
-                    ?: return@sub modMessage("&cYou need to stand in a &rdungeon_breaker&c ring!")
-                editDBRing(ring)
-            } else {
-                unsubscribeDBEditor()
-                modMessage("Dungeon breaker editor &cdisabled&r.")
-            }
-        }.description("Toggles dungeon breaker ring editor.").withEditMode()
-
-        ar.sub("dblcm") {
-            dbLcmMode = !dbLcmMode
-            modMessage("Dungeon breaker left-click editmode ${if (dbLcmMode) "&aenabled" else "&cdisabled"}&r.")
-        }.description("Toggles left-click block add mode.")
-
-        val add = ar.sub("add")
-            .description("Adds specified ring.")
-            .suggests("add", actionEntries.map { it.first })
-
-        add.sub("etherwarp") { args: GreedyString? ->
-            addRing(EtherwarpAction(currentRoom!!.getRelativeYaw(player.yaw), player.pitch), args)
-        }.suggestArgs()
-
-        add.sub("rotate") { args: GreedyString? ->
-            addRing(RotateAction(currentRoom!!.getRelativeYaw(player.yaw), player.pitch), args)
-        }.suggestArgs()
-
-        add.sub("boom") { args: GreedyString? ->
-            addRing(BoomAction(currentRoom!!.getRelativeYaw(player.yaw), player.pitch), args)
-        }.suggestArgs()
-
-        add.sub("use_item") { name: String, args: GreedyString? ->
-            addRing(UseItemAction(currentRoom!!.getRelativeYaw(player.yaw), player.pitch, name), args)
-        }.suggests("name", "hyperion", "enderpearl", "aspectofthevoid").suggestArgs()
-
-        add.sub("dungeon_breaker") { args: GreedyString? ->
-            val ring = addRing(DungeonBreakerAction(), args)
-            ring?.let {
-                editMode = true
-                editDBRing(it)
-                modMessage("Do &7/route editdb&r to finish editing")
-            }
-        }.suggestArgs()
-
-        add.sub("start") {
-            addRing(StartAction(), null)
-        }
-
-        ar.register()
-    }
-
-    private fun editDBRing(ring: RouteRing) {
-        if (interactListener != null) unsubscribeDBEditor()
-        breakerRing = ring
-
-        modMessage("Dungeon breaker editor &aenabled&r.")
-
-        interactListener = EventBus.on<PacketEvent.Sent> {
-            //if (packet !is ServerboundUseItemOnPacket) return@on
-            val room = currentRoom ?: return@on
-
-            val editing = breakerRing ?: return@on
-            val action = editing.action as? DungeonBreakerAction ?: return@on
-
-            val pos = when (packet) {
-                is ServerboundUseItemOnPacket -> {
-                    if (dbLcmMode) return@on
-                    packet.hitResult.blockPos
-                }
-                is ServerboundPlayerActionPacket -> {
-                    if (!dbLcmMode) return@on
-                    if (packet.action != ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) return@on
-                    packet.pos
-                }
-                else -> return@on
-            }
-
-            if (lastClickedBlock == pos || isProtectedBlock(pos)) return@on
-            lastClickedBlock = pos
-
-            val relativePos = room.getRelativeCoords(pos)
-
-            val minY = editing.y + player.eyeHeight
-            val maxY = minY + (editing.height ?: 0.1)
-            val yPos = relativePos.y.toDouble().coerceIn(minY, maxY)
-
-            if (relativePos.distToCenterSqr(editing.x, yPos, editing.z) > 25.0)
-                return@on modMessage("&cBlock is too far!")
-
-
-            val blocks = action.blocks.toMutableList()
-            val isRemoving = blocks.contains(relativePos)
-
-            if (!isRemoving && blocks.size >= 20)
-                return@on modMessage("&cMaximum of 20 blocks reached for this ring!")
-
-
-            if (!blocks.remove(relativePos)) blocks.add(relativePos)
-
-            val rings = routes[room.data.name] ?: return@on
-            val index = rings.indexOf(editing)
-            if (index == -1) return@on
-
-            val updatedRing = editing.copy(action = DungeonBreakerAction(blocks))
-
-            rings[index] = updatedRing
-            routes.save()
-
-            breakerRing = updatedRing
-            currentRings.remove(editing)
-            currentRings.add(updatedRing)
-            breakerCache.clear()
-        }
-    }
-
-    private fun unsubscribeDBEditor() {
-        interactListener?.remove()
-        interactListener = null
-        breakerRing = null
-        lastClickedBlock = null
-    }
-
-    private fun editRing(ring: RouteRing, input: GreedyString?) {
-        val room = currentRoom ?: return modMessage("&cUnable to get current room")
-        val rings = routes[room.data.name] ?: return modMessage("${room.data.name} &chas no rings.")
-
-        val index = rings.indexOf(ring)
-        if (index == -1) return modMessage("&cCouldn't find ring in the config.")
-
-        val newValues = parseArgs(input)
-        val chain = if (newValues.chain.equals("none", true)) null else (newValues.chain ?: ring.chain)
-
-        val updatedRing = ring.copy(
-            arguments = newValues.arguments.takeIf { it.isNotEmpty() } ?: ring.arguments,
-            radius = if (input?.string?.contains("radius:") == true) newValues.radius else ring.radius,
-            height = if (input?.string?.contains("height:") == true) newValues.height else ring.height,
-            delay = if (input?.string?.contains("delay:") == true) newValues.delay else ring.delay,
-            chain = chain
-        )
-
-        if (newValues.index != null && !chain.isNullOrEmpty()) {
-            val chainRings = rings.filter { it.chain == chain }.toMutableList()
-            chainRings.remove(ring)
-            val targetPos = newValues.index
-
-            rings.removeAt(index)
-            if (targetPos in 0..chainRings.size) {
-                val insertIndex =
-                    if (targetPos == 0)
-                        if (chainRings.isEmpty()) rings.size else rings.indexOf(chainRings.first())
-                    else
-                        rings.indexOf(chainRings[targetPos - 1]) + 1
-
-                rings.add(insertIndex, updatedRing)
-            } else {
-                rings.add(updatedRing)
-            }
-        } else {
-            rings[index] = updatedRing
-        }
-
-        addHistory[room.data.name]?.let { history ->
-            val i = history.indexOf(ring)
-            if (i != -1) history[i] = updatedRing
-        }
-
-        routes.save()
-        currentRings.remove(ring)
-        currentRings.add(updatedRing)
-
-        modMessage("Updated &e${ring.action.typeName}&r!")
-    }
-
-    private fun removeRings(range: Double?, name: String? = null) {
-        val room = currentRoom ?: return modMessage("&cUnable to get current room")
-        val r = range ?: 2.0
-
-        val current = routes[room.data.name] ?: return modMessage("${room.data.name} &chas no rings.")
-
-        val ringsInRange = current.mapIndexedNotNull { i, ring ->
-            if ((name?.let { ring.action.typeName == name } ?: true) &&
-                player.boundingBox.inflate(r).intersects(ring.boundingBox(room))) {
-                i to ring
-            } else null
-        }
-
-        if (ringsInRange.isEmpty()) return modMessage("&cNo rings in range")
-
-        ringsInRange.reversed().forEach { (index, _) -> current.removeAt(index) }
-        removedRings.getOrPut(room.data.name) { mutableListOf() }.add(ringsInRange)
-
-        routes.save()
-        modMessage("Removed ${ringsInRange.joinToString(", ") { "&e${it.second.action.typeName}&r" }}")
-    }
-
-    private fun SubCommand.suggestArgs() = suggestsCtx("args") { ctx ->
-        val input = ctx.input.removePrefix("/route add ${ctx.arg(0)} ")
-        val args = input.split(" ")
-        val currentArg = args.lastOrNull().orEmpty()
-
-        val providers = mapOf(
-            "delay" to { listOf("100", "500") },
-            "radius" to { listOf("2", "3.5", "4") },
-            "height" to { listOf("0.1, 1, 4.1") },
-            "block" to { legacyBlockIdMap.keys.map { it.replace("minecraft:", "") } },
-            "await" to { listOf("2", "3", "4") },
-            "chain" to {
-                val chains = currentRoom?.data?.name?.let {
-                    routes[it]?.mapNotNull { r -> r.chain }?.distinct()
-                } ?: emptyList()
-                listOf("none") + chains
-            },
-            "index" to { listOf("0", "1", "2", "3") }
-        )
-
-        val parts = currentArg.split(":", limit = 2)
-
-        if (parts.size == 2) {
-            val (key, value) = parts
-            val suggestions = providers[key]?.invoke() ?: emptyList()
-
-            suggestions.filter { it.contains(value, ignoreCase = true) }.map { "$key:$it" }
-        } else {
-            val usedKeys = args.dropLast(1).map { it.substringBefore(":") }
-            providers.keys.filter { it !in usedKeys && it.startsWith(currentArg, ignoreCase = true) }
-        }
-    }
-
-    private fun SubCommand.withEditMode() = requires("&cEdit mode is disabled!") { editMode }
-
-    private fun addRing(action: RingAction, input: GreedyString?): RouteRing? {
-        val room = currentRoom ?: return null.also { modMessage("&cNo room detected") }
-        var (x, y, z) = room.getRelativeCoords(player.position())
-        val args = parseArgs(input)
-        val chain = if (args.chain.equals("none", true)) null else args.chain ?: currentChain
-
-        x = floor(x) + 0.5
-        z = floor(z) + 0.5
-
-        val ring = RouteRing(
-            x = x,
-            y = y,
-            z = z,
-            action = action,
-            arguments = args.arguments,
-            radius = args.radius,
-            height = args.height,
-            delay = args.delay,
-            chain = chain
-        )
-
-        val rings = routes.getOrPut(room.data.name) { mutableListOf() }
-
-        if (args.index != null && !chain.isNullOrEmpty()) {
-            val chainRings = rings.filter { it.chain == chain }
-            val targetPos = args.index
-
-            if (targetPos in 0..chainRings.size) {
-                val insertIndex =
-                    if (targetPos == 0)
-                        if (chainRings.isEmpty()) rings.size else rings.indexOf(chainRings.first())
-                    else
-                        rings.indexOf(chainRings[targetPos - 1]) + 1
-
-                rings.add(insertIndex, ring)
-                modMessage("Inserted &e${action.typeName}&r as step &7#$targetPos&r in chain &b$chain&r!")
-            } else {
-                rings.add(ring)
-                modMessage("Added &e${action.typeName}&r to chain &b$chain&r (index out of bounds)!")
-            }
-        } else {
-            val standingInChainRing = currentRings.filter { it.chain != null && it.chain == chain }.maxByOrNull { rings.indexOf(it) }
-
-            if (standingInChainRing != null) {
-                val insertIndex = rings.indexOf(standingInChainRing) + 1
-                rings.add(insertIndex, ring)
-                modMessage("Inserted &e${action.typeName}&r after current step in chain '&b$chain&r'!")
-            } else {
-                rings.add(ring)
-                if (chain != null) modMessage("Added &e${action.typeName}&r to chain '&b$chain&r'!")
-                else modMessage("Added &e${action.typeName}&r!")
-            }
-        }
-
-        addHistory.getOrPut(room.data.name) { mutableListOf() }.add(ring)
-
-        routes.save()
-        return ring
-    }
-
-    private fun parseArgs(input: GreedyString?): RingArgs {
-        val str = input?.string?.lowercase()?.trim()
-        if (str.isNullOrBlank()) return RingArgs()
-
-        val arguments = mutableListOf<RingArgument>()
-        var radius = 1.0
-        var height: Double? = null
-        var delay: Int? = null
-        var chain: String? = null
-        var index: Int? = null
-
-        str.split(" ").forEach { arg ->
-            val parts = arg.split(":", limit = 2)
-            val key = parts[0]
-            val value = parts.getOrNull(1) ?: ""
-
-            when (key) {
-                "radius" -> radius = value.toDoubleOrNull() ?: 1.0
-                "height" -> height = value.toDoubleOrNull()
-                "delay" -> delay = value.toIntOrNull()
-                "chain" -> chain = value
-                "index" -> index = value.toIntOrNull()
-                "await" -> arguments.add(AwaitArgument(value.toIntOrNull()))
-                "block" -> {
-                    val blockPos = rayCast(distance = 999.0) ?: return@forEach modMessage("&cFailed to get block")
-                    val relative = currentRoom?.getRelativeCoords(blockPos) ?: return@forEach modMessage("&cFailed to get relative coords")
-                    val name = value.ifEmpty { blockPos.state?.block?.registryName ?: return@forEach }
-                    arguments.add(BlockArgument(name, relative))
-                }
-            }
-        }
-        return RingArgs(arguments, radius, height, delay, chain, index)
-    }
-
-    private data class RingArgs(
-        val arguments: List<RingArgument> = emptyList(),
-        val radius: Double = 1.0,
-        val height: Double? = null,
-        val delay: Int? = null,
-        val chain: String? = null,
-        val index: Int? = null,
-    )
-
     private fun RouteRing.colour() = if (multicolour) colours[this.action.typeName]?.value ?: Colour.WHITE else colour
     private fun RouteRing.fillColour() = if (multicolour) fillColours[this.action.typeName]?.value ?: Colour.WHITE else fillColour
+
+    internal val yaw get() = currentRoom!!.getRelativeYaw(player.yaw)
+    internal val pitch get() = player.pitch
 }
