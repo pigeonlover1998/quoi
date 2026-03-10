@@ -5,7 +5,7 @@ import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.config.TypeName
 import quoi.utils.ChatUtils.modMessage
-import quoi.utils.skyblock.player.PlayerUtils
+import quoi.utils.skyblock.player.PlayerUtils.leftClick
 import quoi.utils.skyblock.player.PlayerUtils.rotate
 import quoi.utils.skyblock.player.SwapManager
 
@@ -21,6 +21,6 @@ class BoomAction(val yaw: Float = 0f, val pitch: Float = 0f) : RingAction {
         }
         player.rotate(currentRoom!!.getRealYaw(yaw), pitch)
 //        wait(1)
-        PlayerUtils.leftClick()
+        player.leftClick()
     }
 }

@@ -124,7 +124,7 @@ abstract class Module(
 
     fun inEnvironment(): Boolean = area?.inArea() ?: true && inSubarea()
 
-    inline fun <reified T : Event> on(priority: Int = 0, noinline cb: T.() -> Unit) {
+    protected inline fun <reified T : Event> on(priority: Int = 0, noinline cb: T.() -> Unit) {
         events.add(EventBus.on<T>(priority, {
             val event = this
             when (event) {
@@ -135,7 +135,7 @@ abstract class Module(
     }
 
     @JvmName("onPacket")
-    inline fun <reified E, reified P : Packet<*>> on(
+    protected inline fun <reified E, reified P : Packet<*>> on(
         priority: Int = 0,
         noinline cb: PacketScope<E, P>.() -> Unit
     ) where E : Event, E : PacketEvent {

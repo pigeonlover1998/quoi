@@ -3,14 +3,13 @@ package quoi.utils
 import quoi.QuoiMod.mc
 import quoi.utils.WorldUtils.world
 import net.minecraft.core.BlockPos
+import net.minecraft.util.Mth.wrapDegrees
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
-import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.floor
-import kotlin.math.pow
 import kotlin.math.sqrt
 
 /**
@@ -20,6 +19,7 @@ import kotlin.math.sqrt
  */
 
 data class Vec2(val x: Int, val z: Int)
+data class Direction(val yaw: Float, val pitch: Float, val distance: Double = 0.0)
 
 operator fun Vec3.component1(): Double = x
 operator fun Vec3.component2(): Double = y
@@ -126,18 +126,25 @@ fun Vec3.equal(other: Vec3): Boolean =
 /**
  * Returns Triple(distance, yaw, pitch) in minecraft coordinate system to get from x0y0z0 to x1y1z1.
  *
- * @param vec3 Vec3 to get direction to.
+ * @param from Vec3 to get direction from.
  *
- * @param vec31 Vec3 to get direction from.
+ * @param to Vec3 to get direction to.
  *
  * @return Triple of distance, yaw, pitch
  * @author Aton
  */
-fun getDirection(vec3: Vec3, vec31: Vec3): Triple<Double, Float, Float> {
-    val dist = sqrt((vec31.x - vec3.x).pow(2) + (vec31.y - vec3.y).pow(2) + (vec31.z - vec3.z).pow(2))
-    val yaw = -atan2((vec31.x - vec3.x), (vec31.z - vec3.z)) / PI * 180
-    val pitch = -atan2((vec31.y - vec3.y), sqrt((vec31.x - vec3.x).pow(2) + (vec31.z - vec3.z).pow(2))) / PI * 180
-    return Triple(dist, yaw.toFloat() % 360f, pitch.toFloat() % 360f)
+fun getDirection(from: Vec3, to: Vec3): Direction {
+    val dx = to.x - from.x
+    val dy = to.y - from.y
+    val dz = to.z - from.z
+
+    val distXZ = sqrt(dx * dx + dz * dz)
+    val dist = sqrt(distXZ * distXZ + dy * dy)
+
+    val yaw = -atan2(dx, dz).deg
+    val pitch = -atan2(dy, distXZ).deg
+
+    return Direction(wrapDegrees(yaw), wrapDegrees(pitch), dist)
 }
 
 /**
@@ -148,7 +155,7 @@ fun getDirection(vec3: Vec3, vec31: Vec3): Triple<Double, Float, Float> {
  * @see getDirection
  * @author Aton
  */
-fun etherwarpRotateTo(targetPos: BlockPos, dist: Double = 61.0): Triple<Double, Float, Float>? {
+fun etherwarpRotateTo(targetPos: BlockPos, dist: Double = 61.0): Direction? {
     val player = mc.player ?: return null
 
     if (player.distanceToSqr(targetPos.vec3) > (dist + 2) * (dist + 2)) return null

@@ -34,6 +34,9 @@ import net.minecraft.world.inventory.ClickType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
+import quoi.api.events.WorldEvent
+import quoi.mixins.accessors.ClientLevelAccessor
+import quoi.utils.Direction
 import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.coroutines.resume
@@ -71,6 +74,10 @@ object PlayerUtils {
                 containerId = -1
                 lastStateId = 0
             }
+        }
+        EventBus.on<WorldEvent.Change> {
+            containerId = -1
+            lastStateId = 0
         }
     }
 
@@ -308,14 +315,28 @@ object PlayerUtils {
         if (swing) player.swing(hand)
     }
 
-    fun rightClick() {
-        if (mc.player == null) return
+    fun LocalPlayer.useItem(yaw: Number = this.yaw, pitch: Number = this.pitch) {
+        val level = mc.level as? ClientLevelAccessor ?: return
+        val session = level.blockStatePredictionHandler.startPredicting()
+        mc.connection!!.send(
+            ServerboundUseItemPacket(
+                InteractionHand.MAIN_HAND,
+                session.currentSequence(),
+                yaw.toFloat(),
+                pitch.toFloat()
+            )
+        )
+        session.close()
+    }
+
+    fun LocalPlayer.useItem(dir: Direction) = this.useItem(dir.yaw, dir.pitch)
+
+    fun LocalPlayer.rightClick() {
         val key = mc.options.keyUse.key
         KeyMapping.click(key)
     }
 
-    fun leftClick() {
-        if (mc.player == null) return
+    fun LocalPlayer.leftClick() {
         val key = mc.options.keyAttack.key
         KeyMapping.click(key)
     }
@@ -354,6 +375,8 @@ object PlayerUtils {
         this.yaw = yaw.toFloat()
         this.pitch = pitch.toFloat()
     }
+
+    fun LocalPlayer.rotate(dir: Direction) = this.rotate(dir.yaw, dir.pitch)
 
     fun getItemsAmount(itemId: String): Int {
         val player = mc.player ?: return 0

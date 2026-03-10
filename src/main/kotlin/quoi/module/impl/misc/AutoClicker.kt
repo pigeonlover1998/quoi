@@ -145,9 +145,9 @@ object AutoClicker: Module(
         while (true) {
             if (shouldClick(isLeft)) {
                 if (isLeft) {
-                    if (!lookingAtBreakable) leftClick()
+                    if (!lookingAtBreakable) player.leftClick()
                 } else {
-                    rightClick()
+                    player.rightClick()
                 }
             }
 

@@ -49,6 +49,7 @@
     "SkullBlockMixin",
     "WallSkullBlockMixin",
     "accessors.ChatComponentAccessor",
+    "accessors.ClientLevelAccessor",
     "accessors.InventoryAccessor",
     "accessors.KeyMappingAccessor",
     "accessors.LocalPlayerAccessor",

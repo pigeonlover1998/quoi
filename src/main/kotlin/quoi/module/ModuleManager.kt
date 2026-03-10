@@ -5,6 +5,7 @@ import quoi.api.events.MouseEvent
 import quoi.api.events.core.EventBus
 import quoi.api.input.CatKeys
 import quoi.module.impl.dungeon.*
+import quoi.module.impl.dungeon.puzzlesolvers.PuzzleSolvers
 import quoi.module.impl.mining.CrystalHollowsMap
 import quoi.module.impl.mining.CrystalHollowsScanner
 import quoi.module.impl.mining.GrieferTracker
@@ -50,6 +51,7 @@ object ModuleManager {
 //            AutoBloodRush,
             AutoRoutes,
             SecretAura,
+            PuzzleSolvers,
 
             // MISC
             Test,
