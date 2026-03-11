@@ -17,7 +17,6 @@ import quoi.module.settings.impl.DropdownSetting
 import quoi.module.settings.impl.NumberSetting
 import quoi.module.settings.impl.SelectorSetting
 import quoi.utils.ChatUtils.modMessage
-import quoi.utils.Scheduler
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.PlayerUtils.interact
@@ -28,6 +27,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
 import quoi.api.skyblock.SkyblockPlayer
+import quoi.utils.Scheduler.scheduleTask
 import kotlin.coroutines.resume
 
 // Kyleen
@@ -132,10 +132,10 @@ object AutoMask : Module(
                     }
 
                     val result = SwapManager.swapById("INFINITE_SPIRIT_LEAP", "SPIRIT_LEAP")
-                    if (result == SwapResult.SUCCESS || result == SwapResult.ALREADY_SELECTED) {
-                        ee3State = EE3State.PERFORM_LEAP
+                    ee3State = if (result == SwapResult.SUCCESS || result == SwapResult.ALREADY_SELECTED) {
+                        EE3State.PERFORM_LEAP
                     } else {
-                        ee3State = EE3State.IDLE
+                        EE3State.IDLE
                     }
                 }
                 EE3State.PERFORM_LEAP -> {
@@ -166,10 +166,7 @@ object AutoMask : Module(
 
             if (bonzoMsg || spiritMsg) {
                 if (antiLoop && isSwapping) return@on
-
-                Scheduler.scheduleTask(1) {
-                    handleMaskProc(if (bonzoMsg) "bonzo" else "spirit")
-                }
+                handleMaskProc(if (bonzoMsg) "spirit" else "bonzo")
             }
         }
     }
@@ -229,10 +226,7 @@ object AutoMask : Module(
         )
 
         if (success) {
-            PlayerUtils.closeContainer()
-            //modMessage("Equipped $name")
-        } else {
-            //modMessage("Could not find $name")
+            scheduleTask(1) { PlayerUtils.closeContainer() }
         }
     }
 
@@ -256,7 +250,6 @@ object AutoMask : Module(
         originalHotbarSlot = player.inventory.selectedSlot
         val result = SwapManager.swapById("INFINITE_SPIRIT_LEAP", "SPIRIT_LEAP")
         if (result == SwapResult.FAILED || result == SwapResult.NOT_FOUND) {
-            //modMessage("§c[AutoMask] Spirit Leap not found in hotbar!")
             return
         }
 
@@ -267,12 +260,10 @@ object AutoMask : Module(
     fun autoLeap() {
         if (Dungeon.isDead) return
         if (ee3State != EE3State.PERFORM_LEAP) return
-        //ee3State = EE3State.IDLE
 
         scope.launch {
             try {
                 val playerName = mc.player?.name?.string
-                //val teammates = Dungeon.dungeonTeammates
 
                 val preferredClass = when (leapClass.selected.lowercase()) {
                     "berserk" -> DungeonClass.Berserk
@@ -289,12 +280,6 @@ object AutoMask : Module(
                     ?: Dungeon.dungeonTeammates
                         .firstOrNull { !it.isDead && it.name != playerName }
                         ?.name
-
-//                val targetName = teammates.firstOrNull {
-//                    it.clazz == DungeonClass.Berserk && !it.isDead && it.name != playerName
-//                }?.name ?: teammates.firstOrNull {
-//                    !it.isDead && it.name != playerName
-//                }?.name
 
                 if (targetName == null) {
                     modMessage("§c[AutoLeap] No valid teammate found!")
@@ -349,9 +334,9 @@ object AutoMask : Module(
                             if (name.contains(targetName, ignoreCase = true)) {
                                 val slot = packet.slot
 
-                                Scheduler.scheduleTask(1) {
+                                scheduleTask(1) {
                                     PlayerUtils.click(slot)
-                                    Scheduler.scheduleTask(2) {
+                                    scheduleTask(2) {
                                         finish(true)
                                     }
                                 }
@@ -361,28 +346,11 @@ object AutoMask : Module(
                 }
             }
 
-            /*
-            slotListener = EventBus.on<PacketEvent.Received>(EventPriority.LOWEST) {
-                if (packet is ClientboundContainerSetSlotPacket && packet.containerId == windowId) {
-                    val stack = packet.item
-                    if (!stack.isEmpty && stack.displayName.string.noControlCodes.contains(targetName, ignoreCase = true)) {
-                        val slot = packet.slot
-                        Scheduler.scheduleTask(1) {
-                            PlayerUtils.click(slot)
-                            Scheduler.scheduleTask(2) {
-                                finish(true)
-                            }
-                        }
-                    }
-                }
-            }
-            */
-
             interact()
 
-            Scheduler.scheduleTask(30) {
+            scheduleTask(30) {
                 finish(false)
-                modMessage("&cidfk cunt") //just in case idk
+                modMessage("&cRequise issue")
             }
         }
     }
