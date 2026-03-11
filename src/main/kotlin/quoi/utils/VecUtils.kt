@@ -32,8 +32,16 @@ operator fun BlockPos.component3(): Int = z
 
 operator fun Vec3.unaryMinus(): Vec3 = Vec3(-x, -y, -z)
 
+fun Vec3.addVec(x: Number = 0.0, y: Number = 0.0, z: Number = 0.0): Vec3 =
+    Vec3(this.x + x.toDouble(), this.y + y.toDouble(), this.z + z.toDouble())
+
 inline val Vec3.aabb: AABB get() = AABB(x, y, z, x + 1.0, y + 1.0, z + 1.0)
-inline val BlockPos.aabb: AABB get() = AABB(this)
+inline val BlockPos.aabb: AABB get() {
+    return world?.let { level ->
+        level.getBlockState(this)?.getShape(level, this)?.singleEncompassing()
+            ?.takeIf { !it.isEmpty }?.bounds()
+    } ?: AABB(this)
+}
 inline val BlockPos.vec3: Vec3 get() = Vec3(x.toDouble(), y.toDouble(), z.toDouble())
 
 fun Vec3(x: Number, y: Number, z: Number) = Vec3(x.toDouble(), y.toDouble(), z.toDouble())
@@ -367,4 +375,51 @@ fun rayCastVec(
 
     val delta = lookVec.scale(distance)
     return rayCastVec(origin, delta, firstBlock)
+}
+
+fun isXZInterceptable(box: AABB, range: Double, pos: Vec3, yaw: Float, pitch: Float): Boolean {
+    val start = pos.addVec(y = (mc.player?.eyeY ?: 0.0))
+    val goal = start.add(getLook(yaw, pitch).multiply(range, range, range))
+
+    return isVecInZ(start.intermediateWithXValue(goal, box.minX), box) ||
+            isVecInZ(start.intermediateWithXValue(goal, box.maxX), box) ||
+            isVecInX(start.intermediateWithZValue(goal, box.minZ), box) ||
+            isVecInX(start.intermediateWithZValue(goal, box.maxZ), box)
+}
+
+private fun getLook(yaw: Float, pitch: Float): Vec3 {
+    val f2 = -cos(-pitch * 0.017453292f).toDouble()
+    return Vec3(
+        sin(-yaw * 0.017453292f - 3.1415927f) * f2,
+        sin(-pitch * 0.017453292f).toDouble(),
+        cos(-yaw * 0.017453292f - 3.1415927f) * f2
+    )
+}
+
+private fun isVecInX(vec: Vec3?, box: AABB): Boolean =
+    vec != null && vec.x >= box.minX && vec.x <= box.maxX
+
+private fun isVecInZ(vec: Vec3?, box: AABB): Boolean =
+    vec != null && vec.z >= box.minZ && vec.z <= box.maxZ
+
+private fun Vec3.intermediateWithXValue(goal: Vec3, x: Double): Vec3? {
+    val dx = goal.x - this.x
+    if (dx * dx < 1e-8) return null
+    val t = (x - this.x) / dx
+    return if (t in 0.0..1.0) Vec3(
+        this.x + dx * t,
+        this.y + (goal.y - this.y) * t,
+        this.z + (goal.z - this.z) * t
+    ) else null
+}
+
+private fun Vec3.intermediateWithZValue(goal: Vec3, z: Double): Vec3? {
+    val dz = goal.z - this.z
+    if (dz * dz < 1e-8) return null
+    val t = (z - this.z) / dz
+    return if (t in 0.0..1.0) Vec3(
+        this.x + (goal.x - this.x) * t,
+        this.y + (goal.y - this.y) * t,
+        this.z + dz * t
+    ) else null
 }
