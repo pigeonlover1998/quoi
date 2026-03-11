@@ -16,20 +16,13 @@ import quoi.api.colour.withAlpha
 import quoi.api.events.BlockUpdateEvent
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
-import quoi.utils.ChatUtils
+import quoi.utils.*
 import quoi.utils.Scheduler.scheduleTask
-import quoi.utils.Ticker
-import quoi.utils.equal
-import quoi.utils.equalsOneOf
-import quoi.utils.etherwarpRotateTo
 import quoi.utils.render.drawLine
 import quoi.utils.render.drawStyledBox
 import quoi.utils.skyblock.ItemUtils.isShortbow
-import quoi.utils.skyblock.player.PlayerUtils
-import quoi.utils.skyblock.player.PlayerUtils.rightClick
-import quoi.utils.skyblock.player.PlayerUtils.rotate
+import quoi.utils.skyblock.player.PlayerUtils.useItem
 import quoi.utils.skyblock.player.SwapManager
-import quoi.utils.ticker
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
@@ -66,7 +59,7 @@ object BeamsSolver {
     private var currentLanternPairs = ConcurrentHashMap<BlockPos, Pair<BlockPos, Colour>>()
 
     fun onRoomEnter(room: OdonRoom?) = with(room) {
-        if (this?.data?.name != "Creeper Beams") return@with reset()
+        if (this?.name != "Creeper Beams") return@with reset()
         recalculateLanternPairs(this)
     }
 
@@ -77,6 +70,12 @@ object BeamsSolver {
             val pos2 = room.getRealCoords(BlockPos(list[3], list[4], list[5]))?.takeIf { mc.level?.getBlockState(it)?.block == Blocks.SEA_LANTERN } ?: return@forEachIndexed
 
             currentLanternPairs[pos] = pos2 to colours[index % colours.size]
+        }
+
+        val active = activePair ?: return
+        if (!currentLanternPairs.containsKey(active.first)) {
+            activePair = null
+            waitingForUpdate = false
         }
     }
 
@@ -106,7 +105,7 @@ object BeamsSolver {
             event.updated.block == Blocks.CHEST &&
             event.old.isAir &&
             announce
-        ) ChatUtils.say("Creeper beams done!")
+        ) ChatUtils.command("pc Creeper beams done!")
         if (
             event.old.block.equalsOneOf(Blocks.PRISMARINE, Blocks.SEA_LANTERN) &&
             event.updated.block.equalsOneOf(Blocks.PRISMARINE, Blocks.SEA_LANTERN)
@@ -133,7 +132,7 @@ object BeamsSolver {
         } else if (pair.stage == 1 && packet.pitch == 2.0f) {
             pair.stage = 2
             waitingForUpdate = false
-            currentLanternPairs.remove(pair.first) // idk maybe wait for block update
+            currentLanternPairs.remove(pair.first)
             activePair = null
         }
 
@@ -141,7 +140,7 @@ object BeamsSolver {
 
     fun onTick(player: LocalPlayer, shootCd: Long, missCd: Long) {
         val room = Dungeon.currentRoom ?: return
-        if (room.name != "Creeper Beams" || currentLanternPairs.isEmpty() || player.y != 75.0) return
+        if (room.name != "Creeper Beams" || currentLanternPairs.isEmpty()) return
         if (mc.screen != null) return
 
         repositionTicker?.let {
@@ -150,6 +149,11 @@ object BeamsSolver {
             }
         }
         if (repositionTicker != null) return
+
+        if (player.y != 75.0) {
+            reposition(player, room.getRealCoords(BlockPos(16, 74, 14)))
+            return
+        }
 
 
         if (activePair == null) {
@@ -173,17 +177,17 @@ object BeamsSolver {
         val currentTime = System.currentTimeMillis()
 
         if (waitingForUpdate) {
-            if (currentTime - lastShotTime > missCd) {
+            if (currentTime - lastShotTime > missCd)
                 waitingForUpdate = false
-            } else return
+            else
+                return
         }
 
         if (!player.mainHandItem.isShortbow) return
         if (currentTime - lastShotTime < shootCd) return
 
-        val dir = etherwarpRotateTo(lantern) ?: return
-        player.rotate(dir.yaw, dir.pitch - 1f)
-        scheduleTask { player.rightClick() }
+        val dir = getEtherwarpDirection(lantern) ?: return
+        player.useItem(dir.yaw, dir.pitch - 1f)
 
         lastShotTime = currentTime
         waitingForUpdate = true
@@ -203,10 +207,12 @@ object BeamsSolver {
 
         repositionTicker = ticker {
             val r = SwapManager.swapById("ASPECT_OF_THE_VOID", "ASPECT_OF_THE_END").success
-            action {
-                mc.options.keyShift.isDown = true
+            if (!mc.options.keyShift.isDown) {
+                action {
+                    mc.options.keyShift.isDown = true
+                }
+                delay(2)
             }
-            delay(2)
             await {
                 if (r) return@await true
                 else return@await false.also {
@@ -214,9 +220,12 @@ object BeamsSolver {
                 }
             }
             action {
-                val dir = etherwarpRotateTo(spot)
-                if (dir != null) player.rotate(dir)
-                PlayerUtils.interact()
+                val dir = getEtherwarpDirection(spot)
+                if (dir == null) {
+                    repositionTicker = null
+                    return@action
+                }
+                player.useItem(dir)
             }
             await {
                 player.blockPosition().x == spot.x && player.blockPosition().z == spot.z

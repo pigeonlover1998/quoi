@@ -3,6 +3,7 @@ package quoi.utils.skyblock
 import kotlinx.serialization.json.Json.Default.parseToJsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.item.ItemStack
@@ -35,4 +36,15 @@ object ItemUtils {
 
     inline val ItemStack.texture: String?
         get() = get(DataComponents.PROFILE)?.partialProfile()?.properties?.get("textures")?.firstOrNull()?.value
+
+    inline val LocalPlayer.hasTerminator: Boolean
+        get() {
+            for (i in 0..8) {
+                val stack = inventory.getItem(i)
+                if (stack.skyblockId == "TERMINATOR") {
+                    return true
+                }
+            }
+            return false
+        }
 }

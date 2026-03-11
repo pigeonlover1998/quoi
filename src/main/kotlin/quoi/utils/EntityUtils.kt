@@ -12,16 +12,31 @@ import net.minecraft.world.phys.Vec3
 import kotlin.math.sqrt
 
 object EntityUtils {
-    val entities get() = entitiesToRender.toList()
-    val playerEntities get() = entitiesToRender.filter { it is Player && it.uuid.version() != 2 }
-    val playerEntitiesNoSelf get() = entitiesToRender.filter { it is Player && it != mc.player && it.uuid.version() != 2 }
-
-    private val entitiesToRender = mutableListOf<Entity>()
+    var entities = emptyList<Entity>()
+        private set
+    var playerEntities = emptyList<Player>()
+        private set
+    var playerEntitiesNoSelf = emptyList<Player>()
+        private set
 
     fun init() {
         EventBus.on<TickEvent.End> {
-            entitiesToRender.clear()
-            mc.level?.entitiesForRendering()?.forEach { entitiesToRender += it }
+            val all = mutableListOf<Entity>()
+            val players = mutableListOf<Player>()
+            val playersNoSelf = mutableListOf<Player>()
+
+            for (entity in mc.level!!.entitiesForRendering()) {
+                all.add(entity)
+                if (entity is Player && entity.uuid.version() != 2) {
+                    players.add(entity)
+                    if (entity != mc.player) {
+                        playersNoSelf.add(entity)
+                    }
+                }
+            }
+            entities = all
+            playerEntities = players
+            playerEntitiesNoSelf = playersNoSelf
         }
     }
 

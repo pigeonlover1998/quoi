@@ -1,16 +1,16 @@
 package quoi.utils
 
-import quoi.QuoiMod.mc
-import quoi.utils.WorldUtils.world
 import net.minecraft.core.BlockPos
 import net.minecraft.util.Mth.wrapDegrees
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.AABB
+import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
+import quoi.QuoiMod.mc
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
-import kotlin.math.atan2
-import kotlin.math.floor
-import kotlin.math.sqrt
+import quoi.utils.WorldUtils.world
+import kotlin.math.*
 
 /**
  * modified OdinFabric (BSD 3-Clause)
@@ -35,6 +35,8 @@ operator fun Vec3.unaryMinus(): Vec3 = Vec3(-x, -y, -z)
 inline val Vec3.aabb: AABB get() = AABB(x, y, z, x + 1.0, y + 1.0, z + 1.0)
 inline val BlockPos.aabb: AABB get() = AABB(this)
 inline val BlockPos.vec3: Vec3 get() = Vec3(x.toDouble(), y.toDouble(), z.toDouble())
+
+fun Vec3(x: Number, y: Number, z: Number) = Vec3(x.toDouble(), y.toDouble(), z.toDouble())
 
 fun Vec3.rotate(rotation: Int): Vec3 =
     when ((rotation % 360 + 360) % 360) {
@@ -153,60 +155,124 @@ fun getDirection(from: Vec3, to: Vec3): Direction {
 /**
  * Returns a triple of distance, yaw, pitch to rotate to the given position with etherwarp physics, or null if etherwarp is not possible.
  *
- * @param targetPos The position to rotate to.
+ * @param to The position to rotate to.
  * @return A triple of distance, yaw, pitch to rotate to the given position with etherwarp physics, or null if etherwarp is not possible
  * @see getDirection
  * @author Aton
  */
-fun etherwarpRotateTo(targetPos: BlockPos, dist: Double = 61.0): Direction? {
+fun getEtherwarpDirection(to: BlockPos, dist: Double = 61.0): Direction? {
     val player = mc.player ?: return null
 
-    if (player.distanceToSqr(targetPos.vec3) > (dist + 2) * (dist + 2)) return null
+    if (player.distanceToSqr(to.vec3) > (dist + 2) * (dist + 2)) return null
 
     // check whether the block can be seen or is to far away
     val targets = listOf(
         // center
-        Vec3(targetPos).add(Vec3(0.5, 1.0, 0.5)),
+        Vec3(to).add(Vec3(0.5, 1.0, 0.5)),
 
         // face centers
-        Vec3(targetPos).add(Vec3(0.0, 0.5, 0.5)),
-        Vec3(targetPos).add(Vec3(1.0, 0.5, 0.5)),
-        Vec3(targetPos).add(Vec3(0.5, 0.5, 0.0)),
-        Vec3(targetPos).add(Vec3(0.5, 0.5, 1.0)),
-        Vec3(targetPos).add(Vec3(0.5, 0.0, 0.5)),
+        Vec3(to).add(Vec3(0.0, 0.5, 0.5)),
+        Vec3(to).add(Vec3(1.0, 0.5, 0.5)),
+        Vec3(to).add(Vec3(0.5, 0.5, 0.0)),
+        Vec3(to).add(Vec3(0.5, 0.5, 1.0)),
+        Vec3(to).add(Vec3(0.5, 0.0, 0.5)),
 
         // bottom layer
-        Vec3(targetPos).add(Vec3(0.001, 0.0, 0.001)),
-        Vec3(targetPos).add(Vec3(0.001, 0.0, 0.999)),
-        Vec3(targetPos).add(Vec3(0.999, 0.0, 0.001)),
-        Vec3(targetPos).add(Vec3(0.999, 0.0, 0.999)),
+        Vec3(to).add(Vec3(0.001, 0.0, 0.001)),
+        Vec3(to).add(Vec3(0.001, 0.0, 0.999)),
+        Vec3(to).add(Vec3(0.999, 0.0, 0.001)),
+        Vec3(to).add(Vec3(0.999, 0.0, 0.999)),
 
         // top layer
-        Vec3(targetPos).add(Vec3(0.001, 1.0, 0.001)),
-        Vec3(targetPos).add(Vec3(0.001, 1.0, 0.999)),
-        Vec3(targetPos).add(Vec3(0.999, 1.0, 0.001)),
-        Vec3(targetPos).add(Vec3(0.999, 1.0, 0.999))
+        Vec3(to).add(Vec3(0.001, 1.0, 0.001)),
+        Vec3(to).add(Vec3(0.001, 1.0, 0.999)),
+        Vec3(to).add(Vec3(0.999, 1.0, 0.001)),
+        Vec3(to).add(Vec3(0.999, 1.0, 0.999))
     )
 
     val eyeVec = player.eyePosition
 
     for (targetVec in targets) {
-        val result = mc.level!!.clip( // todo use rayCast
-            ClipContext(
-                eyeVec,
-                targetVec,
-                ClipContext.Block.OUTLINE,
-                ClipContext.Fluid.NONE,
-                player
-            )
-        )
+        val hitPos = rayCast(eyeVec, targetVec.subtract(eyeVec))
 
-        if (result.blockPos == targetPos) {
+        if (hitPos == to) {
             return getDirection(eyeVec, targetVec)
         }
     }
 
     return null
+}
+
+fun getArrowDirection(from: Vec3, to: Vec3, isTerminator: Boolean = false): Direction {
+    var yaw = atan2(to.z - from.z, to.x - from.x).deg - 90.0f
+
+    if (!isTerminator) {
+        val origin = getArrowOrigin(from, yaw, false)
+        yaw = atan2(to.z - origin.z, to.x - origin.x).deg - 90.0f
+    }
+
+    val origin = getArrowOrigin(from, yaw, isTerminator)
+    val dist = (to.x - origin.x) * (to.x - origin.x) + (to.z - origin.z) * (to.z - origin.z)
+
+    fun simulateHitY(pitch: Float): Double {
+        val yawRad = yaw.rad
+        val pitchRad = pitch.rad
+
+        var (px, py, pz) = origin
+        var mx = -sin(yawRad) * cos(pitchRad) * 3.0
+        var my = -sin(pitchRad) * 3.0
+        var mz = cos(yawRad) * cos(pitchRad) * 3.0
+
+        for (tick in 0..100) {
+            px += mx
+            py += my
+            pz += mz
+
+            val currDist = (px - origin.x) * (px - origin.x) + (pz - origin.z) * (pz - origin.z)
+            if (currDist >= dist) return py
+
+            mx *= 0.99
+            my = my * 0.99 - 0.05
+            mz *= 0.99
+        }
+        return py
+    }
+
+    var minPitch = -90.0f
+    var maxPitch = 90.0f
+    repeat(20) {
+        val midPitch = (minPitch + maxPitch) / 2f
+        if (simulateHitY(midPitch) > to.y) minPitch = midPitch else maxPitch = midPitch
+    }
+
+    return Direction(yaw, (minPitch + maxPitch) / 2f)
+}
+
+fun getArrowOrigin(from: Vec3, yaw: Float, isTerminator: Boolean): Vec3 {
+    return if (isTerminator) {
+        Vec3(from.x, from.y - 0.01, from.z)
+    } else {
+        val r = yaw.rad
+        Vec3(
+            from.x - cos(r) * 0.16,
+            from.y - 0.1,
+            from.z - sin(r) * 0.16
+        )
+    }
+}
+
+fun isPathClear(from: Vec3, target: Vec3): Boolean {
+    val level = world ?: return false
+    val result = level.clip(
+        ClipContext(
+            from,
+            target,
+            ClipContext.Block.COLLIDER,
+            ClipContext.Fluid.NONE,
+            mc.player as Entity
+        )
+    )
+    return result.type == HitResult.Type.MISS
 }
 
 fun rayCast(
