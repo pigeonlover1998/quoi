@@ -42,6 +42,7 @@ inline val BlockPos.aabb: AABB get() {
             ?.takeIf { !it.isEmpty }?.bounds()
     } ?: AABB(this)
 }
+inline val Vec3.blockPos: BlockPos get() = BlockPos.containing(this)
 inline val BlockPos.vec3: Vec3 get() = Vec3(x.toDouble(), y.toDouble(), z.toDouble())
 
 fun Vec3(x: Number, y: Number, z: Number) = Vec3(x.toDouble(), y.toDouble(), z.toDouble())

@@ -416,7 +416,7 @@ private fun parseArgs(input: GreedyString?): RingArgs {
             "block" -> {
                 val blockPos = rayCast(distance = 999.0) ?: return@forEach modMessage("&cFailed to get block")
                 val relative = currentRoom?.getRelativeCoords(blockPos) ?: return@forEach modMessage("&cFailed to get relative coords")
-                val name = value.ifEmpty { blockPos.state?.block?.registryName ?: return@forEach }
+                val name = value.ifEmpty { blockPos.state.block.registryName }
                 arguments.add(BlockArgument(name, relative))
             }
         }

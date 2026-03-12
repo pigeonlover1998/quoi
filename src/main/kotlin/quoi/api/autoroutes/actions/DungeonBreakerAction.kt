@@ -41,7 +41,7 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
             val realPos = room.getRealCoords(relativePos)
             !recentlyBroken.containsKey(realPos) &&
             level.isLoaded(realPos) &&
-            realPos.state?.isAir == false
+            realPos.state.isAir
         }
 
         if (!needsBreaking) return
@@ -73,7 +73,7 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
 
             if (recentlyBroken.containsKey(realPos)) continue
 
-            if (!level.isLoaded(realPos) || realPos.state?.isAir == true) continue
+            if (!level.isLoaded(realPos) || realPos.state.isAir) continue
 
 //            if (realPos.distToCenterSqr(player.eyePosition) > 25.0) continue
             var outOfRangeTicks = 0

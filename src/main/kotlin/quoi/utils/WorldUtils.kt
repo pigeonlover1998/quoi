@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.level.GameType
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
 
 /**
@@ -17,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState
 object WorldUtils {
     val world: ClientLevel? get() = mc.level
 
-    val BlockPos.state: BlockState? get() = world?.getBlockState(this)
+    val BlockPos.state: BlockState get() = world?.getBlockState(this) ?: Blocks.AIR.defaultBlockState()
 
     fun getBlockStateAt(x: Int, y: Int, z: Int) = mc.level?.getBlockState(BlockPos(x, y, z))
 

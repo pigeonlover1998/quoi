@@ -91,7 +91,7 @@ object ChatReplacements : Module("Chat Replacements", desc = "temp") { // THIS I
         ":skull:" to "☠"
     )
 
-    private val dungeonPrefix = "§dDungeon§f > "
+    private val dungeonPrefix = "§dDungeon§f >"
 
     private val rareDropsToRemove = listOf(
         "RARE DROP! Machine Gun Shortbow",

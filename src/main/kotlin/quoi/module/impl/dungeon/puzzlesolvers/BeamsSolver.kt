@@ -147,8 +147,8 @@ object BeamsSolver {
             if (it.tick()) scheduleTask {
                 repositionTicker = null
             }
+            return
         }
-        if (repositionTicker != null) return
 
         if (player.y != 75.0) {
             reposition(player, room.getRealCoords(BlockPos(16, 74, 14)))

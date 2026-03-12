@@ -241,7 +241,7 @@ object AutoRoutes : Module(
                 }
 
                 blocks.forEach { (pos, aabb) ->
-                    if (pos.state?.isAir == true) {
+                    if (pos.state.isAir) {
                         ctx.drawWireFrameBox(aabb, Colour.RED.withAlpha(125), depth = true)
                     } else {
                         ctx.drawFilledBox(aabb, Colour.WHITE.withAlpha(125), depth = true)

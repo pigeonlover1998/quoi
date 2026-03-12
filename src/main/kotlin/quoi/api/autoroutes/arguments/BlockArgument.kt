@@ -12,7 +12,7 @@ class BlockArgument(val name: String = "", val blockPos: BlockPos = BlockPos(0, 
     override fun check(ring: RouteRing): Boolean {
         val currentRoom = Dungeon.currentRoom ?: return false
         val blockPos = currentRoom.getRealCoords(blockPos)
-        return blockPos.state?.block?.registryName != name
+        return blockPos.state.block.registryName != name
     }
 
 }
