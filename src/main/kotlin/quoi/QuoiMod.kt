@@ -22,6 +22,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.SpecialGuiElementRegistry
 import net.minecraft.client.Minecraft
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import quoi.utils.skyblock.player.LeapManager
 import kotlin.coroutines.EmptyCoroutineContext
 
 object QuoiMod : ClientModInitializer {
@@ -36,6 +37,7 @@ object QuoiMod : ClientModInitializer {
         Location.init()
         SkyblockPlayer.init()
         SwapManager.init()
+        LeapManager.init()
         AuraManager.init()
 
         SpecialGuiElementRegistry.register { context ->

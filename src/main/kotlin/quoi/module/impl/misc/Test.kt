@@ -29,6 +29,8 @@ import quoi.utils.ui.hud.*
 import quoi.utils.ui.textPair
 import kotlinx.coroutines.launch
 import net.minecraft.world.phys.BlockHitResult
+import quoi.utils.Scheduler.scheduleTask
+import quoi.utils.skyblock.player.LeapManager
 
 object Test : Module("Test", desc = "Dev module for testing.") {
     val selectedTheme2 by SelectorSetting("Theme2", "Light", listOf("Light", "Dark", "Custom"))
@@ -118,6 +120,12 @@ object Test : Module("Test", desc = "Dev module for testing.") {
                 modMessage("$stupid: shit2")
                 wait(20)
                 modMessage("$stupid: shit3")
+            }
+        }
+
+        command.sub("testleap") {
+            scheduleTask(10) {
+                LeapManager.leap("HealerClass")
             }
         }
 
