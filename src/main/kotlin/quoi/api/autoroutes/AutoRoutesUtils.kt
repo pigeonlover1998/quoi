@@ -185,7 +185,7 @@ private fun AutoRoutes.editDBRing(ring: RouteRing) {
         val maxY = minY + (editing.height ?: 0.1)
         val yPos = relativePos.y.toDouble().coerceIn(minY, maxY)
 
-        if (relativePos.distToCenterSqr(editing.x, yPos, editing.z) > 25.0)
+        if (relativePos.distToCenterSqr(editing.x, yPos, editing.z) > 30.0)
             return@on modMessage("&cBlock is too far!")
 
 

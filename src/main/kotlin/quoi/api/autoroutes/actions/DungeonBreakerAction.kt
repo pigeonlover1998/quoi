@@ -76,7 +76,7 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
 
 //            if (realPos.distToCenterSqr(player.eyePosition) > 25.0) continue
             var outOfRangeTicks = 0
-            while (realPos.distToCenterSqr(player.eyePosition) > 25.0) {
+            while (realPos.distToCenterSqr(player.eyePosition) > 30.0) {
                 wait(1)
                 outOfRangeTicks++
                 if (!ring.inside(room) || outOfRangeTicks > 40) return modMessage("&cStopping. Out of range.")
