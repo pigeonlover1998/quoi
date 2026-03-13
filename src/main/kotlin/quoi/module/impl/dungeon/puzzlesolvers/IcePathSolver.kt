@@ -189,7 +189,7 @@ object IcePathSolver { // todo add pre fire maybe
 //                    waitingForUpdate = true
 //                }
 //            }
-//            return
+            return
         }
 
         if (waitingForUpdate) {
