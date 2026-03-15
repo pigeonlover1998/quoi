@@ -27,6 +27,7 @@ import quoi.api.skyblock.dungeon.DungeonClass
 import quoi.module.settings.impl.BooleanSetting
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.formatTime
+import quoi.utils.WorldUtils
 import quoi.utils.skyblock.player.LeapManager
 
 object Test : Module("Test", desc = "Dev module for testing.") {
@@ -176,11 +177,11 @@ object Test : Module("Test", desc = "Dev module for testing.") {
             }
         }
 
-        command.sub("testleap") {
-            scheduleTask(10) {
-                LeapManager.leap("HealerClass")
+        command.sub("testleap") { player: String ->
+            scheduleTask(5) {
+                LeapManager.leap(player)
             }
-        }
+        }.suggests { WorldUtils.players.map { it.profile.name } }
 
         val upd = command.sub("testcommand")
         upd.sub("coords") { x: Int, y: Int, z: Int ->

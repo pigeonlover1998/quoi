@@ -3,6 +3,7 @@ package quoi.utils.skyblock.player
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
 import quoi.api.events.PacketEvent
+import quoi.api.events.TickEvent
 import quoi.api.events.core.EventBus.on
 import quoi.api.events.core.EventPriority
 import quoi.api.skyblock.dungeon.Dungeon.dungeonTeammatesNoSelf
@@ -20,7 +21,8 @@ object LeapManager { // still schizophrenia
 
     var lastLeap = 0L
         private set
-    private val leapCD get() = 2400 * getMageCooldownMultiplier()
+
+    private var leapCD = 0.0
 
     private val currentLeap get() = leapQueue[0]
     private val inQueue get() = leapQueue.isNotEmpty()
@@ -55,13 +57,16 @@ object LeapManager { // still schizophrenia
                 }
             }
         }
+
+        on<TickEvent.Server> {
+            if (leapCD > 0) leapCD -= 1
+        }
     }
 
     fun leap(target: Any) {
         if (!inDungeons || inProgress || target == DungeonClass.Unknown) return
-        val elapsed = System.currentTimeMillis() - lastLeap
-        if (elapsed < leapCD) {
-            modMessage("&cFailed to leap! On cooldown: ${"%.1f".format((leapCD - elapsed) / 1000.0)}s")
+        if (leapCD > 0) {
+            modMessage("&cFailed to leap! On cooldown: ${"%.1f".format(leapCD / 20.0)}s")
             return
         }
         val teammate = when (target) {
@@ -78,6 +83,8 @@ object LeapManager { // still schizophrenia
                 PlayerUtils.interact()
                 clickedLeap = true
                 lastLeap = System.currentTimeMillis()
+                leapCD = 48 * getMageCooldownMultiplier()
+
                 modMessage("&аLeaping to $target")
             }
             leapQueue.add(teammate.name)
