@@ -11,6 +11,7 @@ import net.minecraft.client.KeyMapping
 import net.minecraft.client.gui.screens.ChatScreen
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen
+import net.minecraft.client.gui.components.EditBox
 import org.lwjgl.glfw.GLFW
 
 // Kyleen
@@ -41,14 +42,7 @@ object InventoryWalk : Module(
         on<TickEvent.Start> {
             val screen = mc.screen ?: return@on
 
-            if (screen is ChatScreen || screen is AbstractSignEditScreen) return@on
-
-            if (blacklist.value && isBlacklisted(screen)) {
-                movementKeys.forEach { it.isDown = false }
-                return@on
-            }
-
-            if (AutoMask.isSwapping) {
+            if (isTyping(screen) || blacklist.value && isBlacklisted(screen)) {
                 movementKeys.forEach { it.isDown = false }
                 return@on
             }
@@ -71,6 +65,10 @@ object InventoryWalk : Module(
             movementKeys.forEach { it.isDown = false }
             delay = clickDelay.value.toInt()
         }
+    }
+
+    private fun isTyping(screen: Screen): Boolean {
+        return screen is ChatScreen || screen is AbstractSignEditScreen || screen.children().any { it is EditBox && it.isFocused }
     }
 
     private fun isBlacklisted(screen: Screen): Boolean {
