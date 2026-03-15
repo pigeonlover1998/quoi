@@ -31,14 +31,17 @@ object TerminalAura : Module(
     private val leapDelayEnabled by BooleanSetting("Leap delay", desc = "Delays opening terminals for x seconds after leap")
     private val leapDelay by NumberSetting("Leap delay time", 0.5, 0.1, 5.0, 0.1, unit = "s").withDependency { leapDelayEnabled }
 
-    private var inTerminal = false
+    var inTerminal = false
     private var lastClick = 0L
     private var lastLeap = 0L
+    private val shutUp = listOf("Correct all the panes!", "Change all to same color!", "Click in order!", "What starts with:", "Select all the", "Click the button on time!")
 
     init {
         on<PacketEvent.Received> {
             if (packet is ClientboundOpenScreenPacket) {
-                inTerminal = true
+                if (shutUp.any { packet.title.string.contains(it) }) {
+                    inTerminal = true
+                }
             }
             if (packet is ClientboundContainerClosePacket) {
                 inTerminal = false
