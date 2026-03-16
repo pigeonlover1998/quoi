@@ -6,7 +6,7 @@ import quoi.api.abobaui.elements.impl.refreshableGroup
 import quoi.api.colour.Colour
 import quoi.api.colour.colour
 import quoi.api.events.AreaEvent
-import quoi.api.events.core.EventPriority
+import quoi.api.events.core.Priority
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.api.skyblock.dungeon.P3Section
@@ -146,7 +146,7 @@ object Splits : Module( // todo section split info hud, task (terms, levers, dev
     )
 
     init {
-        on<AreaEvent.Main> (EventPriority.LOW) {
+        on<AreaEvent.Main> (Priority.LOW) {
             scheduleTask(21) {
                 if (::refreshable.isInitialized) refreshable.refresh()
             }

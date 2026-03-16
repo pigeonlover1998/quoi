@@ -1,6 +1,6 @@
 package quoi.api.events.core
 
-object EventPriority {
+object Priority {
     const val HIGHEST: Int = 200
     const val HIGH: Int = 100
     const val MEDIUM: Int = 0

@@ -2,6 +2,7 @@
 
 package quoi.module.impl.render
 
+import quoi.annotations.AlwaysActive
 import quoi.api.ServerInfo.averagePing
 import quoi.api.ServerInfo.averageTps
 import quoi.api.ServerInfo.currentPing
@@ -35,7 +36,6 @@ import quoi.config.Config
 import quoi.module.Category
 import quoi.module.Module
 import quoi.module.ModuleManager.modules
-import quoi.module.settings.AlwaysActive
 import quoi.module.settings.Setting.Companion.withDependency
 import quoi.module.settings.UISetting
 import quoi.module.settings.impl.*

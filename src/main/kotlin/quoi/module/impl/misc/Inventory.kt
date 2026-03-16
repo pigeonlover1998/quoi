@@ -13,7 +13,7 @@ import quoi.api.colour.toHSB
 import quoi.api.colour.withAlpha
 import quoi.api.events.GuiEvent
 import quoi.api.events.TickEvent
-import quoi.api.events.core.EventPriority
+import quoi.api.events.core.Priority
 import quoi.api.input.CursorShape
 import quoi.module.Module
 import quoi.module.settings.impl.ColourSetting
@@ -123,7 +123,7 @@ object Inventory : Module(
             ctx.rect(slot.x, slot.y, 16, 16, colour)
         }
 
-        on<GuiEvent.Key> (EventPriority.LOW) {
+        on<GuiEvent.Key> (Priority.LOW) {
             if (focused) cancel()
         }
     }

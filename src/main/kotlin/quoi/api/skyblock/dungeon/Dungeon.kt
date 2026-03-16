@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.entity.SkullBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import quoi.QuoiMod.mc
 import quoi.QuoiMod.scope
+import quoi.annotations.Init
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
 import quoi.api.events.PacketEvent
@@ -42,6 +43,7 @@ import kotlin.math.roundToLong
  * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/dungeon/DungeonUtils.kt
  *           https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/dungeon/DungeonListener.kt
  */
+@Init
 object Dungeon {
 
     inline val inDungeons: Boolean
@@ -209,7 +211,7 @@ object Dungeon {
 
     private var expectingBloodUpdate = false
 
-    fun init() {
+    init {
 //        RoomRegistry.loadRooms()
 //        WorldScanner.init()
 //        MapItemUtils.init()

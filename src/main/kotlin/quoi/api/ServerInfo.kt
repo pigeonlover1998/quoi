@@ -10,6 +10,7 @@ import kotlinx.atomicfu.update
 import net.minecraft.Util
 import net.minecraft.network.protocol.ping.ClientboundPongResponsePacket
 import net.minecraft.network.protocol.ping.ServerboundPingRequestPacket
+import quoi.annotations.Init
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ConcurrentSkipListSet
 
@@ -17,6 +18,7 @@ import java.util.concurrent.ConcurrentSkipListSet
  * modified devonian (GPL-3.0) (c) Synnerz
  * original: https://github.com/Synnerz/devonian/blob/1.21.10/src/main/kotlin/com/github/synnerz/devonian/api/Ping.kt
  */
+@Init
 object ServerInfo {
     private var lastBeat = 0L
 

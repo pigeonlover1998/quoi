@@ -6,13 +6,14 @@ import quoi.api.events.core.EventBus
 import quoi.api.events.PacketEvent
 import quoi.api.events.ServerEvent
 import quoi.api.events.WorldEvent
-import quoi.api.events.core.EventPriority
+import quoi.api.events.core.Priority
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.equalsOneOf
 import quoi.utils.StringUtils.startsWithOneOf
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
+import quoi.annotations.Init
 import quoi.module.impl.render.ClickGui
 
 /**
@@ -20,6 +21,7 @@ import quoi.module.impl.render.ClickGui
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/LocationUtils.kt
  */
+@Init
 object Location {
     var onHypixel: Boolean = false
         private set
@@ -40,7 +42,7 @@ object Location {
     private val subAreaRegex = Regex("^ ([⏣ф]) .*")
     private val serverIdRegex = Regex("\\d\\d/\\d\\d/\\d\\d (\\w{0,6}) *")
 
-    fun init() {
+    init {
         EventBus.on<PacketEvent.Received> {
             when (packet) {
                 is ClientboundPlayerInfoUpdatePacket -> {
@@ -82,7 +84,7 @@ object Location {
             }
         }
 
-        EventBus.on<WorldEvent.Change>(EventPriority.LOW) {
+        EventBus.on<WorldEvent.Change>(Priority.LOW) {
             currentArea = Island.Unknown
             inSkyblock = false
             AreaEvent.Main(currentArea).post()

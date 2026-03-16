@@ -11,11 +11,11 @@ import quoi.api.input.CatKeys
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.IslandArea
 import quoi.api.skyblock.Location
-import quoi.module.settings.AlwaysActive
 import quoi.module.settings.Setting
 import quoi.module.settings.impl.Keybinding
 import quoi.utils.ChatUtils.modMessage
 import net.minecraft.network.protocol.Packet
+import quoi.annotations.AlwaysActive
 
 abstract class Module(
     val name: String,

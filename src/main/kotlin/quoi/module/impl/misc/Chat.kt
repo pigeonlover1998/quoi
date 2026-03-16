@@ -2,7 +2,7 @@ package quoi.module.impl.misc
 
 import quoi.api.events.ChatEvent
 import quoi.api.events.GuiEvent
-import quoi.api.events.core.EventPriority
+import quoi.api.events.core.Priority
 import quoi.api.input.CatKeyboard
 import quoi.api.input.CatKeyboard.Modifier.isShiftDown
 import quoi.api.input.CatKeys
@@ -77,7 +77,7 @@ object Chat : Module(
             }
         }
 
-        on<ChatEvent.Receive> (EventPriority.LOWEST) {
+        on<ChatEvent.Receive> (Priority.LOWEST) {
             if (!compactChat || id != 0) return@on // don't compact messages with ids
 
             val msg = this.message.trim()

@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
-import quoi.api.events.core.EventPriority
+import quoi.api.events.core.Priority
 import quoi.api.skyblock.dungeon.DungeonClass
 import quoi.module.settings.Setting.Companion.withDependency
 import quoi.module.settings.impl.SelectorSetting
@@ -72,7 +72,7 @@ object AutoSS : Module(
             fullReset()
         }
 
-        on<ChatEvent.Packet>(EventPriority.HIGHEST) {
+        on<ChatEvent.Packet>(Priority.HIGHEST) {
             val msg = message.noControlCodes
             mc.player?.distanceToSqr(startButton.center)?.let { if (it > 25) return@on }
 

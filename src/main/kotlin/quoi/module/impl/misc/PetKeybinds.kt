@@ -20,8 +20,8 @@ import quoi.utils.skyblock.ItemUtils.petHeldItem
 import quoi.utils.skyblock.ItemUtils.skyblockId
 import quoi.utils.skyblock.ItemUtils.skyblockUuid
 import quoi.utils.skyblock.player.PlayerUtils
-import quoi.utils.skyblock.player.PlayerUtils.clickSlot
-import quoi.utils.skyblock.player.PlayerUtils.getContainerItemsClose
+import quoi.utils.skyblock.player.ContainerUtils.clickSlot
+import quoi.utils.skyblock.player.ContainerUtils.getContainerItemsClose
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
@@ -29,6 +29,7 @@ import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
 import net.minecraft.world.item.ItemStack
+import quoi.utils.skyblock.player.ContainerUtils
 
 object PetKeybinds : Module(
     name = "Pet Keybinds",
@@ -201,7 +202,7 @@ object PetKeybinds : Module(
     }
 
     private suspend fun summonPet(uuid: String): Boolean {
-        return PlayerUtils.getContainerItemsClick("petsmenu", "Pets", uuid = uuid, lore = "Left-click to summon!")
+        return ContainerUtils.getContainerItemsClick("petsmenu", "Pets", uuid = uuid, lore = "Left-click to summon!")
     }
 
     private suspend fun getPets(timeout: Int = 20): List<ItemStack> {

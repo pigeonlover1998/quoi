@@ -1,27 +1,25 @@
 package quoi.utils.skyblock.player
 
 import quoi.QuoiMod.mc
-import quoi.QuoiMod.scope
-import quoi.api.commands.QuoiCommand.command
 import quoi.api.events.core.EventBus.on
-import quoi.api.events.core.EventPriority
+import quoi.api.events.core.Priority
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.utils.ChatUtils.modMessage
-import quoi.utils.Scheduler.wait
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.skyblock.ItemUtils.skyblockId
-import kotlinx.coroutines.launch
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket
 import net.minecraft.world.item.ItemStack
+import quoi.annotations.Init
 import quoi.utils.skyblock.ItemUtils.loreString
 
+@Init
 object SwapManager {
     private var lastKnownServerSlot: Int = -1
     private var hasSwappedThisTick: Boolean = false
 
-    fun init() {
+    init {
 //        command.sub("testzerotick") {
 //            scope.launch {
 //                modMessage("starting 0 tick test", id = "start0test".hashCode())
@@ -67,14 +65,14 @@ object SwapManager {
 //            }
 //        }
 
-        on<TickEvent.Start> (EventPriority.HIGHEST) { hasSwappedThisTick = false }
+        on<TickEvent.Start> (Priority.HIGHEST) { hasSwappedThisTick = false }
 
         on<WorldEvent.Change> {
             lastKnownServerSlot = -1
             hasSwappedThisTick = false
         }
 
-        on<PacketEvent.Sent> (EventPriority.HIGHEST) {
+        on<PacketEvent.Sent> (Priority.HIGHEST) {
             if (packet !is ServerboundSetCarriedItemPacket) return@on
             if (packet.slot == lastKnownServerSlot) {
                 cancel()

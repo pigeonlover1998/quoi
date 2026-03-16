@@ -7,7 +7,7 @@ import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.EventBus
-import quoi.api.events.core.EventPriority
+import quoi.api.events.core.Priority
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.DungeonClass
 import quoi.module.Module
@@ -29,6 +29,7 @@ import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
 import quoi.api.skyblock.SkyblockPlayer
 import quoi.utils.ChatUtils.command
 import quoi.utils.Scheduler.scheduleTask
+import quoi.utils.skyblock.player.ContainerUtils
 import kotlin.coroutines.resume
 
 // Kyleen
@@ -225,7 +226,7 @@ object AutoMask : Module(
     }
 
     private suspend fun equipMask(name: String) {
-        val success = PlayerUtils.getContainerItemsClick(
+        val success = ContainerUtils.getContainerItemsClick(
             command = "eq",
             container = "Your Equipment and Stats",
             name = name,
@@ -235,7 +236,7 @@ object AutoMask : Module(
         )
 
         if (success) {
-            scheduleTask(1) { PlayerUtils.closeContainer() }
+            scheduleTask(1) { ContainerUtils.closeContainer() }
         }
     }
 
@@ -323,7 +324,7 @@ object AutoMask : Module(
                 }
             }
 
-            openListener = EventBus.on<PacketEvent.Received>(EventPriority.LOWEST) {
+            openListener = EventBus.on<PacketEvent.Received>(Priority.LOWEST) {
                 if (packet is ClientboundOpenScreenPacket) {
                     val title = packet.title.string.noControlCodes
                     if (title.contains("Spirit Leap", ignoreCase = true)) {
@@ -333,7 +334,7 @@ object AutoMask : Module(
                 }
             }
 
-            slotListener = EventBus.on<PacketEvent.Received>(EventPriority.LOWEST) {
+            slotListener = EventBus.on<PacketEvent.Received>(Priority.LOWEST) {
                 if (packet is ClientboundContainerSetSlotPacket) {
                     if (windowId != -1 && packet.containerId == windowId) {
                         val stack = packet.item
@@ -344,7 +345,7 @@ object AutoMask : Module(
                                 val slot = packet.slot
 
                                 scheduleTask(1) {
-                                    PlayerUtils.click(slot)
+                                    ContainerUtils.click(slot)
                                     scheduleTask(2) {
                                         finish(true)
                                     }

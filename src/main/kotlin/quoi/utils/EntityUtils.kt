@@ -9,8 +9,10 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import quoi.annotations.Init
 import kotlin.math.sqrt
 
+@Init
 object EntityUtils {
     var entities = emptyList<Entity>()
         private set
@@ -19,7 +21,7 @@ object EntityUtils {
     var playerEntitiesNoSelf = emptyList<Player>()
         private set
 
-    fun init() {
+    init {
         EventBus.on<TickEvent.End> {
             val all = mutableListOf<Entity>()
             val players = mutableListOf<Player>()

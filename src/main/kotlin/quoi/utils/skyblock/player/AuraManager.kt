@@ -19,8 +19,10 @@ import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
+import quoi.annotations.Init
 
 // modified https://github.com/Hypericat/NoobRoutes/blob/main/src/main/kotlin/noobroutes/utils/AuraManager.kt
+@Init
 object AuraManager {
     class EntityAura(val entity: Entity, val action: AuraAction)
     class BlockAura(val pos: BlockPos, val force: Boolean, val callback: () -> Unit)
@@ -33,7 +35,7 @@ object AuraManager {
 
     private val recentClicks = mutableListOf<Vec3>()
 
-    fun init() {
+    init {
         on<WorldEvent.Change> {
             queuedBlocks.clear()
             queuedEntityClicks.clear()
@@ -43,6 +45,7 @@ object AuraManager {
         }
 
         on<TickEvent.Start> {
+            println("TEST")
             if (clickBlockCooldown == 0) {
                 queuedBlocks.firstOrNull()?.let { clickBlock(it, true) }
             }

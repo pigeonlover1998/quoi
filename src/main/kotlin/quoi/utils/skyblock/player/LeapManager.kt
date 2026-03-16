@@ -3,10 +3,11 @@ package quoi.utils.skyblock.player
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
 import quoi.QuoiMod.mc
+import quoi.annotations.Init
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.core.EventBus.on
-import quoi.api.events.core.EventPriority
+import quoi.api.events.core.Priority
 import quoi.api.skyblock.dungeon.Dungeon.dungeonTeammatesNoSelf
 import quoi.api.skyblock.dungeon.Dungeon.getMageCooldownMultiplier
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
@@ -15,6 +16,7 @@ import quoi.api.skyblock.dungeon.DungeonPlayer
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleTask
 
+@Init
 object LeapManager { // still schizophrenia
     private var leapQueue = mutableListOf<String>()
     private var menuOpened = false
@@ -31,8 +33,8 @@ object LeapManager { // still schizophrenia
     private val currentLeap get() = leapQueue[0]
     private val inQueue get() = leapQueue.isNotEmpty() // seems useless
 
-    fun init() {
-        on<PacketEvent.Received> (EventPriority.LOWEST) {
+    init {
+        on<PacketEvent.Received> (Priority.LOWEST) {
             when (packet) {
                 is ClientboundContainerSetSlotPacket -> {
                     if (!inQueue || !menuOpened) return@on
@@ -48,7 +50,7 @@ object LeapManager { // still schizophrenia
                     }
                     cancel()
                     if (stack.displayName.string.contains(currentLeap)) {
-                        PlayerUtils.click(slot)
+                        ContainerUtils.click(slot)
                         reloadGui()
                     }
                 }
@@ -64,7 +66,7 @@ object LeapManager { // still schizophrenia
         on<TickEvent.Server> {
             if (leapCD > 0) leapCD -= 1
 
-            if (pendingLeap != null && mc.screen == null && PlayerUtils.containerId == -1) {
+            if (pendingLeap != null && mc.screen == null && ContainerUtils.containerId == -1) {
                 doLeap(pendingLeap!!)
                 pendingLeap = null
             }
@@ -82,7 +84,7 @@ object LeapManager { // still schizophrenia
 
 //        if (teammate.name !in WorldUtils.players.map { it.profile.name }) return modMessage("&c Failed to leap! &r$target &cnot found")
 
-        if (mc.screen != null || PlayerUtils.containerId != -1) {
+        if (mc.screen != null || ContainerUtils.containerId != -1) {
             pendingLeap = teammate
             modMessage("&eQueued leap to &f${teammate.name}")
         } else doLeap(teammate)

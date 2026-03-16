@@ -2,6 +2,7 @@ package quoi.api.skyblock
 
 import net.minecraft.world.entity.ai.attributes.Attributes
 import quoi.QuoiMod.mc
+import quoi.annotations.Init
 import quoi.api.colour.Colour
 import quoi.api.events.ChatEvent
 import quoi.api.events.TickEvent
@@ -17,6 +18,7 @@ import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.StringUtils.noControlCodes
 import kotlin.math.floor
 
+@Init
 object SkyblockPlayer {
     inline val health: Int
         get() = mc.player?.let { (maxHealth * it.health / it.maxHealth).toInt() } ?: 0
@@ -75,7 +77,7 @@ object SkyblockPlayer {
     val SUMMON_REGEX = Regex("You (summoned|despawned) your ([A-Za-z ]+)(?: ✦)?!")
     val AUTOPET_REGEX = Regex("Autopet.*?equipped your.*?\\[Lvl \\d+] (.*?)!.*VIEW RULE")
 
-    fun init() {
+    init {
         on<ChatEvent.ActionBar> {
 //            if (packet !is ClientboundSystemChatPacket || !packet.overlay) return@on
             val message = message.replace(",", "")

@@ -21,6 +21,7 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}")
+    modImplementation("io.github.classgraph:classgraph:4.8.184")
     modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
 
     property("minecraft_lwjgl_version").let {

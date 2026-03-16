@@ -1,5 +1,6 @@
 package quoi.utils.skyblock
 
+import quoi.annotations.Init
 import quoi.api.colour.Colour
 import quoi.api.events.AreaEvent
 import quoi.api.events.ChatEvent
@@ -16,12 +17,13 @@ import quoi.utils.StringUtils.noControlCodes
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/SplitsManager.kt
  */
+@Init
 object SplitsManager {
 
     var currentSplits: List<Split> = emptyList()
     private var tickCounter: Long = 0L
 
-    fun init() {
+    init {
         on<ChatEvent.Packet> {
             if (currentSplits.isEmpty()) return@on
 

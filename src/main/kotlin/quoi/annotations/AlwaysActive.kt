@@ -1,4 +1,4 @@
-package quoi.module.settings
+package quoi.annotations
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)

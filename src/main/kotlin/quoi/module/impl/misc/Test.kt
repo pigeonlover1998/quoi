@@ -29,6 +29,7 @@ import quoi.module.settings.impl.BooleanSetting
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.formatTime
 import quoi.utils.WorldUtils
+import quoi.utils.skyblock.player.ContainerUtils
 import quoi.utils.skyblock.player.LeapManager
 import quoi.utils.skyblock.player.PlayerUtils
 import kotlin.text.replace
@@ -101,7 +102,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
         Data("   Levers", { "${Dungeon.p3Section.levers}/2" }, { p3Section }),
         Data("   Device", { "${Dungeon.p3Section.device}" }, { p3Section }),
         Data("   Gate", { Dungeon.p3Section.gate }, { p3Section }),
-        Data("Container", { "${mc.screen != null} | ${PlayerUtils.containerId}" }, { container })
+        Data("Container", { "${mc.screen != null} | ${ContainerUtils.containerId}" }, { container })
     )
 
     private val debug by TextHud("debug") {

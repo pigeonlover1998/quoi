@@ -9,7 +9,7 @@ import quoi.module.settings.impl.DropdownSetting
 import quoi.module.settings.impl.KeybindSetting
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.skyblock.ItemUtils.loreString
-import quoi.utils.skyblock.player.PlayerUtils.clickSlot
+import quoi.utils.skyblock.player.ContainerUtils.clickSlot
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 
 object WardrobeKeybinds : Module(
