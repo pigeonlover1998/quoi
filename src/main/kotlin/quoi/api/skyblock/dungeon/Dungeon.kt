@@ -326,7 +326,7 @@ object Dungeon {
                         }
                     }
 
-                    is ClientboundOpenScreenPacket -> inTerminal = title.string.noControlCodes in terminalTitles
+                    is ClientboundOpenScreenPacket -> { inTerminal = terminalTitles.any { title.string.noControlCodes.contains(it) } }
                     is ClientboundContainerClosePacket -> inTerminal = false
                 }
             }
