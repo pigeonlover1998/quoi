@@ -11,7 +11,6 @@ import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
 import quoi.api.skyblock.invoke
 import quoi.module.Module
-import quoi.module.impl.dungeon.WaterSolver
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.Setting.Companion.withDependency
 import quoi.module.settings.impl.*
@@ -27,6 +26,7 @@ object PuzzleSolvers : Module(
     private val fillColour by ColourSetting("Colour", Colour.MAGENTA, allowAlpha = true).json("Ice fill colour").withDependency(fillDropdown) { fillSolver }
     private val fillAuto by BooleanSetting("Auto", desc = "Automatically completes the ice fill puzzle.").json("Auto ice fill").withDependency(fillDropdown)
     private val fillDelay by NumberSetting("Delay", 2, 1, 10, 1, unit = "t").json("Auto ice fill delay").withDependency(fillDropdown) { fillAuto }
+    private val fillReposition by BooleanSetting("Auto reposition").json("Ice fill auto reposition").withDependency(fillDropdown) { fillAuto }
 
     private val mazeDropdown by DropdownSetting("Teleport maze").collapsible()
     private val mazeSolver by BooleanSetting("Solver", desc = "Shows the solution for the TP maze puzzle.").json("Maze solver").withDependency(mazeDropdown)
@@ -38,7 +38,7 @@ object PuzzleSolvers : Module(
     private val quizDropdown by DropdownSetting("Quiz").collapsible()
     private val quizSolver by BooleanSetting("Solver", desc = "Solver for the trivia puzzle.").json("Quiz solver").withDependency(quizDropdown)
     private val quizColour by ColourSetting("Colour", Colour.MINECRAFT_GREEN.withAlpha(0.75f), true, desc = "Color for the quiz solver.").json("Quiz colour").withDependency(quizDropdown) { quizSolver }
-    private val quizDepth by BooleanSetting("Depth", false, desc = "Depth check for the trivia puzzle.").json("Quiz depth").withDependency(quizDropdown) { quizSolver }
+    private val quizDepth by BooleanSetting("Depth", desc = "Depth check for the trivia puzzle.").json("Quiz depth").withDependency(quizDropdown) { quizSolver }
     private val quizAuto by BooleanSetting("Auto").json("Auto quiz").withDependency(quizDropdown)
 
     private val weirdosDropdown by DropdownSetting("Three weirdos").collapsible()
@@ -56,24 +56,23 @@ object PuzzleSolvers : Module(
     private val tttAuto by BooleanSetting("Auto").json("Auto tic tac toe").withDependency(tttDropdown)
 
     private val wbDropdown by DropdownSetting("Water board").collapsible()
-    private val wbSolver by BooleanSetting("Solver", desc = "Show the solution to the water board puzzle.").json("Water board solver").withDependency(wbDropdown)
-    private val wbOptimised by BooleanSetting("Optimised solutions", false, desc = "Uses optimised solutions for the water board puzzle.").withDependency(wbDropdown) { wbSolver }
+    private val wbSolver by BooleanSetting("Solver", desc = "Shows the solution to the water board puzzle.").json("Water board solver").withDependency(wbDropdown)
     private val wbTracer by BooleanSetting("Tracer", true, desc = "Shows a tracer to the next lever.").json("Water board tracer").withDependency(wbDropdown) { wbSolver }
-    private val wbFirst by ColourSetting("First", Colour.MINECRAFT_GREEN, true, desc = "Colour for the first tracer.").json("Water board colour first").withDependency(wbDropdown) { wbTracer }
-    private val wbSecond by ColourSetting("Second", Colour.MINECRAFT_GOLD, true, desc = "Colour for the second tracer.").json("Water board colour second").withDependency(wbDropdown) { wbTracer }
-    private val wbAuto by BooleanSetting("Auto").json("Auto waterboard").withDependency(wbDropdown).hide() // todo
+    private val wbFirst by ColourSetting("First", Colour.MINECRAFT_GREEN, true, desc = "Colour for the first tracer.").json("Water board colour first").withDependency(wbDropdown) { wbTracer && wbSolver }
+    private val wbSecond by ColourSetting("Second", Colour.MINECRAFT_GOLD, true, desc = "Colour for the second tracer.").json("Water board colour second").withDependency(wbDropdown) { wbTracer && wbSolver }
+    private val wbOptimised by BooleanSetting("Optimised solutions", desc = "Uses optimised solutions for the water board puzzle.").withDependency(wbDropdown)
+    private val wbAuto by BooleanSetting("Auto").json("Auto waterboard").withDependency(wbDropdown)
 
     private val beamsDropdown by DropdownSetting("Creeper beams").collapsible()
     private val beamsSolver by BooleanSetting("Solver", desc = "Shows the solution for the creeper beams puzzle.").json("Creeper beams solver").withDependency(beamsDropdown)
-    private val beamsAnnounce by BooleanSetting("Announce completion").withDependency(beamsDropdown)
     private val beamsTracer by BooleanSetting("Tracer").json("Beams tracer").withDependency(beamsDropdown) { beamsSolver }
     private val beamsStyle by SelectorSetting("Style", "Box", arrayListOf("Box", "Filled box"), desc = "Render style to be used.").json("Beams style").withDependency(beamsDropdown) { beamsSolver }
     private val beamsAlpha by NumberSetting("Colour alpha", 0.7f, 0f, 1f, 0.05f).json("Beams colour alpha").withDependency(beamsDropdown) { beamsSolver }
+    private val beamsAnnounce by BooleanSetting("Announce completion", desc = "Sends complete message.").withDependency(beamsDropdown)
     private val beamsAuto by BooleanSetting("Auto").json("Auto beams").withDependency(beamsDropdown)
 
     private val blazeDropdown by DropdownSetting("Blaze").collapsible()
     private val blazeSolver by BooleanSetting("Solver", desc = "Shows the solution for the blaze puzzle.").json("Blaze solver").withDependency(blazeDropdown)
-    private val blazeAnnounce by BooleanSetting("Announce completion", desc = "Send complete message.").withDependency(blazeDropdown)
     private val blazeLineNext by BooleanSetting("Next line", desc = "Shows the next line to click.").json("Blaze solver next line").withDependency(blazeDropdown) { blazeSolver }
     private val blazeLineAmount by NumberSetting("Lines amount", 1, 1, 10, 1, desc = "Amount of lines to show.").json("Blaze solver lines amount").withDependency(blazeDropdown) { blazeSolver && blazeLineNext }
     private val blazeLineWidth by NumberSetting("Lines width", 2f, 0.5f, 5f, 0.1f, desc = "Width for blaze lines.").json("Blaze solver lines width").withDependency(blazeDropdown) { blazeSolver && blazeLineNext }
@@ -81,6 +80,7 @@ object PuzzleSolvers : Module(
     private val blazeFirstColour by ColourSetting("First colour", Colour.MINECRAFT_GREEN.withAlpha(0.75f), desc = "Colour for the first blaze.").withDependency(blazeDropdown) { blazeSolver }
     private val blazeSecondColour by ColourSetting("Second colour", Colour.MINECRAFT_GOLD.withAlpha(0.75f), desc = "Colour for the second blaze.").withDependency(blazeDropdown) { blazeSolver }
     private val blazeAllColour by ColourSetting("Other colour", Colour.WHITE.withAlpha(0.3f), desc = "Colour for the other blazes.").withDependency(blazeDropdown) { blazeSolver }
+    private val blazeAnnounce by BooleanSetting("Announce completion", desc = "Sends complete message.").withDependency(blazeDropdown)
     private val blazeAuto by BooleanSetting("Auto").json("Auto blaze").withDependency(blazeDropdown)
     private val blazeReposition by BooleanSetting("Auto reposition").json("Blaze auto reposition").withDependency(blazeDropdown) { blazeAuto }
 
@@ -141,12 +141,13 @@ object PuzzleSolvers : Module(
 
         on<TickEvent.End> {
             if (!inPuzzle) return@on
-            if (fillAuto)    IceFillSolver.onTick(player, fillDelay)
+            if (fillAuto)    IceFillSolver.onTick(player, fillDelay, fillReposition)
             if (beamsAuto)   BeamsSolver.onTick(player, shootCd, missCd)
             if (blazeAuto)   BlazeSolver.onTick(player, shootCd, missCd, blazeReposition)
             if (mazeAuto)    MazeSolver.onTick(player)
             if (quizAuto)    QuizSolver.onTick(player)
             if (weirdosAuto) WeirdosSolver.onTick(player)
+            if (wbAuto)      WaterSolver.onTick(player)
             if (pathSolver || pathAuto) IcePathSolver.onTick(player, level, pathAuto, shootCd, missCd)
             if (tttSolver || tttAuto)   TicTacToeSolver.onTick(player, level, tttPrediction, tttAuto)
         }
@@ -163,7 +164,7 @@ object PuzzleSolvers : Module(
 
         on<BlockUpdateEvent> {
             if (!inPuzzle) return@on
-            if (beamsSolver || beamsAuto) BeamsSolver.onBlockChange(this@on, beamsAnnounce)
+            if (beamsSolver || beamsAuto) BeamsSolver.onBlockChange(this@on, beamsAnnounce, beamsAuto)
         }
 
         on<PacketEvent.Received> {
@@ -171,8 +172,12 @@ object PuzzleSolvers : Module(
             when (packet) {
                 is ClientboundSoundPacket          -> if (beamsSolver || beamsAuto) BeamsSolver.onSound(packet)
                 is ClientboundPlayerPositionPacket -> if (mazeSolver || mazeAuto)   MazeSolver.onPosition(packet)
-                is ServerboundUseItemOnPacket      -> if (wbSolver || wbAuto)       WaterSolver.onInteract(packet)
             }
+        }
+
+        on<PacketEvent.Sent, ServerboundUseItemOnPacket> {
+            if (!inPuzzle) return@on
+            if (wbSolver || wbAuto) WaterSolver.onInteract(packet)
         }
     }
 }

@@ -18,9 +18,11 @@ import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.utils.*
 import quoi.utils.Scheduler.scheduleTask
+import quoi.utils.WorldUtils.state
 import quoi.utils.render.drawLine
 import quoi.utils.render.drawStyledBox
 import quoi.utils.skyblock.ItemUtils.isShortbow
+import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 import quoi.utils.skyblock.player.SwapManager
 import java.io.InputStreamReader
@@ -44,6 +46,7 @@ object BeamsSolver {
     private var lastShotTime = 0L
     private var waitingForUpdate = false
     private var repositionTicker: Ticker? = null
+    private var solvedPairs = 0
 
     init {
         try {
@@ -98,21 +101,24 @@ object BeamsSolver {
         }
     }
 
-    fun onBlockChange(event: BlockUpdateEvent, announce: Boolean) {
+    fun onBlockChange(event: BlockUpdateEvent, announce: Boolean, auto: Boolean) {
         if (Dungeon.currentRoom?.name != "Creeper Beams") return
-        if (
-            event.pos == Dungeon.currentRoom?.getRealCoords(BlockPos(15, 69, 15)) &&
-            event.updated.block == Blocks.CHEST &&
-            event.old.isAir &&
-            announce
-        ) ChatUtils.command("pc Creeper beams done!")
         if (
             event.old.block.equalsOneOf(Blocks.PRISMARINE, Blocks.SEA_LANTERN) &&
             event.updated.block.equalsOneOf(Blocks.PRISMARINE, Blocks.SEA_LANTERN)
         ) {
             mc.execute {
-                recalculateLanternPairs(Dungeon.currentRoom ?: return@execute)
+                val room = Dungeon.currentRoom ?: return@execute
+                val prev = currentLanternPairs.size
+
+                recalculateLanternPairs(room)
+
+                if (currentLanternPairs.size < prev && ++solvedPairs == 4) {
+                    if (announce) ChatUtils.command("pc Beams done!")
+                    if (auto) mc.options.keyShift.isDown = false
+                }
             }
+
             return
         }
     }
@@ -142,6 +148,10 @@ object BeamsSolver {
         val room = Dungeon.currentRoom ?: return
         if (room.name != "Creeper Beams" || currentLanternPairs.isEmpty()) return
         if (mc.screen != null) return
+        if (solvedPairs >= 4) return
+
+        val start = room.getRealCoords(BlockPos(16, 74, 14))
+        if (start.state.isAir) return
 
         repositionTicker?.let {
             if (it.tick()) scheduleTask {
@@ -151,10 +161,9 @@ object BeamsSolver {
         }
 
         if (player.y != 75.0) {
-            reposition(player, room.getRealCoords(BlockPos(16, 74, 14)))
+            reposition(player, start)
             return
         }
-
 
         if (activePair == null) {
             val entry = currentLanternPairs.entries.firstOrNull() ?: return
@@ -186,8 +195,9 @@ object BeamsSolver {
         if (!player.mainHandItem.isShortbow) return
         if (currentTime - lastShotTime < shootCd) return
 
-        val dir = getEtherwarpDirection(lantern) ?: return
-        player.useItem(dir.yaw, dir.pitch - 1f)
+        val vec = getVisiblePoint(lantern) ?: return
+        val dir = getArrowDirection(vec) // untested
+        player.useItem(dir)
 
         lastShotTime = currentTime
         waitingForUpdate = true
@@ -200,6 +210,7 @@ object BeamsSolver {
         waitingForUpdate = false
         lastShotTime = -1
         repositionTicker = null
+        solvedPairs = 0
     }
 
     private fun reposition(player: LocalPlayer, spot: BlockPos) {
@@ -227,9 +238,7 @@ object BeamsSolver {
                 }
                 player.useItem(dir)
             }
-            await {
-                player.blockPosition().x == spot.x && player.blockPosition().z == spot.z
-            }
+            await { player.at(spot) }
             action {
                 SwapManager.swapByLore("Shortbow: Instantly shoots!")
             }

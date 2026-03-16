@@ -22,6 +22,7 @@ import quoi.utils.blockPos
 import quoi.utils.getEtherwarpDirection
 import quoi.utils.render.drawLine
 import quoi.utils.render.drawWireFrameBox
+import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 import quoi.utils.skyblock.player.SwapManager
 import quoi.utils.ticker
@@ -165,12 +166,11 @@ object IcePathSolver { // todo add pre fire maybe
 
         val currentTime = System.currentTimeMillis()
         val nextSpot = silverfishPath[1].blockPos
-        val playerPos = player.blockPosition()
 
         if (isMoving) {
             waitingForUpdate = false
 
-            if (playerPos.x != nextSpot.x || playerPos.z != nextSpot.z) {
+            if (!player.at(nextSpot)) {
                 reposition(player, nextSpot)
                 return
             }
@@ -204,7 +204,7 @@ object IcePathSolver { // todo add pre fire maybe
         val currSpot = silverfish.blockPosition().atY(66)
         if (getEtherwarpDirection(currSpot) == null) return
 
-        if (playerPos.x != currSpot.x || playerPos.z != currSpot.z) {
+        if (!player.at(currSpot)) {
             reposition(player, currSpot)
             return
         }
@@ -218,6 +218,13 @@ object IcePathSolver { // todo add pre fire maybe
 
     private fun reposition(player: LocalPlayer, spot: BlockPos) {
         if (repositionTicker != null) return
+
+        val dir = getEtherwarpDirection(spot)
+
+        if (dir == null) {
+            repositionTicker = null
+            return
+        }
 
         repositionTicker = ticker {
             val r = SwapManager.swapById("ASPECT_OF_THE_VOID", "ASPECT_OF_THE_END").success
@@ -233,17 +240,8 @@ object IcePathSolver { // todo add pre fire maybe
                     repositionTicker = null
                 }
             }
-            action {
-                val dir = getEtherwarpDirection(spot)
-                if (dir == null) {
-                    repositionTicker = null
-                    return@action
-                }
-                player.useItem(dir)
-            }
-            await {
-                player.blockPosition().x == spot.x && player.blockPosition().z == spot.z
-            }
+            action { player.useItem(dir) }
+            await { player.at(spot) }
             action {
                 SwapManager.swapByLore("Shortbow: Instantly shoots!")
             }

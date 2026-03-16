@@ -7,6 +7,7 @@ import com.google.gson.JsonElement
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.Vec3
 import quoi.QuoiMod.logger
 import quoi.QuoiMod.mc
@@ -14,11 +15,20 @@ import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.utils.ChatUtils.modMessage
+import quoi.utils.Ticker
+import quoi.utils.WorldUtils.state
+import quoi.utils.blockPos
 import quoi.utils.equalsOneOf
 import quoi.utils.getDirection
+import quoi.utils.getEtherwarpDirection
 import quoi.utils.render.drawLine
 import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.player.PlayerUtils.at
+import quoi.utils.skyblock.player.PlayerUtils.isMoving
+import quoi.utils.skyblock.player.PlayerUtils.stop
 import quoi.utils.skyblock.player.PlayerUtils.useItem
+import quoi.utils.skyblock.player.SwapManager
+import quoi.utils.ticker
 import java.io.InputStreamReader
 import java.lang.reflect.Type
 import java.nio.charset.StandardCharsets
@@ -39,6 +49,8 @@ object IceFillSolver {
         ?.let { InputStreamReader(it, StandardCharsets.UTF_8) }
     private var iceFillFloors = IceFillData(emptyList(), emptyList(), emptyList())
     private var currentPatterns: ArrayList<Vec3> = ArrayList()
+
+    private var repositionTicker: Ticker? = null
 
     init {
         try {
@@ -80,9 +92,25 @@ object IceFillSolver {
     private var ticks = 0
     private var lastIndex = -1
 
-    fun onTick(player: LocalPlayer, delay: Int) {
+    fun onTick(player: LocalPlayer, delay: Int, reposition: Boolean) {
         if (mc.screen != null) return
         if (currentPatterns.isEmpty() || Dungeon.currentRoom?.name != "Ice Fill") return
+        if (Dungeon.currentRoom?.getRealCoords(BlockPos(15, 71, 26))?.state?.block == Blocks.PACKED_ICE) return
+
+        repositionTicker?.let {
+            if (it.tick()) repositionTicker = null
+            return
+        }
+
+        if (reposition && player.y !in (69.5..72.5)) { // untested
+            player.stop()
+            if (player.isMoving) return
+            val spot = getBlock()
+            if (spot != null) {
+                reposition(player, spot)
+                return
+            }
+        }
         if (player.mainHandItem.skyblockId?.equalsOneOf("ASPECT_OF_THE_VOID", "ASPECT_OF_THE_END") == false) return
 
         val index = currentPatterns.indexOfFirst {
@@ -99,9 +127,7 @@ object IceFillSolver {
             ticks = 0
         }
 
-        if (lastIndex >= currentPatterns.size - 1) {
-            return
-        }
+        if (lastIndex >= currentPatterns.size - 1) return
 
         if (++ticks == delay) {
             val current = currentPatterns[lastIndex]
@@ -110,13 +136,57 @@ object IceFillSolver {
             val from = Vec3(current.x, current.y - 0.1 + player.eyeHeight, current.z)
 
             val dir = getDirection(from, next)
-
             player.useItem(dir)
 
             lastIndex++
             ticks = 0
         }
     }
+
+    private fun getBlock(): BlockPos? {
+        currentPatterns.forEach { vec ->
+            val pos = vec.blockPos.above(-1)
+
+            if (pos.state.block == Blocks.ICE) {
+                return pos
+            }
+        }
+        return null
+    }
+
+    private fun reposition(player: LocalPlayer, spot: BlockPos) {
+        if (repositionTicker != null) return
+
+        val dir = getEtherwarpDirection(spot)
+
+        if (dir == null) {
+            repositionTicker = null
+            return
+        }
+
+        repositionTicker = ticker {
+            val r = SwapManager.swapById("ASPECT_OF_THE_VOID", "ASPECT_OF_THE_END").success
+            if (!mc.options.keyShift.isDown) {
+                action {
+                    mc.options.keyShift.isDown = true
+                }
+                delay(2)
+            }
+            await {
+                if (r) return@await true
+                else return@await false.also {
+                    repositionTicker = null
+                }
+            }
+            action { player.useItem(dir) }
+            await { player.at(spot) }
+            action {
+                mc.options.keyShift.isDown = false
+            }
+            delay(2)
+        }
+    }
+
 
     private fun fillGaps() {
         val updated = ArrayList<Vec3>(currentPatterns.size * 2)
@@ -160,13 +230,14 @@ object IceFillSolver {
         }
         currentPatterns = updatedPatterns
     }
-    private fun OdonRoom.isRealAir(pos: BlockPos): Boolean =
-        mc.level?.getBlockState(getRealCoords(pos))?.isAir == true
+    private fun OdonRoom.isRealAir(pos: BlockPos): Boolean = getRealCoords(pos).state.isAir
 
     fun reset() {
         currentPatterns.clear()
         ticks = 0
         lastIndex = -1
+
+        repositionTicker = null
     }
 
     private data class IceFillData(

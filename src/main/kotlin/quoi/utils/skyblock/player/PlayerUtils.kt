@@ -24,6 +24,7 @@ import com.mojang.authlib.GameProfile
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.player.LocalPlayer
+import net.minecraft.core.BlockPos
 import net.minecraft.network.HashedStack
 import net.minecraft.network.protocol.game.*
 import net.minecraft.sounds.SoundEvent
@@ -377,6 +378,16 @@ object PlayerUtils {
     }
 
     fun LocalPlayer.rotate(dir: Direction) = this.rotate(dir.yaw, dir.pitch)
+
+    fun LocalPlayer.at(pos: BlockPos) = this.blockPosition().above(-1) == pos
+
+    fun LocalPlayer.stop() {
+        mc.options.keyUp.isDown = false
+        mc.options.keyDown.isDown = false
+        mc.options.keyLeft.isDown = false
+        mc.options.keyRight.isDown = false
+        mc.options.keyJump.isDown = false
+    }
 
     fun getItemsAmount(itemId: String): Int {
         val player = mc.player ?: return 0

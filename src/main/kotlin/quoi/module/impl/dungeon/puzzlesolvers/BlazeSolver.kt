@@ -20,6 +20,7 @@ import quoi.utils.render.drawLine
 import quoi.utils.render.drawStyledBox
 import quoi.utils.skyblock.ItemUtils.hasTerminator
 import quoi.utils.skyblock.ItemUtils.isShortbow
+import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 import quoi.utils.skyblock.player.SwapManager
 import kotlin.math.cos
@@ -50,7 +51,7 @@ object BlazeSolver { // todo maybe improve terminator shit some day
         if (!Dungeon.inDungeons || Dungeon.currentRoom?.name?.equalsOneOf("Lower Blaze", "Higher Blaze") == false) return
         val hpMap = mutableMapOf<ArmorStand, Int>()
         blazes.clear()
-        mc.level?.entitiesForRendering()?.forEach { entity ->
+        EntityUtils.entities.forEach { entity ->
             if (entity !is ArmorStand || entity in blazes) return@forEach
             val hp = blazeHealthRegex.find(entity.name.string)?.groups?.get(1)?.value?.replace(",", "")?.toIntOrNull() ?: return@forEach
             hpMap[entity] = hp
@@ -152,7 +153,7 @@ object BlazeSolver { // todo maybe improve terminator shit some day
         val isTerminator = player.hasTerminator
 
         for (point in testPoints) {
-            val (yaw, pitch) = getArrowDirection(player.eyePosition, point, isTerminator)
+            val (yaw, pitch) = getArrowDirection(point, isTerminator)
             val origin = getArrowOrigin(player.eyePosition, yaw, isTerminator)
 
             if (isSafe(origin, yaw, pitch, hitboxes, false)) {
@@ -248,7 +249,7 @@ object BlazeSolver { // todo maybe improve terminator shit some day
         return sideArrow
     }
 
-    private fun cyclePosition(player: LocalPlayer, room: OdonRoom) {
+    private fun cyclePosition(player: LocalPlayer, room: OdonRoom) { // todo fix
         if (repositionTicker != null) return
         val spots = if (room.name == "Higher Blaze") higherSpots else lowerSpots
         currentSpot = (currentSpot + 1) % spots.size
@@ -281,9 +282,7 @@ object BlazeSolver { // todo maybe improve terminator shit some day
                 }
                 player.useItem(dir)
             }
-            await {
-                player.blockPosition().x == spot.x && player.blockPosition().z == spot.z
-            }
+            await { player.at(spot) }
             action {
                 SwapManager.swapByLore("Shortbow: Instantly shoots!")
             }
