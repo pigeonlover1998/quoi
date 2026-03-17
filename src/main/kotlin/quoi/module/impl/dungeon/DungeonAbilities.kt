@@ -1,12 +1,11 @@
 package quoi.module.impl.dungeon
 
-import quoi.api.events.*
+import quoi.api.events.ChatEvent
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon.currentDungeonPlayer
 import quoi.api.skyblock.dungeon.Dungeon.isDead
 import quoi.api.skyblock.dungeon.DungeonClass
 import quoi.module.Module
-import quoi.module.settings.impl.BooleanSetting
 import quoi.utils.StringUtils.noControlCodes
 
 // Kyleen
@@ -15,7 +14,7 @@ object DungeonAbilities : Module(
     desc = "Automatically uses abilities.",
     area = Island.Dungeon,
 ) {
-    private val autoWish by BooleanSetting("Healer auto wish")
+    private val autoWish by switch("Healer auto wish")
 
     init {
         on<ChatEvent.Packet> {

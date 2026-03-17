@@ -6,16 +6,15 @@ import quoi.api.abobaui.dsl.at
 import quoi.api.abobaui.dsl.px
 import quoi.api.abobaui.dsl.size
 import quoi.api.abobaui.elements.ElementScope
-import quoi.module.settings.UISetting
+import quoi.module.settings.UIComponent
 import quoi.utils.ThemeManager.theme
 
-class TextSetting(
-    name: String,
+class TextComponent(
+    override val default: String,
     desc: String = "",
-) : UISetting<TextSetting>(name, desc) {
+) : UIComponent<String>(default, desc) {
 
-    override val default = this
-    override var value: TextSetting = default
+    override var value: String = default
 
     override fun ElementScope<*>.draw(asSub: Boolean): ElementScope<*> = group(size(w = Copying)) {
         text(

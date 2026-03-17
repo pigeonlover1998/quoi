@@ -16,9 +16,8 @@ import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.invoke
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
-import quoi.module.settings.UISetting.Companion.childOf
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.*
+import quoi.module.settings.UIComponent.Companion.childOf
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.EntityUtils.entities
 import quoi.utils.EntityUtils.interpolatedBox
 import quoi.utils.Scheduler.scheduleLoop
@@ -31,23 +30,23 @@ object DungeonESP : Module(
     desc = "Highlights various dungeon entities.",
     area = Island.Dungeon(inClear = true)
 ) {
-    private val teammateClassGlow by BooleanSetting("Teammate class glow", true, desc = "Highlights dungeon teammates based on their class colour.")
-    private val starEsp by BooleanSetting("Starred mobs")
+    private val teammateClassGlow by switch("Teammate class glow", true, desc = "Highlights dungeon teammates based on their class colour.")
+    private val starEsp by switch("Starred mobs")
 
-    private val depth by BooleanSetting("Depth check").visibleIf { starEsp }
-    private val style by SelectorSetting("Style", "Box", arrayListOf("Box", "Filled box", "Glow", "2D"), desc = "Esp render style to be used.").visibleIf { starEsp }
-    private val thickness by NumberSetting("Thickness", 4, 1, 8, 1).visibleIf { starEsp }
-    private val sizeOffset by NumberSetting("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").visibleIf { style.selected.equalsOneOf("Box", "Filled box") && starEsp }
+    private val depth by switch("Depth check").visibleIf { starEsp }
+    private val style by selector("Style", "Box", arrayListOf("Box", "Filled box", "Glow", "2D"), desc = "Esp render style to be used.").visibleIf { starEsp }
+    private val thickness by slider("Thickness", 4, 1, 8, 1).visibleIf { starEsp }
+    private val sizeOffset by slider("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").visibleIf { style.selected.equalsOneOf("Box", "Filled box") && starEsp }
 
-    private val colourDropdown by TextSetting("Colours")
-    private val colourStar by ColourSetting("Star", Colour.RED, true, "ESP color for star mobs.").childOf(colourDropdown) { starEsp }
-    private val colourSA by ColourSetting("Shadow assassin", Colour.RED, true, "ESP color for shadow assassins.").childOf(colourDropdown) { starEsp }
-    private val colourBat by ColourSetting("Bat", Colour.RED, true, "ESP color for bats.").childOf(colourDropdown) { starEsp }
+    private val colourDropdown by text("Colours")
+    private val colourStar by colourPicker("Star", Colour.RED, true, "ESP color for star mobs.").childOf(::colourDropdown) { starEsp }
+    private val colourSA by colourPicker("Shadow assassin", Colour.RED, true, "ESP color for shadow assassins.").childOf(::colourDropdown) { starEsp }
+    private val colourBat by colourPicker("Bat", Colour.RED, true, "ESP color for bats.").childOf(::colourDropdown) { starEsp }
 
-    private val fillDropdown by TextSetting("Fill colours").visibleIf { style.selected == "Filled box" && starEsp }
-    private val colourStarFill by ColourSetting("Star", Colour.RED.withAlpha(60), true, "ESP color for star mobs.").json("Star fill").childOf(fillDropdown)
-    private val colourSAFill by ColourSetting("Shadow assassin", Colour.RED.withAlpha(60), true, "ESP color for shadow assassins.").json("Shadow assassin fill").childOf(fillDropdown)
-    private val colourBatFill by ColourSetting("Bat", Colour.RED.withAlpha(60), true, "ESP color for bats.").json("Bat fill").childOf(fillDropdown)
+    private val fillDropdown by text("Fill colours").visibleIf { style.selected == "Filled box" && starEsp }
+    private val colourStarFill by colourPicker("Star", Colour.RED.withAlpha(60), true, "ESP color for star mobs.").json("Star fill").childOf(::fillDropdown)
+    private val colourSAFill by colourPicker("Shadow assassin", Colour.RED.withAlpha(60), true, "ESP color for shadow assassins.").json("Shadow assassin fill").childOf(::fillDropdown)
+    private val colourBatFill by colourPicker("Bat", Colour.RED.withAlpha(60), true, "ESP color for bats.").json("Bat fill").childOf(::fillDropdown)
 
     private var currentEntities = mutableSetOf<EspMob>()
 

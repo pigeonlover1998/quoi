@@ -1,11 +1,11 @@
 package quoi.module.impl.dungeon
 
+import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket
 import quoi.api.events.PacketEvent
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.Module
 import quoi.utils.skyblock.player.PlayerUtils
-import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket
 
 object ShadowAssassinAlert : Module(
     "Shadow Assassin Alert",

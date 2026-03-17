@@ -8,19 +8,19 @@ import quoi.api.abobaui.dsl.px
 import quoi.api.abobaui.dsl.size
 import quoi.api.abobaui.elements.ElementScope
 import quoi.module.settings.Saving
-import quoi.module.settings.UISetting
+import quoi.module.settings.UIComponent
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.elements.lengthInput
 import quoi.utils.ui.elements.suggestionInput
 import quoi.utils.ui.elements.themedInput
 
-class StringSetting(
+class TextInputComponent(
     name: String,
     override val default: String = "",
     var length: Int = 20,
     desc: String = "",
     val placeholder: String = ""
-) : UISetting<String>(name, desc), Saving {
+) : UIComponent<String>(name, desc), Saving {
 
     override var value: String = default
         set(value) {
@@ -34,12 +34,12 @@ class StringSetting(
 
     private var suggestions: () -> List<String> = { emptyList() }
 
-    fun censors(): StringSetting { // todo
+    fun censors(): TextInputComponent { // todo
         censors = true
         return this
     }
 
-    fun suggests(supplier: () -> Any): UISetting<String> {
+    fun suggests(supplier: () -> Any): UIComponent<String> {
         suggestions = {
             when (val s = supplier()) {
                 is Iterable<*> -> s.map { it.toString() }

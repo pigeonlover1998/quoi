@@ -1,17 +1,15 @@
 package quoi.module.impl.dungeon
 
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.Blocks
 import quoi.api.events.TickEvent
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.M7Phases
 import quoi.api.skyblock.invoke
 import quoi.module.Module
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.SelectorSetting
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.equalsOneOf
-import net.minecraft.core.BlockPos
-import net.minecraft.world.level.block.Blocks
-import quoi.module.settings.UISetting.Companion.visibleIf
 
 // Kyleen
 
@@ -47,8 +45,8 @@ object FuckDiorite : Module(
         Blocks.BLACK_STAINED_GLASS
     )
 
-    private val pillarBasedColor by BooleanSetting("Pillar based color", true, desc = "Swaps the diorite in the pillar to the corresponding glass color.")
-    private val colorIndex by SelectorSetting("Color", "None", arrayListOf("NONE", "WHITE", "ORANGE", "MAGENTA", "LIGHT_BLUE", "YELLOW", "LIME", "PINK", "GRAY", "LIGHT_GRAY", "CYAN", "PURPLE", "BLUE", "BROWN", "GREEN", "RED", "BLACK"), desc = "Color for the stained glass.").visibleIf { !pillarBasedColor }
+    private val pillarBasedColor by switch("Pillar based color", true, desc = "Swaps the diorite in the pillar to the corresponding glass color.")
+    private val colorIndex by selector("Color", "None", arrayListOf("NONE", "WHITE", "ORANGE", "MAGENTA", "LIGHT_BLUE", "YELLOW", "LIME", "PINK", "GRAY", "LIGHT_GRAY", "CYAN", "PURPLE", "BLUE", "BROWN", "GREEN", "RED", "BLACK"), desc = "Color for the stained glass.").visibleIf { !pillarBasedColor }
 
     private val pillars = arrayOf(BlockPos(46, 169, 41), BlockPos(46, 169, 65), BlockPos(100, 169, 65), BlockPos(100, 169, 41))
     private val pillarColors = intArrayOf(5, 4, 10, 14)

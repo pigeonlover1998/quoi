@@ -8,16 +8,16 @@ import quoi.api.abobaui.elements.impl.Block.Companion.outline
 import quoi.api.animations.Animation
 import quoi.api.input.CursorShape
 import quoi.utils.ThemeManager.theme
-import quoi.module.settings.UISetting
+import quoi.module.settings.UIComponent
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.ui.cursor
 
 
-class ActionSetting(
+class ButtonComponent(
     name: String,
     desc: String = "",
     override val default: () -> Unit = {}
-) : UISetting<() -> Unit>(name, desc) {
+) : UIComponent<() -> Unit>(name, desc) {
 
     override var value: () -> Unit = default
 

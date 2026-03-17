@@ -1,12 +1,12 @@
 package quoi.module.impl.dungeon
 
+import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
+import net.minecraft.network.protocol.game.ServerboundContainerClosePacket
+import net.minecraft.world.inventory.MenuType
 import quoi.api.events.PacketEvent
 import quoi.api.skyblock.Island
 import quoi.module.Module
 import quoi.utils.StringUtils.noControlCodes
-import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
-import net.minecraft.network.protocol.game.ServerboundContainerClosePacket
-import net.minecraft.world.inventory.MenuType
 
 // Kyleen
 object AutoCloseChest : Module(

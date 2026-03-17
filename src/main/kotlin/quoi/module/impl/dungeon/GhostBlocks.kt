@@ -11,8 +11,7 @@ import quoi.api.skyblock.dungeon.Dungeon.inBoss
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.config.configList
 import quoi.module.Module
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.BooleanSetting
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.width
 import quoi.utils.render.DrawContextUtils.drawString
@@ -23,8 +22,8 @@ object GhostBlocks : Module( // this shit seems so fucking useless.
     desc = "Set useless levers in lights device to air. /gb help"
 ) {
 
-    private val dungeonsOnly by BooleanSetting("Dungeons only")
-    private val bossOnly by BooleanSetting("Boss only").visibleIf { dungeonsOnly }
+    private val dungeonsOnly by switch("Dungeons only")
+    private val bossOnly by switch("Boss only").visibleIf { dungeonsOnly }
 
     private val ghostBlocks by configList<BlockPos>("ghostblocks.json")
     private var editMode = false

@@ -21,8 +21,8 @@ import quoi.api.skyblock.dungeon.Dungeon.leapTeammates
 import quoi.api.skyblock.dungeon.DungeonPlayer
 import quoi.config.Config
 import quoi.module.Module
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.*
+import quoi.module.settings.UIComponent.Companion.visibleIf
+import quoi.module.settings.impl.ListSetting
 import quoi.utils.ChatUtils.literal
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.noControlCodes
@@ -36,19 +36,19 @@ object LeapMenu : Module(
     area = Island.Dungeon,
     desc = "Adds a custom leap menu."
 ) {
-    val sorting by SelectorSetting("Sorting", "Class", arrayListOf("Class", "Name", "Custom", "No sorting"))
-    val fillEmpty by BooleanSetting("Fill empty slots", desc = "Fills empty slots with remaining teammates if possible.").visibleIf { sorting.selected == "Custom" }
+    val sorting by selector("Sorting", "Class", arrayListOf("Class", "Name", "Custom", "No sorting"))
+    val fillEmpty by switch("Fill empty slots", desc = "Fills empty slots with remaining teammates if possible.").visibleIf { sorting.selected == "Custom" }
     val customOrder by ListSetting("Custom sorting", mutableListOf<String>())
-    private val shadow by BooleanSetting("Shadow")
-    private val onlyClass by BooleanSetting("Only class", desc = "Renders only classes.")
+    private val shadow by switch("Shadow")
+    private val onlyClass by switch("Only class", desc = "Renders only classes.")
 //    private val renderHeads by BooleanSetting("Render heads", desc = "Renders teammate heads.")
-    private val bgCol by ColourSetting("Background colour", Colour.MINECRAFT_DARK_GRAY.withAlpha(150), allowAlpha = true, desc = "Leap menu background colour.")
-    private val scale by NumberSetting("Scale", 5.0f, 0.1f, 15.0f, 0.1f, desc = "Leap menu scale.")
-    private val gap by NumberSetting("Gap", 50, 0, 500, 10)
-    private val topLeft by KeybindSetting("Top left", CatKeys.KEY_1, desc = "Leaps to the first person in the menu.").excluding(CatKeys.KEY_E) // maybe should get inventory open keybind. but idk
-    private val topRight by KeybindSetting("Top right", CatKeys.KEY_2, desc = "Leaps to the second person in the menu.").excluding(CatKeys.KEY_E)
-    private val botLeft by KeybindSetting("Bottom left", CatKeys.KEY_3, desc = "Leaps to the third person in the menu.").excluding(CatKeys.KEY_E)
-    private val botRight by KeybindSetting("Bottom right", CatKeys.KEY_4, desc = "Leaps to the fourth person in the menu.").excluding(CatKeys.KEY_E)
+    private val bgCol by colourPicker("Background colour", Colour.MINECRAFT_DARK_GRAY.withAlpha(150), allowAlpha = true, desc = "Leap menu background colour.")
+    private val scale by slider("Scale", 5.0f, 0.1f, 15.0f, 0.1f, desc = "Leap menu scale.")
+    private val gap by slider("Gap", 50, 0, 500, 10)
+    private val topLeft by keybind("Top left", CatKeys.KEY_1, desc = "Leaps to the first person in the menu.").excluding(CatKeys.KEY_E) // maybe should get inventory open keybind. but idk
+    private val topRight by keybind("Top right", CatKeys.KEY_2, desc = "Leaps to the second person in the menu.").excluding(CatKeys.KEY_E)
+    private val botLeft by keybind("Bottom left", CatKeys.KEY_3, desc = "Leaps to the third person in the menu.").excluding(CatKeys.KEY_E)
+    private val botRight by keybind("Bottom right", CatKeys.KEY_4, desc = "Leaps to the fourth person in the menu.").excluding(CatKeys.KEY_E)
 
     init {
 

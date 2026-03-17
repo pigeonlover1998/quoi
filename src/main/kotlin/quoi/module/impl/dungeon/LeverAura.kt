@@ -1,5 +1,10 @@
 package quoi.module.impl.dungeon
 
+import net.minecraft.core.BlockPos
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.LeverBlock
+import net.minecraft.world.phys.Vec3
 import quoi.api.events.ChatEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
@@ -8,15 +13,8 @@ import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Dungeon.inP3
 import quoi.api.skyblock.invoke
 import quoi.module.Module
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.NumberSetting
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.skyblock.player.AuraManager
-import net.minecraft.core.BlockPos
-import net.minecraft.world.InteractionHand
-import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.level.block.LeverBlock
-import net.minecraft.world.phys.Vec3
 
 // Kyleen
 object LeverAura : Module(
@@ -25,10 +23,10 @@ object LeverAura : Module(
     area = Island.Dungeon(7, inBoss = true)
 ) {
 
-    private val deviceLevers by BooleanSetting("Lights device")
-    private val sectionLevers by BooleanSetting("S1/2/3/4 levers", desc = "Flips levers on gold pillar things")
-    private val ignorePowered by BooleanSetting("Ignore powered", desc = "Ignores powered lever check")
-    private val delay by NumberSetting("Delay", 400, 0, 1000, 10)
+    private val deviceLevers by switch("Lights device")
+    private val sectionLevers by switch("S1/2/3/4 levers", desc = "Flips levers on gold pillar things")
+    private val ignorePowered by switch("Ignore powered", desc = "Ignores powered lever check")
+    private val delay by slider("Delay", 400, 0, 1000, 10)
 
     private val leverCooldowns = HashMap<BlockPos, Long>()
     private var hasFlippedReflip = false

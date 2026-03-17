@@ -15,18 +15,18 @@ import quoi.api.input.CatMouse
 import quoi.api.input.CursorShape
 import quoi.utils.ThemeManager.theme
 import quoi.module.settings.Saving
-import quoi.module.settings.UISetting
+import quoi.module.settings.UIComponent
 import quoi.utils.ui.cursor
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import java.util.Objects
 
-class KeybindSetting(
+class KeybindComponent(
     name: String,
     override val default: Keybinding = Keybinding(CatKeys.KEY_NONE),
     desc: String = ""
-) : UISetting<Keybinding>(name, desc), Saving {
+) : UIComponent<Keybinding>(name, desc), Saving {
 
     constructor(name: String, defaultKeyCode: Int, desc: String = "") : this(name, Keybinding(defaultKeyCode), desc)
 
@@ -39,7 +39,7 @@ class KeybindSetting(
             value.key = newKey
         }
 
-    fun onPress(block: () -> Unit): KeybindSetting {
+    fun onPress(block: () -> Unit): KeybindComponent {
         value.onPress = block
         return this
     }
@@ -92,12 +92,12 @@ class KeybindSetting(
     private val excludes = mutableSetOf<Int>()
     private var includesOnly: MutableSet<Int>? = null
 
-    fun excluding(vararg keys: Int): KeybindSetting {
+    fun excluding(vararg keys: Int): KeybindComponent {
         excludes.addAll(keys.toList())
         return this
     }
 
-    fun includingOnly(vararg keys: Int): KeybindSetting {
+    fun includingOnly(vararg keys: Int): KeybindComponent {
         if (includesOnly == null) includesOnly = mutableSetOf()
         includesOnly!!.addAll(keys.toSet())
         return this

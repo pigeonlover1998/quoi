@@ -9,10 +9,10 @@ import quoi.api.abobaui.elements.impl.Group
 import quoi.api.abobaui.transforms.impl.Scale
 import quoi.module.Module
 import quoi.module.settings.Setting
-import quoi.module.settings.UISetting
-import quoi.module.settings.UISetting.Companion.childOf
-import quoi.module.settings.impl.TextSetting
-import quoi.module.settings.impl.NumberSetting
+import quoi.module.settings.UIComponent
+import quoi.module.settings.UIComponent.Companion.childOf
+import quoi.module.settings.impl.TextComponent
+import quoi.module.settings.impl.SliderComponent
 import quoi.utils.ui.settingFromK0
 import kotlin.reflect.KProperty0
 
@@ -24,11 +24,11 @@ open class Hud(
 ) {
     var enabled: Boolean = false
 
-    val x = NumberSetting("x", 0.0f, 0.0f, 100.0f).hide()
-    val y = NumberSetting("y", 0.0f, 0.0f, 100.0f).hide()
-    var scale = NumberSetting("scale", 1.0f, 0.3f, 5f, 0.1f).hide()
+    val x = SliderComponent("x", 0.0f, 0.0f, 100.0f).hide()
+    val y = SliderComponent("y", 0.0f, 0.0f, 100.0f).hide()
+    var scale = SliderComponent("scale", 1.0f, 0.3f, 5f, 0.1f).hide()
 
-    private val dummy = TextSetting("dummy").hide()
+    private val dummy = TextComponent("dummy").hide()
 
     val settings = arrayListOf<Setting<*>>(dummy, x, y, scale)
 
@@ -45,7 +45,7 @@ open class Hud(
         return this
     }
 
-    fun withSettings(vararg settings: UISetting<*>): Hud {
+    fun withSettings(vararg settings: UIComponent<*>): Hud {
         settings.forEach { addSetting(it) }
         return this
     }
@@ -74,7 +74,7 @@ open class Hud(
         y.value = (element.y / screenHeight) * 100f
     }
 
-    private fun addSetting(setting: UISetting<*>) {
+    private fun addSetting(setting: UIComponent<*>) {
         if (setting in module.settings) {
 //            setting.parent?.children?.remove(setting)
             dummy.childOf(setting)

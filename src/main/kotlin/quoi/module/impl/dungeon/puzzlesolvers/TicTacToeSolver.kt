@@ -12,13 +12,9 @@ import net.minecraft.world.phys.Vec3
 import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
-import quoi.utils.aabb
-import quoi.utils.component1
-import quoi.utils.component2
-import quoi.utils.component3
+import quoi.utils.*
 import quoi.utils.render.drawWireFrameBox
 import quoi.utils.skyblock.player.AuraManager
-import quoi.utils.vec3
 
 /**
  * modified Skyblocker (LGPL-3.0) (c) kevinthegreat1

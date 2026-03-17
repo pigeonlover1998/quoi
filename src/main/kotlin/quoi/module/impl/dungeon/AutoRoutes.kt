@@ -25,9 +25,8 @@ import quoi.config.typeName
 import quoi.config.typedEntries
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
-import quoi.module.settings.UISetting.Companion.childOf
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.*
+import quoi.module.settings.UIComponent.Companion.childOf
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.literal
 import quoi.utils.ChatUtils.modMessage
@@ -49,33 +48,33 @@ object AutoRoutes : Module(
     desc = "/route",
     area = Island.Dungeon(inClear = true)
 ) {
-    val zeroTick by BooleanSetting("Zero tick etherwarp").onValueChanged { _, new ->
+    val zeroTick by switch("Zero tick etherwarp").onValueChanged { _, new ->
         if (new) modMessage("&cVery buggy.", prefix = "[ZeroTick]")
     }
-    val zeroTickDb by BooleanSetting("Zero tick dungeon breaker")
-    private val style by SelectorSetting("Style", "Box", listOf("Box", "Filled box", "Cylinder"))
-    private val multicolour by BooleanSetting("Multicolour")
-    private val colour by ColourSetting("Colour", Colour.CYAN).visibleIf { !multicolour }
-    private val fillColour by ColourSetting("Fill colour", Colour.CYAN.withAlpha(0.5f), allowAlpha = true).visibleIf { style.selected == "Filled box" && !multicolour }
-    private val activeCol by ColourSetting("Active colour", Colour.WHITE)
+    val zeroTickDb by switch("Zero tick dungeon breaker")
+    private val style by selector("Style", "Box", listOf("Box", "Filled box", "Cylinder"))
+    private val multicolour by switch("Multicolour")
+    private val colour by colourPicker("Colour", Colour.CYAN).visibleIf { !multicolour }
+    private val fillColour by colourPicker("Fill colour", Colour.CYAN.withAlpha(0.5f), allowAlpha = true).visibleIf { style.selected == "Filled box" && !multicolour }
+    private val activeCol by colourPicker("Active colour", Colour.WHITE)
 
     val actionEntries by lazy { typedEntries<RingAction>() }
 
-    private val colourDropdown by TextSetting("Colours").visibleIf { multicolour }
+    private val colourDropdown by text("Colours").visibleIf { multicolour }
     private val colours = actionEntries.associate { (name, action) ->
-        val set = ColourSetting(name, action().colour).childOf(::colourDropdown)
+        val set = colourPicker(name, action().colour).childOf(::colourDropdown)
         this.register(set)
         name to set
     }
-    private val fillColourDropdown by TextSetting("Fill colours").visibleIf { style.selected == "Filled box" && multicolour }
+    private val fillColourDropdown by text("Fill colours").visibleIf { style.selected == "Filled box" && multicolour }
     private val fillColours = actionEntries.associate { (name, action) ->
-        val set = ColourSetting(name, action().colour.withAlpha(0.5f), allowAlpha = true).json("$name fill").childOf(::fillColourDropdown)
+        val set = colourPicker(name, action().colour.withAlpha(0.5f), allowAlpha = true).json("$name fill").childOf(::fillColourDropdown)
         this.register(set)
         name to set
     }
-    private val thickness by NumberSetting("Thickness", 4f, 1f, 8f, 0.5f)
-    val height by NumberSetting("Height", 0.1f, 0.1f, 1f, 0.1f)
-    private val interactDelay by NumberSetting("Interact delay", 2, 0, 6, 1, unit = "t")
+    private val thickness by slider("Thickness", 4f, 1f, 8f, 0.5f)
+    val height by slider("Height", 0.1f, 0.1f, 1f, 0.1f)
+    private val interactDelay by slider("Interact delay", 2, 0, 6, 1, unit = "t")
 
     val routes: ConfigMap<String, MutableList<RouteRing>> by configMap("auto_routes.json")
 

@@ -1,54 +1,50 @@
 package quoi.module.impl.misc
 
+import kotlinx.coroutines.launch
+import net.minecraft.world.phys.BlockHitResult
 import quoi.QuoiMod.scope
 import quoi.api.abobaui.dsl.size
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
 import quoi.api.colour.Colour
 import quoi.api.commands.internal.BaseCommand
 import quoi.api.events.TickEvent
-import quoi.module.Module
-import quoi.module.settings.impl.*
-import quoi.utils.ChatUtils.modMessage
-import quoi.utils.EntityUtils
-import quoi.utils.Scheduler.wait
-import quoi.utils.StringUtils.toFixed
-import quoi.utils.Ticker
-import quoi.utils.rayCast
-import quoi.utils.skyblock.player.AuraAction
-import quoi.utils.skyblock.player.AuraManager
-import quoi.utils.ticker
-import quoi.utils.ui.hud.*
-import quoi.utils.ui.textPair
-import kotlinx.coroutines.launch
-import net.minecraft.world.phys.BlockHitResult
 import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.Dungeon
+import quoi.module.Module
 import quoi.module.impl.render.ClickGui
-import quoi.module.settings.UISetting.Companion.childOf
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.BooleanSetting
+import quoi.module.settings.UIComponent.Companion.childOf
+import quoi.module.settings.UIComponent.Companion.visibleIf
+import quoi.utils.*
+import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleTask
+import quoi.utils.Scheduler.wait
 import quoi.utils.StringUtils.formatTime
-import quoi.utils.WorldUtils
+import quoi.utils.StringUtils.toFixed
+import quoi.utils.skyblock.player.AuraAction
+import quoi.utils.skyblock.player.AuraManager
 import quoi.utils.skyblock.player.ContainerUtils
 import quoi.utils.skyblock.player.LeapManager
+import quoi.utils.ui.hud.ResizableHud
+import quoi.utils.ui.hud.TextHud
+import quoi.utils.ui.hud.setting
+import quoi.utils.ui.textPair
 
 object Test : Module("Test", desc = "Dev module for testing.") {
 
-    val boolBigP by BooleanSetting("Bool big P")
+    val boolBigP by switch("Bool big P")
 
-    val boolGranny by BooleanSetting("Bool granny").visibleIf { boolBigP }
-    val bool1 by BooleanSetting("Bool papa").childOf(::boolGranny)
-    val boolMama by BooleanSetting("Bool mama").childOf(::boolGranny)
-    val bool2 by BooleanSetting("Bool kid").childOf(::boolMama)
+    val boolGranny by switch("Bool granny").visibleIf { boolBigP }
+    val bool1 by switch("Bool papa").childOf(::boolGranny)
+    val boolMama by switch("Bool mama").childOf(::boolGranny)
+    val bool2 by switch("Bool kid").childOf(::boolMama)
 
-    val style by SelectorSetting("Style", "Box", listOf("Box", "Filled box"))
-    val outline by BooleanSetting("Outline").childOf(::style) { it.index == 1 }
-    val colour by ColourSetting("Colour2", Colour.WHITE, true).childOf(::style) { it.index == 0 || (outline && it.index != 0) }
-    val fillColour by ColourSetting("Fill colour", Colour.WHITE, true).childOf(::style) { it.index == 1 }
+    val style by selector("Style", "Box", listOf("Box", "Filled box"))
+    val outline by switch("Outline").childOf(::style) { it.index == 1 }
+    val colour by colourPicker("Colour2", Colour.WHITE, true).childOf(::style) { it.index == 0 || (outline && it.index != 0) }
+    val fillColour by colourPicker("Fill colour", Colour.WHITE, true).childOf(::style) { it.index == 1 }
 
-    val uiDebug by BooleanSetting("UI debug").onValueChanged { old, new -> ClickGui.reopen() }
-    val reopen by ActionSetting("Reopen") { ClickGui.reopen() }
+    val uiDebug by switch("UI debug").onValueChanged { old, new -> ClickGui.reopen() }
+    val reopen by button("Reopen") { ClickGui.reopen() }
 
 
 
@@ -59,9 +55,9 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 //
 //    val stringTest by StringSetting("String setting", "shit").suggests(legacyBlockIdMap.keys.map { it.replace("minecraft:", "") })
 
-    private val showX by BooleanSetting("Show X", true)
-    private val showY by BooleanSetting("Show Y", true)
-    private val showZ by BooleanSetting("Show Z", true)
+    private val showX by switch("Show X", true)
+    private val showY by switch("Show Y", true)
+    private val showZ by switch("Show Z", true)
 
     private val coords = setOf(
         Data("x:", { (mc.player?.x ?: 0.0).toFixed() }, { showX }),
@@ -92,17 +88,17 @@ object Test : Module("Test", desc = "Dev module for testing.") {
         ).outline(outline, thickness)
     }.setting()
 
-    private val hypixel by BooleanSetting("Hypixel", true)
-    private val inSB by BooleanSetting("In skyblock", true)
-    private val lobby by BooleanSetting("Lobby", true)
+    private val hypixel by switch("Hypixel", true)
+    private val inSB by switch("In skyblock", true)
+    private val lobby by switch("Lobby", true)
 //    private val inDung by BooleanSetting("In dungeon", true)
-    private val area_ by BooleanSetting("Area", true)
-    private val subarea_ by BooleanSetting("Subarea", true)
-    private val boss by BooleanSetting("Boss", true)
-    private val floor by BooleanSetting("Floor", true)
-    private val p3Section by BooleanSetting("P3 section", true)
-    private val p3Players by BooleanSetting("P3 players", true)
-    private val container by BooleanSetting("Container", true)
+    private val area_ by switch("Area", true)
+    private val subarea_ by switch("Subarea", true)
+    private val boss by switch("Boss", true)
+    private val floor by switch("Floor", true)
+    private val p3Section by switch("P3 section", true)
+    private val p3Players by switch("P3 players", true)
+    private val container by switch("Container", true)
 
     private val debugData = setOf(
         Data("Hypixel", { Location.onHypixel }, { hypixel }),

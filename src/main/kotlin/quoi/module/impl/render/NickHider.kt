@@ -1,14 +1,12 @@
 package quoi.module.impl.render
 
-import quoi.api.colour.Colour
-import quoi.module.Module
-import quoi.module.settings.impl.ColourSetting
-import quoi.module.settings.impl.StringSetting
-import quoi.utils.ChatUtils.literal
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.network.chat.TextColor
 import net.minecraft.util.FormattedCharSequence
+import quoi.api.colour.Colour
+import quoi.module.Module
+import quoi.utils.ChatUtils.literal
 import kotlin.math.min
 
 /**
@@ -19,8 +17,8 @@ object NickHider : Module(
     "Nick Hider",
     desc = "Visually hides player name."
 ) {
-    val customName by StringSetting("Name", "cat", desc = "Player name to display.")
-    private val nameColour by ColourSetting("Name colour", Colour.ORANGE, desc = "Colour of the displayed name.")
+    val customName by textInput("Name", "cat", desc = "Player name to display.")
+    private val nameColour by colourPicker("Name colour", Colour.ORANGE, desc = "Colour of the displayed name.")
 
     private fun getUsername() = mc.player?.name?.string?.takeIf { enabled && customName != it }
 

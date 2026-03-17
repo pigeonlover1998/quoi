@@ -1,17 +1,15 @@
 package quoi.module.impl.render
 
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
 import quoi.api.colour.Colour
 import quoi.api.events.RenderEvent
 import quoi.api.skyblock.dungeon.Dungeon.dungeonTeammatesNoSelf
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.ColourSetting
-import quoi.module.settings.impl.TextSetting
-import quoi.module.settings.impl.NumberSetting
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.ChatUtils.literal
-import quoi.utils.render.drawText
 import quoi.utils.EntityUtils.colourFromDistance
 import quoi.utils.EntityUtils.distanceToCamera
 import quoi.utils.EntityUtils.playerEntitiesNoSelf
@@ -20,30 +18,28 @@ import quoi.utils.EntityUtils.renderX
 import quoi.utils.EntityUtils.renderY
 import quoi.utils.EntityUtils.renderZ
 import quoi.utils.StringUtils.toFixed
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.MutableComponent
-import quoi.module.settings.UISetting.Companion.childOf
+import quoi.utils.render.drawText
 import kotlin.math.pow
 
 object NameTags : Module(
     "Name Tags",
     desc = "Customisable nametags for entities."
 ) {
-    private val customTagDropdown by TextSetting("Custom nametags")
-    private val customTag by BooleanSetting("Toggle").json("Custom nametags toggle").childOf(customTagDropdown)
-    private val dungeonsOnly by BooleanSetting("Dungeons only").childOf(customTagDropdown) { customTag }
-    private val simpleTag by BooleanSetting("Simple tag").childOf(customTagDropdown) { customTag }
-    private val customTagBgColour by ColourSetting("Background colour", Colour.RGB(0, 0, 0, 0.33f), allowAlpha = true).json("Custom tag background colour").childOf(customTagDropdown) { customTag }
-    private val customTagShadow by BooleanSetting("Shadow").json("Custom tag shadow").childOf(customTagDropdown) { customTag }
-    private val heightOffset by NumberSetting("Height offset", 0.0, -2.2, 1.0, 0.1).childOf(customTagDropdown) { customTag }
-    private val distanceText by BooleanSetting("Distance").childOf(customTagDropdown) { customTag }
-    private val distCols by BooleanSetting("Distance colours", true).childOf(customTagDropdown) { customTag && distanceText }
-    private val distanceColour by ColourSetting("Distance colour", Colour.WHITE).json("Distance colour").childOf(customTagDropdown) { customTag && distanceText && !distCols }
+    private val customTagDropdown by text("Custom nametags")
+    private val customTag by switch("Toggle").json("Custom nametags toggle").childOf(::customTagDropdown)
+    private val dungeonsOnly by switch("Dungeons only").childOf(::customTagDropdown) { customTag }
+    private val simpleTag by switch("Simple tag").childOf(::customTagDropdown) { customTag }
+    private val customTagBgColour by colourPicker("Background colour", Colour.RGB(0, 0, 0, 0.33f), allowAlpha = true).json("Custom tag background colour").childOf(::customTagDropdown) { customTag }
+    private val customTagShadow by switch("Shadow").json("Custom tag shadow").childOf(::customTagDropdown) { customTag }
+    private val heightOffset by slider("Height offset", 0.0, -2.2, 1.0, 0.1).childOf(::customTagDropdown) { customTag }
+    private val distanceText by switch("Distance").childOf(::customTagDropdown) { customTag }
+    private val distCols by switch("Distance colours", true).childOf(::customTagDropdown) { customTag && distanceText }
+    private val distanceColour by colourPicker("Distance colour", Colour.WHITE).json("Distance colour").childOf(::customTagDropdown) { customTag && distanceText && !distCols }
 
-    private val vanillaTagDropDown by TextSetting("Vanilla nametags")
-    @JvmStatic val customBg by BooleanSetting("Custom background").childOf(vanillaTagDropDown)
-    @JvmStatic val bgColour by ColourSetting("Background colour", Colour.RGB(0, 0, 0, 0.33f), allowAlpha = true).childOf(vanillaTagDropDown) { customBg }
-    @JvmStatic val shadow by BooleanSetting("Shadow").childOf(vanillaTagDropDown)
+    private val vanillaTagDropDown by text("Vanilla nametags")
+    @JvmStatic val customBg by switch("Custom background").childOf(::vanillaTagDropDown)
+    @JvmStatic val bgColour by colourPicker("Background colour", Colour.RGB(0, 0, 0, 0.33f), allowAlpha = true).childOf(::vanillaTagDropDown) { customBg }
+    @JvmStatic val shadow by switch("Shadow").childOf(::vanillaTagDropDown)
 
     init {
         on<RenderEvent.World> {

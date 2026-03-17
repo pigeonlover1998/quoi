@@ -19,11 +19,7 @@ import quoi.module.impl.mining.CrystalHollowsMap.Z_MAX
 import quoi.module.impl.mining.CrystalHollowsMap.Z_MIN
 import quoi.module.impl.mining.CrystalHollowsMap.isDirty
 import quoi.module.impl.mining.enums.Structure
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.ColourSetting
-import quoi.module.settings.impl.NumberSetting
-import quoi.module.settings.impl.SelectorSetting
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.literal
 import quoi.utils.EntityUtils.renderX
@@ -45,14 +41,14 @@ object CrystalHollowsScanner : Module(
     "Crystal Hollows Scanner",
     area = Island.CrystalHollows
 ) {
-    private val structureScanner by BooleanSetting("Structure scanner")
-    val routeScanner by BooleanSetting("Route scanner")
-    private val style by SelectorSetting("Style", "Box", arrayListOf("Box", "Filled box"), desc = "Esp render style to be used.").visibleIf { routeScanner }
-    private val distCols by BooleanSetting("Distance colours").visibleIf { routeScanner }
-    val colour by ColourSetting("Colour", Colour.WHITE, allowAlpha = true).visibleIf { routeScanner && !distCols }
-    private val fillDistCols by BooleanSetting("Fill distance colours").visibleIf { style.selected == "Filled box" && routeScanner }
-    private val fillColour by ColourSetting("Fill colour", Colour.WHITE.withAlpha(0.33f), allowAlpha = true).visibleIf { style.selected == "Filled box" && routeScanner && !fillDistCols }
-    private val thickness by NumberSetting("Thickness", 4f, 1f, 8f, 1f).visibleIf { routeScanner }
+    private val structureScanner by switch("Structure scanner")
+    val routeScanner by switch("Route scanner")
+    private val style by selector("Style", "Box", arrayListOf("Box", "Filled box"), desc = "Esp render style to be used.").visibleIf { routeScanner }
+    private val distCols by switch("Distance colours").visibleIf { routeScanner }
+    val colour by colourPicker("Colour", Colour.WHITE, allowAlpha = true).visibleIf { routeScanner && !distCols }
+    private val fillDistCols by switch("Fill distance colours").visibleIf { style.selected == "Filled box" && routeScanner }
+    private val fillColour by colourPicker("Fill colour", Colour.WHITE.withAlpha(0.33f), allowAlpha = true).visibleIf { style.selected == "Filled box" && routeScanner && !fillDistCols }
+    private val thickness by slider("Thickness", 4f, 1f, 8f, 1f).visibleIf { routeScanner }
 
     val scannedChunks = HashSet<Long>()
     private val foundStructures = ConcurrentHashMap<Structure, MutableList<BlockPos>>()

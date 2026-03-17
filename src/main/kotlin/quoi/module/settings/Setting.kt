@@ -1,7 +1,7 @@
 package quoi.module.settings
 
 import quoi.module.Module
-import quoi.module.settings.impl.TextSetting
+import quoi.module.settings.impl.TextComponent
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlin.properties.PropertyDelegateProvider
@@ -50,7 +50,7 @@ abstract class Setting<T> (
         val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 
         @Deprecated("use dependsOn")
-        fun <K : Setting<T>, T> K.withDependency(dropdown: TextSetting? = null, dependency: () -> Boolean = { true }): K {
+        fun <K : Setting<T>, T> K.withDependency(dropdown: TextComponent? = null, dependency: () -> Boolean = { true }): K {
 //            if (this is UISetting<*>) dropdown?.children?.add(this)
 //            parent = dropdown
 //            visibilityDependency = { (dropdown?.visibilityDependency?.invoke() ?: true) && dependency() }

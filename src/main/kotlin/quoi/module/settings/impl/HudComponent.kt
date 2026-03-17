@@ -12,7 +12,7 @@ import quoi.api.animations.Animation
 import quoi.api.colour.Colour
 import quoi.api.input.CursorShape
 import quoi.module.settings.Saving
-import quoi.module.settings.UISetting
+import quoi.module.settings.UIComponent
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.cursor
 import quoi.utils.ui.hud.Hud
@@ -25,11 +25,11 @@ import quoi.utils.ui.elements.switch
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
-class HudSetting<T : Hud>(
+class HudComponent<T : Hud>(
     name: String,
     hud: T,
     desc: String = ""
-) : UISetting<T>(name, desc), Saving {
+) : UIComponent<T>(name, desc), Saving {
 
     override val default: T = hud
     override var value: T = hud
@@ -63,8 +63,8 @@ class HudSetting<T : Hud>(
         if (!value.toggleable) {
             column(size(w = Copying), gap = 7.px) {
                 value.settings.forEach { setting ->
-                    if (setting !is UISetting) return@forEach
-                    val dummy = value.settings.first() as UISetting<*>
+                    if (setting !is UIComponent) return@forEach
+                    val dummy = value.settings.first() as UIComponent<*>
                     val asSub = setting in dummy.children || setting.children.isNotEmpty()
                     setting.render(this, asSub)
                 }

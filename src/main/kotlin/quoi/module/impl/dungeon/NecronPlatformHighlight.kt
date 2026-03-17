@@ -8,10 +8,7 @@ import quoi.api.events.RenderEvent
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.invoke
 import quoi.module.Module
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.ColourSetting
-import quoi.module.settings.impl.NumberSetting
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawWireFrameBox
@@ -23,11 +20,11 @@ object NecronPlatformHighlight : Module(
     area = Island.Dungeon(7, inBoss = true)
 ) {
 
-    private val colour by ColourSetting("Colour", Colour.GREEN.withAlpha(60), true)
-    private val wireframe by BooleanSetting("Show outline")
-    private val lineColour by ColourSetting("Outline colour", Colour.GREEN.withAlpha(255), true).visibleIf { wireframe }
-    private val lineWidth by NumberSetting("Outline width", 2.0, 0.1, 10.0, 0.1).visibleIf { wireframe }
-    private val depth by BooleanSetting("Depth check")
+    private val colour by colourPicker("Colour", Colour.GREEN.withAlpha(60), true)
+    private val wireframe by switch("Show outline")
+    private val lineColour by colourPicker("Outline colour", Colour.GREEN.withAlpha(255), true).visibleIf { wireframe }
+    private val lineWidth by slider("Outline width", 2.0, 0.1, 10.0, 0.1).visibleIf { wireframe }
+    private val depth by switch("Depth check")
 
     private var shouldHighlightBlocks = false
     private val healerBox = AABB(53.0, 63.0, 113.0, 56.0, 64.0, 116.0)

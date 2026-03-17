@@ -11,11 +11,7 @@ import quoi.api.events.RenderEvent
 import quoi.api.events.WorldEvent
 import quoi.api.skyblock.dungeon.Dungeon.dungeonItemDrops
 import quoi.module.Module
-import quoi.module.settings.UISetting.Companion.childOf
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.ColourSetting
-import quoi.module.settings.impl.TextSetting
-import quoi.module.settings.impl.NumberSetting
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.EntityUtils.interpolatedBox
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.containsOneOf
@@ -32,24 +28,24 @@ object Secrets : Module(
     "Secrets",
     desc = "Highlights collected secrets."
 ) {
-    private val chimeDropdown by TextSetting("Chime")
-    private val secretChime by BooleanSetting("Secret chime", desc = "Plays a sound on secret click.").childOf(chimeDropdown)
-    private val clickSound = createSoundSettings("Secret", chimeDropdown) { secretChime }
+    private val chimeDropdown by text("Chime")
+    private val secretChime by switch("Secret chime", desc = "Plays a sound on secret click.").childOf(::chimeDropdown)
+    private val clickSound = createSoundSettings("Secret", ::chimeDropdown) { secretChime }
 //    private val dropSound = createSoundSettings("Drop", chimeDropdown) { secretChime }
 
-    private val highlightDropdown by TextSetting("Highlight")
-    private val secretClicks by BooleanSetting("Secret clicks", desc = "Highlights the secret on click.").childOf(highlightDropdown)
-    private val outline by BooleanSetting("Outline", desc = "Draws the outline.").childOf(highlightDropdown) { secretClicks }
-    private val clickColour by ColourSetting("Click colour", Colour.GREEN, allowAlpha = true).childOf(highlightDropdown) { secretClicks }
-    private val lockedColour by ColourSetting("Locked colour", Colour.RED, allowAlpha = true, desc = "Locked secret colour.").childOf(highlightDropdown) { secretClicks }
+    private val highlightDropdown by text("Highlight")
+    private val secretClicks by switch("Secret clicks", desc = "Highlights the secret on click.").childOf(::highlightDropdown)
+    private val outline by switch("Outline", desc = "Draws the outline.").childOf(::highlightDropdown) { secretClicks }
+    private val clickColour by colourPicker("Click colour", Colour.GREEN, allowAlpha = true).childOf(::highlightDropdown) { secretClicks }
+    private val lockedColour by colourPicker("Locked colour", Colour.RED, allowAlpha = true, desc = "Locked secret colour.").childOf(::highlightDropdown) { secretClicks }
 
-    private val itemDropdown by TextSetting("Item")
-    private val itemHighlight by BooleanSetting("Item highlight", desc = "Highlights secret items.").childOf(itemDropdown)
-    private val closeColour by ColourSetting("Close colour", Colour.GREEN, allowAlpha = true, desc = "Highlight colour when the player is near the item.").childOf(itemDropdown) { itemHighlight }
-    private val farColour by ColourSetting("Far colour", Colour.RED, allowAlpha = true, desc = "Highlight colour when the player is far from the item.").childOf(itemDropdown) { itemHighlight }
-    private val sizeOffset by NumberSetting("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").childOf(itemDropdown) { itemHighlight }
-    private val playSound by BooleanSetting("Play sound", desc = "Plays a sound when the player is near the item.").childOf(itemDropdown) { itemHighlight }
-    private val itemSound = createSoundSettings("Item", itemDropdown) { itemHighlight && playSound }
+    private val itemDropdown by text("Item")
+    private val itemHighlight by switch("Item highlight", desc = "Highlights secret items.").childOf(::itemDropdown)
+    private val closeColour by colourPicker("Close colour", Colour.GREEN, allowAlpha = true, desc = "Highlight colour when the player is near the item.").childOf(::itemDropdown) { itemHighlight }
+    private val farColour by colourPicker("Far colour", Colour.RED, allowAlpha = true, desc = "Highlight colour when the player is far from the item.").childOf(::itemDropdown) { itemHighlight }
+    private val sizeOffset by slider("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").childOf(::itemDropdown) { itemHighlight }
+    private val playSound by switch("Play sound", desc = "Plays a sound when the player is near the item.").childOf(::itemDropdown) { itemHighlight }
+    private val itemSound = createSoundSettings("Item", ::itemDropdown) { itemHighlight && playSound }
 
     private data class Secret(val blockPos: BlockPos, var isLocked: Boolean = false)
     private val clickedSecrets = CopyOnWriteArrayList<Secret>()

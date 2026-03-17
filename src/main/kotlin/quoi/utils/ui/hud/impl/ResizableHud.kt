@@ -5,8 +5,8 @@ import quoi.api.abobaui.dsl.*
 import quoi.api.abobaui.elements.ElementScope
 import quoi.api.colour.Colour
 import quoi.module.Module
-import quoi.module.settings.impl.ColourSetting
-import quoi.module.settings.impl.NumberSetting
+import quoi.module.settings.impl.ColourPickerComponent
+import quoi.module.settings.impl.SliderComponent
 import quoi.utils.ui.hud.Hud
 import quoi.utils.ui.hud.ScopedHud
 
@@ -14,11 +14,11 @@ class ResizableHud(
     name: String,
     module: Module,
     toggleable: Boolean = true,
-    private val width: NumberSetting<Float>,
-    private val height: NumberSetting<Float>,
-    private val colour: ColourSetting,
-    private val outline: ColourSetting?,
-    private val thickness: NumberSetting<Float>?,
+    private val width: SliderComponent<Float>,
+    private val height: SliderComponent<Float>,
+    private val colour: ColourPickerComponent,
+    private val outline: ColourPickerComponent?,
+    private val thickness: SliderComponent<Float>?,
     content: Scope.() -> Unit
 ) : ScopedHud<ResizableHud.Scope>(name, module, toggleable, content) {
 

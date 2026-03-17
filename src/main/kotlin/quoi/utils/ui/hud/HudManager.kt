@@ -25,8 +25,8 @@ import quoi.api.events.WorldEvent
 import quoi.api.events.core.EventBus
 import quoi.api.input.CatKeys
 import quoi.config.Config
-import quoi.module.settings.UISetting
-import quoi.module.settings.impl.ColourSetting
+import quoi.module.settings.UIComponent
+import quoi.module.settings.impl.ColourPickerComponent
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.toFixed
 import quoi.utils.ThemeManager.theme
@@ -497,14 +497,14 @@ object HudManager {
                     column(constrain(x = 5.px, w = Copying - 10.px, h = ColumnHeight), gap = 5.px) { // fixme
                         divider(5.px)
                         hud.settings.forEach { setting ->
-                            if (setting !is UISetting) return@forEach
+                            if (setting !is UIComponent) return@forEach
 
-                            var wasRainbow = (setting as? ColourSetting)?.rainbow ?: false
+                            var wasRainbow = (setting as? ColourPickerComponent)?.rainbow ?: false
 
-                            val dummy = hud.settings.first() as UISetting<*>
+                            val dummy = hud.settings.first() as UIComponent<*>
                             val asSub = setting in dummy.children || setting.children.isNotEmpty()
                             setting.render(this, asSub).onEvent(setting.valueUpdated) {
-                                val cs = setting as? ColourSetting
+                                val cs = setting as? ColourPickerComponent
                                 if (cs?.rainbow != wasRainbow) onValue()
                                 wasRainbow = cs?.rainbow ?: false
                                 true

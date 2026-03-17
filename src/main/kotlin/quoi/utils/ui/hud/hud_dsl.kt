@@ -3,12 +3,12 @@ package quoi.utils.ui.hud
 import quoi.QuoiMod.mc
 import quoi.api.colour.Colour
 import quoi.module.Module
-import quoi.module.settings.UISetting
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.ColourSetting
-import quoi.module.settings.impl.HudSetting
-import quoi.module.settings.impl.NumberSetting
-import quoi.module.settings.impl.SelectorSetting
+import quoi.module.settings.UIComponent
+import quoi.module.settings.impl.SwitchComponent
+import quoi.module.settings.impl.ColourPickerComponent
+import quoi.module.settings.impl.HudComponent
+import quoi.module.settings.impl.SliderComponent
+import quoi.module.settings.impl.SelectorComponent
 import quoi.utils.ChatUtils.literal
 import quoi.utils.render.DrawContextUtils.withMatrix
 import quoi.utils.scaledHeight
@@ -19,7 +19,7 @@ import quoi.utils.ui.hud.impl.ResizableHud
 import quoi.utils.ui.hud.impl.TextHud
 import net.minecraft.client.gui.GuiGraphics
 
-fun <T : Hud> T.setting(desc: String = "") = HudSetting(name, this, desc)
+fun <T : Hud> T.setting(desc: String = "") = HudComponent(name, this, desc)
 
 fun <T : Hud> T.withTransform(ctx: GuiGraphics, block: GuiGraphics.() -> Unit) {
     if (mc.screen?.title?.equals(literal("Quoi! hud editor")) == true) return
@@ -41,9 +41,9 @@ fun Module.TextHud(
     toggleable: Boolean = true,
     block: TextHud.Scope.() -> Unit
 ): TextHud {
-    val colourSetting = ColourSetting("Colour", colour)
-    val shadowSetting = BooleanSetting("Shadow", true)
-    val anchorSetting = SelectorSetting("Anchor", Anchor.TopLeft)
+    val colourSetting = ColourPickerComponent("Colour", colour)
+    val shadowSetting = SwitchComponent("Shadow", true)
+    val anchorSetting = SelectorComponent("Anchor", Anchor.TopLeft)
 
     val hud = TextHud(name, this, toggleable, colourSetting, shadowSetting, anchorSetting, block)
 
@@ -61,15 +61,15 @@ fun Module.ResizableHud(
     toggleable: Boolean = true,
     block: ResizableHud.Scope.() -> Unit
 ): ResizableHud {
-    val width = NumberSetting("Width", width, 10f, 10000f, 1f).hide()
-    val height = NumberSetting("Height", height, 10f, 10000f, 1f).hide()
-    val colour = ColourSetting("Colour", colour)
-    val outlineColour = if (outline != null) ColourSetting("Outline colour", outline) else null
-    val outlineThickness = if (outline != null) NumberSetting("Outline thickness", thickness, 1f, 10f, increment = 1f) else null
+    val width = SliderComponent("Width", width, 10f, 10000f, 1f).hide()
+    val height = SliderComponent("Height", height, 10f, 10000f, 1f).hide()
+    val colour = ColourPickerComponent("Colour", colour)
+    val outlineColour = if (outline != null) ColourPickerComponent("Outline colour", outline) else null
+    val outlineThickness = if (outline != null) SliderComponent("Outline thickness", thickness, 1f, 10f, increment = 1f) else null
 
     val hud = ResizableHud(name, this, toggleable, width, height, colour, outlineColour, outlineThickness, block)
 
-    val settings = listOfNotNull<UISetting<*>>(width, height, colour, outlineColour, outlineThickness).toTypedArray()
+    val settings = listOfNotNull<UIComponent<*>>(width, height, colour, outlineColour, outlineThickness).toTypedArray()
     hud.withSettings(*settings)
     return hud
 }

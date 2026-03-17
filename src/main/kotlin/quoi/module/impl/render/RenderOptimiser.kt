@@ -1,12 +1,5 @@
 package quoi.module.impl.render
 
-import quoi.api.events.GuiEvent
-import quoi.api.events.PacketEvent
-import quoi.api.skyblock.dungeon.Dungeon
-import quoi.mixins.accessors.TexturedButtonWidgetAccessor
-import quoi.module.Module
-import quoi.module.settings.impl.BooleanSetting
-import quoi.utils.skyblock.ItemUtils.texture
 import net.fabricmc.fabric.api.client.screen.v1.Screens
 import net.minecraft.client.gui.components.ImageButton
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent
@@ -17,24 +10,30 @@ import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.EquipmentSlot
+import quoi.api.events.GuiEvent
+import quoi.api.events.PacketEvent
+import quoi.api.skyblock.dungeon.Dungeon
+import quoi.mixins.accessors.TexturedButtonWidgetAccessor
+import quoi.module.Module
+import quoi.utils.skyblock.ItemUtils.texture
 
 object RenderOptimiser : Module(
     "Render Optimiser",
     desc = "Various render optimisation features."
 ) {
-    @JvmStatic val disableTextShadow by BooleanSetting("Disable text shadow", desc = "Disables text shadows in hud elements.")
-    @JvmStatic val containerTextShadow by BooleanSetting("Container text shadow", desc = "Renders text in containers with shadow.")
-    @JvmStatic val disableFog by BooleanSetting("Disable fog", desc = "Disables fog rendering.")
+    @JvmStatic val disableTextShadow by switch("Disable text shadow", desc = "Disables text shadows in hud elements.")
+    @JvmStatic val containerTextShadow by switch("Container text shadow", desc = "Renders text in containers with shadow.")
+    @JvmStatic val disableFog by switch("Disable fog", desc = "Disables fog rendering.")
 
-    private val hideFallingBlocks by BooleanSetting("Hide falling blocks", desc = "Disables falling blocks rendering.")
-    private val hideLightning by BooleanSetting("Hide lightning", desc = "Disables lightning rendering.")
-    private val hideWeaver by BooleanSetting("Hide soul weaver", desc = "Disables soul weaver skulls rendering.")
-    private val hideFairy by BooleanSetting("Hide healer fairy", desc = "Disables healer fairy rendering.")
-    private val hideRecipeBook by BooleanSetting("Hide recipe book", desc = "Disables recipe book rendering.")
-    private val hideBlindness by BooleanSetting("Hide blindness", desc = "Disabled blindness effect rendering.")
-    @JvmStatic val hideFire by BooleanSetting("Hide fire overlay", desc = "Disables fire overlay rendering.")
+    private val hideFallingBlocks by switch("Hide falling blocks", desc = "Disables falling blocks rendering.")
+    private val hideLightning by switch("Hide lightning", desc = "Disables lightning rendering.")
+    private val hideWeaver by switch("Hide soul weaver", desc = "Disables soul weaver skulls rendering.")
+    private val hideFairy by switch("Hide healer fairy", desc = "Disables healer fairy rendering.")
+    private val hideRecipeBook by switch("Hide recipe book", desc = "Disables recipe book rendering.")
+    private val hideBlindness by switch("Hide blindness", desc = "Disabled blindness effect rendering.")
+    @JvmStatic val hideFire by switch("Hide fire overlay", desc = "Disables fire overlay rendering.")
 
-    @JvmStatic val fullBright by BooleanSetting("Full bright", desc = "Makes dark places bright.")
+    @JvmStatic val fullBright by switch("Full bright", desc = "Makes dark places bright.")
 
     private const val HEALER_FAIRY_TEXTURE = "ewogICJ0aW1lc3RhbXAiIDogMTcxOTQ2MzA5MTA0NywKICAicHJvZmlsZUlkIiA6ICIyNjRkYzBlYjVlZGI0ZmI3OTgxNWIyZGY1NGY0OTgyNCIsCiAgInByb2ZpbGVOYW1lIiA6ICJxdWludHVwbGV0IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzJlZWRjZmZjNmExMWEzODM0YTI4ODQ5Y2MzMTZhZjdhMjc1MmEzNzZkNTM2Y2Y4NDAzOWNmNzkxMDhiMTY3YWUiCiAgICB9CiAgfQp9"
     private const val SOUL_WEAVER_TEXTURE = "eyJ0aW1lc3RhbXAiOjE1NTk1ODAzNjI1NTMsInByb2ZpbGVJZCI6ImU3NmYwZDlhZjc4MjQyYzM5NDY2ZDY3MjE3MzBmNDUzIiwicHJvZmlsZU5hbWUiOiJLbGxscmFoIiwic2lnbmF0dXJlUmVxdWlyZWQiOnRydWUsInRleHR1cmVzIjp7IlNLSU4iOnsidXJsIjoiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yZjI0ZWQ2ODc1MzA0ZmE0YTFmMGM3ODViMmNiNmE2YTcyNTYzZTlmM2UyNGVhNTVlMTgxNzg0NTIxMTlhYTY2In19fQ=="

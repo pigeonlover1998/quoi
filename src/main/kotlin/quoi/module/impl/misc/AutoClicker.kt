@@ -9,10 +9,8 @@ import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.config.Config
 import quoi.module.Module
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.BooleanSetting
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.module.settings.impl.ListSetting
-import quoi.module.settings.impl.NumberRangeSetting
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.formattedString
 import quoi.utils.skyblock.ItemUtils.skyblockUuid
@@ -26,17 +24,17 @@ object AutoClicker: Module(
     "Auto Clicker",
     desc = "A simple auto clicker for both left and right click. Activates when the corresponding key is being held down."
 ) {
-    private val breakBlocks by BooleanSetting("Break blocks", desc = "Allows the player to break blocks.")
+    private val breakBlocks by switch("Break blocks", desc = "Allows the player to break blocks.")
 //    private val clickInGui by BooleanSetting("Click while in inventory", desc = "Continues to auto click while the player is in inventory.")
-    private val favouriteItems by BooleanSetting("Favourite items only")
+    private val favouriteItems by switch("Favourite items only")
     private val favLeft by ListSetting("FAVOURITE_ITEMS_LEFT", mutableListOf<String>())
     private val favRight by ListSetting("FAVOURITE_ITEMS_RIGHT", mutableListOf<String>())
 
-    private val leftClick by BooleanSetting("Left Click", desc = "Toggles the auto clicker for left click.")
-    private val leftCps by NumberRangeSetting("Left CPS", 10 to 12, 1, 20).visibleIf { leftClick }
+    private val leftClick by switch("Left Click", desc = "Toggles the auto clicker for left click.")
+    private val leftCps by rangeSlider("Left CPS", 10 to 12, 1, 20).visibleIf { leftClick }
 
-    private val rightClick by BooleanSetting("Right Click", desc = "Toggles the auto clicker for right click.")
-    private val rightCps by NumberRangeSetting("Right CPS", 10 to 12, 1, 20).visibleIf { rightClick }
+    private val rightClick by switch("Right Click", desc = "Toggles the auto clicker for right click.")
+    private val rightCps by rangeSlider("Right CPS", 10 to 12, 1, 20).visibleIf { rightClick }
 
     private var leftJob: Job? = null
     private var rightJob: Job? = null

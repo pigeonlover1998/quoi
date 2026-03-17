@@ -1,8 +1,8 @@
 package quoi.module.impl.mining.enums
 
-import quoi.api.colour.Colour
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
+import quoi.api.colour.Colour
 
 enum class Structure( // todo cleanup some day
     val colour: Colour,

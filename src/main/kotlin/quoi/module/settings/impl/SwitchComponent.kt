@@ -9,18 +9,18 @@ import quoi.api.abobaui.elements.impl.Block.Companion.outline
 import quoi.api.animations.Animation
 import quoi.api.colour.Colour
 import quoi.module.settings.Saving
-import quoi.module.settings.UISetting
+import quoi.module.settings.UIComponent
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.elements.switch
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 
 
-class BooleanSetting(
+class SwitchComponent(
     name: String,
     override val default: Boolean = false,
     desc: String = "",
-) : UISetting<Boolean>(name, desc), Saving{
+) : UIComponent<Boolean>(name, desc), Saving{
 
     override var value: Boolean = default
     var enabled: Boolean by this::value

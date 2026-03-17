@@ -7,7 +7,7 @@ import quoi.api.abobaui.elements.ElementScope
 import quoi.api.abobaui.elements.impl.Text.Companion.string
 import quoi.utils.ThemeManager.theme
 import quoi.module.settings.Saving
-import quoi.module.settings.UISetting
+import quoi.module.settings.UIComponent
 import quoi.utils.round
 import quoi.utils.ui.elements.rangeSlider
 import com.google.gson.JsonArray
@@ -16,7 +16,7 @@ import kotlin.math.floor
 import kotlin.math.round
 
 @Suppress("UNCHECKED_CAST")
-class NumberRangeSetting<E>(
+class RangeSliderComponent<E>(
     name: String,
     override val default: Pair<E, E>,
     val min: E = -10000 as E,
@@ -24,7 +24,7 @@ class NumberRangeSetting<E>(
     val increment: Number = 1,
     desc: String = "",
     val unit: String = "",
-) : UISetting<Pair<E, E>>(name, desc), Saving where E : Number, E : Comparable<E> {
+) : UIComponent<Pair<E, E>>(name, desc), Saving where E : Number, E : Comparable<E> {
 
     override var value: Pair<E, E> = default
 
@@ -62,7 +62,7 @@ class NumberRangeSetting<E>(
         }
     }
 
-    override fun hide(): NumberRangeSetting<E> {
+    override fun hide(): RangeSliderComponent<E> {
         super.hide()
         return this
     }

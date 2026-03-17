@@ -2,7 +2,10 @@ package quoi.module.impl.misc
 
 import quoi.api.abobaui.constraints.impl.measurements.Animatable
 import quoi.api.abobaui.constraints.impl.positions.Centre
-import quoi.api.abobaui.constraints.impl.size.*
+import quoi.api.abobaui.constraints.impl.size.AspectRatio
+import quoi.api.abobaui.constraints.impl.size.Bounding
+import quoi.api.abobaui.constraints.impl.size.Copying
+import quoi.api.abobaui.constraints.impl.size.Fill
 import quoi.api.abobaui.dsl.*
 import quoi.api.abobaui.elements.ElementScope
 import quoi.api.abobaui.elements.Layout.Companion.divider
@@ -21,41 +24,37 @@ import quoi.api.abobaui.transforms.impl.Rotation
 import quoi.api.animations.Animation
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
-import quoi.api.customtriggers.Abobable
-import quoi.api.customtriggers.DelayedAction
-import quoi.api.customtriggers.Trigger
-import quoi.api.customtriggers.TriggerManager
+import quoi.api.customtriggers.*
 import quoi.api.customtriggers.TriggerManager.actionEntries
 import quoi.api.customtriggers.TriggerManager.conditionEntries
 import quoi.api.customtriggers.TriggerManager.triggers
-import quoi.api.customtriggers.testTrigger
 import quoi.api.input.CursorShape
 import quoi.config.TypeNamed
 import quoi.config.typeName
 import quoi.module.Module
-import quoi.module.settings.impl.ActionSetting
+import quoi.module.settings.impl.ButtonComponent
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.cursor
 import quoi.utils.ui.elements.numberInput
+import quoi.utils.ui.elements.selector
+import quoi.utils.ui.elements.switch
+import quoi.utils.ui.elements.themedInput
 import quoi.utils.ui.hud.GroupHeight
 import quoi.utils.ui.popupX
 import quoi.utils.ui.popupY
 import quoi.utils.ui.screens.UIScreen.Companion.open
-import quoi.utils.ui.elements.selector
-import quoi.utils.ui.elements.switch
-import quoi.utils.ui.elements.themedInput
 
 object CustomTriggers : Module(
     "Custom Triggers"
 ) {
-    private val addTrigger by ActionSetting("ADD TEST TRIGGER") {
+    private val addTrigger by ButtonComponent("ADD TEST TRIGGER") {
         val trigger = testTrigger()
         TriggerManager.addTrigger("test", trigger)
     }
 
-    private val triggerInfo by ActionSetting("TRIGGER INFO") {
+    private val triggerInfo by ButtonComponent("TRIGGER INFO") {
         modMessage(triggers.size)
         triggers.values.flatten().forEach {
             modMessage("""

@@ -7,17 +7,15 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.module.Module
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.SelectorSetting
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.skyblock.ItemUtils.skyblockId
 
 // Kyleen
 object CancelInteract : Module("Cancel Interact") {
 
-    private val dungeonsOnly by BooleanSetting("Dungeons only").visibleIf { whitelistMode.selected != "Outside Dungeons" }
-    private val whitelistMode by SelectorSetting("Ignore whitelist", "Never", arrayListOf("Never", "Always", "Outside Dungeons"))
-    private val sneakMode by BooleanSetting("Sneaking only", desc = "for etherwarp/aote only")
+    private val dungeonsOnly by switch("Dungeons only").visibleIf { whitelistMode.selected != "Outside Dungeons" }
+    private val whitelistMode by selector("Ignore whitelist", "Never", arrayListOf("Never", "Always", "Outside Dungeons"))
+    private val sneakMode by switch("Sneaking only", desc = "for etherwarp/aote only")
 
     private val teleportItems = setOf(
         "ASPECT_OF_THE_VOID",

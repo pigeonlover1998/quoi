@@ -11,8 +11,6 @@ import quoi.api.skyblock.SkyblockPlayer
 import quoi.api.skyblock.dungeon.Dungeon.inBoss
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.module.Module
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.NumberSetting
 import quoi.utils.ui.hud.TextHud
 import quoi.utils.ui.hud.setting
 import quoi.utils.ui.rendering.NVGRenderer.minecraftFont
@@ -22,11 +20,11 @@ object InvincibilityTimer : Module(
     "Invincibility Timer",
     desc = "Gives visual information about your invincibility times."
 ) {
-    private val dungeonOnly by BooleanSetting("Dungeons only", desc = "Active in dungeons only.")
-    private val bossOnly by BooleanSetting("Boss only", desc = "Active in boss room only.")
+    private val dungeonOnly by switch("Dungeons only", desc = "Active in dungeons only.")
+    private val bossOnly by switch("Boss only", desc = "Active in boss room only.")
 //    private val serverTicks by BooleanSetting("Use server ticks", desc = "Uses server ticks instead of real time.")
-    val mageReduction by BooleanSetting("Mage reduction", desc = "Accounts for mage cooldown reduction.")
-    val cataLevel by NumberSetting("Catacombs level", 0, 0, 50, desc = "Catacombs level for Bonzo's mask ability.")
+    val mageReduction by switch("Mage reduction", desc = "Accounts for mage cooldown reduction.")
+    val cataLevel by slider("Catacombs level", 0, 0, 50, desc = "Catacombs level for Bonzo's mask ability.")
 
     private val hud by TextHud("Invincibility timer", Colour.PINK, toggleable = false) {
         visibleIf { this@InvincibilityTimer.enabled && inSkyblock && (!bossOnly || inBoss) && (!dungeonOnly || inDungeons || bossOnly) }

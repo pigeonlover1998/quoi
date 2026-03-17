@@ -17,8 +17,8 @@ import quoi.api.input.CatMouse
 import quoi.api.input.CursorShape
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
-import quoi.module.settings.UISetting
-import quoi.module.settings.UISetting.Companion.childOf
+import quoi.module.settings.UIComponent
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.impl.*
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.ui.rendering.NVGRenderer.minecraftFont
@@ -136,9 +136,9 @@ fun ElementScope<*>.popupY(gap: Float = 0f, corner: Boolean = false): Constraint
     }
 }
 
-fun settingFromK0(property: KProperty0<*>): UISetting<*> {
+fun settingFromK0(property: KProperty0<*>): UIComponent<*> {
     property.isAccessible = true
-    return property.getDelegate() as? UISetting<*> ?: throw Exception("no good")
+    return property.getDelegate() as? UIComponent<*> ?: throw Exception("no good")
 }
 
 private enum class Sound(val sound: SoundEvent) {
@@ -154,13 +154,13 @@ private enum class Sound(val sound: SoundEvent) {
 
 fun Module.createSoundSettings(
     name: String,
-    parent: TextSetting? = null,
+    parent: KProperty0<*>? = null,
     dependencies: () -> Boolean,
 ): () -> Triple<SoundEvent, Float, Float> {
-    val sound = +SelectorSetting("$name sound", Sound.BlazeHurt).childOf(parent) { dependencies() }
-    val customSound = +StringSetting("Custom sound", "entity.blaze.hurt", length = 64).json("$name custom sound").childOf(parent) { dependencies() && sound.selected == Sound.Custom }
-    val soundVolume = +NumberSetting("Volume", 1.0f, 0.1f, 2.0f, 0.01f, desc = "Volume of the sound to play.").json("$name volume").childOf(parent) { dependencies() }
-    val soundPitch = +NumberSetting("Pitch", 1.0f, 0.1f, 2.0f, 0.01f, desc = "Pitch of the sound to play.").json("$name pitch").childOf(parent) { dependencies() }
+    val sound = +SelectorComponent("$name sound", Sound.BlazeHurt).childOf(parent) { dependencies() }
+    val customSound = +TextInputComponent("Custom sound", "entity.blaze.hurt", length = 64).json("$name custom sound").childOf(parent) { dependencies() && sound.selected == Sound.Custom }
+    val soundVolume = +SliderComponent("Volume", 1.0f, 0.1f, 2.0f, 0.01f, desc = "Volume of the sound to play.").json("$name volume").childOf(parent) { dependencies() }
+    val soundPitch = +SliderComponent("Pitch", 1.0f, 0.1f, 2.0f, 0.01f, desc = "Pitch of the sound to play.").json("$name pitch").childOf(parent) { dependencies() }
     val soundSettings = {
         val soundEvent =
             if (sound.selected == Sound.BlazeHurt)
@@ -169,7 +169,7 @@ fun Module.createSoundSettings(
                 sound.selected.sound
         Triple(soundEvent ?: SoundEvents.BLAZE_HURT, soundVolume.value, soundPitch.value)
     }
-    +ActionSetting("Test sound") {
+    +ButtonComponent("Test sound") {
         PlayerUtils.playSound(soundSettings)
     }.childOf(parent) { dependencies() }
     return soundSettings

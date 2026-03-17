@@ -1,10 +1,10 @@
 package quoi.module.impl.misc
 
+import net.minecraft.network.chat.ClickEvent
 import quoi.api.events.ChatEvent
 import quoi.module.Module
 import quoi.utils.ChatUtils
 import quoi.utils.StringUtils.noControlCodes
-import net.minecraft.network.chat.ClickEvent
 
 object AutoDialogue : Module(
     "Auto Dialogue",

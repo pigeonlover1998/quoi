@@ -11,8 +11,6 @@ import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.api.skyblock.dungeon.P3Section
 import quoi.module.Module
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.NumberSetting
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.formatTime
 import quoi.utils.StringUtils.toFixed
@@ -27,13 +25,13 @@ object Splits : Module( // todo section split info hud, task (terms, levers, dev
     desc = "Shows timers for various phases",
     area = Island.Dungeon
 ) {
-    private val timeElapsed by BooleanSetting("Time Elapsed split") // todo
-    private val bossEntry by BooleanSetting("Boss Entry split")
-    private val bossClear by BooleanSetting("Boss Clear split")
-    private val p3Sections by BooleanSetting("Goldor sections")
-    private val hideNotStarted by BooleanSetting("Hide not started")
-    private val numbersAfterDecimal by NumberSetting("Numbers after decimal", 2, 0, 5, 1, desc = "Numbers after decimal in time.")
-    private val showTickTime by BooleanSetting("Show tick time", desc = "Show tick-based time alongside real time.")
+    private val timeElapsed by switch("Time Elapsed split") // todo
+    private val bossEntry by switch("Boss Entry split")
+    private val bossClear by switch("Boss Clear split")
+    private val p3Sections by switch("Goldor sections")
+    private val hideNotStarted by switch("Hide not started")
+    private val numbersAfterDecimal by slider("Numbers after decimal", 2, 0, 5, 1, desc = "Numbers after decimal in time.")
+    private val showTickTime by switch("Show tick time", desc = "Show tick-based time alongside real time.")
 
     private lateinit var refreshable: RefreshableGroup
 

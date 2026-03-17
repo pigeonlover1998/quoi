@@ -3,24 +3,23 @@ package quoi.module.impl.misc
 import quoi.api.events.ChatEvent
 import quoi.module.Module
 import quoi.module.impl.misc.Chat.socialCommands
-import quoi.module.settings.impl.BooleanSetting
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.ChatUtils.say
 import quoi.utils.StringUtils.noControlCodes
 
 object ChatReplacements : Module("Chat Replacements", desc = "temp") { // THIS IS A TEMP MODULE. todo replace with custom hiders
-    private val chatEmotes by BooleanSetting("Chat emotes")
-    private val cleanerDungeons by BooleanSetting("Cleaner dungeons")
-    private val cleanerPf by BooleanSetting("Cleaner PF")
-    private val hideOtherMessages by BooleanSetting("Hide useless messages")
-    private val hideMoreMessages by BooleanSetting("Hide even more useless messages")
+    private val chatEmotes by switch("Chat emotes")
+    private val cleanerDungeons by switch("Cleaner dungeons")
+    private val cleanerPf by switch("Cleaner PF")
+    private val hideOtherMessages by switch("Hide useless messages")
+    private val hideMoreMessages by switch("Hide even more useless messages")
 
-    private val hideDiscordWarnings by BooleanSetting("Hide discord warnings", desc = "Hides Discord warning messages.")
-    private val hideMicrosoftWarnings by BooleanSetting("Hide microsoft warnings", desc = "Hides Microsoft account warnings.")
+    private val hideDiscordWarnings by switch("Hide discord warnings", desc = "Hides Discord warning messages.")
+    private val hideMicrosoftWarnings by switch("Hide microsoft warnings", desc = "Hides Microsoft account warnings.")
 
-    private val hideActionbar by BooleanSetting("Hide actionbar", desc = "Hides ALL actionbar messages/contents.")
-    private val hideScoreboardShit by BooleanSetting("Hide scoreboard shit", desc = "Hides the Server ID and www.hypixel.net")
-    private val hideEmptyChats by BooleanSetting("Hide empty chat messages", desc = "Hides chat messages with no text.")
+    private val hideActionbar by switch("Hide actionbar", desc = "Hides ALL actionbar messages/contents.")
+    private val hideScoreboardShit by switch("Hide scoreboard shit", desc = "Hides the Server ID and www.hypixel.net")
+    private val hideEmptyChats by switch("Hide empty chat messages", desc = "Hides chat messages with no text.")
 
     @JvmStatic val shouldHideServerId get() = this.enabled && hideScoreboardShit
 

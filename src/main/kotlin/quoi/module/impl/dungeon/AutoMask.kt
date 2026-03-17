@@ -16,11 +16,7 @@ import quoi.api.skyblock.SkyblockPlayer
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.DungeonClass
 import quoi.module.Module
-import quoi.module.settings.UISetting.Companion.childOf
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.TextSetting
-import quoi.module.settings.impl.NumberSetting
-import quoi.module.settings.impl.SelectorSetting
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.ChatUtils.command
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleTask
@@ -37,18 +33,18 @@ object AutoMask : Module(
     desc = "Automatically swaps to invincibility item."
 ) {
 
-    private val dungeonsOnly by BooleanSetting("Dungeons only")
-    private val P3Only by BooleanSetting("Phase 3 only")
-    private val stopMoving by BooleanSetting("Prevent moving", true)
-    private val antiLoop by BooleanSetting("Anti loop")
-    private val announceProc by BooleanSetting("Announce mask proc")
+    private val dungeonsOnly by switch("Dungeons only")
+    private val P3Only by switch("Phase 3 only")
+    private val stopMoving by switch("Prevent moving", true)
+    private val antiLoop by switch("Anti loop")
+    private val announceProc by switch("Announce mask proc")
 
-    private val phoenix by TextSetting("Early enter phoenix/leap")
-    private val ee3 by BooleanSetting("Rod swap", desc = "Swaps rod and clicks if both masks proc.").childOf(phoenix)
-    private val ee3Delay by NumberSetting("Rod click delay", 2, 0, 10, 1, "Ticks between rod clicks.").childOf(phoenix) { ee3 }
-    private val swapBack by BooleanSetting("Rod swap back", desc = "Swaps back to original slot after rodding.").childOf(phoenix) { ee3 }
-    private val ee3LeapBack by BooleanSetting("Leap back", desc = "Leaps 3s after phoenix proc message.").childOf(phoenix)
-    private val leapClass by SelectorSetting("Leap target class", "Berserk", listOf("Any", "Berserk", "Healer", "Tank", "Mage", "Archer")).childOf(phoenix) { ee3LeapBack }
+    private val phoenix by text("Early enter phoenix/leap")
+    private val ee3 by switch("Rod swap", desc = "Swaps rod and clicks if both masks proc.").childOf(::phoenix)
+    private val ee3Delay by slider("Rod click delay", 2, 0, 10, 1, "Ticks between rod clicks.").childOf(::phoenix) { ee3 }
+    private val swapBack by switch("Rod swap back", desc = "Swaps back to original slot after rodding.").childOf(::phoenix) { ee3 }
+    private val ee3LeapBack by switch("Leap back", desc = "Leaps 3s after phoenix proc message.").childOf(::phoenix)
+    private val leapClass by selector("Leap target class", "Berserk", listOf("Any", "Berserk", "Healer", "Tank", "Mage", "Archer")).childOf(::phoenix) { ee3LeapBack }
     //private val app by BooleanSetting("Use APP", desc = "Uses APP to swap to phoenix and back.").withDependency(phoenix)
 
     val isSwapping: Boolean get() = _isSwapping

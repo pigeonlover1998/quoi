@@ -6,9 +6,8 @@ import quoi.api.events.EntityEvent
 import quoi.api.events.RenderEvent
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
-import quoi.module.settings.UISetting.Companion.childOf
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.*
+import quoi.module.settings.UIComponent.Companion.childOf
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.EntityUtils.colourFromDistance
 import quoi.utils.EntityUtils.distanceToCamera
 import quoi.utils.EntityUtils.interpolatedBox
@@ -22,22 +21,22 @@ object PlayerESP : Module(
     "Player ESP",
     desc = "Highlights players through walls."
 ) {
-    private val tracerDropdown by TextSetting("Tracer")
-    private val tracer by BooleanSetting("Toggle").json("Tracer toggle").childOf(tracerDropdown)
-    private val tracerDistCols by BooleanSetting("Distance colours").json("Tracer distance colours").childOf(tracerDropdown) { tracer }
-    private val tracerColour by ColourSetting("Colour", Colour.WHITE).json("Tracer colour").childOf(tracerDropdown) { tracer && !tracerDistCols }
-    private val tracerDistance by NumberSetting("Max distance", 256, 0, 256, 1).childOf(tracerDropdown) { tracer }
-    private val tracerThickness by NumberSetting("Thickness", 4f, 1f, 8f, 1f).json("Tracer thickness").childOf(tracerDropdown) { tracer }
+    private val tracerDropdown by text("Tracer")
+    private val tracer by switch("Toggle").json("Tracer toggle").childOf(::tracerDropdown)
+    private val tracerDistCols by switch("Distance colours").json("Tracer distance colours").childOf(::tracerDropdown) { tracer }
+    private val tracerColour by colourPicker("Colour", Colour.WHITE).json("Tracer colour").childOf(::tracerDropdown) { tracer && !tracerDistCols }
+    private val tracerDistance by slider("Max distance", 256, 0, 256, 1).childOf(::tracerDropdown) { tracer }
+    private val tracerThickness by slider("Thickness", 4f, 1f, 8f, 1f).json("Tracer thickness").childOf(::tracerDropdown) { tracer }
 
-    private val ironmenOnly by BooleanSetting("Ir*nmen only")
-    private val depth by BooleanSetting("Depth check")
-    private val style by SelectorSetting("Style", "Box", arrayListOf("Box", "Filled box", "Glow", "2D"), desc = "Esp render style to be used.")
-    private val distCols by BooleanSetting("Distance colours").visibleIf { !style.selected.equalsOneOf("Glow", "2D") }
-    private val colour by ColourSetting("Colour", Colour.WHITE, desc = "Colour for the Player ESP").visibleIf { !distCols }
-    private val fillDistCols by BooleanSetting("Fill distance colours", true).visibleIf { style.selected == "Filled box" }
-    private val fillColour by ColourSetting("Fill colour", Colour.WHITE.withAlpha(60), allowAlpha = true, desc = "Fill colour for the Player ESP").visibleIf { style.selected == "Filled box" && !fillDistCols }
-    private val thickness by NumberSetting("Thickness", 4f, 1f, 8f, 1f)
-    private val sizeOffset by NumberSetting("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").visibleIf { style.selected.equalsOneOf("Box", "Filled box") }
+    private val ironmenOnly by switch("Ir*nmen only")
+    private val depth by switch("Depth check")
+    private val style by selector("Style", "Box", arrayListOf("Box", "Filled box", "Glow", "2D"), desc = "Esp render style to be used.")
+    private val distCols by switch("Distance colours").visibleIf { !style.selected.equalsOneOf("Glow", "2D") }
+    private val colour by colourPicker("Colour", Colour.WHITE, desc = "Colour for the Player ESP").visibleIf { !distCols }
+    private val fillDistCols by switch("Fill distance colours", true).visibleIf { style.selected == "Filled box" }
+    private val fillColour by colourPicker("Fill colour", Colour.WHITE.withAlpha(60), allowAlpha = true, desc = "Fill colour for the Player ESP").visibleIf { style.selected == "Filled box" && !fillDistCols }
+    private val thickness by slider("Thickness", 4f, 1f, 8f, 1f)
+    private val sizeOffset by slider("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").visibleIf { style.selected.equalsOneOf("Box", "Filled box") }
 
     init {
         on<RenderEvent.World> {

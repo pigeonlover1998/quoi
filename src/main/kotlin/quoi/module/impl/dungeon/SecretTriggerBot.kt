@@ -1,23 +1,20 @@
 package quoi.module.impl.dungeon
 
+import net.minecraft.core.BlockPos
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.HitResult
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Dungeon.inBoss
 import quoi.module.Module
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.NumberSetting
 import quoi.utils.Ticker
 import quoi.utils.equalsOneOf
 import quoi.utils.skyblock.player.SwapManager
 import quoi.utils.skyblock.player.SwapResult
 import quoi.utils.ticker
-import net.minecraft.core.BlockPos
-import net.minecraft.world.InteractionHand
-import net.minecraft.world.phys.BlockHitResult
-import net.minecraft.world.phys.HitResult
-import java.util.HashSet
 
 // Kyleen
 object SecretTriggerBot : Module(
@@ -26,9 +23,9 @@ object SecretTriggerBot : Module(
     area = Island.Dungeon
 ) {
 
-    private val swapSlot by NumberSetting("Swap slot", 1, 1, 9, 1, desc = "Hotbar slot to swap to (1-9).")
-    private val swapBack by BooleanSetting("Swap back", desc = "Swaps back to original slot after clicking.")
-    private val reactionDelay by NumberSetting("Interact delay", 0, 0, 5, 1, desc = "Ticks to wait before triggering.")
+    private val swapSlot by slider("Swap slot", 1, 1, 9, 1, desc = "Hotbar slot to swap to (1-9).")
+    private val swapBack by switch("Swap back", desc = "Swaps back to original slot after clicking.")
+    private val reactionDelay by slider("Interact delay", 0, 0, 5, 1, desc = "Ticks to wait before triggering.")
 
     private val clickedBlocks = HashSet<BlockPos>()
 

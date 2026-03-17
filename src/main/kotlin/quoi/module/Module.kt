@@ -16,6 +16,19 @@ import quoi.module.settings.impl.Keybinding
 import quoi.utils.ChatUtils.modMessage
 import net.minecraft.network.protocol.Packet
 import quoi.annotations.AlwaysActive
+import quoi.api.colour.Colour
+import quoi.module.settings.SettingsDsl
+import quoi.module.settings.impl.ButtonComponent
+import quoi.module.settings.impl.ColourPickerComponent
+import quoi.module.settings.impl.HudComponent
+import quoi.module.settings.impl.KeybindComponent
+import quoi.module.settings.impl.RangeSliderComponent
+import quoi.module.settings.impl.SelectorComponent
+import quoi.module.settings.impl.SliderComponent
+import quoi.module.settings.impl.SwitchComponent
+import quoi.module.settings.impl.TextComponent
+import quoi.module.settings.impl.TextInputComponent
+import quoi.utils.ui.hud.Hud
 
 abstract class Module(
     val name: String,
@@ -24,7 +37,7 @@ abstract class Module(
     val key: Int = CatKeys.KEY_NONE,
     @Transient val desc: String = "",
     toggled: Boolean = false
-) {
+) : SettingsDsl {
     constructor(
         name: String,
         area: Island,

@@ -10,11 +10,7 @@ import quoi.api.events.RenderEvent
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.invoke
 import quoi.module.Module
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.ColourSetting
-import quoi.module.settings.impl.NumberSetting
-import quoi.module.settings.impl.SelectorSetting
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.EntityUtils.entities
 import quoi.utils.EntityUtils.interpolatedBox
 import quoi.utils.StringUtils.noControlCodes
@@ -27,12 +23,12 @@ object BossESP : Module( // todo move to dungeon esp
     desc = "Highlights floor seven bosses.",
     area = Island.Dungeon(7, inBoss = true)
 ) {
-    private val depth by BooleanSetting("Depth check")
-    private val style by SelectorSetting("Style", "Box", arrayListOf("Box", "Filled box", "Glow", "2D"), desc = "Esp render style to be used.")
-    private val colour by ColourSetting("Colour", Colour.WHITE, desc = "Colour for the Boss ESP")
-    private val fillColour by ColourSetting("Fill colour", Colour.WHITE.withAlpha(60), allowAlpha = true, desc = "Fill colour for the Boss ESP").visibleIf { style.selected == "Filled box" }
-    private val thickness by NumberSetting("Thickness", 4, 1, 8, 1)
-    private val sizeOffset by NumberSetting("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").visibleIf { style.selected.equalsOneOf("Box", "Filled box") }
+    private val depth by switch("Depth check")
+    private val style by selector("Style", "Box", arrayListOf("Box", "Filled box", "Glow", "2D"), desc = "Esp render style to be used.")
+    private val colour by colourPicker("Colour", Colour.WHITE, desc = "Colour for the Boss ESP")
+    private val fillColour by colourPicker("Fill colour", Colour.WHITE.withAlpha(60), allowAlpha = true, desc = "Fill colour for the Boss ESP").visibleIf { style.selected == "Filled box" }
+    private val thickness by slider("Thickness", 4, 1, 8, 1)
+    private val sizeOffset by slider("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").visibleIf { style.selected.equalsOneOf("Box", "Filled box") }
 
     private var showWitherEsp = false
 

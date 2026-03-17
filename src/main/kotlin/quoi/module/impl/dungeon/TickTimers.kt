@@ -8,8 +8,7 @@ import quoi.api.events.WorldEvent
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.invoke
 import quoi.module.Module
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.BooleanSetting
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.StringUtils.toFixed
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.hud.Hud
@@ -22,7 +21,7 @@ object TickTimers : Module(
     desc = "Displays tick timers for floor seven boss fight.",
     area = Island.Dungeon(7, inBoss = true)
 ) {
-    private val showInTicks by BooleanSetting("Show in ticks")
+    private val showInTicks by switch("Show in ticks")
 
     private val padHud by TextHud("Pad tick") {
         visibleIf { padTick >= 0 }
@@ -44,7 +43,7 @@ object TickTimers : Module(
         ).shadow = shadow
     }.setting()
 
-    private val startTimer by BooleanSetting("Goldor start timer").visibleIf { goldorHud.enabled }
+    private val startTimer by switch("Goldor start timer").visibleIf { goldorHud.enabled }
 
     private var goldorTick = -1
     private var goldorStart = -1

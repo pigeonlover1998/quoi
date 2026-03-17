@@ -36,10 +36,11 @@ import quoi.module.Category
 import quoi.module.Module
 import quoi.module.ModuleManager.modules
 import quoi.module.impl.misc.Test
-import quoi.module.settings.UISetting
-import quoi.module.settings.UISetting.Companion.childOf
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.*
+import quoi.module.settings.UIComponent
+import quoi.module.settings.UIComponent.Companion.childOf
+import quoi.module.settings.UIComponent.Companion.visibleIf
+import quoi.module.settings.impl.ButtonComponent
+import quoi.module.settings.impl.MapSetting
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.StringUtils.percentColour
@@ -61,36 +62,36 @@ object ClickGui : Module(
     "Click GUI",
     key = CatKeys.KEY_RIGHT_SHIFT
 ) {
-    val forceSkyblock by BooleanSetting("Force skyblock")
-    val forceDungeons by BooleanSetting("Force dungeon")
-    val dungeonFloor by SelectorSetting("Floor", Floor.F7).visibleIf { forceDungeons }.onValueChanged { old, new ->
+    val forceSkyblock by switch("Force skyblock")
+    val forceDungeons by switch("Force dungeon")
+    val dungeonFloor by selector("Floor", Floor.F7).visibleIf { forceDungeons }.onValueChanged { old, new ->
         if (forceDungeons) Dungeon.setFloor(new.selected)
     }
-    val accentColour by ColourSetting("Colour", Colour.RGB(107, 203, 119))
+    val accentColour by colourPicker("Colour", Colour.RGB(107, 203, 119))
 
-    var rainbowSpeed by NumberSetting("Rainbow colour speed", 1.0f, 0.05f, 5.0f, 0.05f)
+    var rainbowSpeed by slider("Rainbow colour speed", 1.0f, 0.05f, 5.0f, 0.05f)
 
-    val selectedTheme by SelectorSetting("Theme", "Light", arrayListOf("Light", "Dark", "Custom")).onValueChanged { _, _ ->
+    val selectedTheme by selector("Theme", "Light", arrayListOf("Light", "Dark", "Custom")).onValueChanged { _, _ ->
         reopen()
     }
 
     private inline val isCustom get() = selectedTheme.selected == "Custom"
-    private val themeColours by TextSetting("Custom theme colours").visibleIf { isCustom }
-    val background by ColourSetting("Background", LightTheme.background).childOf(themeColours) { isCustom }
-    val panel by ColourSetting("Panel", LightTheme.panel).childOf(themeColours) { isCustom }
-    val textPrimary by ColourSetting("Primary text", LightTheme.textPrimary).childOf(themeColours) { isCustom }
-    val textSecondary by ColourSetting("Secondary text", LightTheme.textSecondary).childOf(themeColours) { isCustom }
-    val border by ColourSetting("Border", LightTheme.border).childOf(themeColours) { isCustom }
-    private val reset by ActionSetting("Reset") {
+    private val themeColours by text("Custom theme colours").visibleIf { isCustom }
+    val background by colourPicker("Background", LightTheme.background).childOf(::themeColours) { isCustom }
+    val panel by colourPicker("Panel", LightTheme.panel).childOf(::themeColours) { isCustom }
+    val textPrimary by colourPicker("Primary text", LightTheme.textPrimary).childOf(::themeColours) { isCustom }
+    val textSecondary by colourPicker("Secondary text", LightTheme.textSecondary).childOf(::themeColours) { isCustom }
+    val border by colourPicker("Border", LightTheme.border).childOf(::themeColours) { isCustom }
+    private val reset by ButtonComponent("Reset") {
         setOf(::background, ::panel, ::textPrimary, ::textSecondary, ::border).forEach { property ->
             settingFromK0(property).reset()
         }
-    }.childOf(themeColours) { isCustom }
+    }.childOf(::themeColours) { isCustom }
     
-    private val prefixDropdown by TextSetting("Prefix settings")
-    val prefixText by StringSetting("Prefix", "quoi!").childOf(prefixDropdown)
-    val prefixColour by ColourSetting("Prefix colour", Colour.GREEN).childOf(prefixDropdown)
-    val bracketsColour by ColourSetting("Brackets colour", Colour.WHITE).childOf(prefixDropdown)
+    private val prefixDropdown by text("Prefix settings")
+    val prefixText by textInput("Prefix", "quoi!").childOf(::prefixDropdown)
+    val prefixColour by colourPicker("Prefix colour", Colour.GREEN).childOf(::prefixDropdown)
+    val bracketsColour by colourPicker("Brackets colour", Colour.WHITE).childOf(::prefixDropdown)
 
     private val fpsHud by TextHud("Fps display") {
         textPair(
@@ -101,7 +102,7 @@ object ClickGui : Module(
         )
     }.setting()
 
-    private val pingType by SelectorSetting("Ping type", PingType.Average)
+    private val pingType by selector("Ping type", PingType.Average)
     private val pingHud by TextHud("Ping display") {
         visibleIf { !mc.isSingleplayer }
         textPair(
@@ -112,7 +113,7 @@ object ClickGui : Module(
         )
     }.withSettings(::pingType).setting()
 
-    private val tpsType by SelectorSetting("Tps type", TpsType.Average)
+    private val tpsType by selector("Tps type", TpsType.Average)
     private val tpsHud by TextHud("Tps display") {
         visibleIf { !mc.isSingleplayer }
         textPair(
@@ -138,7 +139,7 @@ object ClickGui : Module(
         }
     }
     
-    private var currentPet by StringSetting("Current pet", "").hide() // just for cfg
+    private var currentPet by textInput("Current pet", "").hide() // just for cfg
 
     override fun onKeybind() {
         open(clickGui)
@@ -350,7 +351,7 @@ object ClickGui : Module(
 //                        }
 
                         module.settings.forEach { setting ->
-                            if (setting !is UISetting || setting.parent != null) return@forEach
+                            if (setting !is UIComponent || setting.parent != null) return@forEach
                             setting.render(this).description(setting.description, xOff = 3, yOff = -4)
                         }
                         divider(0.px)

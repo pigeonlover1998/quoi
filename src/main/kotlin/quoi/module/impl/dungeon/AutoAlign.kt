@@ -1,12 +1,5 @@
 package quoi.module.impl.dungeon
 
-import quoi.api.events.TickEvent
-import quoi.api.events.WorldEvent
-import quoi.api.skyblock.Island
-import quoi.api.skyblock.dungeon.Dungeon.inP3
-import quoi.api.skyblock.dungeon.Dungeon.isDead
-import quoi.api.skyblock.invoke
-import quoi.module.Module
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.game.ServerboundInteractPacket
 import net.minecraft.world.InteractionHand
@@ -14,6 +7,13 @@ import net.minecraft.world.entity.decoration.ItemFrame
 import net.minecraft.world.item.Items
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import quoi.api.events.TickEvent
+import quoi.api.events.WorldEvent
+import quoi.api.skyblock.Island
+import quoi.api.skyblock.dungeon.Dungeon.inP3
+import quoi.api.skyblock.dungeon.Dungeon.isDead
+import quoi.api.skyblock.invoke
+import quoi.module.Module
 
 // Kyleen
 object AutoAlign : Module(

@@ -1,22 +1,18 @@
 package quoi.module.impl.misc
 
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import quoi.api.abobaui.dsl.*
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
 import quoi.api.abobaui.elements.impl.Text.Companion.shadow
 import quoi.api.abobaui.elements.impl.Text.Companion.string
 import quoi.api.abobaui.elements.impl.TextInput.Companion.maxWidth
 import quoi.api.abobaui.elements.impl.TextInput.Companion.onTextChanged
-import quoi.api.colour.Colour
-import quoi.api.colour.colour
-import quoi.api.colour.multiply
-import quoi.api.colour.toHSB
-import quoi.api.colour.withAlpha
+import quoi.api.colour.*
 import quoi.api.events.GuiEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.core.Priority
 import quoi.api.input.CursorShape
 import quoi.module.Module
-import quoi.module.settings.impl.ColourSetting
 import quoi.utils.StringUtils.toFixed
 import quoi.utils.render.DrawContextUtils.rect
 import quoi.utils.skyblock.ItemUtils.loreString
@@ -24,7 +20,6 @@ import quoi.utils.ui.cursor
 import quoi.utils.ui.delegateClick
 import quoi.utils.ui.hud.TextHud
 import quoi.utils.ui.hud.setting
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import kotlin.math.pow
 
 object Inventory : Module(
@@ -32,10 +27,10 @@ object Inventory : Module(
     desc = "Various quality of life features for inventory GUIs"
 ) {
 
-    private val bgColour by ColourSetting("Background colour", Colour.GREY.withAlpha(100), allowAlpha = true)
-    private val outlineColour by ColourSetting("Outline colour", Colour.GREY.withAlpha(150), allowAlpha = true)
-    private val nameColour by ColourSetting("Name match", Colour.WHITE.withAlpha(200), allowAlpha = true)
-    private val loreColour by ColourSetting("Lore colour", Colour.MAGENTA.withAlpha(200), allowAlpha = true)
+    private val bgColour by colourPicker("Background colour", Colour.GREY.withAlpha(100), allowAlpha = true)
+    private val outlineColour by colourPicker("Outline colour", Colour.GREY.withAlpha(150), allowAlpha = true)
+    private val nameColour by colourPicker("Name match", Colour.WHITE.withAlpha(200), allowAlpha = true)
+    private val loreColour by colourPicker("Lore colour", Colour.MAGENTA.withAlpha(200), allowAlpha = true)
 
     private val searchBar by TextHud("Search bar") {
         block(

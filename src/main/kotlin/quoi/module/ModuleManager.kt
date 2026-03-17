@@ -14,7 +14,7 @@ import quoi.module.impl.player.AutoSprint
 import quoi.module.impl.player.PlayerDisplay
 import quoi.module.impl.player.Tweaks
 import quoi.module.impl.render.*
-import quoi.module.settings.impl.KeybindSetting
+import quoi.module.settings.impl.KeybindComponent
 
 object ModuleManager {
     val modules = mutableListOf<Module>()
@@ -89,7 +89,7 @@ object ModuleManager {
 
         modules.forEach { module ->
             module.keybinding.let {
-                module.register(KeybindSetting("Key bind", it, desc = "Toggles the module"))
+                module.register(KeybindComponent("Key bind", it, desc = "Toggles the module"))
             }
         }
 
@@ -104,7 +104,7 @@ object ModuleManager {
         if (key == CatKeys.KEY_NONE) return
 
         modules.forEach { module ->
-            module.settings.filterIsInstance<KeybindSetting>()
+            module.settings.filterIsInstance<KeybindComponent>()
                 .filter { it.value.key == key && it.value.isModifierDown() }
                 .forEach { it.value.onPress?.invoke() }
         }

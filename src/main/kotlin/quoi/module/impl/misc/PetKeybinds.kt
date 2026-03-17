@@ -13,10 +13,8 @@ import quoi.api.events.GuiEvent
 import quoi.api.input.CatKeys
 import quoi.config.Config
 import quoi.module.Module
-import quoi.module.settings.UISetting.Companion.childOf
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.TextSetting
-import quoi.module.settings.impl.KeybindSetting
+import quoi.module.settings.UIComponent.Companion.childOf
+import quoi.module.settings.impl.KeybindComponent
 import quoi.module.settings.impl.MapSetting
 import quoi.utils.ChatUtils.button
 import quoi.utils.ChatUtils.literal
@@ -34,15 +32,15 @@ object PetKeybinds : Module(
     name = "Pet Keybinds",
     desc = "Keybinds for the pets menu."
 ) {
-    private val unequipKeybind by KeybindSetting("Unequip", desc = "Unequips the current pet.")
-    private val nextPageKeybind by KeybindSetting("Next page", desc = "Goes to the next page.")
-    private val previousPageKeybind by KeybindSetting("Previous page", desc = "Goes to the previous page.")
-    private val noUnequip by BooleanSetting("Disable unequip", desc = "Prevents using a pets keybind to unequip a pet. Does not prevent unequip keybind or normal clicking.")
-    private val closeIfAlreadyEquipped by BooleanSetting("Close if already equipped", desc = "If the pet is already equipped, closes the Pets menu instead.")
+    private val unequipKeybind by keybind("Unequip", desc = "Unequips the current pet.")
+    private val nextPageKeybind by keybind("Next page", desc = "Goes to the next page.")
+    private val previousPageKeybind by keybind("Previous page", desc = "Goes to the previous page.")
+    private val noUnequip by switch("Disable unequip", desc = "Prevents using a pets keybind to unequip a pet. Does not prevent unequip keybind or normal clicking.")
+    private val closeIfAlreadyEquipped by switch("Close if already equipped", desc = "If the pet is already equipped, closes the Pets menu instead.")
 
-    private val advanced by TextSetting("Keybinds")
+    private val advanced by text("Keybinds")
     private val petKeys = (1..9).map { i ->
-        KeybindSetting("Pet $i", CatKeys.KEY_0 + i, "Pet $i on the list.").childOf(advanced).value
+        KeybindComponent("Pet $i", CatKeys.KEY_0 + i, "Pet $i on the list.").childOf(::advanced).value
     }
 
 

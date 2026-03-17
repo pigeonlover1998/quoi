@@ -29,9 +29,7 @@ import quoi.api.skyblock.SkyblockPlayer.maxSecrets
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
-import quoi.module.settings.UISetting.Companion.childOf
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.TextSetting
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.commas
 import quoi.utils.ui.hud.ResizableHud
 import quoi.utils.ui.hud.TextHud
@@ -47,60 +45,60 @@ object PlayerDisplay : Module(
     private const val BAR_WIDTH = 150f
     private const val BAR_HEIGHT = 14f
 
-    private val hideDropdown by TextSetting("Hide dropdown")
+    private val hideDropdown by text("Hide dropdown")
 
-    private val hideHealth by BooleanSetting("Health", desc = "Hides player health bar.").json("Hide health").childOf(hideDropdown)
-    private val hideAbsorption by BooleanSetting("Absorption", desc = "Hides absorption health bar.").childOf(hideDropdown)
-    private val hideMountHealth by BooleanSetting("Mount health", desc = "Hides health bar of the mounted entity.").childOf(hideDropdown)
-    private val hideRegenBounce by BooleanSetting("Regeneration bounce", desc = "Stops hearts from bouncing when regenerating.").childOf(hideDropdown)
-    private val hideArmour by BooleanSetting("Armour", desc = "Hides armour bar.").json("Hide armour").childOf(hideDropdown)
-    private val hideHunger by BooleanSetting("Hunger", desc = "Hides hunger bar.").json("Hide hunger").childOf(hideDropdown)
+    private val hideHealth by switch("Health", desc = "Hides player health bar.").json("Hide health").childOf(::hideDropdown)
+    private val hideAbsorption by switch("Absorption", desc = "Hides absorption health bar.").childOf(::hideDropdown)
+    private val hideMountHealth by switch("Mount health", desc = "Hides health bar of the mounted entity.").childOf(::hideDropdown)
+    private val hideRegenBounce by switch("Regeneration bounce", desc = "Stops hearts from bouncing when regenerating.").childOf(::hideDropdown)
+    private val hideArmour by switch("Armour", desc = "Hides armour bar.").json("Hide armour").childOf(::hideDropdown)
+    private val hideHunger by switch("Hunger", desc = "Hides hunger bar.").json("Hide hunger").childOf(::hideDropdown)
 
-    private val healthDropdown by TextSetting("Health dropdown")
+    private val healthDropdown by text("Health dropdown")
 
     private val health by text(
         name = "Health",
         defaultColour = Colour.MINECRAFT_RED,
         text = { "${(SkyblockPlayer.health + SkyblockPlayer.absorption).commas()}/${SkyblockPlayer.maxHealth.commas()}" },
         previewText = { "1,200/10,900" }
-    ).childOf(healthDropdown)
+    ).childOf(::healthDropdown)
 
     private val healthBar by bar(
         name = "Health bar",
         defaultColour = Colour.MINECRAFT_RED,
         current = { SkyblockPlayer.health },
         max = { SkyblockPlayer.maxHealth }
-    ).childOf(healthDropdown)
+    ).childOf(::healthDropdown)
 
     private val effectiveHealth by text(
         name = "Effective health",
         defaultColour = Colour.MINECRAFT_DARK_GREEN,
         text = { SkyblockPlayer.effectiveHealth.commas() },
         previewText = { "54,879" }
-    ).childOf(healthDropdown)
+    ).childOf(::healthDropdown)
 
-    private val manaDropdown by TextSetting("Mana dropdown")
+    private val manaDropdown by text("Mana dropdown")
 
     private val mana by text(
         name = "Mana",
         defaultColour = Colour.MINECRAFT_BLUE,
         text = { "${SkyblockPlayer.mana.commas()}/${SkyblockPlayer.maxMana.commas()}" },
         previewText = { "1,300/10,900" }
-    ).childOf(manaDropdown)
+    ).childOf(::manaDropdown)
 
     private val manaBar by bar(
         name = "Mana bar",
         defaultColour = Colour.MINECRAFT_BLUE,
         current = { SkyblockPlayer.mana },
         max = { SkyblockPlayer.maxMana }
-    ).childOf(manaDropdown)
+    ).childOf(::manaDropdown)
 
     private val manaUsage by text(
         name = "Mana usage",
         text = { SkyblockPlayer.manaUsage },
         previewText = { "§b-50 Mana (§6Speed Boost§b)" },
         visibility = { SkyblockPlayer.manaUsage.isNotEmpty() }
-    ).childOf(manaDropdown)
+    ).childOf(::manaDropdown)
 
     private val overflowMana by text(
         name = "Overflow mana",
@@ -108,40 +106,40 @@ object PlayerDisplay : Module(
         text = { "${SkyblockPlayer.overflowMana.commas()}ʬ" },
         previewText = { "600ʬ" },
         visibility = { SkyblockPlayer.overflowMana != 0 }
-    ).childOf(manaDropdown)
+    ).childOf(::manaDropdown)
 
-    private val otherDropdown by TextSetting("Other")
+    private val otherDropdown by text("Other")
 
     private val defence by text(
         name = "Defence",
         defaultColour = Colour.MINECRAFT_GREEN,
         text = { SkyblockPlayer.defence.commas() },
         previewText = { "10,000" }
-    ).childOf(otherDropdown)
+    ).childOf(::otherDropdown)
 
-    private val speedPercent by BooleanSetting("Render speed as a percentage").childOf(otherDropdown)
+    private val speedPercent by switch("Render speed as a percentage").childOf(::otherDropdown)
     private val speed by text(
         name = "Speed",
         text = { if (speedPercent) "${SkyblockPlayer.speed}%" else "✦${SkyblockPlayer.speed}" },
         previewText = { if (speedPercent) "500%" else "✦500" },
         settings = listOf(::speedPercent)
-    ).childOf(otherDropdown)
+    ).childOf(::otherDropdown)
 
     private val stacks by text(
         name = "Crimson stacks",
         text = { SkyblockPlayer.stacks },
         previewText = { "10ᝐ" },
         visibility = { SkyblockPlayer.stacks.isNotEmpty() }
-    ).childOf(otherDropdown)
+    ).childOf(::otherDropdown)
 
     private val salvation by text(
         name = "Salvation",
         text = { "T${SkyblockPlayer.salvation}!" },
         previewText = { "T3!" },
         visibility = { SkyblockPlayer.salvation != 0 }
-    ).childOf(otherDropdown)
+    ).childOf(::otherDropdown)
 
-    private val sbaStyle: Boolean by BooleanSetting("SBA secrets style").childOf(otherDropdown)
+    private val sbaStyle: Boolean by switch("SBA secrets style").childOf(::otherDropdown)
     private val secrets by TextHud("Secret display", Colour.MINECRAFT_GRAY) {
         visibleIf { inDungeons }
 
@@ -194,7 +192,7 @@ object PlayerDisplay : Module(
             }
         }
 
-    }.withSettings(::sbaStyle).setting().childOf(otherDropdown)
+    }.withSettings(::sbaStyle).setting().childOf(::otherDropdown)
 
     @JvmStatic
     fun modifyActionBar(text: Component): Component {

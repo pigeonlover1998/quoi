@@ -15,7 +15,7 @@ import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.settingFromK0
 import kotlin.reflect.KProperty0
 
-abstract class UISetting<T>(
+abstract class UIComponent<T>(
     name: String,
     desc: String,
 ) : Setting<T>(name, desc) {
@@ -36,8 +36,8 @@ abstract class UISetting<T>(
     val isVisible: Boolean
         get() = isLocallyVisible && (parent?.let { !it.collapsed && it.isVisible } ?: true)
 
-    var parent: UISetting<*>? = null
-    val children: MutableList<UISetting<*>> = mutableListOf()
+    var parent: UIComponent<*>? = null
+    val children: MutableList<UIComponent<*>> = mutableListOf()
 
     val isSubsetting get() = parent != null
 
@@ -45,7 +45,7 @@ abstract class UISetting<T>(
 
     private var onValueChanged: (old: T, new: T) -> Unit = { _, _ -> }
 
-    open fun hide(): UISetting<T> {
+    open fun hide(): UIComponent<T> {
         hidden = true
         return this
     }
@@ -82,7 +82,7 @@ abstract class UISetting<T>(
 
                 chevronImage = image(
                     image = theme.chevronImage,
-                    constrain(5.px.alignOpposite, w = 16.px, h = 16.px, y = if (this@UISetting.value is Boolean) 2.px else 0.px)
+                    constrain(5.px.alignOpposite, w = 16.px, h = 16.px, y = if (this@UIComponent.value is Boolean) 2.px else 0.px)
                 ) {
                     val (from, to) = if (collapsed) 180f to 90f else 90f to 180f
                     val rotationAnim = rotation(from = from, to = to)
@@ -211,35 +211,36 @@ abstract class UISetting<T>(
 
     companion object { // todo fully impl
 
-        private fun UISetting<*>.addVisibility(condition: () -> Boolean) {
+        private fun UIComponent<*>.addVisibility(condition: () -> Boolean) {
             val prev = visibilityDependency
             visibilityDependency = { (prev?.invoke() ?: true) && condition() }
         }
 
-        fun <K : UISetting<T>, T> K.visibleIf(condition: () -> Boolean) = apply {
+        fun <K : UIComponent<T>, T> K.visibleIf(condition: () -> Boolean) = apply {
             addVisibility(condition)
         }
 
-        fun <K : UISetting<T>, T> K.childOf(parent: UISetting<*>?, condition: () -> Boolean = { true }) = apply {
+        fun <K : UIComponent<T>, T> K.childOf(parent: UIComponent<*>?, condition: () -> Boolean = { true }) = apply {
             this.parent = parent
             parent?.children += this
             addVisibility(condition)
         }
 
         @JvmName("dependsOnAny")
-        fun <K : UISetting<T>, T> K.childOf(parent: KProperty0<*>) = apply {
+        fun <K : UIComponent<T>, T> K.childOf(parent: KProperty0<*>?) = apply {
+            if (parent == null) return@apply
             val setting = settingFromK0(parent)
             this.parent = setting
             setting.children += this
         }
 
         @JvmName("dependsOnBoolean")
-        fun <K : UISetting<T>, T> K.childOf(parent: KProperty0<Boolean>) = apply {
+        fun <K : UIComponent<T>, T> K.childOf(parent: KProperty0<Boolean>) = apply {
             childOf(parent as KProperty0<*>)
             addVisibility { parent.get() }
         }
 
-        fun <K : UISetting<T>, T, P> K.childOf(parent: KProperty0<P>, condition: (P) -> Boolean) = apply {
+        fun <K : UIComponent<T>, T, P> K.childOf(parent: KProperty0<P>?, condition: (P) -> Boolean) = apply {
             childOf(parent as KProperty0<*>)
             addVisibility { condition(parent.get()) }
         }

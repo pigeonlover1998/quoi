@@ -1,14 +1,12 @@
 package quoi.module.impl.misc
 
-import quoi.module.Module
-import quoi.module.settings.impl.ActionSetting
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.NumberSetting
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import net.minecraft.world.effect.MobEffectUtil
 import net.minecraft.world.effect.MobEffects
 import quoi.api.events.TickEvent
+import quoi.module.Module
+import quoi.module.settings.impl.ButtonComponent
 import quoi.utils.skyblock.ItemUtils.loreString
 import quoi.utils.skyblock.ItemUtils.skyblockId
 import quoi.utils.ui.settingFromK0
@@ -20,25 +18,25 @@ object ItemAnimations : Module(
     desc = "Changes how the held item looks on screen"
 ) {
 
-    private var x by NumberSetting("X", 0.0f, -1.0f, 1.0f, 0.1)
-    private var y by NumberSetting("Y", 0.0f, -1.0f, 1.0f, 0.1)
-    private var z by NumberSetting("Z", 0.0f, -1.0f, 1.0f, 0.1)
-    private var yaw by NumberSetting("Yaw", 0.0f, -180.0f, 180.0f, 1.0)
-    private var pitch by NumberSetting("Pitch", 0.0f, -180.0f, 180.0f, 1.0)
-    private var roll by NumberSetting("Roll", 0.0f, -180.0f, 180.0f, 1.0)
-    private var scale by NumberSetting("Scale", 0.0, -4.0, 4.0, 0.1)
-    private var swingSpeed by NumberSetting("Swing speed", 0.0, -4.0, 4.0, 0.1)
-    private val ignoreHand by BooleanSetting("Ignore hand")
-    private val ignoreMap by BooleanSetting("Ignore map")
-    private val ignoreEffects by BooleanSetting("Ignore effects")
-    private val noReequipReset by BooleanSetting("No re-equip reset")
-    private val inplaceSwing by BooleanSetting("Swing in place")
-    private val noSwing by BooleanSetting("No swing animation")
-    private val noSwingTerm by BooleanSetting("No term swing")
-    private val noSwingShortbow by BooleanSetting("No shortbow swing")
-    private val noHandSway by BooleanSetting("No hand sway")
-    private val noEatAnimation by BooleanSetting("No eat animation")
-    private val reset by ActionSetting("Reset") { resetSettings() }
+    private var x by slider("X", 0.0f, -1.0f, 1.0f, 0.1)
+    private var y by slider("Y", 0.0f, -1.0f, 1.0f, 0.1)
+    private var z by slider("Z", 0.0f, -1.0f, 1.0f, 0.1)
+    private var yaw by slider("Yaw", 0.0f, -180.0f, 180.0f, 1.0)
+    private var pitch by slider("Pitch", 0.0f, -180.0f, 180.0f, 1.0)
+    private var roll by slider("Roll", 0.0f, -180.0f, 180.0f, 1.0)
+    private var scale by slider("Scale", 0.0, -4.0, 4.0, 0.1)
+    private var swingSpeed by slider("Swing speed", 0.0, -4.0, 4.0, 0.1)
+    private val ignoreHand by switch("Ignore hand")
+    private val ignoreMap by switch("Ignore map")
+    private val ignoreEffects by switch("Ignore effects")
+    private val noReequipReset by switch("No re-equip reset")
+    private val inplaceSwing by switch("Swing in place")
+    private val noSwing by switch("No swing animation")
+    private val noSwingTerm by switch("No term swing")
+    private val noSwingShortbow by switch("No shortbow swing")
+    private val noHandSway by switch("No hand sway")
+    private val noEatAnimation by switch("No eat animation")
+    private val reset by ButtonComponent("Reset") { resetSettings() }
 
     private var swinging = false
     private var swingTimeTick = 0

@@ -21,8 +21,7 @@ import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.api.skyblock.dungeon.Dungeon.isProtectedBlock
 import quoi.config.configList
 import quoi.module.Module
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.BooleanSetting
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.StringUtils.width
@@ -43,9 +42,9 @@ object DungeonBreaker : Module(
     area = Island.Dungeon
 ) {
 
-    private val zeroPingDungeonBreaker by BooleanSetting("Zero ping", desc = "Insta-mine blocks.")
-    private val onlyWhenFatigue by BooleanSetting("Only insta-mine with fatigue", desc = "Only insta-mine blocks when mining fatigue is applied.").visibleIf { zeroPingDungeonBreaker }
-    private val autoDungeonBreaker by BooleanSetting("Auto dungeon breaker", desc = "Automatically mines preset route when in boss. /db help")
+    private val zeroPingDungeonBreaker by switch("Zero ping", desc = "Insta-mine blocks.")
+    private val onlyWhenFatigue by switch("Only insta-mine with fatigue", desc = "Only insta-mine blocks when mining fatigue is applied.").visibleIf { zeroPingDungeonBreaker }
+    private val autoDungeonBreaker by switch("Auto dungeon breaker", desc = "Automatically mines preset route when in boss. /db help")
     private val breakerBlocks by configList<BlockPos>("dungeonbreaker_blocks.json")
 
     private val activeBreakerBlocks = ConcurrentHashMap.newKeySet<BlockPos>()

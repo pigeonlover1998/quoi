@@ -1,18 +1,18 @@
 package quoi.module.impl.dungeon
 
-import quoi.api.events.GuiEvent
-import quoi.api.events.TickEvent
-import quoi.module.Module
-import quoi.module.settings.impl.NumberSetting
-import quoi.module.settings.impl.BooleanSetting
 import com.mojang.blaze3d.platform.InputConstants
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.minecraft.client.KeyMapping
+import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.gui.screens.ChatScreen
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen
-import net.minecraft.client.gui.components.EditBox
 import org.lwjgl.glfw.GLFW
+import quoi.api.events.GuiEvent
+import quoi.api.events.TickEvent
+import quoi.module.Module
+import quoi.module.settings.impl.SliderComponent
+import quoi.module.settings.impl.SwitchComponent
 
 // Kyleen
 object InventoryWalk : Module(
@@ -20,8 +20,8 @@ object InventoryWalk : Module(
     desc = "Allows movement in containers."
 ) {
 
-    private val clickDelay = NumberSetting("Click Delay", 6.0, 3.0, 12.0, 1.0)
-    private val blacklist = BooleanSetting("Blacklist", desc = "Stops movement in sell guis + terminals.")
+    private val clickDelay = SliderComponent("Click Delay", 6.0, 3.0, 12.0, 1.0)
+    private val blacklist = SwitchComponent("Blacklist", desc = "Stops movement in sell guis + terminals.")
 
     private var delay = 0
     private val blacklistedTitles = listOf("Trades", "Booster Cookie", "Farm Merchant", "Ophelia", "Correct all the panes!", "Change all to same color!", "Click in order!", "What starts with:", "Select all the", "Click the button on time!")

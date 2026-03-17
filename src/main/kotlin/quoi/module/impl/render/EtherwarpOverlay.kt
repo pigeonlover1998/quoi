@@ -13,10 +13,7 @@ import quoi.api.events.TickEvent
 import quoi.mixins.accessors.LocalPlayerAccessor
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.ColourSetting
-import quoi.module.settings.impl.NumberSetting
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.BlockTypes
 import quoi.utils.rayCast
 import quoi.utils.render.drawFilledBox
@@ -36,16 +33,16 @@ object EtherwarpOverlay : Module (
     desc = "Renders a box at the location where the etherwarp is going to be at."
 ) {
 
-    private val useCameraHeight by BooleanSetting("Use camera height", desc = "Should be used with Tweaks -> Skyblock only -> Legacy sneak height")
-    private val validColour by ColourSetting("Valid colour", Colour.GREEN.withAlpha(60), true)
-    private val invalidColour by ColourSetting("Invalid colour", Colour.RED.withAlpha(60), true)
-    private val wireframe by BooleanSetting("Show outline")
-    private val validLineColour by ColourSetting("Valid colour", Colour.GREEN.withAlpha(60), true).json("Valid outline colour").visibleIf { wireframe }
-    private val invalidLineColour by ColourSetting("Invalid colour", Colour.RED.withAlpha(60), true).json("Invalid outline colour").visibleIf { wireframe }
-    private val lineWidth by NumberSetting("Outline width", 2.0, 0.1, 10.0, 0.1).visibleIf { wireframe }
-    private val depth by BooleanSetting("Depth check")
-    private val cancelInteract by BooleanSetting("Cancel interact", desc = "Enables even when looking at an interactable block. (Use with CancelInteract feature)")
-    private val tooFar by BooleanSetting("Stop rendering when too far")
+    private val useCameraHeight by switch("Use camera height", desc = "Should be used with Tweaks -> Skyblock only -> Legacy sneak height")
+    private val validColour by colourPicker("Valid colour", Colour.GREEN.withAlpha(60), true)
+    private val invalidColour by colourPicker("Invalid colour", Colour.RED.withAlpha(60), true)
+    private val wireframe by switch("Show outline")
+    private val validLineColour by colourPicker("Valid colour", Colour.GREEN.withAlpha(60), true).json("Valid outline colour").visibleIf { wireframe }
+    private val invalidLineColour by colourPicker("Invalid colour", Colour.RED.withAlpha(60), true).json("Invalid outline colour").visibleIf { wireframe }
+    private val lineWidth by slider("Outline width", 2.0, 0.1, 10.0, 0.1).visibleIf { wireframe }
+    private val depth by switch("Depth check")
+    private val cancelInteract by switch("Cancel interact", desc = "Enables even when looking at an interactable block. (Use with CancelInteract feature)")
+    private val tooFar by switch("Stop rendering when too far")
 
     private val validWeapons = mutableListOf("ASPECT_OF_THE_END", "ASPECT_OF_THE_VOID", "ETHERWARP_CONDUIT")
     private var dist = 0

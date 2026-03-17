@@ -9,7 +9,7 @@ import quoi.api.abobaui.elements.impl.Popup
 import quoi.api.abobaui.elements.impl.Text.Companion.string
 import quoi.api.input.CursorShape
 import quoi.module.settings.Saving
-import quoi.module.settings.UISetting
+import quoi.module.settings.UIComponent
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.cursor
 import quoi.utils.ui.popupX
@@ -18,16 +18,16 @@ import quoi.utils.ui.elements.selector
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 
-class SelectorSetting<T>(
+class SelectorComponent<T>(
     name: String,
     val defaultSelected: T,
     var options: List<T>,
     desc: String = ""
-) : UISetting<SelectorSetting<T>>(name, desc), Saving {
+) : UIComponent<SelectorComponent<T>>(name, desc), Saving {
 
-    override val default: SelectorSetting<T> = this
+    override val default: SelectorComponent<T> = this
 
-    override var value: SelectorSetting<T>
+    override var value: SelectorComponent<T>
         get() = this
         set(value) { index = value.index }
 
@@ -65,7 +65,7 @@ class SelectorSetting<T>(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is SelectorSetting<*>) return false
+        if (other !is SelectorComponent<*>) return false
         return name == other.name && options == other.options
     }
 
@@ -119,5 +119,5 @@ class SelectorSetting<T>(
     }
 }
 
-inline fun <reified E : Enum<E>> SelectorSetting(name: String, default: E, desc: String = ""): SelectorSetting<E> =
-    SelectorSetting(name, default, default.declaringJavaClass.enumConstants.toList(), desc)
+inline fun <reified E : Enum<E>> SelectorComponent(name: String, default: E, desc: String = ""): SelectorComponent<E> =
+    SelectorComponent(name, default, default.declaringJavaClass.enumConstants.toList(), desc)

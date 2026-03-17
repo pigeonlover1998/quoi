@@ -6,7 +6,7 @@ import quoi.api.abobaui.dsl.*
 import quoi.api.abobaui.elements.ElementScope
 import quoi.api.abobaui.elements.impl.Text.Companion.string
 import quoi.module.settings.Saving
-import quoi.module.settings.UISetting
+import quoi.module.settings.UIComponent
 import quoi.utils.ThemeManager.theme
 import quoi.utils.round
 import quoi.utils.ui.elements.numberInput
@@ -18,7 +18,7 @@ import kotlin.math.floor
 import kotlin.math.round
 
 @Suppress("UNCHECKED_CAST")
-class NumberSetting<E>(
+class SliderComponent<E>(
     name: String,
     override val default: E = 1.0 as E,
     val min: E = -10000 as E,
@@ -26,7 +26,7 @@ class NumberSetting<E>(
     val increment: Number = 1,
     desc: String = "",
     val unit: String = "",
-) : UISetting<E>(name, desc), Saving where E : Number, E : Comparable<E> {
+) : UIComponent<E>(name, desc), Saving where E : Number, E : Comparable<E> {
 
     override var value: E = default
 
@@ -53,7 +53,7 @@ class NumberSetting<E>(
         }
     }
 
-    override fun hide(): NumberSetting<E> {
+    override fun hide(): SliderComponent<E> {
         super.hide()
         return this
     }

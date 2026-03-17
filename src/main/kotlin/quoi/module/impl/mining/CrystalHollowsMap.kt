@@ -15,12 +15,8 @@ import quoi.module.Module
 import quoi.module.impl.mining.CrystalHollowsScanner.foundRouteBlocks
 import quoi.module.impl.mining.CrystalHollowsScanner.routeScanner
 import quoi.module.impl.mining.CrystalHollowsScanner.scannedChunks
-import quoi.module.settings.UISetting.Companion.childOf
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.ColourSetting
-import quoi.module.settings.impl.TextSetting
-import quoi.module.settings.impl.NumberSetting
+import quoi.module.settings.UIComponent.Companion.childOf
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.EntityUtils.playerEntities
 import quoi.utils.StringUtils.width
 import quoi.utils.WorldUtils
@@ -42,17 +38,17 @@ object CrystalHollowsMap : Module(
     "Crystal Hollows Map",
     area = Island.CrystalHollows
 ) {
-    private val iconScale by NumberSetting("Icon scale", 2.0f, 0.1f, 5.0f, 0.1f)
-    private val drawPlayers by BooleanSetting("Draw players")
-    private val onlyGriefed by BooleanSetting("Only griefed").visibleIf { drawPlayers && GrieferTracker.enabled }
-    private val drawOutOfRange by BooleanSetting("Draw out of range").visibleIf { drawPlayers }
-    private val drawNames by BooleanSetting("Draw names").visibleIf { drawPlayers }
-    private val textScale by NumberSetting("Text scale", 2.0f, 0.1f, 5.0f, 0.1f).visibleIf { drawPlayers && drawNames }
+    private val iconScale by slider("Icon scale", 2.0f, 0.1f, 5.0f, 0.1f)
+    private val drawPlayers by switch("Draw players")
+    private val onlyGriefed by switch("Only griefed").visibleIf { drawPlayers && GrieferTracker.enabled }
+    private val drawOutOfRange by switch("Draw out of range").visibleIf { drawPlayers }
+    private val drawNames by switch("Draw names").visibleIf { drawPlayers }
+    private val textScale by slider("Text scale", 2.0f, 0.1f, 5.0f, 0.1f).visibleIf { drawPlayers && drawNames }
 
-    private val other by TextSetting("Other").visibleIf { chScanner }
-    private val drawChunks by BooleanSetting("Draw loaded chunks").childOf(other)
-    private val chunksCol by ColourSetting("Loaded chunks colour", Colour.PURPLE.withAlpha(0.33f), allowAlpha = true).childOf(other) { drawChunks }
-    private val drawRouteBlocks by BooleanSetting("Draw route blocks").childOf(other) { routeScanner }
+    private val other by text("Other").visibleIf { chScanner }
+    private val drawChunks by switch("Draw loaded chunks").childOf(::other)
+    private val chunksCol by colourPicker("Loaded chunks colour", Colour.PURPLE.withAlpha(0.33f), allowAlpha = true).childOf(::other) { drawChunks }
+    private val drawRouteBlocks by switch("Draw route blocks").childOf(::other) { routeScanner }
 
     private val hollowsMap by Hud("Hollows map", toggleable = false) { // todo add more stuff
         if (preview) image(

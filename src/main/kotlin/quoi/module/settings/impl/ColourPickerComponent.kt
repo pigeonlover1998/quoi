@@ -10,7 +10,7 @@ import quoi.api.abobaui.elements.impl.Popup
 import quoi.api.colour.*
 import quoi.api.input.CursorShape
 import quoi.module.settings.Saving
-import quoi.module.settings.UISetting
+import quoi.module.settings.UIComponent
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.cursor
 import quoi.utils.ui.elements.colourPicker
@@ -20,12 +20,12 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 
-class ColourSetting(
+class ColourPickerComponent(
     name: String,
     colour: Colour,
     private var allowAlpha: Boolean = false,
     desc: String = ""
-) : UISetting<Colour.HSB>(name, desc), Saving {
+) : UIComponent<Colour.HSB>(name, desc), Saving {
 
     override val default: Colour.HSB = colour.toHSB()
 

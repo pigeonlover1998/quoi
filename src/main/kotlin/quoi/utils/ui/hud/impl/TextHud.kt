@@ -4,9 +4,9 @@ import quoi.api.abobaui.constraints.impl.positions.Alignment
 import quoi.api.abobaui.dsl.percent
 import quoi.api.colour.Colour
 import quoi.module.Module
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.ColourSetting
-import quoi.module.settings.impl.SelectorSetting
+import quoi.module.settings.impl.SwitchComponent
+import quoi.module.settings.impl.ColourPickerComponent
+import quoi.module.settings.impl.SelectorComponent
 import quoi.utils.ui.data.Anchor
 import quoi.utils.ui.hud.Hud
 import quoi.utils.ui.hud.ScopedHud
@@ -15,9 +15,9 @@ class TextHud(
     name: String,
     module: Module,
     toggleable: Boolean,
-    val colourSetting: ColourSetting,
-    val shadowSetting: BooleanSetting,
-    val anchorSetting: SelectorSetting<Anchor>,
+    val colourSetting: ColourPickerComponent,
+    val shadowSetting: SwitchComponent,
+    val anchorSetting: SelectorComponent<Anchor>,
     content: Scope.() -> Unit
 ) : ScopedHud<TextHud.Scope>(name, module, toggleable, content) {
 

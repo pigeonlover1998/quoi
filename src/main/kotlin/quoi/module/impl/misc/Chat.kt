@@ -13,11 +13,7 @@ import quoi.api.input.CatKeyboard.Modifier.isShiftDown
 import quoi.api.input.CatKeys
 import quoi.mixins.accessors.ChatComponentAccessor
 import quoi.module.Module
-import quoi.module.settings.UISetting.Companion.visibleIf
-import quoi.module.settings.impl.BooleanSetting
-import quoi.module.settings.impl.KeybindSetting
-import quoi.module.settings.impl.NumberSetting
-import quoi.module.settings.impl.SelectorSetting
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.add
 import quoi.utils.ChatUtils.chatGui
@@ -32,18 +28,18 @@ object Chat : Module(
     desc = "Various chat related tweaks."
 ) {
 
-    private val chatBypass by BooleanSetting("Chat bypass", desc = "Bypasses chat filters on servers.")
-    private val bypassMode by SelectorSetting("Mode", "Wide", arrayListOf("Wide", "Cyrillic"), desc = "Bypass mode.").visibleIf { chatBypass }
+    private val chatBypass by switch("Chat bypass", desc = "Bypasses chat filters on servers.")
+    private val bypassMode by selector("Mode", "Wide", arrayListOf("Wide", "Cyrillic"), desc = "Bypass mode.").visibleIf { chatBypass }
 
-    private val chatPeek by BooleanSetting("Chat peek", desc = "Peeks chat on a button press.")
-    private val peekKey by KeybindSetting("Peek key", CatKeys.KEY_Z).visibleIf { chatPeek }
+    private val chatPeek by switch("Chat peek", desc = "Peeks chat on a button press.")
+    private val peekKey by keybind("Peek key", CatKeys.KEY_Z).visibleIf { chatPeek }
 
-    private val compactChat by BooleanSetting("Compact chat", desc = "Compacts message duplicates.")
-    private val compactChatTime by NumberSetting("Compact timer", 60, 5, 120, desc = "Time until compact chat no longer compacts the same message.", unit = "s").visibleIf { compactChat }
+    private val compactChat by switch("Compact chat", desc = "Compacts message duplicates.")
+    private val compactChatTime by slider("Compact timer", 60, 5, 120, desc = "Time until compact chat no longer compacts the same message.", unit = "s").visibleIf { compactChat }
 
-    private val copyChat by BooleanSetting("Copy chat", desc = "Copies chat on right click (hold ctrl to copy with colour codes).")
-    private val copyChatKey by KeybindSetting("Copy key", CatKeys.MOUSE_RIGHT).includingOnly(CatKeys.MOUSE_RIGHT, CatKeys.MOUSE_LEFT, *CatKeyboard.modifierCodes).visibleIf { copyChat }
-    private val copyChatCodesKey by KeybindSetting("Copy with codes key", CatKeys.KEY_NONE).includingOnly(CatKeys.MOUSE_RIGHT, CatKeys.MOUSE_LEFT, *CatKeyboard.modifierCodes).visibleIf { copyChat }
+    private val copyChat by switch("Copy chat", desc = "Copies chat on right click (hold ctrl to copy with colour codes).")
+    private val copyChatKey by keybind("Copy key", CatKeys.MOUSE_RIGHT).includingOnly(CatKeys.MOUSE_RIGHT, CatKeys.MOUSE_LEFT, *CatKeyboard.modifierCodes).visibleIf { copyChat }
+    private val copyChatCodesKey by keybind("Copy with codes key", CatKeys.KEY_NONE).includingOnly(CatKeys.MOUSE_RIGHT, CatKeys.MOUSE_LEFT, *CatKeyboard.modifierCodes).visibleIf { copyChat }
 
     init {
         on<ChatEvent.Sent> {
