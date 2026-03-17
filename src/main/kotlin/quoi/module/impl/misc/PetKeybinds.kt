@@ -28,6 +28,12 @@ import quoi.utils.skyblock.player.ContainerUtils
 import quoi.utils.skyblock.player.ContainerUtils.clickSlot
 import quoi.utils.skyblock.player.ContainerUtils.getContainerItemsClose
 
+
+/**
+ * modified OdinFabric (BSD 3-Clause)
+ * copyright (c) 2025-2026 odtheking
+ * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/com/odtheking/odin/features/impl/skyblock/PetKeybinds.kt
+ */
 object PetKeybinds : Module(
     name = "Pet Keybinds",
     desc = "Keybinds for the pets menu."

@@ -6,7 +6,6 @@ import net.minecraft.world.effect.MobEffectUtil
 import net.minecraft.world.effect.MobEffects
 import quoi.api.events.TickEvent
 import quoi.module.Module
-import quoi.module.settings.impl.ButtonComponent
 import quoi.utils.skyblock.ItemUtils.loreString
 import quoi.utils.skyblock.ItemUtils.skyblockId
 import quoi.utils.ui.settingFromK0
@@ -36,7 +35,7 @@ object ItemAnimations : Module(
     private val noSwingShortbow by switch("No shortbow swing")
     private val noHandSway by switch("No hand sway")
     private val noEatAnimation by switch("No eat animation")
-    private val reset by ButtonComponent("Reset") { resetSettings() }
+    private val reset by button("Reset") { resetSettings() }
 
     private var swinging = false
     private var swingTimeTick = 0

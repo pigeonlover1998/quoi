@@ -23,7 +23,7 @@ import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.api.skyblock.dungeon.Dungeon.inBoss
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.module.Module
-import quoi.module.settings.UIComponent.Companion.visibleIf
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.Vec3
 import quoi.utils.WorldUtils.state
 import quoi.utils.aabb
@@ -43,8 +43,8 @@ object SecretAura : Module(
     private val clickDelay by slider("Click delay", 150, 100, 4000, 50, desc = "Delay before clicking a block.") // this shit doesn't seem to be making any difference tbh...
 
     private val swapOn by selector("Swap on", "Skulls", arrayListOf("None", "Skulls", "All"), desc = "Makes secret aura swap")
-    private val swapBack by switch("Swap back", true, desc = "Makes secret aura swap back to previous item after swapping.").visibleIf { swapOn.index >= 1 }
-    private val swapSlot by slider("Swap item slot", 1, 1, 9, 1, desc = "Slot for secret aura to swap to.").visibleIf { swapOn.index >= 1 }
+    private val swapBack by switch("Swap back", true, desc = "Makes secret aura swap back to previous item after swapping.").childOf(::swapOn) { it.index >= 1 }
+    private val swapSlot by slider("Swap item slot", 1, 1, 9, 1, desc = "Slot for secret aura to swap to.").childOf(::swapOn) { it.index >= 1 }
 
     private val swing by switch("Swing hand", desc = "Makes secret aura swing hand on click.")
     private val dungeonsOnly by switch("Dungeons only", true, desc = "Makes secret aura only work in dungeons.")

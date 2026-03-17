@@ -1,18 +1,23 @@
 package quoi.module.settings
 
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.sounds.SoundEvent
+import net.minecraft.sounds.SoundEvents
 import quoi.api.colour.Colour
 import quoi.api.input.CatKeys
-import quoi.module.settings.impl.ButtonComponent
-import quoi.module.settings.impl.ColourPickerComponent
-import quoi.module.settings.impl.KeybindComponent
-import quoi.module.settings.impl.RangeSliderComponent
-import quoi.module.settings.impl.SelectorComponent
-import quoi.module.settings.impl.SliderComponent
-import quoi.module.settings.impl.SwitchComponent
-import quoi.module.settings.impl.TextComponent
-import quoi.module.settings.impl.TextInputComponent
+import quoi.module.settings.Setting.Companion.json
+import quoi.module.settings.UIComponent.Companion.childOf
+import quoi.module.settings.UIComponent.Companion.visibleIf
+import quoi.module.settings.impl.*
+import quoi.utils.skyblock.player.PlayerUtils
+import kotlin.reflect.KProperty0
 
-interface SettingsDsl {
+abstract class SettingsDsl {
+
+    abstract fun <K : Setting<*>> register(setting: K): K
+
+    protected operator fun <K : Setting<*>> K.unaryPlus(): K = register(this)
+
     fun switch(name: String, enabled: Boolean = false, desc: String = "") =
         SwitchComponent(name, enabled, desc)
 
@@ -58,4 +63,62 @@ interface SettingsDsl {
         unit: String = "",
     ): SliderComponent<E> where E : Number, E : Comparable<E> =
         SliderComponent(name, value, min, max, increment, desc, unit)
+
+    fun sound(name: String, ): SoundSetting {
+        val sound = +selector("$name sound", Sound.BlazeHurt)
+
+        val customSound = +textInput("Custom sound", "entity.blaze.hurt", length = 64)
+            .json("$name custom sound")
+            .childOf(sound) { sound.selected == Sound.Custom }
+
+        val soundVolume = +slider("Volume", 1.0f, 0.1f, 2.0f, 0.01f, desc = "Volume of the sound to play.")
+            .json("$name volume")
+            .childOf(sound)
+
+        val soundPitch = +slider("Pitch", 1.0f, 0.1f, 2.0f, 0.01f, desc = "Pitch of the sound to play.")
+            .json("$name pitch")
+            .childOf(sound)
+
+        val settings = {
+            val soundEvent =
+                if (sound.selected == Sound.Custom)
+                    SoundEvent.createVariableRangeEvent(ResourceLocation.parse(customSound.value))
+                else
+                    sound.selected.sound
+            Triple(soundEvent ?: SoundEvents.BLAZE_HURT, soundVolume.value, soundPitch.value)
+        }
+
+        +button("Test sound") { PlayerUtils.playSound(settings) }
+            .childOf(sound)
+
+        return SoundSetting(sound, settings)
+    }
+}
+
+private enum class Sound(val sound: SoundEvent) { // todo move idk
+    BlazeHurt(SoundEvents.BLAZE_HURT),
+    Pling(SoundEvents.NOTE_BLOCK_PLING.value()),
+    OrbPickup(SoundEvents.EXPERIENCE_ORB_PICKUP),
+    LevelUp(SoundEvents.PLAYER_LEVELUP),
+    AnvilLand(SoundEvents.ANVIL_LAND),
+    WitherSpawn(SoundEvents.WITHER_SPAWN),
+    Explosion(SoundEvents.GENERIC_EXPLODE.value()),
+    Custom(SoundEvents.BLAZE_HURT)
+}
+
+class SoundSetting(
+    val main: UIComponent<*>,
+    private val settings: () -> Triple<SoundEvent, Float, Float>
+) : () -> Triple<SoundEvent, Float, Float> {
+    override fun invoke(): Triple<SoundEvent, Float, Float> = settings()
+
+    fun visibleIf(condition: () -> Boolean) = apply { main.visibleIf(condition) }
+
+    fun childOf(parent: UIComponent<*>?, condition: () -> Boolean = { true }) = apply { main.childOf(parent, condition) }
+
+    @JvmName("childOfAny")
+    fun childOf(parent: KProperty0<*>?) = apply { main.childOf(parent) }
+    @JvmName("childOfBoolean")
+    fun childOf(parent: KProperty0<Boolean>) = apply { main.childOf(parent) }
+    fun <P> childOf(parent: KProperty0<P>?, condition: (P) -> Boolean) = apply { main.childOf(parent, condition) }
 }

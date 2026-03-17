@@ -37,7 +37,7 @@ abstract class Module(
     val key: Int = CatKeys.KEY_NONE,
     @Transient val desc: String = "",
     toggled: Boolean = false
-) : SettingsDsl {
+) : SettingsDsl() {
     constructor(
         name: String,
         area: Island,
@@ -99,12 +99,12 @@ abstract class Module(
         }
     }
 
-    fun <K : Setting<*>> register(setting: K): K {
+    override fun <K : Setting<*>> register(setting: K): K {
         addSettings(setting)
         return setting
     }
 
-    operator fun <K : Setting<*>> K.unaryPlus(): K = register(this)
+//    operator fun <K : Setting<*>> K.unaryPlus(): K = register(this)
 
     fun getSettingByName(name: String?): Setting<*>? {
         for (setting in settings) {

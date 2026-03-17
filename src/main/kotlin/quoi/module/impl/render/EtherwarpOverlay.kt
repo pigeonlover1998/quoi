@@ -13,7 +13,7 @@ import quoi.api.events.TickEvent
 import quoi.mixins.accessors.LocalPlayerAccessor
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
-import quoi.module.settings.UIComponent.Companion.visibleIf
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.BlockTypes
 import quoi.utils.rayCast
 import quoi.utils.render.drawFilledBox
@@ -37,9 +37,9 @@ object EtherwarpOverlay : Module (
     private val validColour by colourPicker("Valid colour", Colour.GREEN.withAlpha(60), true)
     private val invalidColour by colourPicker("Invalid colour", Colour.RED.withAlpha(60), true)
     private val wireframe by switch("Show outline")
-    private val validLineColour by colourPicker("Valid colour", Colour.GREEN.withAlpha(60), true).json("Valid outline colour").visibleIf { wireframe }
-    private val invalidLineColour by colourPicker("Invalid colour", Colour.RED.withAlpha(60), true).json("Invalid outline colour").visibleIf { wireframe }
-    private val lineWidth by slider("Outline width", 2.0, 0.1, 10.0, 0.1).visibleIf { wireframe }
+    private val validLineColour by colourPicker("Valid colour", Colour.GREEN.withAlpha(60), true).json("Valid outline colour").childOf(::wireframe)
+    private val invalidLineColour by colourPicker("Invalid colour", Colour.RED.withAlpha(60), true).json("Invalid outline colour").childOf(::wireframe)
+    private val lineWidth by slider("Outline width", 2.0, 0.1, 10.0, 0.1).childOf(::wireframe)
     private val depth by switch("Depth check")
     private val cancelInteract by switch("Cancel interact", desc = "Enables even when looking at an interactable block. (Use with CancelInteract feature)")
     private val tooFar by switch("Stop rendering when too far")

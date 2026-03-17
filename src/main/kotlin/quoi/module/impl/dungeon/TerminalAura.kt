@@ -8,7 +8,7 @@ import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.invoke
 import quoi.module.Module
-import quoi.module.settings.UIComponent.Companion.visibleIf
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.skyblock.player.LeapManager
 
 // Kyleen
@@ -22,7 +22,7 @@ object TerminalAura : Module(
     private val auraDelay by slider("Delay", 750, 0, 2000, 50)
     private val groundOnly by switch("Ground only")
     private val leapDelayEnabled by switch("Leap delay", desc = "Delays opening terminals for x seconds after leap")
-    private val leapDelay by slider("Leap delay time", 0.5, 0.1, 5.0, 0.1, unit = "s").visibleIf { leapDelayEnabled }
+    private val leapDelay by slider("Leap delay time", 0.5, 0.1, 5.0, 0.1, unit = "s").childOf(::leapDelayEnabled)
 
     private var lastClick = 0L
 

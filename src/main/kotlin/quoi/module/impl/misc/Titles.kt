@@ -7,7 +7,6 @@ import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.skyblock.player.PlayerUtils
-import quoi.utils.ui.createSoundSettings
 
 // THIS IS A TEMP MODULE KYLEAN.
 // will be possible to customise in custom triggers
@@ -23,7 +22,7 @@ object Titles : Module("Titles", desc = "temp module") {
     private val titleDuration by slider("Title duration", 2.0, 0.5, 5.0, 0.1, desc = "How long the title stays on screen.", "s").childOf(::titleSettings)
 
     private val playSound by switch("Play sound", desc = "Plays a sound when title pops up").childOf(::titleSettings)
-    private val soundSettings = createSoundSettings("Title", ::titleSettings) { playSound }
+    private val soundSettings = sound("Title").childOf(::titleSettings) { playSound }
 
     init {
         on<ChatEvent.Packet> {

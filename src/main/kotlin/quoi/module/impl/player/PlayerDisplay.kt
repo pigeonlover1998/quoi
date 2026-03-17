@@ -45,7 +45,7 @@ object PlayerDisplay : Module(
     private const val BAR_WIDTH = 150f
     private const val BAR_HEIGHT = 14f
 
-    private val hideDropdown by text("Hide dropdown")
+    private val hideDropdown by text("Hide")
 
     private val hideHealth by switch("Health", desc = "Hides player health bar.").json("Hide health").childOf(::hideDropdown)
     private val hideAbsorption by switch("Absorption", desc = "Hides absorption health bar.").childOf(::hideDropdown)
@@ -64,18 +64,18 @@ object PlayerDisplay : Module(
     ).childOf(::healthDropdown)
 
     private val healthBar by bar(
-        name = "Health bar",
+        name = "Bar",
         defaultColour = Colour.MINECRAFT_RED,
         current = { SkyblockPlayer.health },
         max = { SkyblockPlayer.maxHealth }
-    ).childOf(::healthDropdown)
+    ).json("Health bar").childOf(::healthDropdown)
 
     private val effectiveHealth by text(
-        name = "Effective health",
+        name = "Effective",
         defaultColour = Colour.MINECRAFT_DARK_GREEN,
         text = { SkyblockPlayer.effectiveHealth.commas() },
         previewText = { "54,879" }
-    ).childOf(::healthDropdown)
+    ).json("Effective health").childOf(::healthDropdown)
 
     private val manaDropdown by text("Mana dropdown")
 
@@ -87,26 +87,26 @@ object PlayerDisplay : Module(
     ).childOf(::manaDropdown)
 
     private val manaBar by bar(
-        name = "Mana bar",
+        name = "Bar",
         defaultColour = Colour.MINECRAFT_BLUE,
         current = { SkyblockPlayer.mana },
         max = { SkyblockPlayer.maxMana }
-    ).childOf(::manaDropdown)
+    ).json("Mana bar").childOf(::manaDropdown)
 
     private val manaUsage by text(
-        name = "Mana usage",
+        name = "Usage",
         text = { SkyblockPlayer.manaUsage },
         previewText = { "§b-50 Mana (§6Speed Boost§b)" },
         visibility = { SkyblockPlayer.manaUsage.isNotEmpty() }
-    ).childOf(::manaDropdown)
+    ).json("Mana usage").childOf(::manaDropdown)
 
     private val overflowMana by text(
-        name = "Overflow mana",
+        name = "Overflow",
         defaultColour = Colour.RGB(0, 170, 170),
         text = { "${SkyblockPlayer.overflowMana.commas()}ʬ" },
         previewText = { "600ʬ" },
         visibility = { SkyblockPlayer.overflowMana != 0 }
-    ).childOf(::manaDropdown)
+    ).json("Overflow mana").childOf(::manaDropdown)
 
     private val otherDropdown by text("Other")
 

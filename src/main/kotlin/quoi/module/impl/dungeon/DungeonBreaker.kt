@@ -21,7 +21,8 @@ import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.api.skyblock.dungeon.Dungeon.isProtectedBlock
 import quoi.config.configList
 import quoi.module.Module
-import quoi.module.settings.UIComponent.Companion.visibleIf
+import quoi.module.settings.Setting.Companion.json
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.StringUtils.width
@@ -43,7 +44,9 @@ object DungeonBreaker : Module(
 ) {
 
     private val zeroPingDungeonBreaker by switch("Zero ping", desc = "Insta-mine blocks.")
-    private val onlyWhenFatigue by switch("Only insta-mine with fatigue", desc = "Only insta-mine blocks when mining fatigue is applied.").visibleIf { zeroPingDungeonBreaker }
+    private val onlyWhenFatigue by switch("Fatigue only", desc = "Only insta-mine blocks when mining fatigue is applied.")
+        .json("Only insta-mine with fatigue") // so the config doesn't reset after renaming
+        .childOf(::zeroPingDungeonBreaker)
     private val autoDungeonBreaker by switch("Auto dungeon breaker", desc = "Automatically mines preset route when in boss. /db help")
     private val breakerBlocks by configList<BlockPos>("dungeonbreaker_blocks.json")
 

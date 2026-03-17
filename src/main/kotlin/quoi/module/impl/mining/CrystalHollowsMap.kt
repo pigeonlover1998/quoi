@@ -46,7 +46,7 @@ object CrystalHollowsMap : Module(
     private val textScale by slider("Text scale", 2.0f, 0.1f, 5.0f, 0.1f).visibleIf { drawPlayers && drawNames }
 
     private val other by text("Other").visibleIf { chScanner }
-    private val drawChunks by switch("Draw loaded chunks").childOf(::other)
+    private val drawChunks by switch("Draw loaded chunks").childOf(::other) // fixme
     private val chunksCol by colourPicker("Loaded chunks colour", Colour.PURPLE.withAlpha(0.33f), allowAlpha = true).childOf(::other) { drawChunks }
     private val drawRouteBlocks by switch("Draw route blocks").childOf(::other) { routeScanner }
 

@@ -16,6 +16,7 @@ import quoi.api.skyblock.SkyblockPlayer
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.DungeonClass
 import quoi.module.Module
+import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.ChatUtils.command
 import quoi.utils.ChatUtils.modMessage
@@ -41,10 +42,10 @@ object AutoMask : Module(
 
     private val phoenix by text("Early enter phoenix/leap")
     private val ee3 by switch("Rod swap", desc = "Swaps rod and clicks if both masks proc.").childOf(::phoenix)
-    private val ee3Delay by slider("Rod click delay", 2, 0, 10, 1, "Ticks between rod clicks.").childOf(::phoenix) { ee3 }
-    private val swapBack by switch("Rod swap back", desc = "Swaps back to original slot after rodding.").childOf(::phoenix) { ee3 }
+    private val swapBack by switch("Swap back", desc = "Swaps back to original slot.").json("Rod swap back").childOf(::ee3)
+    private val ee3Delay by slider("Delay", 2, 0, 10, 1, "Ticks between rod clicks.").json("Rod click delay").childOf(::ee3)
     private val ee3LeapBack by switch("Leap back", desc = "Leaps 3s after phoenix proc message.").childOf(::phoenix)
-    private val leapClass by selector("Leap target class", "Berserk", listOf("Any", "Berserk", "Healer", "Tank", "Mage", "Archer")).childOf(::phoenix) { ee3LeapBack }
+    private val leapClass by selector("Leap target class", "Berserk", listOf("Any", "Berserk", "Healer", "Tank", "Mage", "Archer")).childOf(::ee3LeapBack) // todo update
     //private val app by BooleanSetting("Use APP", desc = "Uses APP to swap to phoenix and back.").withDependency(phoenix)
 
     val isSwapping: Boolean get() = _isSwapping

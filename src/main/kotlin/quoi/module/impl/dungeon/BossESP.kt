@@ -24,7 +24,7 @@ object BossESP : Module( // todo move to dungeon esp
     area = Island.Dungeon(7, inBoss = true)
 ) {
     private val depth by switch("Depth check")
-    private val style by selector("Style", "Box", arrayListOf("Box", "Filled box", "Glow", "2D"), desc = "Esp render style to be used.")
+    private val style by selector("Style", "Box", arrayListOf("Box", "Filled box", "Glow"/*, "2D"*/), desc = "Esp render style to be used.")
     private val colour by colourPicker("Colour", Colour.WHITE, desc = "Colour for the Boss ESP")
     private val fillColour by colourPicker("Fill colour", Colour.WHITE.withAlpha(60), allowAlpha = true, desc = "Fill colour for the Boss ESP").visibleIf { style.selected == "Filled box" }
     private val thickness by slider("Thickness", 4, 1, 8, 1)

@@ -32,7 +32,6 @@ import quoi.api.input.CursorShape
 import quoi.config.TypeNamed
 import quoi.config.typeName
 import quoi.module.Module
-import quoi.module.settings.impl.ButtonComponent
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.ThemeManager.theme
@@ -49,12 +48,12 @@ import quoi.utils.ui.screens.UIScreen.Companion.open
 object CustomTriggers : Module(
     "Custom Triggers"
 ) {
-    private val addTrigger by ButtonComponent("ADD TEST TRIGGER") {
+    private val addTrigger by button("ADD TEST TRIGGER") {
         val trigger = testTrigger()
         TriggerManager.addTrigger("test", trigger)
     }
 
-    private val triggerInfo by ButtonComponent("TRIGGER INFO") {
+    private val triggerInfo by button("TRIGGER INFO") {
         modMessage(triggers.size)
         triggers.values.flatten().forEach {
             modMessage("""

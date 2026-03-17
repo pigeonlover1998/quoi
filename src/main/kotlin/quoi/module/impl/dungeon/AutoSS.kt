@@ -19,7 +19,6 @@ import quoi.api.skyblock.dungeon.DungeonClass
 import quoi.api.skyblock.invoke
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.visibleIf
-import quoi.module.settings.impl.ButtonComponent
 import quoi.utils.ChatUtils.command
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.noControlCodes
@@ -33,10 +32,9 @@ object AutoSS : Module(
     desc = "Automatically completes Simon says device.",
     area = Island.Dungeon(7)
 ) {
-    private val delay by slider("Delay", 200.0, 50.0, 500.0, 10.0, "AutoSS delay.", unit = "ms")
+    private val delay by slider("Delay", 200, 50, 500, 10, "AutoSS delay.", unit = "ms")
     private val forceDevice by switch("Force device")
-    private val resetSS by ButtonComponent("Reset SS") { fullReset() }
-    private val autoStart by slider("Autostart delay", 125.0, 50.0, 200.0, 1.0, "Delay between clicks when skipping a button.", unit = "ms")
+    private val autoStart by slider("Autostart delay", 125, 50, 200, 1, "Delay between clicks when skipping a button.", unit = "ms")
     private val dontCheck by switch("Faster SS?") //idk
     private val disableSolver by switch("Disable solver")
     private val startButtonReset by switch("Start button reset", desc = "Pressing the SS start button resets autoss.")
@@ -45,6 +43,7 @@ object AutoSS : Module(
     private val leapMode by selector("Leap mode", "Class", listOf("Name", "Class")).visibleIf { leapWhenDone }
     private val targetName by textInput("Target name", "", desc = "Exact name of the player to leap to.").visibleIf { leapMode.selected == "Name" && leapWhenDone }
     private val targetClass by selector("Target class", DungeonClass.Mage).visibleIf { leapMode.selected == "Class" && leapWhenDone }
+    private val resetSS by button("Reset SS") { fullReset() }
 
     private var lastClickTime = 0L
     private var progress = 0
@@ -150,7 +149,7 @@ object AutoSS : Module(
                         clearGameData()
                         clickButton(startButton)
 
-                        val waitMs = Random.nextInt(autoStart.toInt(), (autoStart * 1.136).toInt())
+                        val waitMs = Random.nextInt(autoStart, (autoStart * 1.136).toInt())
                         nextActionTime = System.currentTimeMillis() + waitMs
                         startSequenceStep++
                     }

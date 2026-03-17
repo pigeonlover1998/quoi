@@ -10,7 +10,6 @@ import quoi.api.abobaui.elements.Layout.Companion.divider
 import quoi.api.abobaui.events.AbobaEvent
 import quoi.api.abobaui.transforms.impl.Alpha
 import quoi.api.animations.Animation
-import quoi.module.impl.render.ClickGui.description
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.settingFromK0
 import kotlin.reflect.KProperty0
@@ -21,9 +20,6 @@ abstract class UIComponent<T>(
 ) : Setting<T>(name, desc) {
 
     abstract fun ElementScope<*>.draw(asSub: Boolean = isSubsetting): ElementScope<*>
-
-    var hidden = false
-    var collapsed = true
 
     /**
      * Dependency for if it should be shown in the [click gui][Module].
@@ -39,6 +35,10 @@ abstract class UIComponent<T>(
     var parent: UIComponent<*>? = null
     val children: MutableList<UIComponent<*>> = mutableListOf()
 
+    private var hidden = false
+    private var collapsed = true
+    private var asParent = { children.isNotEmpty() }
+
     val isSubsetting get() = parent != null
 
     val valueUpdated = ValueUpdated()
@@ -48,6 +48,14 @@ abstract class UIComponent<T>(
     open fun hide(): UIComponent<T> {
         hidden = true
         return this
+    }
+
+    fun open() = apply {
+        collapsed = false
+    }
+
+    fun asParent() = apply {
+        asParent = { false }
     }
 
     fun onValueChanged(action: (old: T, new: T) -> Unit): Setting<T> {
@@ -70,8 +78,8 @@ abstract class UIComponent<T>(
             hasVisible = children.any { it.isLocallyVisible }
             showing = !collapsed && hasVisible
 
-            chevronSpaceAnim = Animatable(from = 0.px, to = 26.px, swapIf = hasVisible)
-            gapAnim = Animatable(from = 0.px, to = 5.px, swapIf = showing)
+            chevronSpaceAnim = Animatable(from = 0.px, to = 28.px, swapIf = hasVisible)
+            gapAnim = Animatable(from = 0.px, to = 8.px, swapIf = showing)
 
 
             scope.column(size(w = Copying)) {
@@ -114,7 +122,7 @@ abstract class UIComponent<T>(
                                 var gapVisible = child.isVisible && prev.any { it.isVisible }
 
                                 val gapAnim = Animatable(
-                                    from = 5.px,
+                                    from = 8.px,
                                     to = 0.px,
                                     swapIf = !gapVisible
                                 )
@@ -131,7 +139,7 @@ abstract class UIComponent<T>(
                                 }
                             }
 
-                            child.render(this, child.children.isEmpty()).description(child.description, xOff = 3, yOff = -2)
+                            child.render(this, !asParent.invoke())//.description(child.description, xOff = 3, yOff = -2) // fixme
                         }
                     }
                 }
@@ -226,7 +234,7 @@ abstract class UIComponent<T>(
             addVisibility(condition)
         }
 
-        @JvmName("dependsOnAny")
+        @JvmName("childOfAny")
         fun <K : UIComponent<T>, T> K.childOf(parent: KProperty0<*>?) = apply {
             if (parent == null) return@apply
             val setting = settingFromK0(parent)
@@ -234,7 +242,7 @@ abstract class UIComponent<T>(
             setting.children += this
         }
 
-        @JvmName("dependsOnBoolean")
+        @JvmName("childOfBoolean")
         fun <K : UIComponent<T>, T> K.childOf(parent: KProperty0<Boolean>) = apply {
             childOf(parent as KProperty0<*>)
             addVisibility { parent.get() }

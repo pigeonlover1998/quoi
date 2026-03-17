@@ -9,7 +9,7 @@ import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.config.Config
 import quoi.module.Module
-import quoi.module.settings.UIComponent.Companion.visibleIf
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.impl.ListSetting
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.formattedString
@@ -31,10 +31,10 @@ object AutoClicker: Module(
     private val favRight by ListSetting("FAVOURITE_ITEMS_RIGHT", mutableListOf<String>())
 
     private val leftClick by switch("Left Click", desc = "Toggles the auto clicker for left click.")
-    private val leftCps by rangeSlider("Left CPS", 10 to 12, 1, 20).visibleIf { leftClick }
+    private val leftCps by rangeSlider("Left CPS", 10 to 12, 1, 20).childOf(::leftClick)
 
     private val rightClick by switch("Right Click", desc = "Toggles the auto clicker for right click.")
-    private val rightCps by rangeSlider("Right CPS", 10 to 12, 1, 20).visibleIf { rightClick }
+    private val rightCps by rangeSlider("Right CPS", 10 to 12, 1, 20).childOf(::rightClick)
 
     private var leftJob: Job? = null
     private var rightJob: Job? = null

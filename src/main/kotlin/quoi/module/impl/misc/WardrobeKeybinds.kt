@@ -10,6 +10,11 @@ import quoi.utils.ChatUtils.modMessage
 import quoi.utils.skyblock.ItemUtils.loreString
 import quoi.utils.skyblock.player.ContainerUtils.clickSlot
 
+/**
+ * modified OdinLegacy (BSD 3-Clause)
+ * copyright (c) 2023-2026 odtheking
+ * original: https://github.com/odtheking/OdinLegacy/blob/main/src/main/kotlin/me/odinmain/features/impl/skyblock/WardrobeKeybinds.kt
+ */
 object WardrobeKeybinds : Module(
     "Wardrobe Keybinds",
     desc = "Keybinds for wardrobe."

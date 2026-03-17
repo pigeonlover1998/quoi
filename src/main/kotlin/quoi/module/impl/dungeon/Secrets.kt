@@ -20,7 +20,6 @@ import quoi.utils.aabb
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawWireFrameBox
 import quoi.utils.skyblock.player.PlayerUtils
-import quoi.utils.ui.createSoundSettings
 import java.util.concurrent.CopyOnWriteArrayList
 
 // https://github.com/Noamm9/CatgirlAddons/blob/main/src/main/kotlin/catgirlroutes/module/impl/dungeons/Secrets.kt
@@ -28,24 +27,22 @@ object Secrets : Module(
     "Secrets",
     desc = "Highlights collected secrets."
 ) {
-    private val chimeDropdown by text("Chime")
-    private val secretChime by switch("Secret chime", desc = "Plays a sound on secret click.").childOf(::chimeDropdown)
-    private val clickSound = createSoundSettings("Secret", ::chimeDropdown) { secretChime }
+    private val secretChime by switch("Chime", desc = "Plays a sound on secret click.")
+    private val clickSound = sound("Secret").childOf(::secretChime)
 //    private val dropSound = createSoundSettings("Drop", chimeDropdown) { secretChime }
 
-    private val highlightDropdown by text("Highlight")
-    private val secretClicks by switch("Secret clicks", desc = "Highlights the secret on click.").childOf(::highlightDropdown)
-    private val outline by switch("Outline", desc = "Draws the outline.").childOf(::highlightDropdown) { secretClicks }
-    private val clickColour by colourPicker("Click colour", Colour.GREEN, allowAlpha = true).childOf(::highlightDropdown) { secretClicks }
-    private val lockedColour by colourPicker("Locked colour", Colour.RED, allowAlpha = true, desc = "Locked secret colour.").childOf(::highlightDropdown) { secretClicks }
+    private val secretClicks by switch("Clicks", desc = "Highlights the secret on click.")
+    private val outline by switch("Outline", desc = "Draws the outline.").childOf(::secretClicks)
+    private val thickness by slider("Thickness", 3f, 1f, 6f).childOf(::outline)
+    private val clickColour by colourPicker("Click colour", Colour.GREEN, allowAlpha = true).childOf(::secretClicks)
+    private val lockedColour by colourPicker("Locked colour", Colour.RED, allowAlpha = true, desc = "Locked secret colour.").childOf(::secretClicks)
 
-    private val itemDropdown by text("Item")
-    private val itemHighlight by switch("Item highlight", desc = "Highlights secret items.").childOf(::itemDropdown)
-    private val closeColour by colourPicker("Close colour", Colour.GREEN, allowAlpha = true, desc = "Highlight colour when the player is near the item.").childOf(::itemDropdown) { itemHighlight }
-    private val farColour by colourPicker("Far colour", Colour.RED, allowAlpha = true, desc = "Highlight colour when the player is far from the item.").childOf(::itemDropdown) { itemHighlight }
-    private val sizeOffset by slider("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").childOf(::itemDropdown) { itemHighlight }
-    private val playSound by switch("Play sound", desc = "Plays a sound when the player is near the item.").childOf(::itemDropdown) { itemHighlight }
-    private val itemSound = createSoundSettings("Item", ::itemDropdown) { itemHighlight && playSound }
+    private val itemHighlight by switch("Item", desc = "Highlights secret items.")
+    private val closeColour by colourPicker("Close colour", Colour.GREEN, allowAlpha = true, desc = "Highlight colour when the player is near the item.").childOf(::itemHighlight)
+    private val farColour by colourPicker("Far colour", Colour.RED, allowAlpha = true, desc = "Highlight colour when the player is far from the item.").childOf(::itemHighlight)
+    private val sizeOffset by slider("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").childOf(::itemHighlight)
+    private val playSound by switch("Play sound", desc = "Plays a sound when the player is near the item.").childOf(::itemHighlight)
+    private val itemSound = sound("Item").childOf(::itemHighlight) { playSound }
 
     private data class Secret(val blockPos: BlockPos, var isLocked: Boolean = false)
     private val clickedSecrets = CopyOnWriteArrayList<Secret>()
@@ -77,7 +74,7 @@ object Secrets : Module(
                 val colour = if (locked) lockedColour else clickColour
                 val aabb = blockPos.aabb
                 ctx.drawFilledBox(aabb, colour)
-                if (outline && colour.alpha != 1.0f) ctx.drawWireFrameBox(aabb, colour.withAlpha(1.0f))
+                if (outline && colour.alpha != 1.0f) ctx.drawWireFrameBox(aabb, colour.withAlpha(1.0f), thickness = thickness)
             }
             itemEntities.removeIf { item ->
                 if (!item.isAlive) return@removeIf true

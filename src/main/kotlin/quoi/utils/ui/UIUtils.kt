@@ -152,25 +152,25 @@ private enum class Sound(val sound: SoundEvent) {
     Custom(SoundEvents.BLAZE_HURT)
 }
 
-fun Module.createSoundSettings(
-    name: String,
-    parent: KProperty0<*>? = null,
-    dependencies: () -> Boolean,
-): () -> Triple<SoundEvent, Float, Float> {
-    val sound = +SelectorComponent("$name sound", Sound.BlazeHurt).childOf(parent) { dependencies() }
-    val customSound = +TextInputComponent("Custom sound", "entity.blaze.hurt", length = 64).json("$name custom sound").childOf(parent) { dependencies() && sound.selected == Sound.Custom }
-    val soundVolume = +SliderComponent("Volume", 1.0f, 0.1f, 2.0f, 0.01f, desc = "Volume of the sound to play.").json("$name volume").childOf(parent) { dependencies() }
-    val soundPitch = +SliderComponent("Pitch", 1.0f, 0.1f, 2.0f, 0.01f, desc = "Pitch of the sound to play.").json("$name pitch").childOf(parent) { dependencies() }
-    val soundSettings = {
-        val soundEvent =
-            if (sound.selected == Sound.BlazeHurt)
-                SoundEvent.createVariableRangeEvent(ResourceLocation.parse(customSound.value))
-            else
-                sound.selected.sound
-        Triple(soundEvent ?: SoundEvents.BLAZE_HURT, soundVolume.value, soundPitch.value)
-    }
-    +ButtonComponent("Test sound") {
-        PlayerUtils.playSound(soundSettings)
-    }.childOf(parent) { dependencies() }
-    return soundSettings
-}
+//fun Module.createSoundSettings(
+//    name: String,
+//    parent: KProperty0<*>? = null,
+//    dependencies: () -> Boolean,
+//): () -> Triple<SoundEvent, Float, Float> {
+//    val sound = +SelectorComponent("$name sound", Sound.BlazeHurt).childOf(parent) { dependencies() }
+//    val customSound = +TextInputComponent("Custom sound", "entity.blaze.hurt", length = 64).json("$name custom sound").childOf(parent) { dependencies() && sound.selected == Sound.Custom }
+//    val soundVolume = +SliderComponent("Volume", 1.0f, 0.1f, 2.0f, 0.01f, desc = "Volume of the sound to play.").json("$name volume").childOf(parent) { dependencies() }
+//    val soundPitch = +SliderComponent("Pitch", 1.0f, 0.1f, 2.0f, 0.01f, desc = "Pitch of the sound to play.").json("$name pitch").childOf(parent) { dependencies() }
+//    val soundSettings = {
+//        val soundEvent =
+//            if (sound.selected == Sound.BlazeHurt)
+//                SoundEvent.createVariableRangeEvent(ResourceLocation.parse(customSound.value))
+//            else
+//                sound.selected.sound
+//        Triple(soundEvent ?: SoundEvents.BLAZE_HURT, soundVolume.value, soundPitch.value)
+//    }
+//    +ButtonComponent("Test sound") {
+//        PlayerUtils.playSound(soundSettings)
+//    }.childOf(parent) { dependencies() }
+//    return soundSettings
+//}

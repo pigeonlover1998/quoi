@@ -25,20 +25,19 @@ object NameTags : Module(
     "Name Tags",
     desc = "Customisable nametags for entities."
 ) {
-    private val customTagDropdown by text("Custom nametags")
-    private val customTag by switch("Toggle").json("Custom nametags toggle").childOf(::customTagDropdown)
-    private val dungeonsOnly by switch("Dungeons only").childOf(::customTagDropdown) { customTag }
-    private val simpleTag by switch("Simple tag").childOf(::customTagDropdown) { customTag }
-    private val customTagBgColour by colourPicker("Background colour", Colour.RGB(0, 0, 0, 0.33f), allowAlpha = true).json("Custom tag background colour").childOf(::customTagDropdown) { customTag }
-    private val customTagShadow by switch("Shadow").json("Custom tag shadow").childOf(::customTagDropdown) { customTag }
-    private val heightOffset by slider("Height offset", 0.0, -2.2, 1.0, 0.1).childOf(::customTagDropdown) { customTag }
-    private val distanceText by switch("Distance").childOf(::customTagDropdown) { customTag }
-    private val distCols by switch("Distance colours", true).childOf(::customTagDropdown) { customTag && distanceText }
-    private val distanceColour by colourPicker("Distance colour", Colour.WHITE).json("Distance colour").childOf(::customTagDropdown) { customTag && distanceText && !distCols }
+    private val customTag by switch("Toggle").json("Custom nametags toggle")
+    private val dungeonsOnly by switch("Dungeons only").childOf(::customTag)
+    private val simpleTag by switch("Simple tag").childOf(::customTag)
+    private val customTagBgColour by colourPicker("Background colour", Colour.RGB(0, 0, 0, 0.33f), allowAlpha = true).json("Custom tag background colour").childOf(::customTag)
+    private val customTagShadow by switch("Shadow").json("Custom tag shadow").childOf(::customTag)
+    private val heightOffset by slider("Height offset", 0.0, -2.2, 1.0, 0.1).childOf(::customTag)
+    private val distanceText by switch("Distance").childOf(::customTag)
+    private val customCol by switch("Custom colour").childOf(::distanceText)
+    private val distanceColour by colourPicker("Colour", Colour.WHITE).json("Distance colour").childOf(::customCol)
 
     private val vanillaTagDropDown by text("Vanilla nametags")
     @JvmStatic val customBg by switch("Custom background").childOf(::vanillaTagDropDown)
-    @JvmStatic val bgColour by colourPicker("Background colour", Colour.RGB(0, 0, 0, 0.33f), allowAlpha = true).childOf(::vanillaTagDropDown) { customBg }
+    @JvmStatic val bgColour by colourPicker("Background colour", Colour.RGB(0, 0, 0, 0.33f), allowAlpha = true).childOf(::customBg)
     @JvmStatic val shadow by switch("Shadow").childOf(::vanillaTagDropDown)
 
     init {
@@ -59,7 +58,7 @@ object NameTags : Module(
                 if (distanceText) {
                     (name as MutableComponent)
                         .append(literal(" ${entity.distanceToCamera.toFixed(1)}")
-                            .withColor((if (distCols) entity.colourFromDistance else distanceColour).rgb)
+                            .withColor((if (customCol) distanceColour else entity.colourFromDistance).rgb)
                     )
                 }
                 val scale = (0.5 + dist.pow(0.5) / 10.0).toFloat()

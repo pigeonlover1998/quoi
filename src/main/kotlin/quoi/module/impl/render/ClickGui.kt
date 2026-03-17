@@ -38,8 +38,6 @@ import quoi.module.ModuleManager.modules
 import quoi.module.impl.misc.Test
 import quoi.module.settings.UIComponent
 import quoi.module.settings.UIComponent.Companion.childOf
-import quoi.module.settings.UIComponent.Companion.visibleIf
-import quoi.module.settings.impl.ButtonComponent
 import quoi.module.settings.impl.MapSetting
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.capitaliseFirst
@@ -64,7 +62,7 @@ object ClickGui : Module(
 ) {
     val forceSkyblock by switch("Force skyblock")
     val forceDungeons by switch("Force dungeon")
-    val dungeonFloor by selector("Floor", Floor.F7).visibleIf { forceDungeons }.onValueChanged { old, new ->
+    val dungeonFloor by selector("Floor", Floor.F7).childOf(::forceDungeons).onValueChanged { old, new ->
         if (forceDungeons) Dungeon.setFloor(new.selected)
     }
     val accentColour by colourPicker("Colour", Colour.RGB(107, 203, 119))
@@ -75,18 +73,17 @@ object ClickGui : Module(
         reopen()
     }
 
-    private inline val isCustom get() = selectedTheme.selected == "Custom"
-    private val themeColours by text("Custom theme colours").visibleIf { isCustom }
-    val background by colourPicker("Background", LightTheme.background).childOf(::themeColours) { isCustom }
-    val panel by colourPicker("Panel", LightTheme.panel).childOf(::themeColours) { isCustom }
-    val textPrimary by colourPicker("Primary text", LightTheme.textPrimary).childOf(::themeColours) { isCustom }
-    val textSecondary by colourPicker("Secondary text", LightTheme.textSecondary).childOf(::themeColours) { isCustom }
-    val border by colourPicker("Border", LightTheme.border).childOf(::themeColours) { isCustom }
-    private val reset by ButtonComponent("Reset") {
+    private val themeColours by text("Custom theme colours").childOf(::selectedTheme) { it.index == 2 }
+    val background by colourPicker("Background", LightTheme.background).childOf(::selectedTheme) { it.index == 2 }
+    val panel by colourPicker("Panel", LightTheme.panel).childOf(::selectedTheme) { it.index == 2 }
+    val textPrimary by colourPicker("Primary text", LightTheme.textPrimary).childOf(::selectedTheme) { it.index == 2 }
+    val textSecondary by colourPicker("Secondary text", LightTheme.textSecondary).childOf(::selectedTheme) { it.index == 2 }
+    val border by colourPicker("Border", LightTheme.border).childOf(::selectedTheme) { it.index == 2 }
+    private val reset by button("Reset") {
         setOf(::background, ::panel, ::textPrimary, ::textSecondary, ::border).forEach { property ->
             settingFromK0(property).reset()
         }
-    }.childOf(::themeColours) { isCustom }
+    }.childOf(::selectedTheme) { it.index == 2 }
     
     private val prefixDropdown by text("Prefix settings")
     val prefixText by textInput("Prefix", "quoi!").childOf(::prefixDropdown)

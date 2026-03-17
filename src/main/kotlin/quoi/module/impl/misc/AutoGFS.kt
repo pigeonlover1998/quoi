@@ -5,7 +5,6 @@ import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
-import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.skyblock.player.PlayerUtils
 
 object AutoGFS : Module( // untested
@@ -19,8 +18,8 @@ object AutoGFS : Module( // untested
     private val leaps by switch("Spirit Leaps").childOf(::itemsDropdown)
 
     private val mode by selector("Mode", "Amount", arrayListOf("Amount", "Time"))
-    private val amount by slider("Amount", 50, 5, 95, 5, unit = "%").visibleIf { mode.selected == "Amount" }
-    private val time by slider("Time", 5, 1, 60, 1, unit = "s").visibleIf { mode.selected == "Time" }
+    private val amount by slider("Amount", 50, 5, 95, 5, unit = "%").childOf(::mode) { it.selected == "Amount" }
+    private val time by slider("Time", 5, 1, 60, 1, unit = "s").childOf(::mode) { it.selected == "Time" }
 
     private val dungeonsOnly by switch("Dungeons only", desc = "Only refill items when in dungeons.")
 

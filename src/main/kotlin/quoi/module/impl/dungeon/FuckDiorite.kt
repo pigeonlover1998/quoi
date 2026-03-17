@@ -45,8 +45,28 @@ object FuckDiorite : Module(
         Blocks.BLACK_STAINED_GLASS
     )
 
-    private val pillarBasedColor by switch("Pillar based color", true, desc = "Swaps the diorite in the pillar to the corresponding glass color.")
-    private val colorIndex by selector("Color", "None", arrayListOf("NONE", "WHITE", "ORANGE", "MAGENTA", "LIGHT_BLUE", "YELLOW", "LIME", "PINK", "GRAY", "LIGHT_GRAY", "CYAN", "PURPLE", "BLUE", "BROWN", "GREEN", "RED", "BLACK"), desc = "Color for the stained glass.").visibleIf { !pillarBasedColor }
+    val COLS = listOf(
+        "NONE",
+        "WHITE",
+        "ORANGE",
+        "MAGENTA",
+        "LIGHT_BLUE",
+        "YELLOW",
+        "LIME",
+        "PINK",
+        "GRAY",
+        "LIGHT_GRAY",
+        "CYAN",
+        "PURPLE",
+        "BLUE",
+        "BROWN",
+        "GREEN",
+        "RED",
+        "BLACK"
+    )
+
+    private val oneColour by switch("One colour", desc = "Swaps the diorite to one colour rather than pillar based colour.")
+    private val colour by selector("Colour", "None", COLS).visibleIf { oneColour }//.childOf(::oneColour)
 
     private val pillars = arrayOf(BlockPos(46, 169, 41), BlockPos(46, 169, 65), BlockPos(100, 169, 65), BlockPos(100, 169, 41))
     private val pillarColors = intArrayOf(5, 4, 10, 14)
@@ -81,8 +101,8 @@ object FuckDiorite : Module(
 
     private fun setGlass(pos: BlockPos, pillarIndex: Int) {
         val newState = when {
-            pillarBasedColor -> STAINED_GLASS_BLOCKS[pillarColors[pillarIndex]].defaultBlockState()
-            colorIndex.index != 0 -> STAINED_GLASS_BLOCKS[colorIndex.index - 1].defaultBlockState()
+            !oneColour -> STAINED_GLASS_BLOCKS[pillarColors[pillarIndex]].defaultBlockState()
+            colour.index != 0 -> STAINED_GLASS_BLOCKS[colour.index - 1].defaultBlockState()
             else -> GLASS_STATE
         }
 

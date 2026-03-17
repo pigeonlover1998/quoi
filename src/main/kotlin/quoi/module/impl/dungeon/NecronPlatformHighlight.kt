@@ -8,13 +8,13 @@ import quoi.api.events.RenderEvent
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.invoke
 import quoi.module.Module
-import quoi.module.settings.UIComponent.Companion.visibleIf
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawWireFrameBox
 
 // Kyleen
-object NecronPlatformHighlight : Module(
+object NecronPlatformHighlight : Module( // todo rename maybe question mark
     "Necron Platform Highlight",
     desc = "Highlights 3x3 area to mine after Goldor dies.",
     area = Island.Dungeon(7, inBoss = true)
@@ -22,8 +22,8 @@ object NecronPlatformHighlight : Module(
 
     private val colour by colourPicker("Colour", Colour.GREEN.withAlpha(60), true)
     private val wireframe by switch("Show outline")
-    private val lineColour by colourPicker("Outline colour", Colour.GREEN.withAlpha(255), true).visibleIf { wireframe }
-    private val lineWidth by slider("Outline width", 2.0, 0.1, 10.0, 0.1).visibleIf { wireframe }
+    private val lineColour by colourPicker("Outline colour", Colour.GREEN.withAlpha(255), true).childOf(::wireframe)
+    private val lineWidth by slider("Outline width", 2.0, 0.1, 10.0, 0.1).childOf(::wireframe)
     private val depth by switch("Depth check")
 
     private var shouldHighlightBlocks = false

@@ -16,7 +16,7 @@ import quoi.module.settings.impl.SliderComponent
 import quoi.utils.ui.settingFromK0
 import kotlin.reflect.KProperty0
 
-open class Hud(
+open class Hud( // todo fix children shit
     val name: String,
     val module: Module,
     val toggleable: Boolean,
@@ -76,7 +76,8 @@ open class Hud(
 
     private fun addSetting(setting: UIComponent<*>) {
         if (setting in module.settings) {
-//            setting.parent?.children?.remove(setting)
+            setting.parent?.children?.remove(setting)
+
             dummy.childOf(setting)
             /*if (toggleable) */module.settings.remove(setting)
         }
