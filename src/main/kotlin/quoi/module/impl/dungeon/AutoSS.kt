@@ -15,9 +15,11 @@ import quoi.api.events.*
 import quoi.api.events.core.Priority
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon
+import quoi.api.skyblock.dungeon.Dungeon.allTeammatesNoSelf
 import quoi.api.skyblock.dungeon.DungeonClass
 import quoi.api.skyblock.invoke
 import quoi.module.Module
+import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.ChatUtils.command
 import quoi.utils.ChatUtils.modMessage
@@ -41,8 +43,8 @@ object AutoSS : Module(
     private val announceTime by switch("Announce time", desc = "Runs /pc SS Took {time} when finished. (Only works sometimes atm)")
     val leapWhenDone by switch("Leap when done", desc = "Auto leaps when the SS is done.")
     private val leapMode by selector("Leap mode", "Class", listOf("Name", "Class")).visibleIf { leapWhenDone }
-    private val targetName by textInput("Target name", "", desc = "Exact name of the player to leap to.").visibleIf { leapMode.selected == "Name" && leapWhenDone }
-    private val targetClass by selector("Target class", DungeonClass.Mage).visibleIf { leapMode.selected == "Class" && leapWhenDone }
+    private val targetName by textInput("Target name", "", length = 16, desc = "Exact name of the player to leap to.").visibleIf { leapMode.selected == "Name" && leapWhenDone }.suggests { allTeammatesNoSelf }
+    private val targetClass by selector("Target class", DungeonClass.Archer).json("AutoSS leap class").visibleIf { leapMode.selected == "Class" && leapWhenDone }
     private val resetSS by button("Reset SS") { fullReset() }
 
     private var lastClickTime = 0L

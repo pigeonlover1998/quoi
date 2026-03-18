@@ -18,7 +18,7 @@ object InventoryWalk : Module(
     desc = "Allows movement in containers."
 ) {
 
-    private val clickDelay by slider("Click Delay", 6, 3, 12, unit = "t")
+    private val clickDelay by slider("Click delay", 6, 3, 12, unit = "t")
     private val blacklist by switch("Blacklist", desc = "Stops movement in sell guis + terminals.")
 
     private var delay = 0
