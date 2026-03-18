@@ -36,6 +36,7 @@ import quoi.utils.ui.rendering.NVGRenderer
 import quoi.utils.ui.screens.UIContainer
 import quoi.utils.ui.screens.UIOverlay
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import quoi.module.impl.misc.Test
 import quoi.module.impl.render.ClickGui.clickGui
 import quoi.utils.ui.screens.UIScreen.Companion.open
 import kotlin.collections.forEach
@@ -102,7 +103,7 @@ object HudManager {
 
     fun editor(fromMain: Boolean = false) = aboba("Quoi! hud editor") {
 
-        ui.debug = false
+        ui.debug = Test.uiDebug
         var hoverInfo: Popup? = null
 
         object : Element(copies()) {
@@ -184,10 +185,10 @@ object HudManager {
                     hoverInfo = popup(at(popupX(), popupY()), smooth = false) {
                         block(
                             bounds(padding = 5.px),
-                            colour = theme.background,
+                            colour = theme.surfaceContainerHighest,
                             5.radius()
                         ) {
-                            outline(theme.accent, thickness = 2.px)
+                            outline(theme.outline, thickness = 2.px)
                             column {
                                 textSupplied(
                                     supplier = {
@@ -195,7 +196,7 @@ object HudManager {
                                         if (element.scaleX != 1.0f) str += ", scale: ${element.scaleX.toFixed(1)}"
                                         str
                                     },
-                                    colour = theme.textSecondary,
+                                    colour = theme.onSurfaceVariant,
                                     size = theme.textSize
                                 )
                             }
@@ -479,20 +480,20 @@ object HudManager {
 
                 block(
                     size(260.px, 35.px),
-                    colour = theme.background,
+                    colour = theme.surfaceContainerLow,
                     radius(tl = 6, tr = 6)
                 ) {
                     text(
                         string = hud.name,
                         size = 70.percent,
-                        colour = theme.textPrimary
+                        colour = theme.onSurface
                     )
                 }
 
                 column(size(w = Copying), gap = 5.px) {
                     block(
                         copies(),
-                        colour = theme.background.withAlpha(0.7f)
+                        colour = theme.surface.withAlpha(0.7f)
                     )
                     column(constrain(x = 5.px, w = Copying - 10.px, h = ColumnHeight), gap = 5.px) { // fixme
                         divider(5.px)
@@ -513,18 +514,23 @@ object HudManager {
                     }
                     section(size = 40.px) {
                         val thickness = Animatable(from = 2.px, to = 3.px)
+                        val outlineCol = Colour.Animated(from = theme.outline, to = theme.primary)
                         block(
                             size(w = 90.percent, h = 70.percent),
-                            colour = theme.panel,
+                            colour = theme.surfaceContainerHigh,
                             5.radius()
                         ) {
-                            outline(theme.accent, thickness = thickness)
+                            outline(outlineCol, thickness = thickness)
 
                             text(
                                 string = "Reset",
                                 size = 70.percent,
-                                colour = theme.textPrimary
+                                colour = theme.onSurface
                             )
+
+                            onMouseEnterExit {
+                                outlineCol.animate(0.2.seconds, Animation.Style.EaseInOutQuint)
+                            }
 
                             onClick(button = 0) {
                                 hud.settings.drop(if (hudElement == null) 0 else 3).forEach { // schizo, idc
@@ -547,7 +553,7 @@ object HudManager {
 
                 block(
                     size(260.px, 10.px),
-                    colour = theme.background,
+                    colour = theme.surfaceContainerLow,
                     radius(bl = 6, br = 6)
                 )
             }

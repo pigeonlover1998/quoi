@@ -12,6 +12,7 @@ import quoi.api.abobaui.events.Focus
 import quoi.api.abobaui.events.Keyboard
 import quoi.api.abobaui.events.Mouse
 import quoi.api.colour.Colour
+import quoi.api.colour.withAlpha
 import quoi.api.input.CatKeys
 import quoi.utils.StringUtils.dropAt
 import quoi.utils.StringUtils.removeRangeSafe
@@ -78,7 +79,7 @@ class TextInput(
             val time = System.currentTimeMillis()
 
             val x = x + caretX - offset
-            if (selectionWidth != 0f) NVGRenderer.rect(x, y, selectionWidth, height, SELECTION_COLOR) // ctx.rect(x, y, selectionWidth.roundToInt(), height, SELECTION_COLOR)
+            if (selectionWidth != 0f) NVGRenderer.rect(x, y, selectionWidth, height, caretColour.withAlpha(0.3f).rgb) // ctx.rect(x, y, selectionWidth.roundToInt(), height, SELECTION_COLOR)
 
             if (time - caretBlinkTime < 500) {
 //                ctx.drawLine(x, y.toFloat(), x, y.toFloat() + height, Colour.WHITE.rgb, 1f)

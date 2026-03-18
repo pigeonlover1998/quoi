@@ -21,7 +21,7 @@ class KeyPressCondition(var key: Int = CatKeys.KEY_NONE) : TriggerCondition {
         text(
             string = "Key",
             size = theme.textSize,
-            colour = theme.textSecondary
+            colour = theme.onSurfaceVariant
         )
     }
 }

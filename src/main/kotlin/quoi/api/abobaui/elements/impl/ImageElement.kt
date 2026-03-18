@@ -2,6 +2,7 @@ package quoi.api.abobaui.elements.impl
 
 import quoi.api.abobaui.constraints.Constraints
 import quoi.api.abobaui.elements.Element
+import quoi.api.colour.Colour
 import quoi.utils.ui.data.Radii
 import quoi.utils.ui.rendering.Image
 import quoi.utils.ui.rendering.NVGRenderer
@@ -9,8 +10,9 @@ import quoi.utils.ui.rendering.NVGRenderer
 class ImageElement(
     private val image: Image,
     constraints: Constraints,
+    colour: Colour?,
     radius: Radii?,
-) : Element(constraints) {
+) : Element(constraints, colour) {
 
     private val radius: Radii = radius ?: Block.EMPTY_RADIUS
 
@@ -26,7 +28,7 @@ class ImageElement(
     }
 
     override fun draw() {
-        NVGRenderer.image(image, x, y, width, height, radius)
+        NVGRenderer.image(image, x, y, width, height, radius, colour?.rgb)
     }
 }
 

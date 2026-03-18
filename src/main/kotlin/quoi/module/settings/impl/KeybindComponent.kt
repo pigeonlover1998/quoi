@@ -20,6 +20,7 @@ import quoi.utils.ui.cursor
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import quoi.api.colour.Colour
 import java.util.Objects
 
 class KeybindComponent(
@@ -120,21 +121,25 @@ class KeybindComponent(
         text(
             string = name,
             size = theme.textSize,
-            colour = theme.textSecondary
+            colour = theme.onSurfaceVariant
         )
         block(
             constrain(x = 0.px.alignOpposite, w = Bounding + 5.px, h = Bounding),
-            colour = theme.background,
+            colour = theme.surfaceContainerHighest,
             5.radius()
         ) {
-            val thickness = Animatable(from = 2.px, to = 3.px)
-            outline(theme.accent, thickness)
+            val outlineCol = Colour.Animated(
+                from = theme.outline,
+                to = theme.primary
+            )
+            outline(outlineCol, thickness = 2.px)
+//            tonalHover()
             cursor(CursorShape.HAND)
 
             text(
                 string = getKeyName(),
                 size = theme.textSize,
-                colour = theme.textSecondary
+                colour = theme.onSurfaceVariant
             ) {
                 onValueChanged {
                     string = getKeyName()
@@ -174,7 +179,9 @@ class KeybindComponent(
                 true
             }
 
-            onFocusChanged { thickness.animate(0.25.seconds, style = Animation.Style.EaseInOutQuint) }
+            onFocusChanged {
+                outlineCol.animate(0.25.seconds, style = Animation.Style.EaseInOutQuint)
+            }
         }
     }
 }

@@ -30,7 +30,7 @@ class PositionCondition(var aabb: AABB = AABB(BlockPos(0, 0, 0))) : TriggerCondi
         text(
             string = "Position",
             size = theme.textSize,
-            colour = theme.textSecondary,
+            colour = theme.onSurfaceVariant,
         )
     }
 }

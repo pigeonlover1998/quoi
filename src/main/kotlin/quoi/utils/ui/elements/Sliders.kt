@@ -11,8 +11,13 @@ import quoi.api.abobaui.elements.ElementScope
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
 import quoi.api.animations.Animation
 import quoi.api.colour.Colour
+import quoi.api.colour.alpha
+import quoi.api.colour.blue
 import quoi.api.colour.colour
+import quoi.api.colour.getRGBA
+import quoi.api.colour.green
 import quoi.api.colour.multiply
+import quoi.api.colour.red
 import quoi.api.colour.withAlpha
 import quoi.api.input.CatKeys
 import quoi.api.input.CursorShape
@@ -31,7 +36,7 @@ fun <T : Number> ElementScope<*>.slider(
     min: T,
     max: T,
     increment: Number,
-    colour: Colour = theme.accent,
+    colour: Colour = theme.primary,
     pos: Positions = at(),
     size: Sizes = size()
 ): ElementScope<*> {
@@ -55,7 +60,7 @@ fun <T : Number> ElementScope<*>.slider(
 
     fun Float.coerce() = coerceIn(margin, 1f - margin)
 
-    return block(constrain(pos.x, pos.y, size.width, size.height), theme.panel, radius) {
+    return block(constrain(pos.x, pos.y, size.width, size.height), theme.secondaryContainer, radius) {
         cursor(CursorShape.HAND)
 
         dropShadow(
@@ -73,7 +78,16 @@ fun <T : Number> ElementScope<*>.slider(
 
         val col = Colour.Animated(
             from = colour,
-            to = colour { theme.accent.rgb.multiply(1.15f) }
+            to = colour {
+                val b = colour.rgb
+                val c = theme.onPrimary.rgb
+                getRGBA(
+                    (b.red + (c.red - b.red) * 0.08f).toInt(),
+                    (b.green + (c.green - b.green) * 0.08f).toInt(),
+                    (b.blue + (c.blue - b.blue) * 0.08f).toInt(),
+                    b.alpha
+                )
+            }
         )
 
         watch(ref) {
@@ -163,7 +177,7 @@ fun <T : Number> ElementScope<*>.rangeSlider(
     min: T,
     max: T,
     increment: Number,
-    colour: Colour = theme.accent,
+    colour: Colour = theme.primary,
     pos: Positions = at(),
     size: Sizes = size()
 ): ElementScope<*> {
@@ -178,7 +192,8 @@ fun <T : Number> ElementScope<*>.rangeSlider(
         val v2 = (round(second.toDouble() / increment) * increment).coerceIn(min, max)
 
         value =
-            if (v1 > v2) v2 as T to v1 as T
+            if (v1 > v2)
+                v2 as T to v1 as T
             else
                 v1 as T to v2 as T
     }
@@ -191,7 +206,7 @@ fun <T : Number> ElementScope<*>.rangeSlider(
 
     fun Float.coerce() = coerceIn(margin, 1f - margin)
 
-    return block(constrain(pos.x, pos.y, size.width, size.height), theme.panel, radius) {
+    return block(constrain(pos.x, pos.y, size.width, size.height), theme.secondaryContainer, radius) {
         cursor(CursorShape.HAND)
 
         dropShadow(
@@ -211,7 +226,16 @@ fun <T : Number> ElementScope<*>.rangeSlider(
 
         val col = Colour.Animated(
             from = colour,
-            to = colour { theme.accent.rgb.multiply(1.15f) }
+            to = colour {
+                val b = colour.rgb
+                val c = theme.onPrimary.rgb
+                getRGBA(
+                    (b.red + (c.red - b.red) * 0.08f).toInt(),
+                    (b.green + (c.green - b.green) * 0.08f).toInt(),
+                    (b.blue + (c.blue - b.blue) * 0.08f).toInt(),
+                    b.alpha
+                )
+            }
         )
 
         watch(ref) {

@@ -42,7 +42,7 @@ class SoundCondition(
         text(
             string = "Sound",
             size = theme.textSize,
-            colour = theme.textSecondary,
+            colour = theme.onSurfaceVariant,
         )
     }
 }

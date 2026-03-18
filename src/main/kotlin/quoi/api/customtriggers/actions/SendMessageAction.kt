@@ -39,7 +39,7 @@ class SendMessageAction(var message: String = "", var client: Boolean = true) : 
             text(
                 string = "Message",
                 size = theme.textSize,
-                colour = theme.textSecondary,
+                colour = theme.onSurfaceVariant,
             )
             divider(3.px)
 
@@ -48,8 +48,8 @@ class SendMessageAction(var message: String = "", var client: Boolean = true) : 
                     string = message,
                     pos = at(x = 3.percent),
                     size = theme.textSize,
-                    colour = theme.textSecondary,
-                    caretColour = theme.caretColour
+                    colour = theme.onSurfaceVariant,
+                    caretColour = theme.primary
                 ) {
                     maxWidth(Fill - 3.percent)
                     onTextChanged { (string) ->
@@ -65,7 +65,7 @@ class SendMessageAction(var message: String = "", var client: Boolean = true) : 
             text(
                 string = "Client-side",
                 size = theme.textSize,
-                colour = theme.textSecondary,
+                colour = theme.onSurfaceVariant,
                 pos = at(y = Centre)
             )
         }

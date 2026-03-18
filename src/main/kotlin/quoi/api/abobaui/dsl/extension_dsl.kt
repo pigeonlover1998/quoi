@@ -6,8 +6,15 @@ import quoi.api.abobaui.elements.ElementScope
 import quoi.api.abobaui.elements.impl.Block
 import quoi.api.animations.Animation
 import quoi.api.colour.Colour
+import quoi.api.colour.alpha
+import quoi.api.colour.blue
 import quoi.api.colour.colour
+import quoi.api.colour.getRGBA
+import quoi.api.colour.green
 import quoi.api.colour.multiply
+import quoi.api.colour.red
+import quoi.api.colour.toHSB
+import quoi.utils.ThemeManager.theme
 
 inline fun ElementScope<*>.onDrag(button: Int = 0, crossinline block: () -> Boolean) {
     var pressed = false
@@ -60,8 +67,15 @@ fun ElementScope<*>.draggable(
         var newX = ui.mx - clickedX
         var newY = ui.my - clickedY
         if (coerce) {
-            newX = newX.coerceIn(0f, ui.main.width - moves.screenWidth())
-            newY = newY.coerceIn(0f, ui.main.height - moves.screenHeight())
+            val maxWidth = ui.main.width - moves.screenWidth()
+            val maxHeight = ui.main.height - moves.screenHeight()
+
+            if (maxWidth > 0) {
+                newX = newX.coerceIn(0f, maxWidth)
+            }
+            if (maxHeight > 0) {
+                newY = newY.coerceIn(0f, maxHeight)
+            }
         }
         px.pixels = newX
         py.pixels = newY
@@ -86,4 +100,60 @@ fun ElementScope<Block>.hoverEffect(
     val hover = Colour.Animated(from = before, to = colour { before.rgb.multiply(factor = factor) })
     element.colour = hover
     onMouseEnterExit { hover.animate(duration, style) }
+}
+
+fun ElementScope<Block>.tonalHover(
+    contentColour: Colour? = null,
+    duration: Float = 0.2.seconds,
+    style: Animation.Style = Animation.Style.Linear
+) {
+    val before = element.colour!!
+
+    val anim = Colour.Animated(
+        from = before,
+        to = colour {
+            val b = before.rgb
+            val t = theme
+
+            val col = contentColour ?: when (b) {
+                t.surface.rgb,
+                t.surfaceContainerLow.rgb,
+                t.surfaceContainer.rgb,
+                t.surfaceContainerHigh.rgb,
+                t.surfaceContainerHighest.rgb,
+                t.background.rgb -> t.onSurface
+
+                t.surfaceVariant.rgb -> t.onSurfaceVariant
+
+                t.primary.rgb -> t.onPrimary
+                t.primaryContainer.rgb -> t.onPrimaryContainer
+
+                t.secondary.rgb -> t.onSecondary
+                t.secondaryContainer.rgb -> t.onSecondaryContainer
+
+                t.tertiary.rgb -> t.onTertiary
+                t.tertiaryContainer.rgb -> t.onTertiaryContainer
+
+                t.error.rgb -> t.onError
+                t.errorContainer.rgb -> t.onErrorContainer
+
+                else -> if (before.toHSB().brightness < 0.5f) {
+                    if (theme.isDark) theme.onSurface else theme.onPrimary
+                } else {
+                    if (theme.isDark) theme.onPrimary else theme.onSurface
+                }
+            }
+
+            val c = col.rgb
+            getRGBA(
+                (b.red + (c.red - b.red) * 0.08f).toInt(),
+                (b.green + (c.green - b.green) * 0.08f).toInt(),
+                (b.blue + (c.blue - b.blue) * 0.08f).toInt(),
+                b.alpha
+            )
+        }
+    )
+
+    element.colour = anim
+    onMouseEnterExit { anim.animate(duration, style) }
 }

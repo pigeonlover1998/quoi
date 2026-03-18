@@ -1,5 +1,7 @@
 package quoi.module.settings.impl
 
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import quoi.api.abobaui.constraints.impl.positions.Centre
 import quoi.api.abobaui.constraints.impl.size.AspectRatio
 import quoi.api.abobaui.constraints.impl.size.Copying
@@ -15,15 +17,13 @@ import quoi.module.settings.Saving
 import quoi.module.settings.UIComponent
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.cursor
+import quoi.utils.ui.elements.switch
 import quoi.utils.ui.hud.Hud
 import quoi.utils.ui.hud.HudManager
 import quoi.utils.ui.hud.HudManager.settings
 import quoi.utils.ui.popupX
 import quoi.utils.ui.popupY
 import quoi.utils.ui.screens.UIScreen.Companion.open
-import quoi.utils.ui.elements.switch
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 
 class HudComponent<T : Hud>(
     name: String,
@@ -72,11 +72,12 @@ class HudComponent<T : Hud>(
                     text(
                         string = "Edit location",
                         size = theme.textSize,
-                        colour = theme.textSecondary,
+                        colour = theme.onSurfaceVariant,
                         pos = at(y = Centre)
                     )
                     image(
                         image = theme.moveImage, // looks kinda meh
+                        colour = theme.onSurfaceVariant,
                         constraints = constrain(x = 0.px.alignOpposite,w = AspectRatio(1f), h = 20.px),
                     ) {
                         cursor(CursorShape.HAND)
@@ -90,24 +91,32 @@ class HudComponent<T : Hud>(
             return@row
         }
 
-        val col = Colour.Animated(from = theme.panel, to = theme.accentBrighter, swapIf = value.enabled)
+        val col = Colour.Animated(
+            from = theme.surfaceVariant,
+            to = theme.primary,
+            swapIf = value.enabled
+        )
 
-        onValueChanged {
-            col.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
-        }
+        val outlineCol = Colour.Animated(
+            from = theme.outline,
+            to = theme.primary,
+            swapIf = value.enabled
+        )
 
         fun ElementScope<*>.checkbox() = block(
             constraints =
                 if (asSub) size(w = AspectRatio(1f), h = 15.px)
                 else constrain(y = Centre, w = AspectRatio(1f), h = 20.px),
             colour = col,
-            radius = 5.radius()
+            radius = 4.radius()
         ) {
-            outline(theme.accent, 2.px)
-            hoverEffect(factor = 1.15f)
+            outline(outlineCol, 2.px)
+//            hoverEffect(factor = 1.15f)
+            tonalHover()
 
             onClick {
-                col.animate(0.25.seconds, Animation.Style.EaseInOutQuint) // temp
+                col.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
+                outlineCol.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
                 value.enabled = !value.enabled
             }
         }
@@ -120,13 +129,14 @@ class HudComponent<T : Hud>(
         text(
             string = name,
             size = theme.textSize,
-            colour = theme.textSecondary,
+            colour = theme.onSurfaceVariant,
             pos = at(y = Centre)
         )
 
         row(at(x = 0.px.alignOpposite), gap = 5.px) {
             image(
                 image = theme.moveImage, // looks kinda meh
+                colour = theme.onSurfaceVariant,
                 constraints = size(w = AspectRatio(1f), h = if (asSub) 16.px else 20.px),
             ) {
                 cursor(CursorShape.HAND)
@@ -137,6 +147,7 @@ class HudComponent<T : Hud>(
             }
             image(
                 image = theme.gearImage, // looks kinda meh
+                colour = theme.onSurfaceVariant,
                 constraints = size(w = AspectRatio(1f), h = if (asSub) 16.px else 20.px),
             ) {
                 cursor(CursorShape.HAND)

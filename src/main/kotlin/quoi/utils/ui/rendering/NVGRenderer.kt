@@ -335,16 +335,23 @@ object NVGRenderer {
         nvgFill(vg)
     }
 
-    fun image(image: Image, x: Float, y: Float, w: Float, h: Float, tl: Float, bl: Float, br: Float, tr: Float) {
+    fun image(image: Image, x: Float, y: Float, w: Float, h: Float, tl: Float, bl: Float, br: Float, tr: Float,  color: Int? = null) {
         nvgImagePattern(vg, x, y, w, h, 0f, getImage(image), 1f, nvgPaint)
+
+        if (color != null) {
+            color(color)
+            nvgPaint.innerColor(nvgColor)
+            nvgPaint.outerColor(nvgColor)
+        }
+
         nvgBeginPath(vg)
         nvgRoundedRectVarying(vg, x, y, w, h, tl, tr, br, bl)
         nvgFillPaint(vg, nvgPaint)
         nvgFill(vg)
     }
 
-    fun image(image: Image, x: Float, y: Float, w: Float, h: Float, radii: Radii) =
-        image(image, x, y, w, h, radii.topLeft, radii.bottomLeft, radii.bottomRight, radii.topRight)
+    fun image(image: Image, x: Float, y: Float, w: Float, h: Float, radii: Radii, color: Int? = null) =
+        image(image, x, y, w, h, radii.topLeft, radii.bottomLeft, radii.bottomRight, radii.topRight, color)
 
     fun image(image: Image, x: Float, y: Float, w: Float, h: Float) {
         nvgImagePattern(vg, x, y, w, h, 0f, getImage(image), 1f, nvgPaint)

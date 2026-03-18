@@ -21,8 +21,6 @@ import quoi.api.abobaui.elements.impl.TextInput.Companion.onTextChanged
 import quoi.api.abobaui.elements.impl.popup
 import quoi.api.animations.Animation
 import quoi.api.colour.Colour
-import quoi.api.colour.colour
-import quoi.api.colour.multiply
 import quoi.api.colour.withAlpha
 import quoi.api.input.CursorShape
 import quoi.utils.ThemeManager.theme
@@ -45,9 +43,9 @@ fun <T : Number> ElementScope<*>.numberInput(
     placeholder: String = "",
     unit: String = "",
     font: Font = NVGRenderer.defaultFont,
-    colour: Colour = theme.textPrimary,
-    holderColour: Colour = theme.textSecondary,
-    caretColour: Colour = theme.caretColour,
+    colour: Colour = theme.onSurface,
+    holderColour: Colour = theme.onSurfaceVariant,
+    caretColour: Colour = theme.primary,
     pos: Positions = at(),
     maxWidth: Constraint.Size? = null,
     size: Constraint.Size = 50.percent,
@@ -100,19 +98,18 @@ fun <T : Number> ElementScope<*>.numberInput(
                 else -> num.coerceIn(min?.toDouble() ?: Double.MIN_VALUE, max?.toDouble() ?: Double.MAX_VALUE)
             }
 
-            ref.set(
-                when (value) {
-                    is Int -> num.toInt()
-                    is Float -> num.toFloat()
-                    is Long -> num.toLong()
-                    is Double -> num
-                    is Short -> num.toInt().toShort()
-                    is Byte -> num.toInt().toByte()
-                    else -> num
-                } as T
-            )
+            val converted: T = @Suppress("UNCHECKED_CAST") when (ref.get()) {
+                is Int -> num.toInt()
+                is Float -> num.toFloat()
+                is Long -> num.toLong()
+                is Double -> num
+                is Short -> num.toInt().toShort()
+                is Byte -> num.toInt().toByte()
+                else -> num
+            } as T
 
-            string = format(num as T)
+            ref.set(converted)
+            string = format(converted)
         }
     }
 }
@@ -122,9 +119,9 @@ fun ElementScope<*>.hexInput(
     allowAlpha: Boolean,
     placeholder: String = if (allowAlpha) "#FFFFFFFF" else "#FFFFFF",
     font: Font = NVGRenderer.defaultFont,
-    colour: Colour = theme.textPrimary,
-    placeHolderColour: Colour = theme.textSecondary,
-    caretColour: Colour = theme.caretColour,
+    colour: Colour = theme.onSurface,
+    placeHolderColour: Colour = theme.onSurfaceVariant,
+    caretColour: Colour = theme.primary,
     pos: Positions = at(),
     maxWidth: Constraint.Size? = null,
     size: Constraint.Size = 50.percent,
@@ -186,21 +183,28 @@ fun ElementScope<*>.themedInput(
 ): ElementScope<TextInput> {
     val thickness = Animatable(2.px, 3.px)
 
+    val outlineCol = Colour.Animated(
+        from = theme.outline,
+        to = theme.primary
+    )
+
     lateinit var input: ElementScope<TextInput>
 
     block(
         constrain(x = pos.x, y = pos.y, w = size.width, h = size.height),
-        colour = theme.panel,
+        colour = theme.surfaceContainerHighest,
         radius = radius
     ) {
-        outline(theme.accent, thickness = thickness)
-        hoverEffect(factor = 1.15f)
+        outline(outlineCol, thickness = thickness)
+//        hoverEffect(factor = 1.15f)
+        tonalHover()
 
         input = content().apply {
             cursor(CursorShape.IBEAM)
 
             onFocusChanged {
                 thickness.animate(0.25.seconds, style = Animation.Style.EaseInOutQuint)
+                outlineCol.animate(0.25.seconds, style = Animation.Style.EaseInOutQuint)
             }
         }
 
@@ -219,7 +223,7 @@ fun ElementScope<*>.lengthInput(
 ): ElementScope<TextInput> {
     var value by ref
 
-    fun lenCol(string: String) = if (string.length >= length) Colour.RED else theme.textSecondary
+    fun lenCol(string: String) = if (string.length >= length) theme.error else theme.onSurfaceVariant
 
     lateinit var input: ElementScope<TextInput>
 
@@ -236,8 +240,9 @@ fun ElementScope<*>.lengthInput(
             placeholder = placeholder,
             pos = at(x = 3.percent),
             size = theme.textSize,
-            colour = theme.textSecondary,
-            caretColour = theme.caretColour
+            colour = theme.onSurface,
+            caretColour = theme.primary,
+            placeHolderColour = theme.onSurfaceVariant
         ) {
             val maxWidth = Animatable(from = 94.percent, to = 75.percent)
             maxWidth(maxWidth)
@@ -320,10 +325,10 @@ fun ElementScope<*>.suggestionInput( // todo make it not look like shit. also ad
                         w = this@apply.element.width.px + thickness - 0.5.px + 10.px,
                         h = GroupHeight + thickness - 0.5.px
                     ),
-                    colour = theme.panel,
+                    colour = theme.surfaceContainerHighest,
                     radius = 5.radius()
                 ) {
-                    outline(theme.border, thickness = thickness)
+                    outline(theme.outline, thickness = thickness)
                     dropShadow(
                         colour = Colour.BLACK.withAlpha(0.1f),
                         blur = 10f,
@@ -335,12 +340,13 @@ fun ElementScope<*>.suggestionInput( // todo make it not look like shit. also ad
                     val scrollable = scrollable(constrain(w = Copying - thickness, h = Bounding.coerceAtMost(112.5.px))) {
                         column {
                             suggestions().forEach { suggestion ->
-                                items[suggestion] = block(size(w = Fill, h = 25.px), colour = theme.panel, radius = 3.radius()) {
-                                    hoverEffect(1.1f)
+                                items[suggestion] = block(size(w = Fill, h = 25.px), colour = theme.surfaceContainerHighest, radius = 3.radius()) {
+//                                    hoverEffect(1.1f)
+                                    tonalHover()
 //                                    cursor(CursorShape.HAND)
                                     text(
                                         string = suggestion,
-                                        colour = theme.textPrimary,
+                                        colour = theme.onSurface,
                                         size = 14.px,
                                         pos = at(x = 5.px, y = Centre)
                                     )

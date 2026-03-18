@@ -71,45 +71,48 @@ interface Colour {
 
         @Transient
         private var needsUpdate: Boolean = true
+        @Transient
+        private var _rgb: Int = 0
 
         var red: Int
             get() = rgb.red
             set(value) {
-                rgb = getRGBA(value, rgb.green, rgb.blue, rgb.alpha)
+                val hsb = FloatArray(3)
+                JavaColour.RGBtoHSB(value, rgb.green, rgb.blue, hsb)
+                updateHSB(hsb[0], hsb[1], hsb[2])
             }
 
         var green: Int
             get() = rgb.green
             set(value) {
-                rgb = getRGBA(rgb.red, value, rgb.blue, rgb.alpha)
+                val hsb = FloatArray(3)
+                JavaColour.RGBtoHSB(rgb.red, value, rgb.blue, hsb)
+                updateHSB(hsb[0], hsb[1], hsb[2])
             }
 
         var blue: Int
             get() = rgb.blue
             set(value) {
-                rgb = getRGBA(rgb.red, rgb.green, value, rgb.alpha)
+                val hsb = FloatArray(3)
+                JavaColour.RGBtoHSB(rgb.red, rgb.green, value, hsb)
+                updateHSB(hsb[0], hsb[1], hsb[2])
             }
 
-        override var rgb: Int = 0
+        override val rgb: Int
             get() {
                 if (needsUpdate) {
-                    field =
-                        (JavaColour.HSBtoRGB(hue, saturation, brightness) and 0X00FFFFFF) or ((alpha * 255).toInt() shl 24)
+                    _rgb = (JavaColour.HSBtoRGB(hue, saturation, brightness) and 0X00FFFFFF) or ((alpha * 255).toInt() shl 24)
                     needsUpdate = false
                 }
-                return field
+                return _rgb
             }
-            set(value) {
-                if (field != value) {
-                    field = value
-                    val hsb = FloatArray(3)
-                    JavaColour.RGBtoHSB(value.red, value.blue, value.green, hsb)
-                    hue = hsb[0]
-                    saturation = hsb[1]
-                    brightness = hsb[2]
-                    alpha = value.alpha / 255f
-                }
-            }
+
+        private fun updateHSB(h: Float, s: Float, b: Float) {
+            hue = h
+            saturation = s
+            brightness = b
+            needsUpdate = true
+        }
 
         override fun equals(other: Any?): Boolean {
             return other is HSB &&

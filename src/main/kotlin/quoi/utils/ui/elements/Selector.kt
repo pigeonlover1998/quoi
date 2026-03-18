@@ -18,8 +18,8 @@ inline fun <T> ElementScope<*>.selector(
     entries: List<T>,
     selected: Int? = null,
     displayString: (T) -> String = { it.toString() },
-    colour: Colour = theme.panel,
-    outline: Colour = theme.border,
+    colour: Colour = theme.surfaceContainerHighest,
+    outline: Colour = theme.outline,
     thickness: Constraint.Measurement = 2.px,
     pos: Positions = at(),
     size: Sizes = size(130.px, 30.px),
@@ -50,17 +50,18 @@ inline fun <T> ElementScope<*>.selector(
         val scrollable = scrollable(size(w = size.width, h = h)) {
             column {
                 entries.forEachIndexed { i, comp ->
-                    val col = if (selected == i) theme.accent else colour
+                    val col = if (selected == i) theme.primaryContainer else colour
                     block(
                         size,
                         colour = col,
                         3.5.radius()
                     ) {
-                        hoverEffect(1.1f)
+//                        hoverEffect(1.1f)
+                        tonalHover()
 
                         text(
                             string = displayString(comp),
-                            colour = theme.textPrimary
+                            colour = if (selected == i) theme.onPrimaryContainer else theme.onSurface
                         )
 
                         onClick {

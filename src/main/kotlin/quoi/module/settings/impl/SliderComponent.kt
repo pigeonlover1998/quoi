@@ -80,7 +80,7 @@ class SliderComponent<E>(
             text(
                 string = name + if (asSub) ":" else "",
                 size = theme.textSize,
-                colour = theme.textSecondary
+                colour = theme.onSurfaceVariant
             )
 
             val input = numberInput(
@@ -89,8 +89,7 @@ class SliderComponent<E>(
                 max = max,
                 unit = unit,
                 size = theme.textSize,
-                colour = theme.textSecondary,
-                caretColour = theme.caretColour,
+                colour = theme.onSurfaceVariant,
                 pos = at(if (asSub) Undefined else 0.px.alignOpposite, y = 0.px)
             )
 

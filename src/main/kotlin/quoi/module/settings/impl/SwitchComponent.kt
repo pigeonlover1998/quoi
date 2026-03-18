@@ -33,37 +33,40 @@ class SwitchComponent(
 
     override fun ElementScope<*>.draw(asSub: Boolean): ElementScope<*> = row(size(Copying), gap = 4.px) {
         val col = Colour.Animated(
-            from = theme.panel,
-            to = theme.accentBrighter,
+            from = theme.surfaceVariant,
+            to = theme.primary,
             swapIf = value
         )
 
-        onValueChanged {
-            col.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
-        }
+        val outlineCol = Colour.Animated(
+            from = theme.outline,
+            to = theme.primary,
+            swapIf = value
+        )
 
         fun label() = text(
             string = name,
             size = theme.textSize,
-            colour = theme.textSecondary,
+            colour = theme.onSurfaceVariant,
             pos = at(y = Centre)
         )
-
-        val constraints =
-            if (asSub) size(w = AspectRatio(1f), h = 15.px)
-            else constrain(x = 0.px.alignOpposite, w = AspectRatio(1f), h = 20.px)
 
         if (asSub) {
             block(
                 size(w = AspectRatio(1f), h = 15.px),
                 colour = col,
-                radius = 5.radius()
+                radius = 4.radius()
             ) {
-                outline(theme.accent, 2.px)
-                hoverEffect(factor = 1.15f)
+                outline(outlineCol, 2.px)
+//                hoverEffect(factor = 1.15f)
+                tonalHover()
 
                 onClick {
                     value = !value
+
+                    col.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
+                    outlineCol.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
+                    true
                 }
             }
             label()

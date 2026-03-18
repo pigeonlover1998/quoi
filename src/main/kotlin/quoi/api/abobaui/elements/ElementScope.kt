@@ -140,9 +140,10 @@ open class ElementScope<E : Element>(val element: E) {
     inline fun image(
         image: Image,
         constraints: Constraints,
+        colour: Colour? = null,
         radius: Radii? = null,
         block: ElementScope<ImageElement>.() -> Unit = {}
-    ) = ImageElement(image, constraints, radius).scope(block)
+    ) = ImageElement(image, constraints, colour, radius).scope(block)
 
     @AbobaDSL
     inline fun image(

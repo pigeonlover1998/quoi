@@ -1,5 +1,7 @@
 package quoi.module.settings.impl
 
+import com.google.gson.JsonElement
+import com.google.gson.JsonPrimitive
 import quoi.api.abobaui.constraints.impl.size.Bounding
 import quoi.api.abobaui.constraints.impl.size.Copying
 import quoi.api.abobaui.dsl.*
@@ -7,16 +9,16 @@ import quoi.api.abobaui.elements.ElementScope
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
 import quoi.api.abobaui.elements.impl.Popup
 import quoi.api.abobaui.elements.impl.Text.Companion.string
+import quoi.api.animations.Animation
+import quoi.api.colour.Colour
 import quoi.api.input.CursorShape
 import quoi.module.settings.Saving
 import quoi.module.settings.UIComponent
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.cursor
+import quoi.utils.ui.elements.selector
 import quoi.utils.ui.popupX
 import quoi.utils.ui.popupY
-import quoi.utils.ui.elements.selector
-import com.google.gson.JsonElement
-import com.google.gson.JsonPrimitive
 
 class SelectorComponent<T>(
     name: String,
@@ -75,24 +77,34 @@ class SelectorComponent<T>(
             text(
                 string = name,
                 size = theme.textSize,
-                colour = theme.textSecondary
+                colour = theme.onSurfaceVariant
             )
+
+            val outlineCol = Colour.Animated(
+                from = theme.outline,
+                to = theme.primary
+            )
+
             block(
                 constrain(x = 0.px.alignOpposite, w = Bounding + 5.px, h = Bounding),
-                colour = theme.background,
+                colour = theme.surfaceContainerHighest,
                 5.radius()
             ) {
-                outline(theme.accent, thickness = 2.px)
+                outline(outlineCol, thickness = 2.px)
                 cursor(CursorShape.HAND)
 
                 text(
                     string = selectedName,
                     size = theme.textSize,
-                    colour = theme.textSecondary
+                    colour = theme.onSurface
                 ) {
                     onValueChanged {
                         string = selectedName
                     }
+                }
+
+                onMouseEnterExit {
+                    outlineCol.animate(0.25.seconds, Animation.Style.Linear)
                 }
 
                 onClick {
@@ -102,7 +114,6 @@ class SelectorComponent<T>(
                         entries = options,
                         selected = index,
                         displayString = { nameOf(it) },
-                        colour = theme.panel,
                         pos = at(x, y)
                     ) { new ->
                         selected = new

@@ -47,7 +47,7 @@ class MessageCondition(var pattern: String = "", var isRegex: Boolean = false) :
             text(
                 string = "Message",
                 size = theme.textSize,
-                colour = theme.textSecondary,
+                colour = theme.onSurfaceVariant,
             )
             divider(3.px)
 
@@ -56,8 +56,8 @@ class MessageCondition(var pattern: String = "", var isRegex: Boolean = false) :
                     string = pattern,
                     pos = at(x = 3.percent),
                     size = theme.textSize,
-                    colour = theme.textSecondary,
-                    caretColour = theme.caretColour
+                    colour = theme.onSurfaceVariant,
+                    caretColour = theme.primary
                 ) {
                     maxWidth(Fill - 3.percent)
                     onTextChanged { (string) ->
@@ -73,7 +73,7 @@ class MessageCondition(var pattern: String = "", var isRegex: Boolean = false) :
             text(
                 string = "Regex",
                 size = theme.textSize,
-                colour = theme.textSecondary,
+                colour = theme.onSurfaceVariant,
                 pos = at(y = Centre)
             )
         }

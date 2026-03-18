@@ -6,6 +6,7 @@ import quoi.api.abobaui.dsl.*
 import quoi.api.abobaui.elements.ElementScope
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
 import quoi.api.animations.Animation
+import quoi.api.colour.Colour
 import quoi.api.input.CursorShape
 import quoi.utils.ThemeManager.theme
 import quoi.module.settings.UIComponent
@@ -26,12 +27,19 @@ class ButtonComponent(
     override fun ElementScope<*>.draw(asSub: Boolean): ElementScope<*> =
         block(
             size(w = Copying, h = 25.px),
-            colour = theme.panel,
+            colour = theme.surfaceContainerLow,
             5.radius()
         ) {
             val thickness = Animatable(from = 2.px, to = 3.px)
-            outline(theme.accent, thickness = thickness)
-            hoverEffect(factor = 1.15f)
+            val outlineCol = Colour.Animated(from = theme.outline, to = theme.primary)
+            outline(outlineCol, thickness = thickness)
+//            hoverEffect(factor = 1.15f)
+            tonalHover()
+
+            onMouseEnterExit {
+                outlineCol.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
+            }
+
             onClick {
                 thickness.animate(0.25.seconds, style = Animation.Style.EaseInOutQuint)?.onFinish {
                     scheduleTask {
@@ -44,7 +52,7 @@ class ButtonComponent(
             text(
                 string = name,
                 size = theme.textSize,
-                colour = theme.textSecondary
+                colour = theme.onSurfaceVariant
             )
 
             cursor(CursorShape.HAND)

@@ -20,7 +20,7 @@ class TextComponent(
         text(
             string = name,
             size = theme.textSize,
-            colour = theme.textSecondary,
+            colour = theme.onSurfaceVariant,
             pos = at(x = 0.px, y = Centre)
         )
     }

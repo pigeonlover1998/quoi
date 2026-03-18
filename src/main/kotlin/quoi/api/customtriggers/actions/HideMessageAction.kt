@@ -19,7 +19,7 @@ class HideMessageAction : TriggerAction {
         text(
             string = "Hides message",
             size = theme.textSize,
-            colour = theme.textSecondary,
+            colour = theme.onSurfaceVariant,
         )
     }
 }

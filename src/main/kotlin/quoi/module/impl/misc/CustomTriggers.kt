@@ -142,7 +142,7 @@ object CustomTriggers : Module(
                                         hoverEffect(1.1f)
                                         text(
                                             string = group,
-                                            colour = theme.textPrimary
+                                            colour = theme.onSurface
                                         )
 
                                         onClick {
@@ -185,7 +185,7 @@ object CustomTriggers : Module(
                             )
                             text(
                                 string = "Add",
-                                colour = theme.textSecondary,
+                                colour = theme.onSurfaceVariant,
                                 size = 20.px
                             )
                         }
@@ -221,7 +221,7 @@ object CustomTriggers : Module(
                     val currentTriggers = triggers[selectedGroup] ?: run {
                         text(
                             string = "Select a group to edit",
-                            colour = theme.textSecondary,
+                            colour = theme.onSurfaceVariant,
                             pos = at(x = Centre, y = Centre),
                             size = 5.percent
                         )
@@ -252,7 +252,7 @@ object CustomTriggers : Module(
                                     )
                                     text(
                                         string = "Add trigger",
-                                        colour = theme.textSecondary,
+                                        colour = theme.onSurfaceVariant,
                                         size = 20.px
                                     )
                                 }
@@ -301,7 +301,7 @@ object CustomTriggers : Module(
 
                 image(
                     image = theme.chevronImage,
-                    constrain(y = Centre, w = 24.px, h = 24.px)
+                    constraints = constrain(y = Centre, w = 24.px, h = 24.px)
                 ) {
                     val (from, to) = if (!isExpanded()) 0f to 90f else 90f to 0f
                     rotation = rotation(from = from, to = to)
@@ -315,8 +315,8 @@ object CustomTriggers : Module(
                     outline(inputOl, thickness = 2.px)
                     textInput( // todo fix it crashing sometimes
                         string = trigger.name,
-                        colour = theme.textPrimary,
-                        caretColour = theme.caretColour,
+                        colour = theme.onSurface,
+                        caretColour = theme.primary,
                         size = Copying - 40.percent,
                         pos = at(x = 3.percent)
                     ) {
@@ -357,7 +357,7 @@ object CustomTriggers : Module(
 
                     text(
                         string = "×",
-                        colour = theme.textSecondary,
+                        colour = theme.onSurfaceVariant,
                         size = 22.5.px,
                     ) {
 //                    hoverEffect(1.1f)
@@ -402,7 +402,7 @@ object CustomTriggers : Module(
                 row(gap = 5.px) {
                     text(
                         string = "CONDITIONS",
-                        colour = theme.textPrimary,
+                        colour = theme.onSurface,
                         size = 18.px
                     )
 
@@ -413,7 +413,7 @@ object CustomTriggers : Module(
                     ) {
                         text(
                             string = "(All must match - AND logic)",
-                            colour = theme.textSecondary,
+                            colour = theme.onSurfaceVariant,
                             size = 12.px
                         )
                     }
@@ -431,7 +431,7 @@ object CustomTriggers : Module(
 
                 text(
                     string = "ACTIONS",
-                    colour = theme.textPrimary,
+                    colour = theme.onSurface,
                     size = 18.px
                 )
 
@@ -448,7 +448,7 @@ object CustomTriggers : Module(
                                 row(size(Copying, Bounding)) {
                                     text(
                                         string = "Delay: ",
-                                        colour = theme.textSecondary,
+                                        colour = theme.onSurfaceVariant,
                                         size = theme.textSize,
                                         pos = at(y = Centre)
                                     )
@@ -457,7 +457,7 @@ object CustomTriggers : Module(
                                             delayedAction::delay,
                                             min = 0,
                                             max = 200,
-                                            colour = theme.textSecondary,
+                                            colour = theme.onSurfaceVariant,
                                             size = theme.textSize
                                         )
                                     }
@@ -494,13 +494,13 @@ object CustomTriggers : Module(
                     row(constrain(x = 5.px, w = Copying)) {
                         textSupplied(
                             supplier = { displayString(comp) },
-                            colour = theme.textPrimary,
+                            colour = theme.onSurface,
                             size = 20.px
                         )
 
                         text(
                             string = "×",
-                            colour = theme.textSecondary,
+                            colour = theme.onSurfaceVariant,
                             size = 22.5.px,
                             pos = at(x = 2.percent.alignOpposite, y = Centre)
                         ) {
@@ -550,7 +550,7 @@ object CustomTriggers : Module(
                     }
                     text(
                         string = addLabel,
-                        colour = theme.textSecondary,
+                        colour = theme.onSurfaceVariant,
                         size = 15.px,
                         pos = at(y = Centre)
                     )
@@ -590,14 +590,14 @@ object CustomTriggers : Module(
                 sectionRow(25.px) {
                     text(
                         string = title,
-                        colour = theme.textPrimary,
+                        colour = theme.onSurface,
                         size = 100.percent,
                         pos = at(y = Centre)
                     )
 
                     text(
                         string = "×",
-                        colour = theme.textSecondary,
+                        colour = theme.onSurfaceVariant,
                         size = 22.5.px,
                         pos = at(x = 2.percent.alignOpposite, y = Centre)
                     ) {

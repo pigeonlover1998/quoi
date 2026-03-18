@@ -2,6 +2,7 @@
 
 package quoi.module.impl.render
 
+import net.minecraft.Util
 import quoi.annotations.AlwaysActive
 import quoi.api.ServerInfo.averagePing
 import quoi.api.ServerInfo.averageTps
@@ -36,6 +37,7 @@ import quoi.module.Category
 import quoi.module.Module
 import quoi.module.ModuleManager.modules
 import quoi.module.impl.misc.Test
+import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.impl.MapSetting
@@ -43,7 +45,6 @@ import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.StringUtils.percentColour
 import quoi.utils.StringUtils.toFixed
-import quoi.utils.ThemeManager.LightTheme
 import quoi.utils.ThemeManager.theme
 import quoi.utils.WorldUtils.day
 import quoi.utils.ui.elements.themedInput
@@ -52,8 +53,8 @@ import quoi.utils.ui.hud.TextHud
 import quoi.utils.ui.hud.setting
 import quoi.utils.ui.onHover
 import quoi.utils.ui.screens.UIScreen.Companion.open
-import quoi.utils.ui.settingFromK0
 import quoi.utils.ui.textPair
+import java.net.URI
 
 @AlwaysActive
 object ClickGui : Module(
@@ -65,30 +66,19 @@ object ClickGui : Module(
     val dungeonFloor by selector("Floor", Floor.F7).childOf(::forceDungeons).onValueChanged { old, new ->
         if (forceDungeons) Dungeon.setFloor(new.selected)
     }
-    val accentColour by colourPicker("Colour", Colour.RGB(107, 203, 119))
+
+    val selectedTheme by selector("Theme", "Light", arrayListOf("Light", "Dark")).onValueChanged { _, _ ->
+        reopen()
+    }.open()
+
+    val seedColour by colourPicker("Colour", Colour.RGB(255, 204, 134)).json("Theme seed").childOf(::selectedTheme).asParent()
 
     var rainbowSpeed by slider("Rainbow colour speed", 1.0f, 0.05f, 5.0f, 0.05f)
-
-    val selectedTheme by selector("Theme", "Light", arrayListOf("Light", "Dark", "Custom")).onValueChanged { _, _ ->
-        reopen()
-    }
-
-    private val themeColours by text("Custom theme colours").childOf(::selectedTheme) { it.index == 2 }
-    val background by colourPicker("Background", LightTheme.background).childOf(::selectedTheme) { it.index == 2 }
-    val panel by colourPicker("Panel", LightTheme.panel).childOf(::selectedTheme) { it.index == 2 }
-    val textPrimary by colourPicker("Primary text", LightTheme.textPrimary).childOf(::selectedTheme) { it.index == 2 }
-    val textSecondary by colourPicker("Secondary text", LightTheme.textSecondary).childOf(::selectedTheme) { it.index == 2 }
-    val border by colourPicker("Border", LightTheme.border).childOf(::selectedTheme) { it.index == 2 }
-    private val reset by button("Reset") {
-        setOf(::background, ::panel, ::textPrimary, ::textSecondary, ::border).forEach { property ->
-            settingFromK0(property).reset()
-        }
-    }.childOf(::selectedTheme) { it.index == 2 }
     
     private val prefixDropdown by text("Prefix settings")
     val prefixText by textInput("Prefix", "quoi!").childOf(::prefixDropdown)
-    val prefixColour by colourPicker("Prefix colour", Colour.GREEN).childOf(::prefixDropdown)
-    val bracketsColour by colourPicker("Brackets colour", Colour.WHITE).childOf(::prefixDropdown)
+    val prefixColour by colourPicker("Colour", Colour.GREEN).json("Prefix colour").childOf(::prefixDropdown)
+    val bracketsColour by colourPicker("Brackets", Colour.WHITE).json("Brackets colour").childOf(::prefixDropdown)
 
     private val fpsHud by TextHud("Fps display") {
         textPair(
@@ -182,13 +172,13 @@ object ClickGui : Module(
                 val height = Animatable(from = Bounding, to = 0.px, swapIf = !data.extended)
                 block(
                     size(260.px, (MODULE_SIZE + 5).px),
-                    colour = theme.background,
+                    colour = theme.surfaceContainerLow,
                     radius(tl = 6, tr = 6)
                 ) {
                     text(
                         string = category.name.capitaliseFirst(),
                         size = 70.percent,
-                        colour = theme.textPrimary
+                        colour = theme.onSurface
                     )
 
                     onClick(button = 1) {
@@ -206,7 +196,7 @@ object ClickGui : Module(
                     column(size(Copying, height)) {
                         block(
                             copies(),
-                            colour = colour { theme.background.withAlpha(0.7f).rgb }
+                            colour = colour { theme.surface.withAlpha(0.7f).rgb }
                         )
                         for (module in modules.sortedBy { it.name }) {
                             if (module.category != category) continue
@@ -217,7 +207,7 @@ object ClickGui : Module(
 
                 block(
                     size(260.px, 10.px),
-                    colour = theme.background,
+                    colour = theme.surfaceContainerLow,
                     radius(bl = 6, br = 6)
                 )
 
@@ -227,62 +217,62 @@ object ClickGui : Module(
             }
         }
 
-        themedInput(
-            pos = at(Centre, 90.percent),
-            size = size(375.px, 40.px),
-            10.radius()
+        column(
+            constrain(
+                x = Centre, y = 90.percent,
+                w = 375.px, h = Bounding
+            )
         ) {
             draggable(button = 1)
-            textInput(
-                placeholder = "Search...",
-                colour = theme.textPrimary,
-                placeHolderColour = theme.textSecondary,
-                caretColour = theme.caretColour,
-            ) {
-                maxWidth(Fill - 3.percent)
-                onTextChanged { (string) ->
-                    moduleScopes.forEach { (m, element) ->
-                        element.enabled =
-                            m.name.contains(string, true) ||
-                            m.desc.contains(string, true) ||
-                            m.settings.any { it.name.contains(string, true) }
+
+            row(at(x = Centre), gap = 15.px) {
+
+                mapOf(
+                    "Hud editor" to { open(HudManager.editor(fromMain = true)) },
+                    "Discord" to { Util.getPlatform().openUri(URI("https://discord.com/invite/QCWgrQ57pN")) }
+                ).forEach { (text, block) ->
+                    block(
+                        size(w = 135.px, h = 40.px),
+                        colour = theme.surfaceContainerHighest,
+                        radius = 10.radius()
+                    ) {
+                        outline(theme.primary, thickness = 2.px)
+                        tonalHover()
+                        text(
+                            string = text,
+                            size = theme.textSize,
+                            colour = theme.onSurface
+                        )
+                        onClick {
+                            block()
+                        }
                     }
                 }
             }
-        }
 
-        row(at(5.px.alignOpposite, 5.px.alignOpposite)) {
-//            cursor(CursorShape.HAND)
-            block(
-                size(Bounding + 10.percent, 40.px),
-                colour = theme.background,
-                radius = 10.radius()//radius(10, 10, 0, 0)
+            divider(15.px)
+
+            themedInput(
+                size = size(Copying, 40.px),
+                radius = 10.radius()
             ) {
-                outline(theme.accent, thickness = 2.px)
-                text(
-                    string = "Hud editor",
-                    size = theme.textSize,
-                    colour = theme.textPrimary
-                )
-                onClick {
-                    open(HudManager.editor(fromMain = true))
+                textInput(
+                    placeholder = "Search...",
+                    colour = theme.onSurface,
+                    placeHolderColour = theme.onSurfaceVariant,
+                    caretColour = theme.primary,
+                ) {
+                    maxWidth(Fill - 3.percent)
+                    onTextChanged { (string) ->
+                        moduleScopes.forEach { (m, element) ->
+                            element.enabled =
+                                m.name.contains(string, true) ||
+                                        m.desc.contains(string, true) ||
+                                        m.settings.any { it.name.contains(string, true) }
+                        }
+                    }
                 }
             }
-//            block(
-//                size(Bounding + 10.percent, 40.px),
-//                colour = theme.background,
-//                radius = radius(0, 0, 10, 10)
-//            ) {
-//                outline(theme.accent, thickness = 2.px)
-//                text(
-//                    string = "Custom triggers",
-//                    size = theme.textSize,
-//                    colour = theme.textPrimary
-//                )
-//                onClick {
-//                    modMessage("not impl yet")
-//                }
-//            }
         }.element.moveToBottom()
     }
 
@@ -291,8 +281,8 @@ object ClickGui : Module(
         lateinit var settings: ElementScope<Column>
 
         val col = Colour.Animated(
-            from = theme.background,
-            to = theme.accentBrighter,
+            from = theme.surfaceContainer,
+            to = theme.primaryContainer,
             swapIf = module.enabled
         )
         val height = Animatable(from = 0.px, to = Bounding)
@@ -301,12 +291,13 @@ object ClickGui : Module(
             size(Copying, MODULE_SIZE.px),
             colour = col,
         ) {
-            hoverEffect(factor = 1.15f)
+//            hoverEffect(factor = 1.15f)
+            tonalHover()
             description(module.desc)
             text(
                 string = module.name,
                 size = 18.px,
-                colour = theme.textPrimary
+                colour = theme.onSurface
             )
 
             var lastEnabled = module.enabled
@@ -328,28 +319,9 @@ object ClickGui : Module(
             onClick(button = 1) {
                 if (!loaded) {
                     settings.apply {
-//                        row(size(w = Copying, h = Bounding)) {
-//
-//                            block(
-//                                constrain(w = 4.px, h = Copying),
-//                                colour = theme.accent,
-////                        2.radius()
-//                            )
-//                            divider(7.px)
-//                            column(size(w = Copying - 21.px), gap = 8.px) {
-//                                divider(8.px)
-//                                module.settings.forEach { setting ->
-//                                    if (setting !is UISetting || setting.parent != null) return@forEach
-//                                    setting.render(this).description(setting.description, xOff = 3, yOff = -4)
-//                                }
-//                                divider(0.px)
-//                            }
-//                            divider(7.px)
-//                        }
-
                         module.settings.forEach { setting ->
                             if (setting !is UIComponent || setting.parent != null) return@forEach
-                            setting.render(this).description(setting.description, xOff = 3, yOff = -4)
+                            setting.render(this)
                         }
                         divider(0.px)
                     }
@@ -365,28 +337,28 @@ object ClickGui : Module(
         }
     }
 
-    fun ElementScope<*>.description(desc: String, xOff: Int = 0, yOff: Int = 0) {
+    fun ElementScope<*>.description(desc: String) {
         if (desc.isEmpty()) return
 
         var popup: Popup? = null
 
-        onHover(duration = 1.seconds) {
+        onHover(duration = 0.5.seconds) {
             if (popup != null) return@onHover
 
-            val x = (element.x + element.width + 5 + xOff).px
-            val y = (element.y + 3 + yOff).px
+            val x = (element.x + element.width + 10).px
+            val y = (element.y + 7 / 2).px
 
             popup = popup(constrain(x, y, Bounding, Bounding), smooth = false) {
                 block(
                     constraints = bounds(padding = 5.px),
-                    colour = theme.background,
+                    colour = theme.surfaceContainerHighest,
                     5.radius()
                 ) {
-                    outline(theme.accent, thickness = 2.px)
+                    outline(theme.outline, thickness = 2.px)
                     text(
                         string = desc, // maybe should wrap
                         size = theme.textSize - 2.px,
-                        colour = theme.textPrimary
+                        colour = theme.onSurface
                     )
                 }
             }

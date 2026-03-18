@@ -69,7 +69,7 @@ class TextInputComponent(
             string = name,
             pos = at(0.px, 0.px),
             size = theme.textSize,
-            colour = theme.textSecondary,
+            colour = theme.onSurfaceVariant,
         )
 
         suggestionInput(suggestions = suggestions) {

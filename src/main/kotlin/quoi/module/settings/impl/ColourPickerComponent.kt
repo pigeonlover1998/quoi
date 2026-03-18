@@ -104,7 +104,7 @@ class ColourPickerComponent(
         fun label() = text(
             string = name,
             size = theme.textSize,
-            colour = theme.textSecondary,
+            colour = theme.onSurfaceVariant,
             pos = at(y = Centre)
         )
 
@@ -117,7 +117,7 @@ class ColourPickerComponent(
             colour { value.rgb },
             5.radius()
         ) {
-            outline(theme.accent, thickness = 2.px)
+            outline(theme.primary, thickness = 2.px)
             cursor(CursorShape.HAND)
 
             onClick {

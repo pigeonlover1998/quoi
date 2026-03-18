@@ -10,6 +10,7 @@ import quoi.api.abobaui.elements.Layout.Companion.divider
 import quoi.api.abobaui.events.AbobaEvent
 import quoi.api.abobaui.transforms.impl.Alpha
 import quoi.api.animations.Animation
+import quoi.module.impl.render.ClickGui.description
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.settingFromK0
 import kotlin.reflect.KProperty0
@@ -55,12 +56,11 @@ abstract class UIComponent<T>(
     }
 
     fun asParent() = apply {
-        asParent = { false }
+        asParent = { true }
     }
 
-    fun onValueChanged(action: (old: T, new: T) -> Unit): Setting<T> {
-        onValueChanged = action
-        return this
+    fun onValueChanged(action: (old: T, new: T) -> Unit) = apply {
+        this.onValueChanged = action
     }
 
     fun render(scope: ElementScope<*>, asSub: Boolean = isSubsetting): ElementScope<*> {
@@ -69,6 +69,7 @@ abstract class UIComponent<T>(
 
         var gapAnim: Animatable? = null
         var chevronSpaceAnim: Animatable? = null
+        var chevronAlphaAnim: Alpha.Animated? = null
 
         var hasVisible = false
         var showing = false
@@ -79,8 +80,10 @@ abstract class UIComponent<T>(
             showing = !collapsed && hasVisible
 
             chevronSpaceAnim = Animatable(from = 0.px, to = 28.px, swapIf = hasVisible)
+            chevronAlphaAnim = Alpha.Animated(to = 1f, from = 0f)
             gapAnim = Animatable(from = 0.px, to = 8.px, swapIf = showing)
 
+            if (hasVisible) chevronAlphaAnim.swap()
 
             scope.column(size(w = Copying)) {
 
@@ -90,10 +93,13 @@ abstract class UIComponent<T>(
 
                 chevronImage = image(
                     image = theme.chevronImage,
-                    constrain(5.px.alignOpposite, w = 16.px, h = 16.px, y = if (this@UIComponent.value is Boolean) 2.px else 0.px)
+                    colour = theme.onSurfaceVariant,
+                    constraints = constrain(5.px.alignOpposite, w = 16.px, h = 16.px, y = if (this@UIComponent.value is Boolean) 2.px else 0.px),
                 ) {
                     val (from, to) = if (collapsed) 180f to 90f else 90f to 180f
                     val rotationAnim = rotation(from = from, to = to)
+
+                    transform(chevronAlphaAnim)
 
                     onClick {
                         collapsed = !collapsed
@@ -110,7 +116,7 @@ abstract class UIComponent<T>(
                 row(size(w = Copying, h = Bounding)) {
                     block(
                         constrain(w = 2.5.px, h = Copying),
-                        colour = theme.accent,
+                        colour = theme.primary,
 //                        2.radius()
                     )
                     divider(6.px)
@@ -139,13 +145,15 @@ abstract class UIComponent<T>(
                                 }
                             }
 
-                            child.render(this, !asParent.invoke())//.description(child.description, xOff = 3, yOff = -2) // fixme
+                            child.render(this, !child.asParent.invoke()).description(child.description)
                         }
                     }
                 }
             }
         } else {
-            scope.draw(asSub)
+            scope.draw(asSub).apply {
+                description(description)
+            }
         }
 
 
@@ -179,13 +187,14 @@ abstract class UIComponent<T>(
                 element.parent?.redraw = true
             }
 
-            if (chevronImage != null && gapAnim != null && chevronSpaceAnim != null) {
+            if (chevronImage != null && gapAnim != null && chevronSpaceAnim != null && chevronAlphaAnim != null) {
                 val hasVisibleCurr = children.any { it.isLocallyVisible }
 
                 if (hasVisibleCurr != hasVisible) {
                     hasVisible = hasVisibleCurr
                     chevronImage.element.enabled = hasVisible
                     chevronSpaceAnim.animate(0.2.seconds, Animation.Style.EaseInOutQuint)
+                    chevronAlphaAnim.animate(0.2.seconds, Animation.Style.EaseInOutQuint)
                 }
 
                 val showingCurr = !collapsed && hasVisible

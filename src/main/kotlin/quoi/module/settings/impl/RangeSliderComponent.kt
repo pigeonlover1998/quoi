@@ -84,13 +84,13 @@ class RangeSliderComponent<E>(
             text(
                 string = name + if (asSub) ":" else "",
                 size = theme.textSize,
-                colour = theme.textSecondary
+                colour = theme.onSurfaceVariant
             )
 
             text(
                 string = text,
                 size = theme.textSize,
-                colour = theme.textSecondary,
+                colour = theme.onSurfaceVariant,
                 pos = at(if (asSub) Undefined else 0.px.alignOpposite, y = 0.px)
             ) {
                 onValueChanged {

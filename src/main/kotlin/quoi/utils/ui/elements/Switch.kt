@@ -23,7 +23,7 @@ import kotlin.setValue
 inline fun ElementScope<*>.switch(
     ref: KMutableProperty0<Boolean>,
     size: Constraint.Size = 16.px,
-    colour: Colour = theme.accent,
+    colour: Colour = theme.primary,
     pos: Positions = at(),
     crossinline onToggle: () -> Unit = {},
 ): ElementScope<*> {
@@ -31,13 +31,18 @@ inline fun ElementScope<*>.switch(
     var value by ref
 
     val trackCol = Colour.Animated(
-        from = theme.panel,
-        to = colour { colour.rgb.multiply(1.15f) },
+        from = theme.surfaceContainerHighest,
+        to = colour,
+        swapIf = value
+    )
+    val outlineCol = Colour.Animated(
+        from = theme.outline,
+        to = colour,
         swapIf = value
     )
     val handleCol = Colour.Animated(
-        from = colour,
-        to = colour { colour.rgb.multiply(0.5f) },
+        from = theme.outline,
+        to = theme.onPrimary,
         swapIf = value
     )
     val handlePos = Animatable(
@@ -56,8 +61,9 @@ inline fun ElementScope<*>.switch(
         colour = trackCol,
         (size.pixels / 2f).radius()
     ) {
-        outline(colour, thickness = (size * 0.0625.px).coerceAtLeast(2.px))
-        hoverEffect(factor = 1.15f)
+        outline(outlineCol, thickness = (size * 0.0625.px).coerceAtLeast(2.px))
+//        hoverEffect(factor = 1.15f)
+        tonalHover()
         cursor(CursorShape.HAND)
 
         block(
@@ -72,6 +78,7 @@ inline fun ElementScope<*>.switch(
             onToggle()
             value = !value
             trackCol.animate(0.35.seconds, Animation.Style.EaseInOutQuint)
+            outlineCol.animate(0.35.seconds, Animation.Style.EaseInOutQuint)
             handleCol.animate(0.35.seconds, Animation.Style.EaseInOutQuint)
             handlePos.animate(0.35.seconds, Animation.Style.EaseInOutQuint)
             handleSize.animate(0.35.seconds, Animation.Style.EaseInOutQuint)

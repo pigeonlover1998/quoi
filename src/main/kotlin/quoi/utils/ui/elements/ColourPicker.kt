@@ -124,14 +124,14 @@ fun ElementScope<*>.colourPicker(
                 divider(14.px)
                 text(
                     string = "Colour Picker",
-                    colour = theme.textPrimary,
+                    colour = theme.onSurface,
                     size = 40.percent,
                     pos = at(y = Centre - thickness / 2.px)
                 )
 
                 text(
                     string = "×",
-                    colour = theme.textPrimary,
+                    colour = theme.onSurface,
                     size = 22.5.px,
                     pos = at(x = 14.px.alignOpposite, y = Centre - thickness / 2.px)
                 ) {
@@ -174,7 +174,8 @@ fun ElementScope<*>.colourPicker(
                     divider(7.px)
                     image(
                         image = theme.pickerImage,
-                        constrain(y = Centre, w = 22.5.px, h = 22.5.px),
+                        colour = theme.onSurfaceVariant,
+                        constraints = constrain(y = Centre, w = 22.5.px, h = 22.5.px),
                     )
                     divider(11.px)
 
@@ -183,7 +184,7 @@ fun ElementScope<*>.colourPicker(
                         image(
                             image = "HueScale.png".image(),
                             constraints = size(w.px, 18.px),
-                            8.radius()
+                            radius = 8.radius()
                         ) {
                             cursor(CursorShape.HAND)
 
@@ -200,7 +201,7 @@ fun ElementScope<*>.colourPicker(
                         if (allowAlpha) image(
                             "checker-225.svg".image(),
                             constraints = size(w.px, 18.px),
-                            8.radius()
+                            radius = 8.radius()
                         ) {
                             block(
                                 copies(),
@@ -246,8 +247,8 @@ fun ElementScope<*>.colourPicker(
                             w: Constraint.Size,
                             rad: Radii = 0.radius(),
                             block: ElementScope<Block>.() -> ElementScope<*>
-                        ) = block(size(w, Fill), theme.background, rad) {
-                            outline(theme.border, thickness = 2.px)
+                        ) = block(size(w, Fill), theme.surfaceContainer, rad) {
+                            outline(theme.outlineVariant, thickness = 2.px)
                             val scope = block()
 
                             if (scope.element is TextInput) {
@@ -259,17 +260,17 @@ fun ElementScope<*>.colourPicker(
 
                         block(
                             size(w = 25.percent, h = Fill),
-                            colour = theme.background,
+                            colour = theme.surfaceContainer,
                             radius = radius(tl = 6, bl = 6)
                         ) {
-                            outline(theme.border, thickness = 2.px)
+                            outline(theme.outlineVariant, thickness = 2.px)
                             cursor(CursorShape.HAND)
 
                             var popup: Popup? = null
 
                             val text = text(
                                 string = entries[selected],
-                                colour = theme.textPrimary,
+                                colour = theme.onSurface,
                                 pos = at(Centre, Centre)
                             )
 
@@ -319,7 +320,7 @@ fun ElementScope<*>.colourPicker(
                                     cell(centreWidth / 3.px, if (isLast) endRadius else 0.radius()) {
                                         @Suppress("UNCHECKED_CAST")
                                         numberInput(
-                                            prop as KMutableProperty0<Number>,
+                                            prop as KMutableProperty0<Int>,
                                             unit = unit,
                                             min = if (isHSB) null else 0,
                                             max = if (isHSB) null else 255,
