@@ -179,6 +179,7 @@ fun ElementScope<*>.themedInput(
     pos: Positions = at(),
     size: Sizes = size(w = Fill, h = 25.px),
     radius: Radii = 5.radius(),
+    colour: Colour = theme.surfaceContainerHighest,
     content: ElementScope<*>.() -> ElementScope<TextInput>
 ): ElementScope<TextInput> {
     val thickness = Animatable(2.px, 3.px)
@@ -192,7 +193,7 @@ fun ElementScope<*>.themedInput(
 
     block(
         constrain(x = pos.x, y = pos.y, w = size.width, h = size.height),
-        colour = theme.surfaceContainerHighest,
+        colour = colour,
         radius = radius
     ) {
         outline(outlineCol, thickness = thickness)

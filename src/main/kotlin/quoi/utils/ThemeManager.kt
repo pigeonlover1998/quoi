@@ -4,7 +4,6 @@ import quoi.api.abobaui.constraints.impl.measurements.Pixel
 import quoi.api.abobaui.dsl.px
 import quoi.api.colour.Colour
 import quoi.api.colour.colour
-import quoi.api.colour.copy
 import quoi.api.colour.toHSB
 import quoi.module.impl.render.ClickGui.seedColour
 import quoi.module.impl.render.ClickGui.selectedTheme
@@ -24,7 +23,7 @@ object ThemeManager {
             var cache: Int = -1
 
             return colour {
-                val seed = seedColour.copy().rgb
+                val seed = seedColour.rgb
 
                 if (seed != lastSeed) {
                     val cam = Cam16.fromInt(seed)
@@ -50,7 +49,8 @@ object ThemeManager {
 
     val theme get() = when(selectedTheme.selected) {
         "Dark" -> DarkTheme
-        else -> LightTheme
+        "Light" -> LightTheme
+        else -> OnyxTheme
     }
 
     val DarkTheme = Theme(
@@ -129,6 +129,46 @@ object ThemeManager {
 
         outline = neutralVariantPalette.tone(50),
         outlineVariant = neutralVariantPalette.tone(80)
+    )
+
+    val OnyxTheme = Theme(
+        name = "Onyx",
+
+        primary = primaryPalette.tone(80),
+        onPrimary = primaryPalette.tone(20),
+        primaryContainer = primaryPalette.tone(30),
+        onPrimaryContainer = primaryPalette.tone(90),
+
+        secondary = secondaryPalette.tone(80),
+        onSecondary = secondaryPalette.tone(20),
+        secondaryContainer = secondaryPalette.tone(30),
+        onSecondaryContainer = secondaryPalette.tone(90),
+
+        tertiary = tertiaryPalette.tone(80),
+        onTertiary = tertiaryPalette.tone(20),
+        tertiaryContainer = tertiaryPalette.tone(30),
+        onTertiaryContainer = tertiaryPalette.tone(90),
+
+        error = errorPalette.tone(80),
+        onError = errorPalette.tone(20),
+        errorContainer = errorPalette.tone(30),
+        onErrorContainer = errorPalette.tone(90),
+
+        background = neutralPalette.tone(0),
+        onBackground = neutralPalette.tone(90),
+
+        surface = neutralPalette.tone(0),
+        surfaceContainerLow = neutralPalette.tone(2),
+        surfaceContainer = neutralPalette.tone(4),
+        surfaceContainerHigh = neutralPalette.tone(6),
+        surfaceContainerHighest = neutralPalette.tone(10),
+
+        onSurface = neutralPalette.tone(90),
+        surfaceVariant = neutralVariantPalette.tone(30),
+        onSurfaceVariant = neutralVariantPalette.tone(80),
+
+        outline = neutralVariantPalette.tone(60),
+        outlineVariant = neutralVariantPalette.tone(30)
     )
 
     data class Theme(

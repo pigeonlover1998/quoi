@@ -13,7 +13,7 @@ import quoi.annotations.Init
 import kotlin.math.sqrt
 
 @Init
-object EntityUtils {
+object EntityUtils { // todo refactor
     var entities = emptyList<Entity>()
         private set
     var playerEntities = emptyList<Player>()

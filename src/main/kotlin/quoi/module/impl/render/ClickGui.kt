@@ -69,7 +69,7 @@ object ClickGui : Module(
         if (forceDungeons) Dungeon.setFloor(new.selected)
     }
 
-    val selectedTheme by selector("Theme", "Light", arrayListOf("Light", "Dark")).onValueChanged { _, _ ->
+    val selectedTheme by selector("Theme", "Light", arrayListOf("Light", "Dark", "Onyx")).onValueChanged { _, _ ->
         reopen()
     }.open()
 
@@ -174,7 +174,7 @@ object ClickGui : Module(
                 val height = Animatable(from = Bounding, to = 0.px, swapIf = !data.extended)
                 block(
                     size(260.px, (MODULE_SIZE + 5).px),
-                    colour = theme.surfaceContainerLow,
+                    colour = theme.surface,
                     radius(tl = 6, tr = 6)
                 ) {
                     text(
@@ -209,7 +209,7 @@ object ClickGui : Module(
 
                 block(
                     size(260.px, 10.px),
-                    colour = theme.surfaceContainerLow,
+                    colour = theme.surface,
                     radius(bl = 6, br = 6)
                 )
 
@@ -236,7 +236,7 @@ object ClickGui : Module(
                 ).forEach { (text, block) ->
                     block(
                         size(w = 135.px, h = 40.px),
-                        colour = theme.surfaceContainerHighest,
+                        colour = theme.surface,
                         radius = 10.radius()
                     ) {
                         outline(theme.primary, thickness = 2.px)
@@ -255,6 +255,7 @@ object ClickGui : Module(
 
             themedInput(
                 size = size(Copying, 40.px),
+                colour = theme.surface,
                 radius = 10.radius()
             ) {
                 textInput(
@@ -282,7 +283,7 @@ object ClickGui : Module(
         lateinit var settings: ElementScope<Column>
 
         val col = Colour.Animated(
-            from = theme.surfaceContainerLow,
+            from = theme.surface,
             to = theme.primaryContainer,
             swapIf = module.enabled
         )

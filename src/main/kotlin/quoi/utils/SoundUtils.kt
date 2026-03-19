@@ -29,7 +29,7 @@ object SoundUtils {
         play(sound, volume, pitch)
     }
 
-    enum class SoundSetting(val sound: SoundEvent) { // todo move idk
+    enum class SoundSetting(val sound: SoundEvent) {
         BlazeHurt(SoundEvents.BLAZE_HURT),
         Pling(SoundEvents.NOTE_BLOCK_PLING.value()),
         OrbPickup(SoundEvents.EXPERIENCE_ORB_PICKUP),
