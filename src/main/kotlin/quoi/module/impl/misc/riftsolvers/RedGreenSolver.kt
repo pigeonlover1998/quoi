@@ -19,12 +19,11 @@ import quoi.utils.getEtherwarpDirection
 import quoi.utils.render.drawFilledBox
 import quoi.utils.skyblock.player.AuraManager
 import quoi.utils.skyblock.player.PlayerUtils.at
-import quoi.utils.skyblock.player.PlayerUtils.rightClick
 import quoi.utils.skyblock.player.PlayerUtils.rotate
 import quoi.utils.skyblock.player.PlayerUtils.stop
 import quoi.utils.vec3
 
-object GreenRedSolver {
+object RedGreenSolver {
     private var isActive = false
     private var currentRoom: Room? = null
     private var currentStep = 0

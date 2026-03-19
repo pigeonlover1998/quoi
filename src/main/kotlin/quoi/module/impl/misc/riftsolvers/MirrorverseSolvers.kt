@@ -18,9 +18,9 @@ object MirrorverseSolvers : Module(
     private val craftMobs by switch("Show mobs").childOf(::craftRoom)
     private val craftRecipe by switch("Show recipes").childOf(::craftRoom)
 
-    private val greenRed by switch("Green red")
-    private val greenAction by slider("Action delay", 3, 2, 5, 1, unit = "t").childOf(::greenRed)
-    private val greenInteract by slider("Interact delay", 0, 0, 5, 1, unit = "t").childOf(::greenRed)
+    private val redGreen by switch("Red green")
+    private val rgAction by slider("Action delay", 3, 2, 5, 1, unit = "t").childOf(::redGreen)
+    private val rgInteract by slider("Interact delay", 0, 0, 5, 1, unit = "t").childOf(::redGreen)
 
     private val tinyDancer by switch("Tiny dancer")
     private val tinyJump by slider("Jump delay", 2, 0, 20, 1, unit = "t").json("Tiny jump delay").childOf(::tinyDancer)
@@ -34,14 +34,14 @@ object MirrorverseSolvers : Module(
             if (lavaMaze)   LavaMazeSolver.onTick(player)
             if (parkour)    ParkourSolver.onTick(player)
             if (tubulator)  TubulatorSolver.onTick(player)
-            if (greenRed)   GreenRedSolver.onTick(player, greenAction, greenInteract)
+            if (redGreen)   RedGreenSolver.onTick(player, rgAction, rgInteract)
         }
 
         on<PacketEvent.Received> {
             when (packet) {
                 is ClientboundSoundPacket -> {
                     if (tinyDancer) TinyDancerSolver.onSound(packet)
-                    if (greenRed)   GreenRedSolver.onSound(packet)
+                    if (redGreen)   RedGreenSolver.onSound(packet)
                 }
                 is ClientboundSetSubtitleTextPacket -> if (tinyDancer) TinyDancerSolver.onSubTitle(packet)
             }
@@ -52,7 +52,7 @@ object MirrorverseSolvers : Module(
             if (lavaMaze)   LavaMazeSolver.onScreen()
             if (parkour)    ParkourSolver.onScreen()
             if (tubulator)  TubulatorSolver.onScreen()
-            if (greenRed)   GreenRedSolver.onScreen()
+            if (redGreen)   RedGreenSolver.onScreen()
         }
 
         on<GuiEvent.DrawTooltip> {
@@ -68,7 +68,7 @@ object MirrorverseSolvers : Module(
             if (lavaMaze)  LavaMazeSolver.onRenderWorld(ctx)
             if (parkour)   ParkourSolver.onRenderWorld(ctx)
             if (tubulator) TubulatorSolver.onRenderWorld(ctx)
-            if (greenRed)  GreenRedSolver.onRenderWorld(ctx)
+            if (redGreen)  RedGreenSolver.onRenderWorld(ctx)
             if (craftRoom && craftMobs) CraftRoomSolver.onRenderWorld(ctx, player)
         }
 
@@ -78,7 +78,7 @@ object MirrorverseSolvers : Module(
                 { lavaMaze && LavaMazeSolver.onMouse() },
                 { parkour && ParkourSolver.onMouse() },
                 { tubulator && TubulatorSolver.onMouse() },
-                { greenRed && GreenRedSolver.onMouse() }
+                { redGreen && RedGreenSolver.onMouse() }
             )
 
             if (checks.any { it() }) cancel()
