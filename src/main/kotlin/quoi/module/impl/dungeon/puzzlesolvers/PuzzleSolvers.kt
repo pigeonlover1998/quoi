@@ -148,7 +148,7 @@ object PuzzleSolvers : Module(
             if (quizAuto)    QuizSolver.onTick(player)
             if (weirdosAuto) WeirdosSolver.onTick(player)
             if (wbAuto)      WaterSolver.onTick(player)
-            if (pathSolver || pathAuto) IcePathSolver.onTick(player, level, pathAuto, shootCd, missCd)
+            if (pathSolver || pathAuto) IcePathSolver.onTick(player, pathAuto, shootCd, missCd)
             if (tttSolver || tttAuto)   TicTacToeSolver.onTick(player, level, tttPrediction, tttAuto)
         }
 

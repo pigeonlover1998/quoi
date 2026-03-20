@@ -54,6 +54,14 @@ fun Vec3.addVec(x: Number = 0.0, y: Number = 0.0, z: Number = 0.0): Vec3 =
     Vec3(this.x + x.toDouble(), this.y + y.toDouble(), this.z + z.toDouble())
 
 inline val Vec3.aabb: AABB get() = AABB(x, y, z, x + 1.0, y + 1.0, z + 1.0)
+fun Vec3.aabb(radius: Double = 0.0) = AABB(
+    x - radius,
+    y - radius,
+    z - radius,
+    x + radius,
+    y + radius,
+    z + radius
+)
 inline val Vec3.blockPos: BlockPos get() = BlockPos.containing(this)
 
 inline val BlockPos.aabb: AABB get() = AABB(this)

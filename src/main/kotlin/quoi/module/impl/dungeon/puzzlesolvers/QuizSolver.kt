@@ -10,7 +10,7 @@ import quoi.QuoiMod.logger
 import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
-import quoi.utils.EntityUtils
+import quoi.utils.EntityUtils.getEntities
 import quoi.utils.StringUtils.startsWithOneOf
 import quoi.utils.aabb
 import quoi.utils.render.drawFilledBox
@@ -92,10 +92,10 @@ object QuizSolver {
     fun onTick(player: LocalPlayer) {
         if (Dungeon.currentRoom?.name != "Quiz") return
         if (System.currentTimeMillis() - lastClick < 500L) return
-        if (EntityUtils.entities.none { it is ArmorStand && it.name.string.contains("ⓒ") }) return
+        if (getEntities<ArmorStand>(20.0) { it.name.string.contains("ⓒ") }.isEmpty()) return
 
         val answerPos = triviaOptions.firstOrNull { it.isCorrect }?.blockPos ?: return
-        if (player.eyePosition.distanceToSqr(answerPos.vec3) > 30) return
+        if (player.eyePosition.distanceToSqr(answerPos.vec3) > 36) return
 
         AuraManager.auraBlock(answerPos)
         lastClick = System.currentTimeMillis()

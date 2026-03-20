@@ -1,7 +1,6 @@
 package quoi.module.impl.dungeon.puzzlesolvers
 
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
-import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -47,14 +46,14 @@ object IcePathSolver { // todo add pre fire maybe
         reset()
     }
 
-    fun onTick(player: LocalPlayer, level: ClientLevel, auto: Boolean, shootCd: Long, missCd: Long) {
+    fun onTick(player: LocalPlayer, auto: Boolean, shootCd: Long, missCd: Long) {
         val room = Dungeon.currentRoom ?: return
         if (room.name != "Ice Path") return
 
         val boardChanged = updateBoard(room)
 
         val searchBox = AABB.ofSize(Vec3.atCenterOf(room.getRealCoords(BlockPos(15, 66, 16))), 16.0, 16.0, 16.0)
-        val silverfish = level.getEntitiesOfClass(Silverfish::class.java, searchBox).firstOrNull() ?: return
+        val silverfish = EntityUtils.getEntities<Silverfish>(searchBox).firstOrNull() ?: return
 
         val pos = silverfish.position()
         if (pos.distanceToSqr(lastPos) > 0.0001) {

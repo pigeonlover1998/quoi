@@ -14,6 +14,7 @@ import quoi.api.skyblock.dungeon.Dungeon.inP3
 import quoi.api.skyblock.dungeon.Dungeon.isDead
 import quoi.api.skyblock.invoke
 import quoi.module.Module
+import quoi.utils.EntityUtils
 
 // Kyleen
 object AutoAlign : Module(
@@ -119,7 +120,8 @@ object AutoAlign : Module(
 
     private fun getCurrentFrames(): List<CachedFrame?> {
         val scanBox = AABB(deviceCorner).expandTowards(5.0, 5.0, 5.0).inflate(1.0)
-        val entities = level.getEntitiesOfClass(ItemFrame::class.java, scanBox) {
+
+        val entities = EntityUtils.getEntities<ItemFrame>(scanBox) {
             it.item.item == Items.ARROW
         }
 

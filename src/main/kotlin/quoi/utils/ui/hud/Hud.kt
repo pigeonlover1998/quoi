@@ -90,6 +90,8 @@ open class Hud( // todo fix children shit
         override var enabled: Boolean = true
             get() = field && (this@Hud.module.enabled || this@Hud.module.alwaysActive) && (this@Hud.enabled || !this@Hud.toggleable)
 
+        override var usingCtx: Boolean = true
+
         var scaleTransformation by Scale(this@Hud.scale.value, centered = false).also {
             addTransform(it)
         }

@@ -25,7 +25,7 @@ object NameTags : Module(
     "Name Tags",
     desc = "Customisable nametags for entities."
 ) {
-    private val customTag by switch("Toggle").json("Custom nametags toggle")
+    private val customTag by switch("Custom nametag").json("Custom nametags toggle")
     private val dungeonsOnly by switch("Dungeons only").childOf(::customTag)
     private val simpleTag by switch("Simple tag").childOf(::customTag)
     private val customTagBgColour by colourPicker("Background colour", Colour.RGB(0, 0, 0, 0.33f), allowAlpha = true).json("Custom tag background colour").childOf(::customTag)
@@ -55,7 +55,7 @@ object NameTags : Module(
                     }
                 } ?: return@forEach
                 val dist = pos.distanceToSqr(entity.renderX, entity.renderY, entity.renderZ)
-                if (distanceText) {
+                if (distanceText) { // fixme
                     (name as MutableComponent)
                         .append(literal(" ${entity.distanceToCamera.toFixed(1)}")
                             .withColor((if (customCol) distanceColour else entity.colourFromDistance).rgb)
@@ -68,7 +68,7 @@ object NameTags : Module(
         }
     }
 
-    private val Component.simple: Component
+    private val Component.simple: Component // fixme
         get() = Regex("\\[\\d+]\\s+(\\S+)").find(string)?.groupValues?.get(1)?.let { name -> // "[145] aboba ♲" "[67] aloba"
         literal(name)
             .withStyle { it.withColor(style.color) }

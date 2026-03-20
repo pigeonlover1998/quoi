@@ -10,7 +10,8 @@ import quoi.QuoiMod.mc
 import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
-import quoi.utils.EntityUtils
+import quoi.utils.ChatUtils.modMessage
+import quoi.utils.EntityUtils.getEntities
 import quoi.utils.SoundUtils
 import quoi.utils.render.drawStyledBox
 import quoi.utils.skyblock.player.AuraAction
@@ -62,9 +63,10 @@ object WeirdosSolver {
         val currentTime = System.currentTimeMillis()
 
         if (clickedNPCs.size < 3) {
-            EntityUtils.entities.any { entity ->
-                if (entity !is ArmorStand || !entity.name.string.contains("CLICK")) return@any false
-                if (entity.id in clickedNPCs || entity.distanceToSqr(player) > 30 || currentTime - lastClick < 150L) return@any false
+            getEntities<ArmorStand>(10.0).any { entity ->
+                if (!entity.name.string.contains("CLICK")) return@any false
+                if (entity.id in clickedNPCs || entity.distanceToSqr(player) > 30 || currentTime - lastClick < 200L) return@any false
+                modMessage(entity.name)
 
                 AuraManager.auraEntity(entity, AuraAction.INTERACT_AT)
                 clickedNPCs.add(entity.id)

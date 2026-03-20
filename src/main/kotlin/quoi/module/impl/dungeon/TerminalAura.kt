@@ -9,6 +9,7 @@ import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.invoke
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
+import quoi.utils.EntityUtils
 import quoi.utils.skyblock.player.LeapManager
 
 // Kyleen
@@ -39,7 +40,7 @@ object TerminalAura : Module(
 
             if (groundOnly && !player.onGround()) return@on
 
-            val entities = level.getEntitiesOfClass(ArmorStand::class.java, player.boundingBox.inflate(auraDistance))
+            val entities = EntityUtils.getEntities<ArmorStand>(player.boundingBox.inflate(auraDistance))
 
             for (entity in entities) {
                 val name = entity.displayName?.string ?: continue

@@ -3,7 +3,6 @@ package quoi.annotations
 import io.github.classgraph.ClassGraph
 import quoi.QuoiMod.logger
 
-
 object AnnotationLoader {
     fun load() {
         ClassGraph()

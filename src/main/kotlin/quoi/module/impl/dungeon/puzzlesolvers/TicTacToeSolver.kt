@@ -63,7 +63,7 @@ object TicTacToeSolver {
         }
 
         val searchBox = AABB.ofSize(Vec3.atCenterOf(room.getRealCoords(BlockPos(8, 71, 16))), 12.0, 12.0, 12.0)
-        val frames = level.getEntitiesOfClass(ItemFrame::class.java, searchBox) { it.item.item is MapItem && it.item.has(DataComponents.MAP_ID) }
+        val frames = EntityUtils.getEntities<ItemFrame>(searchBox) { it.item.item is MapItem && it.item.has(DataComponents.MAP_ID) }
 
         val board = CharArray(9) { EMPTY }
         var validFrames = 0

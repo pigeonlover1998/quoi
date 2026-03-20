@@ -54,8 +54,8 @@ object BlazeSolver { // todo maybe improve terminator shit some day
         if (!Dungeon.inDungeons || Dungeon.currentRoom?.name?.equalsOneOf("Lower Blaze", "Higher Blaze") == false) return
         val hpMap = mutableMapOf<ArmorStand, Int>()
         blazes.clear()
-        EntityUtils.entities.forEach { entity ->
-            if (entity !is ArmorStand || entity in blazes) return@forEach
+        EntityUtils.getEntities<ArmorStand>().forEach { entity ->
+            if (entity in blazes) return@forEach
             val hp = blazeHealthRegex.find(entity.name.string)?.groups?.get(1)?.value?.replace(",", "")?.toIntOrNull() ?: return@forEach
             hpMap[entity] = hp
             blazes.add(entity)

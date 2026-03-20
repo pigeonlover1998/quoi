@@ -23,6 +23,7 @@ import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.ChatUtils.command
 import quoi.utils.ChatUtils.modMessage
+import quoi.utils.EntityUtils
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.render.drawFilledBox
 import quoi.utils.skyblock.player.LeapManager
@@ -174,7 +175,7 @@ object AutoSS : Module(
             if (forceDevice) {
                 device = true
             } else {
-                val stands = level.getEntitiesOfClass(ArmorStand::class.java, AABB(108.0, 120.0, 90.0, 115.0, 125.0, 95.0)) {
+                val stands = EntityUtils.getEntities<ArmorStand>(AABB(108.0, 120.0, 90.0, 115.0, 125.0, 95.0)) {
                     it.distanceTo(player) < 6 && it.displayName?.string?.contains("Device") == true
                 }
                 if (stands.isNotEmpty()) device = true

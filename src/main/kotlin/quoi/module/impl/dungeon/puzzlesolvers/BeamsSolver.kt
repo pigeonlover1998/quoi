@@ -195,7 +195,9 @@ object BeamsSolver {
         if (!player.mainHandItem.isShortbow) return
         if (currentTime - lastShotTime < shootCd) return
 
-        val dir = getArrowDirection(lantern) ?: return
+//        val dir = getArrowDirection(lantern) ?: return
+        val dir = getEtherwarpDirection(lantern) ?:
+        getDirection(lanternVec)
         player.useItem(dir)
 
         lastShotTime = currentTime

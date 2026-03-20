@@ -28,7 +28,7 @@ abstract class Element(
 
     inline val ctx get() = ui.ctx
 
-    var usingCtx = false
+    open var usingCtx = false
 
     var parent: Element? = null
 

@@ -15,7 +15,7 @@ import quoi.QuoiMod.mc
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
 import quoi.utils.EntityUtils
-import quoi.utils.EntityUtils.renderPos
+import quoi.utils.EntityUtils.interpolatedBox
 import quoi.utils.aabb
 import quoi.utils.render.DrawContextUtils.rect
 import quoi.utils.render.drawFilledBox
@@ -35,12 +35,10 @@ object CraftRoomSolver {
         if (player.z > -100.0 || player.z < -140.0) return
 
         ctx.drawWireFrameBox(BlockPos(-113, 52, -115).aabb, Colour.BROWN, depth = true)
+        
+        val entities = EntityUtils.getEntities<LivingEntity>(craftRoomArea) { !it.isDeadOrDying && it != player }
 
-        EntityUtils.entities.forEach { entity ->
-            if (entity !is LivingEntity || entity == player || entity.isDeadOrDying) return@forEach
-
-            if (entity.z > WALL_Z || !craftRoomArea.contains(entity.position())) return@forEach
-
+        entities.forEach { entity ->
             val colour = when (entity) {
                 is Zombie -> Colour.BROWN
                 is Slime -> Colour.GREEN
@@ -48,16 +46,7 @@ object CraftRoomSolver {
                 else -> return@forEach
             }
 
-            val r = entity.renderPos
-            val hw = entity.bbWidth / 2.0
-            val h = entity.bbHeight
-
-            val box = AABB(
-                r.x - hw, r.y, r.z - hw,
-                r.x + hw, r.y + h, r.z + hw
-            )
-
-            val mirroredBox = mirrorBox(box)
+            val mirroredBox = mirrorBox(entity.interpolatedBox)
 
             ctx.drawFilledBox(mirroredBox, colour.withAlpha(0.5f))
         }

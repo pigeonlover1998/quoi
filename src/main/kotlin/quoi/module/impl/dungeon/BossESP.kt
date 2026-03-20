@@ -11,7 +11,7 @@ import quoi.api.skyblock.Island
 import quoi.api.skyblock.invoke
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.visibleIf
-import quoi.utils.EntityUtils.entities
+import quoi.utils.EntityUtils.getEntities
 import quoi.utils.EntityUtils.interpolatedBox
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.equalsOneOf
@@ -35,11 +35,12 @@ object BossESP : Module( // todo move to dungeon esp
     init {
         on<RenderEvent.World> {
             if (!showWitherEsp) return@on
-            entities.forEach { entity ->
-                if (!entity.isWitherBoss) return@forEach
-                val aabb = entity.interpolatedBox.inflate(sizeOffset, 0.0, sizeOffset)
-                ctx.drawStyledBox(style.selected, aabb, colour, fillColour, thickness.toFloat(), depth)
-            }
+            getEntities<WitherBoss>()
+                .filter { !it.isInvisible && it.invulnerableTicks != 800 }
+                .forEach { entity ->
+                    val aabb = entity.interpolatedBox.inflate(sizeOffset, 0.0, sizeOffset)
+                    ctx.drawStyledBox(style.selected, aabb, colour, fillColour, thickness.toFloat(), depth)
+                }
         }
 
         on<EntityEvent.ForceGlow> {
