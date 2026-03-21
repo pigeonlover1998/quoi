@@ -11,6 +11,7 @@ import net.minecraft.client.player.LocalPlayer
 import net.minecraft.resources.ResourceLocation
 import quoi.api.events.DungeonEvent
 import quoi.api.events.core.EventBus
+import quoi.utils.ChatUtils.modMessage
 import java.util.*
 
 /**
@@ -249,15 +250,15 @@ enum class P3Section(val number: Int, val reqTerminals: Int) {
                 }
             }
 
-            if (current == total) DungeonEvent.SectionComplete(this).post()
+            if (current == total && total > 0) DungeonEvent.SectionComplete(this).post()
         }
 
         if (gateRegex.matches(msg)) {
             _gate = true
-            if (current == total) DungeonEvent.SectionComplete.Full(this).post() // idkman
+            if (current == total && total > 0) DungeonEvent.SectionComplete.Full(this).post() // idkman
         }
 
-        return if (current == total && gate) {
+        return if (current == total && gate && total > 0) {
             endTime = System.currentTimeMillis()
             endTicks = EventBus.totalTicks
 
