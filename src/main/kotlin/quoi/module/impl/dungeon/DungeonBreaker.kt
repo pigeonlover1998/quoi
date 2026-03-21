@@ -26,7 +26,7 @@ import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.StringUtils.width
-import quoi.utils.render.DrawContextUtils.drawString
+import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.render.drawFilledBox
 import quoi.utils.skyblock.ItemUtils.lore
 import quoi.utils.skyblock.ItemUtils.skyblockId
@@ -84,7 +84,8 @@ object DungeonBreaker : Module(
             string = "Charges:",
             supplier = { mc.player?.let { getBreakerCharges(it.mainHandItem) } ?: 0 },
             labelColour = colour,
-            shadow = shadow
+            shadow = shadow,
+            font = font
         )
     }.setting()
 
@@ -259,7 +260,7 @@ object DungeonBreaker : Module(
             if (!editMode) return@on
             val x = (mc.window.guiScaledWidth - "DB Edit Mode".width()) / 2f
             val y = (mc.window.guiScaledHeight + 40) / 2f
-            ctx.drawString("DB Edit Mode", x, y)
+            ctx.drawText("DB Edit Mode", x, y)
         }
 
     }

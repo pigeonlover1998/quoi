@@ -13,7 +13,6 @@ import net.minecraft.client.gui.render.pip.PictureInPictureRenderer
 import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState
 import net.minecraft.client.renderer.MultiBufferSource
 import org.joml.Matrix3x2f
-import org.lwjgl.opengl.GL13
 
 /**
  * from OdinFabric (BSD 3-Clause)
@@ -23,11 +22,7 @@ import org.lwjgl.opengl.GL13
 class NVGSpecialRenderer(vertexConsumers: MultiBufferSource.BufferSource)
     : PictureInPictureRenderer<NVGSpecialRenderer.NVGRenderState>(vertexConsumers) {
 
-    private var lastState: NVGRenderState? = null
-
     override fun renderToTexture(state: NVGRenderState, poseStack: PoseStack) {
-        lastState = state
-
         val colorTex = RenderSystem.outputColorTextureOverride
 
         val bufferManager = (RenderSystem.getDevice() as? GlDevice)?.directStateAccess() ?: return
@@ -41,12 +36,11 @@ class NVGSpecialRenderer(vertexConsumers: MultiBufferSource.BufferSource)
         NVGRenderer.beginFrame(mc.window.width.toFloat(), mc.window.height.toFloat())
         state.renderContent()
         NVGRenderer.endFrame()
+
         GlStateManager._disableDepthTest()
+        GlStateManager._disableCull()
         GlStateManager._enableBlend()
         GlStateManager._blendFuncSeparate(770, 771, 1, 0)
-        GlStateManager._activeTexture(GL13.GL_TEXTURE0)
-        GlStateManager._bindTexture(0)
-        GlStateManager._glBindVertexArray(0)
     }
 
     override fun getTranslateY(height: Int, windowScaleFactor: Int): Float = height / 2f

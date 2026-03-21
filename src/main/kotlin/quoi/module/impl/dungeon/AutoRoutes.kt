@@ -36,7 +36,7 @@ import quoi.utils.StringUtils.width
 import quoi.utils.WorldUtils.state
 import quoi.utils.aabb
 import quoi.utils.render.*
-import quoi.utils.render.DrawContextUtils.drawString
+import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.scaledHeight
 import quoi.utils.scaledWidth
 import quoi.utils.skyblock.player.PlayerUtils.pitch
@@ -259,7 +259,7 @@ object AutoRoutes : Module(
             lines.forEachIndexed { i, string ->
                 val x = (scaledWidth - string.noControlCodes.width()) / 2f
                 val y = scaledHeight / 2f + 10 + i * 10
-                ctx.drawString(string, x, y)
+                ctx.drawText(string, x, y)
             }
         }
 

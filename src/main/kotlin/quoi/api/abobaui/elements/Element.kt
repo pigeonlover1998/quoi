@@ -92,11 +92,17 @@ abstract class Element(
             clip()
         }
         if (renders) {
-            if (usingCtx) ctx.pose().pushMatrix()
-            NVGRenderer.push()
+            if (!ui.nvgPass) {
+                if (usingCtx) ctx.pose().pushMatrix()
+            } else {
+                NVGRenderer.push()
+            }
             if (scissors) {
-                ctx.pushScissor(x.toInt(), y.toInt(), width.toInt(), height.toInt())
-                NVGRenderer.pushScissor(x, y, width, height)
+                if (!ui.nvgPass) {
+                    ctx.pushScissor(x.toInt(), y.toInt(), width.toInt(), height.toInt())
+                } else {
+                    NVGRenderer.pushScissor(x, y, width, height)
+                }
             }
 
             shadows?.forEach { it.render() }
@@ -105,7 +111,7 @@ abstract class Element(
                 it.apply(element = this)
             }
             draw()
-            if (ui.debug) {
+            if (ui.nvgPass && ui.debug) {
                 val col = when(this) {
                     is Column -> Colour.CYAN
                     is Grid -> Colour.ORANGE
@@ -121,11 +127,17 @@ abstract class Element(
             }
             children?.forEach { it.render() }
             if (scissors) {
-                ctx.disableScissor()
-                NVGRenderer.popScissor()
+                if (!ui.nvgPass) {
+                    ctx.disableScissor()
+                } else {
+                    NVGRenderer.popScissor()
+                }
             }
-            if (usingCtx) ctx.pose().popMatrix()
-            NVGRenderer.pop()
+            if (!ui.nvgPass) {
+                if (usingCtx) ctx.pose().popMatrix()
+            } else {
+                NVGRenderer.pop()
+            }
         }
     }
 

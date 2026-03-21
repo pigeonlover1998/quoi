@@ -77,7 +77,8 @@ object Splits : Module( // todo section split info hud, task (terms, levers, dev
                         supplier = { getTimeString(i) },
                         labelColour = split.colour,
                         valueColour = colour { if (colour.rgb == Colour.WHITE.rgb) split.colour.rgb else colour.rgb },
-                        shadow = shadow
+                        shadow = shadow,
+                        font = font
                     ).apply {
                         operation {
                             element.enabled = !hideNotStarted || split.time != 0L
@@ -90,7 +91,8 @@ object Splits : Module( // todo section split info hud, task (terms, levers, dev
                         supplier = { getTimeString(0, 1) },
                         labelColour = Colour.MINECRAFT_BLUE,
                         valueColour = colour { if (colour.rgb == Colour.WHITE.rgb) Colour.MINECRAFT_BLUE.rgb else colour.rgb },
-                        shadow = shadow
+                        shadow = shadow,
+                        font = font
                     )
                     if (i == 5 && p3Sections) {
                         P3Section.entries.forEach { section ->
@@ -105,7 +107,8 @@ object Splits : Module( // todo section split info hud, task (terms, levers, dev
                                 },
                                 labelColour = Colour.MINECRAFT_YELLOW,
                                 valueColour = colour { if (colour.rgb == Colour.WHITE.rgb) Colour.MINECRAFT_YELLOW.rgb else colour.rgb },
-                                shadow = shadow
+                                shadow = shadow,
+                                font = font
                             ).apply {
                                 operation {
                                     val terms = preview || splits.getOrNull(5)?.time != 0L
@@ -122,7 +125,8 @@ object Splits : Module( // todo section split info hud, task (terms, levers, dev
                     supplier = { getTimeString(0, 2) },
                     labelColour = Colour.MINECRAFT_BLUE,
                     valueColour = colour { if (colour.rgb == Colour.WHITE.rgb) Colour.MINECRAFT_BLUE.rgb else colour.rgb },
-                    shadow = shadow
+                    shadow = shadow,
+                    font = font
                 ).apply {
                     operation {
                         element.enabled = !hideNotStarted || splits.getOrNull(3)?.time != 0L

@@ -26,7 +26,7 @@ class ButtonComponent(
 
     override fun ElementScope<*>.draw(asSub: Boolean): ElementScope<*> =
         block(
-            size(w = Copying, h = 25.px),
+            size(w = Copying, h = if (asSub) 22.px else 25.px),
             colour = theme.surfaceContainerLow,
             5.radius()
         ) {
@@ -34,7 +34,7 @@ class ButtonComponent(
             val outlineCol = Colour.Animated(from = theme.outline, to = theme.primary)
             outline(outlineCol, thickness = thickness)
 //            hoverEffect(factor = 1.15f)
-            tonalHover()
+//            tonalHover()
 
             onMouseEnterExit {
                 outlineCol.animate(0.25.seconds, Animation.Style.EaseInOutQuint)

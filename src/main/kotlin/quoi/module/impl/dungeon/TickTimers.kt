@@ -28,7 +28,7 @@ object TickTimers : Module(
         textSupplied(
             supplier = { formatTime(if (preview) 15 else padTick, 20) },
             size = theme.textSize,
-            font = minecraftFont,
+            font = font,
             colour = colour
         ).shadow = shadow
     }.setting()
@@ -38,7 +38,7 @@ object TickTimers : Module(
         textSupplied(
             supplier = { if (goldorStart >= 0 && startTimer) formatTime(goldorStart, 104) else formatTime(if (preview) 40 else goldorTick, 60) },
             size = theme.textSize,
-            font = minecraftFont,
+            font = font,
             colour = colour
         ).shadow = shadow
     }.setting()

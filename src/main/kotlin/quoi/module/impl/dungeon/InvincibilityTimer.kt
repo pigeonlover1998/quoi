@@ -34,17 +34,18 @@ object InvincibilityTimer : Module(
                 row(gap = 1.px) {
                     text(
                         string = "◼",
-                        font = minecraftFont,
+                        font = font,
                         size = 18.px,
                         colour = colour { if (type.shouldDot()) colour.rgb else Colour.TRANSPARENT.rgb },
-                        pos = at(y = Centre - 2.px)
+                        pos = at(y = Centre - 2.px),
                     )
                     textPair(
                         string = "${type.displayName}:",
                         supplier = { time() },
                         labelColour = colour,
                         valueColour = col(),
-                        shadow = shadow
+                        shadow = shadow,
+                        font = font
                     )
                 }
             }

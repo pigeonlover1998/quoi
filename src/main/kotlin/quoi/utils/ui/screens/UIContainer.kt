@@ -1,5 +1,6 @@
 package quoi.utils.ui.screens
 
+import net.minecraft.client.gui.GuiGraphics
 import quoi.api.abobaui.AbobaUI
 import quoi.api.events.GuiEvent
 import quoi.api.events.PacketEvent
@@ -11,25 +12,32 @@ import quoi.utils.height
 import quoi.utils.ui.rendering.NVGSpecialRenderer
 import quoi.utils.width
 import net.minecraft.network.protocol.game.ClientboundContainerClosePacket
-import quoi.api.input.CatMouse
+import quoi.api.input.CatMouse.mx
+import quoi.api.input.CatMouse.my
 
 class UIContainer(ui: AbobaUI.Instance, val cancelling: Boolean = true) : UIHandler(ui) {
 
     constructor(ui: AbobaUI, cancelling: Boolean = true) : this(AbobaUI.Instance(ui), cancelling)
 
+    private fun render(ctx: GuiGraphics, cancel: () -> Unit) {
+        resize(width, height)
+
+        ui.ctx = ctx
+        mouseMove(mx, my)
+
+        NVGSpecialRenderer.draw(ctx, 0, 0, ctx.guiWidth(), ctx.guiHeight()) {
+            ui.render(true)
+        }
+        ui.render(false)
+        if (cancelling) cancel()
+    }
+
     override val events = listOf(
 
-        on<GuiEvent.Draw> {
-            resize(width, height)
-
-            ui.ctx = ctx
-            mouseMove(CatMouse.mx, CatMouse.my)
-
-            NVGSpecialRenderer.draw(ctx, 0, 0, ctx.guiWidth(), ctx.guiHeight()) {
-                ui.render()
-            }
-            if (cancelling) cancel()
-        },
+        if (cancelling)
+            on<GuiEvent.Draw> { render(ctx, ::cancel) }
+        else
+            on<GuiEvent.DrawTooltip> { render(ctx, ::cancel) },
 
         on<GuiEvent.Click> {
             if (state) mouseClick(button) else mouseRelease(button)

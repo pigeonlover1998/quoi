@@ -24,7 +24,7 @@ import quoi.utils.WorldUtils.worldToMap
 import quoi.utils.rad
 import quoi.utils.render.DrawContextUtils.drawImage
 import quoi.utils.render.DrawContextUtils.drawPlayerHead
-import quoi.utils.render.DrawContextUtils.drawString
+import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.render.DrawContextUtils.rect
 import quoi.utils.render.DrawContextUtils.withMatrix
 import quoi.utils.ui.hud.Hud
@@ -176,7 +176,7 @@ object CrystalHollowsMap : Module(
         withMatrix(x.mapX, z.mapZ, textScale) {
             pose().translate(0f, 10f)
 
-            drawString(name, -name.width() / 2f, 0)
+            drawText(name, -name.width() / 2f, 0)
         }
     }
 

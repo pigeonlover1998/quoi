@@ -2,6 +2,7 @@ package quoi.module.settings.impl
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
+import quoi.api.abobaui.constraints.impl.positions.Centre
 import quoi.api.abobaui.constraints.impl.size.Bounding
 import quoi.api.abobaui.constraints.impl.size.Copying
 import quoi.api.abobaui.dsl.*
@@ -72,59 +73,58 @@ class SelectorComponent<T>(
     }
 
     var popup: Popup? = null
-    override fun ElementScope<*>.draw(asSub: Boolean): ElementScope<*> = column(size(w = Copying)) {
-        row(size(w = Copying)) {
+    override fun ElementScope<*>.draw(asSub: Boolean): ElementScope<*> = group(size(w = Copying)) { // will suck with long names..
+        text(
+            string = name,
+            size = theme.textSize,
+            colour = theme.onSurfaceVariant,
+            pos = at(x = 0.px, y = Centre)
+        )
+
+        val outlineCol = Colour.Animated(
+            from = theme.outline,
+            to = theme.primary
+        )
+
+        block(
+            constrain(x = 0.px.alignOpposite, w = Bounding + 5.px, h = if (asSub) Bounding else 20.px),
+            colour = theme.surfaceContainerHighest,
+            if (asSub) 4.radius() else 5.radius()
+        ) {
+            outline(outlineCol, thickness = 2.px)
+            cursor(CursorShape.HAND)
+
             text(
-                string = name,
+                string = selectedName,
                 size = theme.textSize,
-                colour = theme.onSurfaceVariant
-            )
-
-            val outlineCol = Colour.Animated(
-                from = theme.outline,
-                to = theme.primary
-            )
-
-            block(
-                constrain(x = 0.px.alignOpposite, w = Bounding + 5.px, h = Bounding),
-                colour = theme.surfaceContainerHighest,
-                5.radius()
+                colour = theme.onSurface
             ) {
-                outline(outlineCol, thickness = 2.px)
-                cursor(CursorShape.HAND)
-
-                text(
-                    string = selectedName,
-                    size = theme.textSize,
-                    colour = theme.onSurface
-                ) {
-                    onValueChanged {
-                        string = selectedName
-                    }
+                onValueChanged {
+                    string = selectedName
                 }
+            }
 
-                onMouseEnterExit {
-                    outlineCol.animate(0.25.seconds, Animation.Style.Linear)
-                }
+            onMouseEnterExit {
+                outlineCol.animate(0.25.seconds, Animation.Style.Linear)
+            }
 
-                onClick {
-                    popup?.closePopup()
-                    val (x, y) = popupX(gap = -130f) to popupY(gap = 5f, corner = true)
-                    popup = selector(
-                        entries = options,
-                        selected = index,
-                        displayString = { nameOf(it) },
-                        pos = at(x, y)
-                    ) { new ->
-                        selected = new
-                    }
-                    true
+            onClick {
+                popup?.closePopup()
+                val (x, y) = popupX(gap = -130f) to popupY(gap = 5f, corner = true)
+                popup = selector(
+                    entries = options,
+                    selected = index,
+                    displayString = { nameOf(it) },
+                    pos = at(x, y)
+                ) { new ->
+                    selected = new
                 }
+                true
+            }
 
-                onClick(button = 1) {
-                    index++
-                    true
-                }
+            onClick(button = 1) {
+                index++
+                true
             }
         }
     }

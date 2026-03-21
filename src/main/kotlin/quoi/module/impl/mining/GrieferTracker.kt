@@ -55,7 +55,8 @@ object GrieferTracker : Module(
                     supplier = supplier,
                     labelColour = Colour.WHITE,
                     valueColour = colour,
-                    shadow = shadow
+                    shadow = shadow,
+                    font = font
                 )
             }
 
@@ -65,9 +66,9 @@ object GrieferTracker : Module(
 
             if (list.isEmpty()) text(
                 string = "No griefed players yet.",
-                font = minecraftFont,
+                font = font,
                 size = 18.px,
-                colour = Colour.MINECRAFT_GRAY
+                colour = Colour.MINECRAFT_GRAY,
             ).shadow = shadow
             if (list.isNotEmpty()) row(gap = 7.5.px) {
 

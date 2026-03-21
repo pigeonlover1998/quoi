@@ -65,12 +65,13 @@ class TextInputComponent(
     }
 
     override fun ElementScope<*>.draw(asSub: Boolean): ElementScope<*> = column(size(w = Copying), gap = 3.px) {
-        text(
+        if (!asSub) text( // idk
             string = name,
-            pos = at(0.px, 0.px),
             size = theme.textSize,
             colour = theme.onSurfaceVariant,
         )
+
+        val placeholder = if (asSub && placeholder.isEmpty()) name else placeholder
 
         suggestionInput(suggestions = suggestions) {
             themedInput(size = size(w = Copying, h = 25.px)) {

@@ -1,12 +1,18 @@
 package quoi.module.impl.misc
 
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.Blocks
+import quoi.api.abobaui.constraints.impl.positions.Centre
 import quoi.api.abobaui.dsl.*
+import quoi.api.abobaui.elements.Element
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
+import quoi.api.abobaui.elements.impl.RefreshableGroup
 import quoi.api.abobaui.elements.impl.Text.Companion.shadow
 import quoi.api.abobaui.elements.impl.Text.Companion.string
 import quoi.api.abobaui.elements.impl.TextInput.Companion.maxWidth
 import quoi.api.abobaui.elements.impl.TextInput.Companion.onTextChanged
+import quoi.api.abobaui.elements.impl.refreshableGroup
 import quoi.api.colour.*
 import quoi.api.events.GuiEvent
 import quoi.api.events.TickEvent
@@ -18,8 +24,10 @@ import quoi.utils.render.DrawContextUtils.rect
 import quoi.utils.skyblock.ItemUtils.loreString
 import quoi.utils.ui.cursor
 import quoi.utils.ui.delegateClick
+import quoi.utils.ui.hud.Hud
 import quoi.utils.ui.hud.TextHud
 import quoi.utils.ui.hud.setting
+import quoi.utils.ui.inHudEditor
 import kotlin.math.pow
 
 object Inventory : Module(
@@ -54,7 +62,6 @@ object Inventory : Module(
                 caretColour = if (bgColour.toHSB().brightness < 0.6f) Colour.WHITE else Colour.BLACK,
                 pos = at(x = 3.percent)
             ) {
-                cursor(CursorShape.IBEAM)
 
                 shadow = this@TextHud.shadow
 
@@ -77,9 +84,57 @@ object Inventory : Module(
                 }
             }
 
-            delegateClick(input)
+            if (!inHudEditor) {
+                cursor(CursorShape.IBEAM)
+                delegateClick(input)
+            }
         }
     }.container().withSettings(::bgColour, ::outlineColour, ::nameColour, ::loreColour).setting()
+
+
+//    private val playerModel by switch("Player model")
+//
+//    private val inventoryHud by Hud("Inventory") {
+//        val bgCol = Colour.RGB(139, 139, 139).withAlpha(155)
+//        val outlineCol = Colour.RGB(250, 250, 250).withAlpha(155)
+//        block(
+//            size(400.px, 136.px),
+//            colour = bgCol,
+//            5.radius()
+//        ) {
+//            inventorySlots = refreshableGroup(copies()) {
+//                column(at(4.px, 4.px), gap = 4.px) {
+//                    for (row in 0..2) {
+//                        row(gap = 4.px) {
+//                            repeat(9) { col ->
+//                                val slotIndex = 9 + (row * 9 + col)
+//                                val stack = player.inventory.getItem(slotIndex)
+//
+//                                block(
+//                                    size(40.px, 40.px),
+//                                    colour = bgCol,
+//                                    radius = 5.radius()
+//                                ) {
+//                                    outline(outlineCol, thickness = 2.px)
+//
+//                                    object : Element(size(40.px, 40.px)) {
+//                                        override fun draw() {
+//                                            withScale {
+//                                                ctx.pose().scale(2f, 2f)
+//                                                ctx.renderItem(stack, 2, 2)
+//                                            }
+//                                        }
+//                                    }.add()
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }.withSettings(::playerModel).setting()
+//
+//    private lateinit var inventorySlots: RefreshableGroup
 
     private var searchText = ""
     private var focused = false

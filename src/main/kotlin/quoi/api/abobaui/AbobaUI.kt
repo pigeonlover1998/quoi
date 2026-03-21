@@ -27,6 +27,8 @@ class AbobaUI(val title: String) {
 
     var debug = false
 
+    var nvgPass = true
+
     inline val mx: Float
         get() = eventManager.mouseX
 
@@ -56,16 +58,21 @@ class AbobaUI(val title: String) {
 
     }
 
-    fun render() {
-        if (recalculateMouse) {
-            eventManager.recalculate()
-            recalculateMouse = false
-        }
+    fun render(nvg: Boolean) {
+        nvgPass = nvg
+        if (nvg) {
+            if (recalculateMouse) {
+                eventManager.recalculate()
+                recalculateMouse = false
+            }
 //        operations.removeIf { it.run() }
-        operations.toList().forEach { if (it.run()) operations.remove(it) }
-        NVGRenderer.push()
-        main.render()
-        NVGRenderer.pop()
+            operations.toList().forEach { if (it.run()) operations.remove(it) }
+            NVGRenderer.push()
+            main.render()
+            NVGRenderer.pop()
+        } else {
+            main.render()
+        }
     }
 
     fun close() {
@@ -119,7 +126,7 @@ class AbobaUI(val title: String) {
 
         fun init(width: Int, height: Int) = ui.init(width, height)
 
-        fun render() = ui.render()
+        fun render(nvg: Boolean = true) = ui.render(nvg)
 
         fun close() = ui.close()
 

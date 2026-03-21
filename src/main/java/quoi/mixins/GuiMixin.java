@@ -48,7 +48,7 @@ public class GuiMixin {
             )
     )
     private void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-        new RenderEvent.Overlay(guiGraphics, deltaTracker).post();
+//        new RenderEvent.Overlay(guiGraphics, deltaTracker).post();
     }
 
     @Inject(

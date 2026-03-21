@@ -1,5 +1,6 @@
 package quoi.utils.ui
 
+import quoi.QuoiMod.mc
 import quoi.api.abobaui.constraints.Constraint
 import quoi.api.abobaui.constraints.Positions
 import quoi.api.abobaui.dsl.*
@@ -8,14 +9,16 @@ import quoi.api.abobaui.elements.ElementScope
 import quoi.api.abobaui.elements.impl.Text.Companion.shadow
 import quoi.api.abobaui.elements.impl.Text.Companion.textSupplied
 import quoi.api.abobaui.elements.impl.TextInput
-import quoi.api.abobaui.events.Lifetime
 import quoi.api.colour.Colour
 import quoi.api.input.CatMouse
 import quoi.api.input.CursorShape
 import quoi.module.settings.UIComponent
+import quoi.utils.ui.rendering.Font
 import quoi.utils.ui.rendering.NVGRenderer.minecraftFont
 import kotlin.reflect.KProperty0
 import kotlin.reflect.jvm.isAccessible
+
+inline val inHudEditor get() = mc.screen?.title?.string == "Quoi! hud editor"
 
 inline fun ElementScope<*>.onHover(duration: Float, crossinline block: () -> Unit) {
     onMouseEnter {
@@ -39,7 +42,7 @@ fun ElementScope<*>.cursor(shape: Long) {
         CatMouse.setCursor(CursorShape.NORMAL)
     }
 
-    ui.main.registerEventUnit(Lifetime.Uninitialised) {
+    onRemove {
         CatMouse.setCursor(CursorShape.NORMAL)
     }
 }
@@ -81,18 +84,19 @@ inline fun ElementScope<*>.textPair(
     labelColour: Colour,
     valueColour: Colour = Colour.WHITE,
     shadow: Boolean,
+    font: Font = minecraftFont,
     pos: Positions = at(),
     size: Constraint.Size = 18.px
 ) = row(pos) {
     text(
         string = "$string ",
-        font = minecraftFont,
+        font = font,
         size = size,
         colour = labelColour
     ).shadow = shadow
     textSupplied(
         supplier = supplier,
-        font = minecraftFont,
+        font = font,
         size = size,
         colour = valueColour
     ).shadow = shadow

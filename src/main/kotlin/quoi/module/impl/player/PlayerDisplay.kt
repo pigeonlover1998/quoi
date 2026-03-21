@@ -5,7 +5,9 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Blocks
 import quoi.api.abobaui.constraints.impl.positions.Centre
 import quoi.api.abobaui.dsl.at
+import quoi.api.abobaui.dsl.outlineBlock
 import quoi.api.abobaui.dsl.px
+import quoi.api.abobaui.dsl.radius
 import quoi.api.abobaui.dsl.size
 import quoi.api.abobaui.dsl.withScale
 import quoi.api.abobaui.elements.Element
@@ -179,13 +181,13 @@ object PlayerDisplay : Module(
                 text(
                     string = "Secrets",
                     colour = colour,
-                    font = minecraftFont,
+                    font = font,
                     size = 18.px,
                 ).shadow = shadow
                 textSupplied(
                     supplier = displayText,
                     colour = colour,
-                    font = minecraftFont,
+                    font = font,
                     size = 18.px,
                     pos = at(Centre)
                 ).shadow = shadow
@@ -266,22 +268,25 @@ object PlayerDisplay : Module(
       max: () -> Int
     ) = ResizableHud(name, BAR_WIDTH, BAR_HEIGHT, defaultColour, Colour.RGB(208, 208, 208), 1f) {
         visibleIf { inSkyblock }
-        ctxBlock(
+        block(
             size(width, height),
             Colour.RGB(35, 35, 35),
+            5.radius()
         )
 
-        object : Block.CtxBlock(size(width, height), colour) {
+        object : Block(size(width, height), colour, 5.radius()) {
             override fun draw() {
                 width = if (preview) 50f else (current().toFloat() / max().toFloat() * BAR_WIDTH)
                 super.draw()
             }
         }.add()
 
-        ctxBlock( // idkman
+        outlineBlock( // idkman
             size(width, height),
-            Colour.TRANSPARENT
-        ).outline(outline, thickness)
+            colour = outline,
+            thickness = thickness,
+            5.radius()
+        )
     }.setting()
 
     /*fun text(
@@ -310,7 +315,7 @@ object PlayerDisplay : Module(
         textSupplied(
             supplier = if (preview) previewText else text,
             colour = colour,
-            font = minecraftFont,
+            font = font,
             size = 18.px,
         ).shadow = shadow
     }.withSettings(*settings.toTypedArray()).setting()

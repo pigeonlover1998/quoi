@@ -34,6 +34,12 @@ abstract class SettingsDsl {
     fun <E : Enum<E>> selector(name: String, default: E, desc: String = "") =
         SelectorComponent(name, default, default.declaringJavaClass.enumConstants.toList(), desc)
 
+    fun <T> segmented(name: String, default: T, options: List<T>, desc: String = "") =
+        SegmentedComponent(name, default, options, desc)
+
+    fun <E : Enum<E>> segmented(name: String, default: E, desc: String = "") =
+        SegmentedComponent(name, default, default.declaringJavaClass.enumConstants.toList(), desc)
+
     fun text(value: String, desc: String = "") =
         TextComponent(value, desc)
 

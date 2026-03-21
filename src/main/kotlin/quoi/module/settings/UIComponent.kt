@@ -10,8 +10,10 @@ import quoi.api.abobaui.elements.Layout.Companion.divider
 import quoi.api.abobaui.events.AbobaEvent
 import quoi.api.abobaui.transforms.impl.Alpha
 import quoi.api.animations.Animation
+import quoi.api.input.CursorShape
 import quoi.module.impl.render.ClickGui.description
 import quoi.utils.ThemeManager.theme
+import quoi.utils.ui.cursor
 import quoi.utils.ui.settingFromK0
 import kotlin.reflect.KProperty0
 
@@ -96,6 +98,8 @@ abstract class UIComponent<T>(
                     colour = theme.onSurfaceVariant,
                     constraints = constrain(5.px.alignOpposite, w = 16.px, h = 16.px, y = if (this@UIComponent.value is Boolean) 2.px else 0.px),
                 ) {
+                    cursor(CursorShape.HAND)
+
                     val (from, to) = if (collapsed) 180f to 90f else 90f to 180f
                     val rotationAnim = rotation(from = from, to = to)
 

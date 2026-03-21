@@ -149,17 +149,17 @@ object DrawContextUtils {
         enableScissor(x, y, x + width, y + height)
     }
 
-    fun GuiGraphics.drawString(text: Component, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true) {
+    fun GuiGraphics.drawText(text: Component, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true) {
         withMatrix(x, y) {
             if (scale != 1f) pose().scale(scale, scale)
             drawString(textRenderer, text, 0, 0, colour, shadow)
         }
     }
 
-    fun GuiGraphics.drawString(text: String, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true)
-        = drawString(literal(text), x, y, colour, scale, shadow)
+    fun GuiGraphics.drawText(text: String, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true)
+        = drawText(literal(text), x, y, colour, scale, shadow)
 
-    fun GuiGraphics.drawString(text: FormattedCharSequence, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true) {
+    fun GuiGraphics.drawText(text: FormattedCharSequence, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true) {
         withMatrix(x, y) {
             if (scale != 1f) pose().scale(scale, scale)
             drawString(textRenderer, text, 0, 0, colour, shadow)

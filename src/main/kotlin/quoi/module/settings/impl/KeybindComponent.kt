@@ -117,14 +117,14 @@ class KeybindComponent(
 
     private fun isAllowed(key: Int) = if (includesOnly != null) key in includesOnly!! else key !in excludes
 
-    override fun ElementScope<*>.draw(asSub: Boolean): ElementScope<*> = row(size(w = Copying)) {
+    override fun ElementScope<*>.draw(asSub: Boolean): ElementScope<*> = row(size(w = Copying)) { // todo redesign
         text(
             string = name,
             size = theme.textSize,
             colour = theme.onSurfaceVariant
         )
         block(
-            constrain(x = 0.px.alignOpposite, w = Bounding + 5.px, h = Bounding),
+            constrain(x = 0.px.alignOpposite, w = Bounding + 5.px, h = if (asSub) Bounding else 20.px),
             colour = theme.surfaceContainerHighest,
             5.radius()
         ) {

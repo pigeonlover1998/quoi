@@ -1,15 +1,10 @@
 package quoi.utils.ui.hud
 
-import quoi.QuoiMod.mc
+import net.minecraft.client.gui.GuiGraphics
 import quoi.api.colour.Colour
 import quoi.module.Module
 import quoi.module.settings.UIComponent
-import quoi.module.settings.impl.SwitchComponent
-import quoi.module.settings.impl.ColourPickerComponent
-import quoi.module.settings.impl.HudComponent
-import quoi.module.settings.impl.SliderComponent
-import quoi.module.settings.impl.SelectorComponent
-import quoi.utils.ChatUtils.literal
+import quoi.module.settings.impl.*
 import quoi.utils.render.DrawContextUtils.withMatrix
 import quoi.utils.scaledHeight
 import quoi.utils.scaledWidth
@@ -17,12 +12,12 @@ import quoi.utils.sf
 import quoi.utils.ui.data.Anchor
 import quoi.utils.ui.hud.impl.ResizableHud
 import quoi.utils.ui.hud.impl.TextHud
-import net.minecraft.client.gui.GuiGraphics
+import quoi.utils.ui.inHudEditor
 
 fun <T : Hud> T.setting(desc: String = "") = HudComponent(name, this, desc)
 
 fun <T : Hud> T.withTransform(ctx: GuiGraphics, block: GuiGraphics.() -> Unit) {
-    if (mc.screen?.title?.equals(literal("Quoi! hud editor")) == true) return
+    if (inHudEditor) return
     ctx.withMatrix(
         x = x.value / 100f * scaledWidth,
         y = y.value / 100f * scaledHeight,
@@ -43,11 +38,12 @@ fun Module.TextHud(
 ): TextHud {
     val colourSetting = ColourPickerComponent("Colour", colour)
     val shadowSetting = SwitchComponent("Shadow", true)
-    val anchorSetting = SelectorComponent("Anchor", Anchor.TopLeft)
+    val fontSetting = SegmentedComponent("Font", TextHud.HudFont.Minecraft) // todo make it optional
+    val anchorSetting = SelectorComponent("Anchor", Anchor.TopLeft) // todo make it optional
 
-    val hud = TextHud(name, this, toggleable, colourSetting, shadowSetting, anchorSetting, block)
+    val hud = TextHud(name, this, toggleable, colourSetting, shadowSetting, fontSetting, anchorSetting, block)
 
-    hud.withSettings(colourSetting, shadowSetting, anchorSetting)
+    hud.withSettings(colourSetting, shadowSetting, fontSetting, anchorSetting)
     return hud
 }
 

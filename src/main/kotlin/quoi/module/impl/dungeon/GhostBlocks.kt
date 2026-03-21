@@ -14,7 +14,7 @@ import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.width
-import quoi.utils.render.DrawContextUtils.drawString
+import quoi.utils.render.DrawContextUtils.drawText
 
 // Kyleen
 object GhostBlocks : Module( // this shit seems so fucking useless.
@@ -101,7 +101,7 @@ object GhostBlocks : Module( // this shit seems so fucking useless.
             if (!editMode) return@on
             val x = (mc.window.guiScaledWidth - "GB Edit Mode".width()) / 2f
             val y = (mc.window.guiScaledHeight + 40) / 2f
-            ctx.drawString("GB Edit Mode", x, y)
+            ctx.drawText("GB Edit Mode", x, y)
         }
     }
 }

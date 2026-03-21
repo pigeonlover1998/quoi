@@ -6,7 +6,7 @@ import quoi.utils.ui.rendering.NVGRenderer
 
 class Alpha(override var amount: Float) : Transform.Mutable {
     override fun apply(element: Element) {
-        NVGRenderer.globalAlpha(amount)
+        if (element.ui.nvgPass) NVGRenderer.globalAlpha(amount)
     }
 
     /**
@@ -19,7 +19,7 @@ class Alpha(override var amount: Float) : Transform.Mutable {
         to: Float,
     ) : Transform.Animated(from, to) {
         override fun apply(element: Element) {
-            NVGRenderer.globalAlpha(get())
+            if (element.ui.nvgPass) NVGRenderer.globalAlpha(get())
         }
     }
 }

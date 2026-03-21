@@ -13,7 +13,7 @@ import quoi.api.abobaui.elements.ElementScope
 import quoi.api.colour.Colour
 import quoi.api.colour.multiply
 import quoi.utils.StringUtils.width
-import quoi.utils.render.DrawContextUtils.drawString
+import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.ui.rendering.Font
 import quoi.utils.ui.rendering.NVGRenderer
 import net.minecraft.network.chat.Component
@@ -93,9 +93,9 @@ open class Text(
                             sink.accept(index, style.withColor(dark), codePoint)
                         }
                     }
-                    ctx.drawString(shadowSeq, fontScale, fontScale, shadow = false, scale = fontScale)
+                    ctx.drawText(shadowSeq, fontScale, fontScale, shadow = false, scale = fontScale)
                 }
-                ctx.drawString(string, 0, 0, colour, fontScale, false)
+                ctx.drawText(string, 0, 0, colour, fontScale, false)
             }
             return
         }

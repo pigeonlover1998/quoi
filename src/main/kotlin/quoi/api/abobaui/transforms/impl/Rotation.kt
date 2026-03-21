@@ -31,11 +31,13 @@ private fun rotate(element: Element, amount: Float) {
     val y = element.y + element.height / 2f
     val ang = amount.rad
 
-    element.ctx.pose().translate(x, y)
-    element.ctx.pose().rotate(ang)
-    element.ctx.pose().translate(-x, -y)
-
-    NVGRenderer.translate(x, y)
-    NVGRenderer.rotate(ang)
-    NVGRenderer.translate(-x, -y)
+    if (!element.ui.nvgPass) {
+        element.ctx.pose().translate(x, y)
+        element.ctx.pose().rotate(ang)
+        element.ctx.pose().translate(-x, -y)
+    } else {
+        NVGRenderer.translate(x, y)
+        NVGRenderer.rotate(ang)
+        NVGRenderer.translate(-x, -y)
+    }
 }

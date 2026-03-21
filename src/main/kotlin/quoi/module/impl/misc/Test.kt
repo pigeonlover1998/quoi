@@ -1,12 +1,16 @@
 package quoi.module.impl.misc
 
 import kotlinx.coroutines.launch
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.world.phys.BlockHitResult
 import quoi.QuoiMod.scope
+import quoi.api.abobaui.dsl.radius
 import quoi.api.abobaui.dsl.size
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
 import quoi.api.colour.Colour
+import quoi.api.colour.withAlpha
 import quoi.api.commands.internal.BaseCommand
+import quoi.api.events.RenderEvent
 import quoi.api.events.TickEvent
 import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.Dungeon
@@ -20,28 +24,35 @@ import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.Scheduler.wait
 import quoi.utils.StringUtils.formatTime
 import quoi.utils.StringUtils.toFixed
+import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.skyblock.player.AuraAction
 import quoi.utils.skyblock.player.AuraManager
 import quoi.utils.skyblock.player.ContainerUtils
 import quoi.utils.skyblock.player.LeapManager
 import quoi.utils.ui.hud.ResizableHud
 import quoi.utils.ui.hud.TextHud
+import quoi.utils.ui.hud.impl.TextHud
 import quoi.utils.ui.hud.setting
+import quoi.utils.ui.rendering.NVGRenderer
+import quoi.utils.ui.rendering.NVGSpecialRenderer
 import quoi.utils.ui.textPair
 
 object Test : Module("Test", desc = "Dev module for testing.") {
 
-    val boolBigP by switch("Bool big P")
+//    val boolBigP by switch("Bool big P")
+//
+//    val boolGranny by switch("Bool granny").visibleIf { boolBigP }
+//    val bool1 by switch("Bool papa").childOf(::boolGranny)
+//    val boolMama by switch("Bool mama").childOf(::boolGranny)
+//    val bool2 by switch("Bool kid").childOf(::boolMama)
+//
+//    val style by selector("Style", "Box", listOf("Box", "Filled box"))
+//    val outline by switch("Outline").childOf(::style) { it.index == 1 }
+//    val colour by colourPicker("Colour2", Colour.WHITE, true).childOf(::style) { it.index == 0 || (outline && it.index != 0) }
+//    val fillColour by colourPicker("Fill colour", Colour.WHITE, true).childOf(::style) { it.index == 1 }
 
-    val boolGranny by switch("Bool granny").visibleIf { boolBigP }
-    val bool1 by switch("Bool papa").childOf(::boolGranny)
-    val boolMama by switch("Bool mama").childOf(::boolGranny)
-    val bool2 by switch("Bool kid").childOf(::boolMama)
-
-    val style by selector("Style", "Box", listOf("Box", "Filled box"))
-    val outline by switch("Outline").childOf(::style) { it.index == 1 }
-    val colour by colourPicker("Colour2", Colour.WHITE, true).childOf(::style) { it.index == 0 || (outline && it.index != 0) }
-    val fillColour by colourPicker("Fill colour", Colour.WHITE, true).childOf(::style) { it.index == 1 }
+    private val segmented by segmented("Segmented", "1", listOf("1", "2", "3"))
+    private val segmented2 by segmented("Segmented enum", TextHud.HudFont.Minecraft)
 
     val uiDebug by switch("UI debug").onValueChanged { old, new -> ClickGui.reopen() }
     val reopen by button("Reopen") { ClickGui.reopen() }
@@ -74,7 +85,8 @@ object Test : Module("Test", desc = "Dev module for testing.") {
                     supplier = { if (preview) 0.0 else coord() },
                     labelColour = Colour.WHITE,
                     valueColour = colour,
-                    shadow = shadow
+                    shadow = shadow,
+                    font = font,
                 )
             }
         }
@@ -82,9 +94,10 @@ object Test : Module("Test", desc = "Dev module for testing.") {
     .setting()
 
     private val resizableTest by ResizableHud("resizable2", 75f, 7f, outline = Colour.RED) {
-        ctxBlock(
+        block(
             size(width, height),
-            colour = Colour.WHITE
+            colour = colour,
+            5.radius()
         ).outline(outline, thickness)
     }.setting()
 
@@ -127,7 +140,8 @@ object Test : Module("Test", desc = "Dev module for testing.") {
                     supplier = { value() },
                     labelColour = Colour.WHITE,
                     valueColour = colour,
-                    shadow = shadow
+                    shadow = shadow,
+                    font = font
                 )
                 if (name == "   Gate" && p3Players) Dungeon.dungeonTeammates.forEach { player ->
                     textPair(
@@ -135,7 +149,8 @@ object Test : Module("Test", desc = "Dev module for testing.") {
                         supplier = { "${player.p3Stats.terminals}T | ${player.p3Stats.levers}L | ${player.p3Stats.devices}D" },
                         labelColour = player.colour,
                         valueColour = colour,
-                        shadow = shadow
+                        shadow = shadow,
+                        font = font
                     )
                 }
             }

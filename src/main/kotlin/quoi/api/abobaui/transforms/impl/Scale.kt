@@ -49,12 +49,15 @@ private fun scale(element: Element, amountX: Float, amountY: Float, centered: Bo
         x += element.width / 2f
         y += element.height / 2f
     }
-    element.ctx.pose().translate(x, y)
-    element.ctx.pose().scale(amountX, amountY)
-    element.ctx.pose().translate(-x, -y)
-    NVGRenderer.translate(x, y)
-    NVGRenderer.scale(amountX, amountY)
-    NVGRenderer.translate(-x, -y)
+    if (!element.ui.nvgPass) {
+        element.ctx.pose().translate(x, y)
+        element.ctx.pose().scale(amountX, amountY)
+        element.ctx.pose().translate(-x, -y)
+    } else {
+        NVGRenderer.translate(x, y)
+        NVGRenderer.scale(amountX, amountY)
+        NVGRenderer.translate(-x, -y)
+    }
     element.scaleX = amountX
     element.scaleY = amountY
 }

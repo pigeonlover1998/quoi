@@ -6,10 +6,14 @@ import quoi.api.colour.Colour
 import quoi.module.Module
 import quoi.module.settings.impl.SwitchComponent
 import quoi.module.settings.impl.ColourPickerComponent
+import quoi.module.settings.impl.SegmentedComponent
 import quoi.module.settings.impl.SelectorComponent
 import quoi.utils.ui.data.Anchor
 import quoi.utils.ui.hud.Hud
 import quoi.utils.ui.hud.ScopedHud
+import quoi.utils.ui.rendering.Font
+import quoi.utils.ui.rendering.NVGRenderer.defaultFont
+import quoi.utils.ui.rendering.NVGRenderer.minecraftFont
 
 class TextHud(
     name: String,
@@ -17,11 +21,12 @@ class TextHud(
     toggleable: Boolean,
     val colourSetting: ColourPickerComponent,
     val shadowSetting: SwitchComponent,
+    val fontSetting: SegmentedComponent<HudFont>,
     val anchorSetting: SelectorComponent<Anchor>,
     content: Scope.() -> Unit
 ) : ScopedHud<TextHud.Scope>(name, module, toggleable, content) {
 
-    class Scope(parent: Hud.Scope, val colour: Colour, val shadow: Boolean)
+    class Scope(parent: Hud.Scope, val font: Font, val colour: Colour, val shadow: Boolean)
         : Hud.Scope(parent.element, parent.preview)
 
     override fun createScope(base: Hud.Scope): Scope {
@@ -36,7 +41,7 @@ class TextHud(
         element.constraints.x = Alignment.Relative(x.value.percent, anchor.x)
         element.constraints.y = Alignment.Relative(y.value.percent, anchor.y)
 
-        return Scope(base, colourSetting.value, shadowSetting.value)
+        return Scope(base, fontSetting.value.selected.get(), colourSetting.value, shadowSetting.value)
     }
 
     override fun savePosition(element: Element, screenWidth: Float, screenHeight: Float) {
@@ -47,5 +52,12 @@ class TextHud(
 
         x.value = (targetX / screenWidth) * 100f
         y.value = (targetY / screenHeight) * 100f
+    }
+
+    enum class HudFont {
+        Minecraft,
+        Custom;
+
+        fun get() = if (this == Minecraft) minecraftFont else defaultFont
     }
 }

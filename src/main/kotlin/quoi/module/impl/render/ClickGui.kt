@@ -87,7 +87,8 @@ object ClickGui : Module(
             string = "Fps:",
             supplier = { mc.fps },
             labelColour = colour,
-            shadow = shadow
+            shadow = shadow,
+            font = font
         )
     }.setting()
 
@@ -98,7 +99,8 @@ object ClickGui : Module(
             string = "Ping:",
             supplier = { (if (preview) 69.420 else pingType.selected.value()).formatPing },
             labelColour = colour,
-            shadow = shadow
+            shadow = shadow,
+            font = font
         )
     }.withSettings(::pingType).setting()
 
@@ -109,7 +111,8 @@ object ClickGui : Module(
             string = "Tps:",
             supplier = { if (preview) 17.56f.formatTps(2) else tpsType.selected.value().formatTps(2) },
             labelColour = colour,
-            shadow = shadow
+            shadow = shadow,
+            font = font
         )
     }.withSettings(::tpsType).setting()
 
@@ -118,7 +121,8 @@ object ClickGui : Module(
             string = "Day:",
             supplier = { mc.level?.day },
             labelColour = colour,
-            shadow = shadow
+            shadow = shadow,
+            font = font
         )
     }.setting()
 
@@ -388,7 +392,7 @@ object ClickGui : Module(
         currentPet = str
     }
 
-    private val Double.formatPing get() = "§${
+    private val Double.formatPing get() = "§${ // fixme
         when {
             this < 50.0 -> "a"// Colour.MINECRAFT_GREEN
             this < 100.0 -> "2"// Colour.MINECRAFT_DARK_GREEN
@@ -398,7 +402,7 @@ object ClickGui : Module(
         }
     }%.2f §7ms".format(this)
 
-    private fun Float.formatTps(decimals: Int = 0) = (this - 15).percentColour(5.0) + this.toFixed(decimals)
+    private fun Float.formatTps(decimals: Int = 0) = (this - 15).percentColour(5.0) + this.toFixed(decimals) // fixme
 
     fun reopen() {
         mc.setScreen(null)
