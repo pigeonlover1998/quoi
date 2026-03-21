@@ -87,7 +87,7 @@ public abstract class ItemInHandRendererMixin {
     private void quoi$itemAnimationsMainTransform(float f, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, LocalPlayer localPlayer, int i, CallbackInfo ci) {
         if (mainHandItem.isEmpty() && !ItemAnimations.affectHand()) return;
         if (mainHandItem.has(DataComponents.MAP_ID) && !ItemAnimations.affectMap()) return;
-        ItemAnimations.applyTransformations(poseStack);
+        ItemAnimations.applyTransformations(poseStack, mainHandItem);
     }
 
     @Inject(

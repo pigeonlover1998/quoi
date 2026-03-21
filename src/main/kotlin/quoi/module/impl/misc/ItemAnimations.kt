@@ -4,6 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import net.minecraft.world.effect.MobEffectUtil
 import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.item.BlockItem
+import net.minecraft.world.item.ItemStack
 import quoi.api.events.TickEvent
 import quoi.module.Module
 import quoi.utils.skyblock.ItemUtils.loreString
@@ -20,6 +22,7 @@ object ItemAnimations : Module(
     private var x by slider("X", 0.0f, -1.0f, 1.0f, 0.1)
     private var y by slider("Y", 0.0f, -1.0f, 1.0f, 0.1)
     private var z by slider("Z", 0.0f, -1.0f, 1.0f, 0.1)
+    private var blockYOffset by slider("Block Y Fix", 0.05f, -1.0f, 1.0f, 0.05)
     private var yaw by slider("Yaw", 0.0f, -180.0f, 180.0f, 1.0)
     private var pitch by slider("Pitch", 0.0f, -180.0f, 180.0f, 1.0)
     private var roll by slider("Roll", 0.0f, -180.0f, 180.0f, 1.0)
@@ -49,9 +52,9 @@ object ItemAnimations : Module(
 
     private fun resetSettings() {
         setOf(
-            ::x, ::y, ::z,
+            ::x, ::y, ::z, ::blockYOffset,
             ::yaw, ::pitch,
-            ::roll,::scale, ::swingSpeed
+            ::roll, ::scale, ::swingSpeed
         ).forEach { settingFromK0(it).reset() }
     }
 
@@ -105,15 +108,26 @@ object ItemAnimations : Module(
     }
 
     @JvmStatic
-    fun applyTransformations(pose: PoseStack) {
+    fun applyTransformations(pose: PoseStack, stack: ItemStack?) {
         if (!enabled) return
 
         pose.mulPose(Axis.XP.rotationDegrees(pitch))
         pose.mulPose(Axis.YP.rotationDegrees(yaw))
         pose.mulPose(Axis.ZP.rotationDegrees(roll))
 
-        if (x != 0.0f || y != 0.0f || z != 0.0f) {
-            pose.translate(x, y, z)
+        var renderY = y
+
+        if (stack != null && !stack.isEmpty) {
+            val item = stack.item
+            if (item is net.minecraft.world.item.PlayerHeadItem) {
+                renderY += (blockYOffset * 2.0f)
+            } else if (item is BlockItem) {
+                renderY += blockYOffset
+            }
+        }
+
+        if (x != 0.0f || renderY != 0.0f || z != 0.0f) {
+            pose.translate(x, renderY, z)
         }
     }
 
