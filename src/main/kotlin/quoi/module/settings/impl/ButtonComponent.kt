@@ -27,7 +27,7 @@ class ButtonComponent(
     override fun ElementScope<*>.draw(asSub: Boolean): ElementScope<*> =
         block(
             size(w = Copying, h = if (asSub) 22.px else 25.px),
-            colour = theme.surfaceContainerLow,
+            colour = theme.surfaceContainerHighest,
             5.radius()
         ) {
             val thickness = Animatable(from = 2.px, to = 3.px)

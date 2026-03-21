@@ -10,6 +10,7 @@ import quoi.api.abobaui.elements.ElementScope
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
 import quoi.api.animations.Animation
 import quoi.api.colour.Colour
+import quoi.api.colour.colour
 import quoi.api.input.CursorShape
 import quoi.module.settings.Saving
 import quoi.module.settings.UIComponent
@@ -140,18 +141,18 @@ class SegmentedComponent<T>(
 
         val isSelected = i == options.indexOf(defaultSelected)
         val bg = Colour.Animated(
-            from = theme.surfaceContainerHighest,
-            to = theme.primary,
+            from = colour { theme.surfaceContainerHighest.rgb },
+            to = colour { theme.primary.rgb },
             swapIf = isSelected
         )
         val outline = Colour.Animated(
-            from = theme.outline,
-            to = theme.primary,
+            from = colour { theme.outline.rgb },
+            to = colour { theme.primary.rgb },
             swapIf = isSelected
         )
         val text = Colour.Animated(
-            from = theme.onSurface,
-            to = theme.onPrimary,
+            from = colour { theme.onSurfaceVariant.rgb },
+            to = colour { theme.onPrimary.rgb },
             swapIf = isSelected
         )
 
