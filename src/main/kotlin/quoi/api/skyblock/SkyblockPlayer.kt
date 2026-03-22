@@ -63,6 +63,11 @@ object SkyblockPlayer {
     var currentPet get() = currentPet()
         set(v) { updateCurrentPet(v) }
 
+    val canUseCommands get() = commandsTick <= 0
+
+    var commandsTick = -1
+        private set
+
     val HP_REGEX = Regex("§[c6]([\\d,]+)/([\\d,]+)❤") // §c1389/1390❤ , §62181/1161❤
     val DEF_REGEX = Regex("§a([\\d,]+)§a❈ Defense") // §a593§a❈ Defense
     val MANA_REGEX = Regex("§b([\\d,]+)/([\\d,]+)✎( Mana)?") // §b550/550✎ Mana§r
@@ -128,10 +133,12 @@ object SkyblockPlayer {
 
         on<TickEvent.Server> {
             InvincibilityType.entries.forEach { it.tick() }
+            if (commandsTick > 0) commandsTick--
         }
 
         on<WorldEvent.Change> {
             InvincibilityType.entries.forEach { it.reset() }
+            commandsTick = 80
         }
 
         scheduleLoop {

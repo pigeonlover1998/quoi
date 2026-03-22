@@ -2,6 +2,7 @@ package quoi.module.impl.misc
 
 import quoi.api.events.TickEvent
 import quoi.api.skyblock.Location
+import quoi.api.skyblock.SkyblockPlayer
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
@@ -28,6 +29,7 @@ object AutoGFS : Module( // untested
         on<TickEvent.End> {
             if (dungeonsOnly && !Dungeon.inDungeons) return@on
             if (Dungeon.isDead || !Location.inSkyblock || mc.screen != null) return@on
+            if (!SkyblockPlayer.canUseCommands) return@on.also { tickCount = 10000 }
 
             if (++tickCount < when (mode.selected) {
                     "Amount" -> 20
@@ -47,15 +49,21 @@ object AutoGFS : Module( // untested
     private fun isBelowPercentage(n: Int, max: Int) = n < (amount / 100.0) * max
 
     private enum class RefillItem(
-        val enabled: Boolean,
         val maxStack: Int,
         val itemId: String,
         val sackName: String
     ) {
-        PEARL(pearls, 16, "ENDER_PEARL", "ender_pearl"),
-        BOOM(booms, 64, "SUPERBOOM_TNT", "superboom_tnt"),
-        JERRY(jerries, 64, "INFLATABLE_JERRY", "inflatable_jerry"),
-        LEAP(leaps, 16, "SPIRIT_LEAP", "spirit_leap");
+        PEARL(16, "ENDER_PEARL", "ender_pearl"),
+        BOOM(64, "SUPERBOOM_TNT", "superboom_tnt"),
+        JERRY(64, "INFLATABLE_JERRY", "inflatable_jerry"),
+        LEAP(16, "SPIRIT_LEAP", "spirit_leap");
+
+        val enabled get() = when(this) {
+            PEARL -> pearls
+            BOOM -> booms
+            JERRY -> jerries
+            LEAP -> leaps
+        }
 
         fun shouldRefill(): Boolean {
             return enabled && isBelowPercentage(PlayerUtils.getItemsAmount(itemId), maxStack)
