@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
+import net.minecraft.network.protocol.common.ClientboundPingPacket
 import net.minecraft.network.protocol.game.*
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.SkullBlock
@@ -203,6 +204,10 @@ object Dungeon {
     var dungeonStats = DungeonStats()
         private set
 
+    // ticks till death tick
+    var deathTick = -1
+        private set
+
     private var expectingBloodUpdate = false
 
     init {
@@ -224,6 +229,8 @@ object Dungeon {
 
             P3Section.resetAll()
             p3Section = P3Section.Unknown
+
+            deathTick = -1
 
 //            MapItemUtils.reset()
 //            WorldScanner.reset()
@@ -322,8 +329,26 @@ object Dungeon {
                         }
                     }
 
-                    is ClientboundOpenScreenPacket -> { inTerminal = terminalTitles.any { title.string.contains(it) } }
+                    is ClientboundOpenScreenPacket -> inTerminal = terminalTitles.any { title.string.contains(it) }
                     is ClientboundContainerClosePacket -> inTerminal = false
+
+                    is ClientboundPingPacket -> {
+                        if (!inDungeons) return@on
+                        if (deathTick == 0) deathTick = 40
+                        if (deathTick >= 0) deathTick--
+                    }
+
+                    is ClientboundSetTimePacket -> {
+                        if (!inDungeons) return@on
+                        val gameTime = mc.level?.gameTime ?: -1
+                        deathTick =
+                            if (openRoomCount == 0)
+                                40 - (gameTime % 40).toInt()
+                            else
+                                -1
+
+                    }
+
                 }
             }
         }

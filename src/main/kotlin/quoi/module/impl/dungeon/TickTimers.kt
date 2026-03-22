@@ -6,6 +6,8 @@ import quoi.api.events.ChatEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.skyblock.Island
+import quoi.api.skyblock.dungeon.Dungeon.deathTick
+import quoi.api.skyblock.dungeon.Dungeon.inBoss
 import quoi.api.skyblock.invoke
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.visibleIf
@@ -14,12 +16,11 @@ import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.hud.Hud
 import quoi.utils.ui.hud.TextHud
 import quoi.utils.ui.hud.setting
-import quoi.utils.ui.rendering.NVGRenderer.minecraftFont
 
 object TickTimers : Module(
     "Tick Timers",
     desc = "Displays tick timers for floor seven boss fight.",
-    area = Island.Dungeon(7, inBoss = true)
+    area = Island.Dungeon(7)
 ) {
     private val showInTicks by switch("Show in ticks")
 
@@ -45,6 +46,16 @@ object TickTimers : Module(
 
     private val startTimer by switch("Goldor start timer").visibleIf { goldorHud.enabled }
 
+    private val deathTickHud by TextHud("Death tick") {
+        visibleIf { deathTick >= 0 }
+        textSupplied(
+            supplier = { formatTime(if (preview) 15 else deathTick, 20) },
+            size = theme.textSize,
+            font = font,
+            colour = colour
+        ).shadow = shadow
+    }.setting()
+
     private var goldorTick = -1
     private var goldorStart = -1
     private var padTick = -1
@@ -61,6 +72,7 @@ object TickTimers : Module(
         }
 
         on<TickEvent.Server> {
+            if (!inBoss) return@on
             if (goldorTick == 0 && goldorStart <= 0 && goldorHud.enabled) goldorTick = 60
             if (goldorTick >= 0 && goldorHud.enabled) goldorTick--
             if (goldorStart >= 0 && goldorHud.enabled) goldorStart--
