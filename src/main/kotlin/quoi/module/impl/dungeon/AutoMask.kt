@@ -51,11 +51,11 @@ object AutoMask : Module(
             val bonzoMsg = messageRaw == "Your Bonzo's Mask saved your life!" || messageRaw == "Your ⚚ Bonzo's Mask saved your life!"
             val spiritMsg = messageRaw == "Second Wind Activated! Your Spirit Mask saved your life!"
 
-            if (bonzoMsg || spiritMsg) {
-                if (dungeonsOnly && !Dungeon.inDungeons) return@on
-                if (bossOnly && !Dungeon.inBoss) return@on
-                if (P3Only && !Dungeon.inP3) return@on
+            if (dungeonsOnly && !Dungeon.inDungeons) return@on
+            if (bossOnly && !Dungeon.inBoss) return@on
+            if (P3Only && !Dungeon.inP3) return@on
 
+            if (bonzoMsg || spiritMsg) {
                 triggerEquip(if (bonzoMsg) "spirit mask" else "bonzo's mask")
 
                 if (announceProc) {
@@ -97,7 +97,7 @@ object AutoMask : Module(
         )
 
         if (success) {
-            scheduleTask(1) { ContainerUtils.closeContainer() }
+            scheduleTask(2) { ContainerUtils.closeContainer() }
         }
     }
 }

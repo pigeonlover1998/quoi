@@ -154,7 +154,7 @@ object PuzzleSolvers : Module(
         }
 
         on<TickEvent.Server> {
-            if (wbSolver) WaterSolver.onServerTick()
+            if (wbSolver || wbAuto) WaterSolver.onServerTick()
         }
 
         on<ChatEvent.Packet> {
