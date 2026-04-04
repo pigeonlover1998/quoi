@@ -46,6 +46,7 @@ import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.StringUtils.percentColour
 import quoi.utils.StringUtils.toFixed
+import quoi.utils.StringUtils.width
 import quoi.utils.ThemeManager.theme
 import quoi.utils.WorldUtils.day
 import quoi.utils.ui.elements.themedInput
@@ -73,6 +74,7 @@ object ClickGui : Module(
     }.open()
 
     val seedColour by colourPicker("Colour", Colour.RGB(255, 204, 134)).json("Theme seed").childOf(::selectedTheme).asParent()
+    val moduleSorting by selector("Module sorting", ModuleSorting.Alphabetical).childOf(::selectedTheme).onValueChanged { _, _ -> reopen() }
 
     var rainbowSpeed by slider("Rainbow colour speed", 1.0f, 0.05f, 5.0f, 0.05f)
     
@@ -203,8 +205,7 @@ object ClickGui : Module(
                             copies(),
                             colour = colour { theme.surface.withAlpha(0.7f).rgb }
                         )
-                        for (module in modules.sortedBy { it.name }) {
-                            if (module.category != category) continue
+                        for (module in modulesFor(category)) {
                             moduleScopes.add(module to module(module))
                         }
                     }
@@ -385,6 +386,9 @@ object ClickGui : Module(
             popup = null
         }
     }
+
+    private fun modulesFor(category: Category): List<Module> =
+        modules.filter { it.category == category }.sortedWith(moduleSorting.selected.comparator)
     
     fun currentPet() = currentPet
     fun updateCurrentPet(str: String) {
@@ -423,5 +427,21 @@ object ClickGui : Module(
     private enum class TpsType(val value: () -> Float) {
         Average({ averageTps }),
         Current({ currentTps })
+    }
+
+    enum class ModuleSorting(
+        val comparator: Comparator<Module>
+    ) {
+        WidthDescending(
+            compareByDescending<Module> { NVGRenderer.textWidth(it.name, 18f, defaultFont) }.thenBy { it.name.lowercase() }
+        ),
+
+        WidthAscending(
+            compareBy<Module> { NVGRenderer.textWidth(it.name, 18f, defaultFont) }.thenBy { it.name.lowercase() }
+        ),
+
+        Alphabetical(
+            compareBy<Module> { it.name.lowercase() }
+        );
     }
 }
