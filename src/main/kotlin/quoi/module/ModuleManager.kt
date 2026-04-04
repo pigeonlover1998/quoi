@@ -26,7 +26,6 @@ object ModuleManager {
             LeverAura,
             AutoCloseChest,
             FullBlockHitboxes,
-            GhostBlocks,
             DungeonAbilities,
             BossESP,
             InventoryWalk,
