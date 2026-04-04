@@ -13,6 +13,7 @@ import org.lwjgl.nanovg.NanoVGGL3.*
 import org.lwjgl.stb.STBImage.stbi_load_from_memory
 import org.lwjgl.system.MemoryUtil.memAlloc
 import org.lwjgl.system.MemoryUtil.memFree
+import java.io.File
 import java.nio.ByteBuffer
 import kotlin.math.max
 import kotlin.math.min
@@ -30,6 +31,7 @@ object NVGRenderer {
     private val nvgColor2: NVGColor = NVGColor.malloc()
 
     val defaultFont = Font("Default", mc.resourceManager.getResource(ResourceLocation.parse("quoi:font.ttf")).get().open())
+    val customFont = Font("Custom", File("config/quoi!/font.ttf").takeIf { it.exists() }?.inputStream() ?: mc.resourceManager.getResource(ResourceLocation.parse("quoi:font.ttf")).get().open())
     val minecraftFont = Font("Minecraft")
 
     private val fontMap = HashMap<Font, NVGFont>()

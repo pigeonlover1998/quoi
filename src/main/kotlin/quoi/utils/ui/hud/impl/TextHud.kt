@@ -12,7 +12,7 @@ import quoi.utils.ui.data.Anchor
 import quoi.utils.ui.hud.Hud
 import quoi.utils.ui.hud.ScopedHud
 import quoi.utils.ui.rendering.Font
-import quoi.utils.ui.rendering.NVGRenderer.defaultFont
+import quoi.utils.ui.rendering.NVGRenderer.customFont
 import quoi.utils.ui.rendering.NVGRenderer.minecraftFont
 
 class TextHud(
@@ -61,6 +61,6 @@ class TextHud(
         Minecraft,
         Custom;
 
-        fun get() = if (this == Minecraft) minecraftFont else defaultFont
+        fun get() = if (this == Minecraft) minecraftFont else customFont
     }
 }
