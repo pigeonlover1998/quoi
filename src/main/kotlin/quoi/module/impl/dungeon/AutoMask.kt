@@ -8,25 +8,23 @@ import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.Module
-import quoi.utils.ChatUtils.command
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.skyblock.player.ContainerUtils
+import quoi.utils.skyblock.player.PlayerUtils.stop
 
 // Kyleen
-object AutoMask : Module(
+object AutoMask : Module( // todo remove in the future
     "Auto Mask",
-    desc = "Automatically swaps to invincibility item."
+    desc = "Automatically swaps to invincibility mask."
 ) {
 
     private val dungeonsOnly by switch("Dungeons only")
     private val bossOnly by switch("Boss only")
-    private val P3Only by switch("Phase 3 only")
+    private val p3Only by switch("Phase 3 only")
     private val stopMoving by switch("Prevent moving", true)
-    private val announceProc by switch("Announce mask proc")
 
-    val isSwapping: Boolean get() = _isSwapping
-    private var _isSwapping = false
+    private var swappping = false
 
     init {
         command.sub("equip") { maskName: GreedyString ->
@@ -34,54 +32,42 @@ object AutoMask : Module(
         }.description("Automatically swaps to a specified mask.").requires("&cAuto Mask module is disabled!") { enabled }
 
         on<WorldEvent.Change> {
-            _isSwapping = false
+            swappping = false
         }
 
         on<TickEvent.Start> {
-            if (stopMoving && isSwapping && mc.player != null) {
-                val opts = mc.options
-                val keys = listOf(opts.keyUp, opts.keyDown, opts.keyLeft, opts.keyRight, opts.keyJump, opts.keySprint)
-                keys.forEach { it.isDown = false }
-            }
+            if (stopMoving && swappping) player.stop()
         }
 
         on<ChatEvent.Packet> {
+            if (dungeonsOnly && !Dungeon.inDungeons) return@on
+            if (bossOnly && !Dungeon.inBoss) return@on
+            if (p3Only && !Dungeon.inP3) return@on
             val messageRaw = message.noControlCodes
 
             val bonzoMsg = messageRaw == "Your Bonzo's Mask saved your life!" || messageRaw == "Your ⚚ Bonzo's Mask saved your life!"
             val spiritMsg = messageRaw == "Second Wind Activated! Your Spirit Mask saved your life!"
 
-            if (dungeonsOnly && !Dungeon.inDungeons) return@on
-            if (bossOnly && !Dungeon.inBoss) return@on
-            if (P3Only && !Dungeon.inP3) return@on
-
             if (bonzoMsg || spiritMsg) {
                 triggerEquip(if (bonzoMsg) "spirit mask" else "bonzo's mask")
-
-                if (announceProc) {
-                    if (spiritMsg) command("pc Spirit Procced!")
-                    if (bonzoMsg) command("pc Bonzo Procced!")
-                }
             }
         }
     }
 
     fun triggerEquip(maskName: String) {
-        if (Dungeon.isDead || _isSwapping || Dungeon.inTerminal) return
-
-        val player = mc.player ?: return
+        if (Dungeon.isDead || swappping || Dungeon.inTerminal) return
 
         val currentHelmet = player.inventory.getItem(39)
         val helmetName = currentHelmet.displayName.string
 
         if (helmetName.contains(maskName, ignoreCase = true)) return
 
-        _isSwapping = true
+        swappping = true
         scope.launch {
             try {
                 equipMask(maskName)
             } finally {
-                _isSwapping = false
+                swappping = false
             }
         }
     }

@@ -8,9 +8,9 @@ import quoi.config.TypeName
 import quoi.module.impl.dungeon.AutoRoutes
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.skyblock.player.PlayerUtils
-import quoi.utils.skyblock.player.PlayerUtils.pitch
-import quoi.utils.skyblock.player.PlayerUtils.rotate
-import quoi.utils.skyblock.player.PlayerUtils.yaw
+import quoi.utils.skyblock.player.RotationUtils.pitch
+import quoi.utils.skyblock.player.RotationUtils.rotate
+import quoi.utils.skyblock.player.RotationUtils.yaw
 import quoi.utils.skyblock.player.SwapManager
 
 @TypeName("use_item")

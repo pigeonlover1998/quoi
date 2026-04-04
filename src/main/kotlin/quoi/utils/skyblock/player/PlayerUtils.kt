@@ -22,6 +22,8 @@ import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.SoundUtils
 import quoi.utils.key
 import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.player.RotationUtils.pitch
+import quoi.utils.skyblock.player.RotationUtils.yaw
 import java.nio.charset.StandardCharsets
 import java.util.*
 
@@ -96,26 +98,6 @@ object PlayerUtils {
         val state = mc.level?.getBlockState(hit.blockPos) ?: return false
         return !state.isAir && state.fluidState.isEmpty
     }
-
-    var LocalPlayer.yaw
-        get() = wrapDegrees(this.yRot)
-        set(v) {
-            this.yRot = v
-            this.yHeadRot = v
-        }
-
-    var LocalPlayer.pitch
-        get() = this.xRot
-        set(v) {
-            this.xRot = v
-        }
-
-    fun LocalPlayer.rotate(yaw: Number = this.yaw, pitch: Number = this.pitch) {
-        this.yaw = yaw.toFloat()
-        this.pitch = pitch.toFloat()
-    }
-
-    fun LocalPlayer.rotate(dir: Direction) = this.rotate(dir.yaw, dir.pitch)
 
     fun LocalPlayer.at(pos: BlockPos) = this.blockPosition().above(-1) == pos
 

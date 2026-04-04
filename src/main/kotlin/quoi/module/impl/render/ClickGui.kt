@@ -41,6 +41,7 @@ import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.impl.MapSetting
+import quoi.module.settings.impl.SelectorComponent
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.StringUtils.percentColour
@@ -62,8 +63,8 @@ object ClickGui : Module(
     key = CatKeys.KEY_RIGHT_SHIFT
 ) {
     val forceSkyblock by switch("Force skyblock")
-    val forceDungeons by switch("Force dungeon")
-    val dungeonFloor by selector("Floor", Floor.F7).childOf(::forceDungeons).onValueChanged { old, new ->
+    val forceDungeons by switch("Force dungeon").onValueChanged { old, new -> if (new) Dungeon.setFloor(dungeonFloor.selected) }
+    val dungeonFloor: SelectorComponent<Floor> by selector("Floor", Floor.F7).childOf(::forceDungeons).onValueChanged { old, new ->
         if (forceDungeons) Dungeon.setFloor(new.selected)
     }
 

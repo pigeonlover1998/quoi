@@ -12,9 +12,9 @@ import quoi.utils.addVec
 import quoi.utils.blockPos
 import quoi.utils.render.drawFilledBox
 import quoi.utils.skyblock.player.PlayerUtils.at
-import quoi.utils.skyblock.player.PlayerUtils.pitch
+import quoi.utils.skyblock.player.RotationUtils.pitch
 import quoi.utils.skyblock.player.PlayerUtils.stop
-import quoi.utils.skyblock.player.PlayerUtils.yaw
+import quoi.utils.skyblock.player.RotationUtils.yaw
 
 object LavaMazeSolver {
     private var isActive = false

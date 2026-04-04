@@ -39,8 +39,8 @@ import quoi.utils.render.*
 import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.scaledHeight
 import quoi.utils.scaledWidth
-import quoi.utils.skyblock.player.PlayerUtils.pitch
-import quoi.utils.skyblock.player.PlayerUtils.yaw
+import quoi.utils.skyblock.player.RotationUtils.pitch
+import quoi.utils.skyblock.player.RotationUtils.yaw
 import kotlin.coroutines.cancellation.CancellationException
 
 object AutoRoutes : Module(

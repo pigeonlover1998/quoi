@@ -36,7 +36,7 @@ import quoi.utils.ui.textPair
 import java.util.concurrent.ConcurrentHashMap
 
 // Kyleen
-object DungeonBreaker : Module(
+object DungeonBreaker : Module( // todo recode
     "Dungeon Breaker",
     area = Island.Dungeon
 ) {

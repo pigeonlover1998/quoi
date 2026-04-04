@@ -17,7 +17,7 @@ import quoi.utils.bounds
 import quoi.utils.getDirection
 import quoi.utils.isXZInterceptable
 import quoi.utils.render.drawFilledBox
-import quoi.utils.skyblock.player.PlayerUtils.rotate
+import quoi.utils.skyblock.player.RotationUtils.rotate
 import java.util.concurrent.CopyOnWriteArraySet
 
 /**

@@ -9,7 +9,7 @@ import quoi.module.impl.dungeon.AutoRoutes
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.wait
 import quoi.utils.skyblock.player.PlayerUtils
-import quoi.utils.skyblock.player.PlayerUtils.rotate
+import quoi.utils.skyblock.player.RotationUtils.rotate
 import quoi.utils.skyblock.player.SwapManager
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket

@@ -2,7 +2,7 @@ package quoi.api.autoroutes.actions
 
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.config.TypeName
-import quoi.utils.skyblock.player.PlayerUtils.rotate
+import quoi.utils.skyblock.player.RotationUtils.rotate
 import net.minecraft.client.player.LocalPlayer
 import quoi.api.colour.Colour
 

@@ -95,6 +95,13 @@ class Animation(
                 return c3 * percent * percent * percent - c1 * percent * percent
             }
         },
+        EaseOutBack {
+            override fun getValue(percent: Float): Float {
+                val c1 = 1.70158f
+                val c3 = c1 + 1f
+                return 1f + c3 * (percent - 1f).pow(3f) + c1 * (percent - 1f).pow(2f)
+            }
+        },
 
         EaseInSine {
             override fun getValue(percent: Float): Float =

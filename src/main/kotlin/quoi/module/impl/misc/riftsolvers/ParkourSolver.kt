@@ -11,7 +11,7 @@ import quoi.utils.Vec3
 import quoi.utils.aabb
 import quoi.utils.getDirection
 import quoi.utils.render.drawFilledBox
-import quoi.utils.skyblock.player.PlayerUtils.rotate
+import quoi.utils.skyblock.player.RotationUtils.rotate
 import quoi.utils.skyblock.player.PlayerUtils.stop
 import kotlin.math.abs
 import kotlin.math.hypot

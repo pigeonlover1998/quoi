@@ -18,7 +18,7 @@ import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.WorldUtils.state
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.PlayerUtils.at
-import quoi.utils.skyblock.player.PlayerUtils.rotate
+import quoi.utils.skyblock.player.RotationUtils.rotate
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 import quoi.utils.skyblock.player.SwapManager
 import kotlin.math.roundToInt

@@ -6,7 +6,7 @@ import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.config.TypeName
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.skyblock.player.PlayerUtils.leftClick
-import quoi.utils.skyblock.player.PlayerUtils.rotate
+import quoi.utils.skyblock.player.RotationUtils.rotate
 import quoi.utils.skyblock.player.SwapManager
 
 @TypeName("boom")
