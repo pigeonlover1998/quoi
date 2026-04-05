@@ -17,6 +17,8 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.phys.Vec3
 import quoi.api.colour.Colour
 import quoi.utils.rayCast
+import kotlin.math.atan2
+import kotlin.math.sqrt
 
 @TypeName("etherwarp")
 class EtherwarpAction(val yaw: Float = 0f, val pitch: Float = 0f, val vec: Vec3? = null) : RingAction {
@@ -52,14 +54,25 @@ class EtherwarpAction(val yaw: Float = 0f, val pitch: Float = 0f, val vec: Vec3?
                     }
                 }
 
+                val realYaw = room.getRealYaw(action.yaw)
+                val dx = -kotlin.math.sin(Math.toRadians(realYaw.toDouble()))
+                val dz = kotlin.math.cos(Math.toRadians(realYaw.toDouble()))
+                val dy = -kotlin.math.sin(Math.toRadians(action.pitch.toDouble()))
+                val horizontalDist = sqrt(dx * dx + dz * dz)
+                val sneakHeight = 1.54f - atan2(dy, horizontalDist).toFloat()
+
+                player.setPos(player.x, player.y + (sneakHeight - 1.54f), player.z)
+
                 mc.connection!!.send(
                     ServerboundUseItemPacket(
                         InteractionHand.MAIN_HAND,
                         0,
-                        room.getRealYaw(action.yaw),
+                        realYaw,
                         action.pitch
                     )
                 )
+
+                player.setPos(player.x, player.y - (sneakHeight - 1.54f), player.z)
 
                 if (i > index) {
                     AutoRoutes.visitedRings.add(ring)
