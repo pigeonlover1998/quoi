@@ -21,7 +21,7 @@ object ModuleManager {
             // DUNGEONS
             ShadowAssassinAlert,
             LeapMenu,
-            AutoAlign,
+            ArrowAlign,
             AutoLeap,
             LeverAura,
             AutoCloseChest,
