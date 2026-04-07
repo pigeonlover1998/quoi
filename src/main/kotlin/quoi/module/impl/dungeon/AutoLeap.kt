@@ -91,8 +91,6 @@ object AutoLeap : Module(
     }
 
     private fun handleLeap(completedSection: P3Section? = null, forceS1: Boolean = false) {
-        val player = mc.player ?: return
-
         if (autoLeap) {
             for ((pos, distSqr) in doNotLeapLocations) {
                 if (player.distanceToSqr(pos) <= distSqr) {
