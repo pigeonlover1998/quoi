@@ -180,7 +180,7 @@ object AuraManager {
     }
 
     private fun debugBox(vec3: Vec3) {
-//        return // comm to debug
+        return // comm to debug
         recentClicks.add(vec3)
         scheduleTask(10) { recentClicks.remove(vec3) }
     }

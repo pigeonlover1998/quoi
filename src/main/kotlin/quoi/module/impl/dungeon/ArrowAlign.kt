@@ -1,6 +1,8 @@
 package quoi.module.impl.dungeon
 
 import net.minecraft.core.BlockPos
+import net.minecraft.network.protocol.game.ServerboundInteractPacket
+import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.decoration.ItemFrame
 import net.minecraft.world.item.Items
 import net.minecraft.world.phys.AABB
@@ -130,7 +132,22 @@ object ArrowAlign : Module(
                 recentClicks[i] = System.currentTimeMillis()
                 repeat(clicksNeeded) {
                     frame.rotation = (frame.rotation + 1) % 8
-                    AuraManager.auraEntity(frame.entity, AuraAction.INTERACT)
+                    mc.connection?.send(
+                        ServerboundInteractPacket.createInteractionPacket(
+                            frame.entity,
+                            player.isShiftKeyDown,
+                            InteractionHand.MAIN_HAND,
+                            Vec3(0.03125, 0.0, 0.0)
+                        )
+                    )
+
+                    mc.connection?.send(
+                        ServerboundInteractPacket.createInteractionPacket(
+                            frame.entity,
+                            player.isShiftKeyDown,
+                            InteractionHand.MAIN_HAND
+                        )
+                    )
                 }
                 break
             }
