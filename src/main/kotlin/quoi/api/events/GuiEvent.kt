@@ -17,8 +17,13 @@ abstract class GuiEvent {
     class Key(val screen: Screen, val key: Int) : CancellableEvent()
     class Char(val screen: Screen, val char: kotlin.Char) : CancellableEvent()
 
-    class Draw(val screen: Screen, val ctx: GuiGraphics, val mx: Int, val my: Int) : CancellableEvent()
-    class DrawBackground(val screen: Screen, val ctx: GuiGraphics, val mx: Int, val my: Int) : CancellableEvent()
+    class Draw(val screen: Screen, val ctx: GuiGraphics, val mx: Int, val my: Int) : CancellableEvent() {
+        class Post(val screen: Screen, val ctx: GuiGraphics, val mx: Int, val my: Int) : CancellableEvent()
+    }
+
+    class DrawBackground(val screen: Screen, val ctx: GuiGraphics, val mx: Int, val my: Int) : CancellableEvent() {
+        class Post(val screen: Screen, val ctx: GuiGraphics, val mx: Int, val my: Int) : CancellableEvent()
+    }
 
     abstract class Slot {
         class Click(val screen: Screen, val slot: net.minecraft.world.inventory.Slot, val slotId: Int, val button: Int, val actionType: ClickType) : CancellableEvent()

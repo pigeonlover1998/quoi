@@ -65,6 +65,7 @@ object ModuleManager {
             Sweet,
 //            CustomTriggers,
             MirrorverseSolvers,
+            CatMode,
 
             // PLAYER
             AutoSprint,

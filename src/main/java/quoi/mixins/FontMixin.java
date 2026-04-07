@@ -1,5 +1,6 @@
 package quoi.mixins;
 
+import quoi.module.impl.misc.CatMode;
 import quoi.module.impl.render.NickHider;
 import net.minecraft.client.gui.Font;
 import net.minecraft.util.FormattedCharSequence;
@@ -16,7 +17,7 @@ public class FontMixin {
             argsOnly = true
     )
     public FormattedCharSequence prepareOrderedText(FormattedCharSequence value) {
-        return NickHider.replaceName(value);
+        return NickHider.replaceName(CatMode.replaceText(value));
     }
 
     @ModifyVariable(
@@ -26,7 +27,7 @@ public class FontMixin {
             argsOnly = true
     )
     public String prepareString(String value) {
-        return NickHider.replaceName(value);
+        return NickHider.replaceName(CatMode.replaceText(value));
     }
 
     @ModifyVariable(
@@ -36,7 +37,7 @@ public class FontMixin {
             argsOnly = true
     )
     public FormattedCharSequence getWidth(FormattedCharSequence value) {
-        return NickHider.replaceName(value);
+        return NickHider.replaceName(CatMode.replaceText(value));
     }
 
     @ModifyVariable(
@@ -46,6 +47,6 @@ public class FontMixin {
             argsOnly = true
     )
     public String getWidth(String value) {
-        return NickHider.replaceName(value);
+        return NickHider.replaceName(CatMode.replaceText(value));
     }
 }

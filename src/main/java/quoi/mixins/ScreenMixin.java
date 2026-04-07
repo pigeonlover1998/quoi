@@ -48,11 +48,29 @@ public class ScreenMixin {
     }
 
     @Inject(
+            method = "renderWithTooltipAndSubtitles",
+            at = @At("TAIL"),
+            cancellable = true
+    )
+    protected void quoi$onRenderPost(GuiGraphics context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
+        if (new GuiEvent.Draw.Post((Screen) (Object) this, context, mouseX, mouseY).post()) ci.cancel();
+    }
+
+    @Inject(
             method = "renderBackground",
             at = @At("HEAD"),
             cancellable = true
     )
     protected void quoi$onRenderBackground(GuiGraphics context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
         if (new GuiEvent.DrawBackground((Screen) (Object) this, context, mouseX, mouseY).post()) ci.cancel();
+    }
+
+    @Inject(
+            method = "renderBackground",
+            at = @At("TAIL"),
+            cancellable = true
+    )
+    protected void quoi$onRenderBackgroundPost(GuiGraphics context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
+        if (new GuiEvent.DrawBackground.Post((Screen) (Object) this, context, mouseX, mouseY).post()) ci.cancel();
     }
 }
