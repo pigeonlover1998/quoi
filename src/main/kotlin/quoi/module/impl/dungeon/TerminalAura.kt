@@ -30,7 +30,7 @@ object TerminalAura : Module(
     init {
 
         on<TickEvent.Start> {
-            if (!Dungeon.inP3 || Dungeon.inTerminal || Dungeon.isDead) return@on
+            if (!Dungeon.inP3 || Dungeon.inTerminal || Dungeon.isDead || mc.screen != null) return@on
             if (System.currentTimeMillis() - lastClick < auraDelay) return@on
 
             if (leapDelayEnabled) {
