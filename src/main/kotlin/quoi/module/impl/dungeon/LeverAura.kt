@@ -17,7 +17,7 @@ import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.skyblock.player.AuraManager
 
 // Kyleen
-object LeverAura : Module(
+object LeverAura : Module( // todo move to secret aura.. also this shit is completely broken with powered levers rn idk
     "Lever Aura",
     desc = "Automatically flicks levers in Goldor fight.",
     area = Island.Dungeon(7, inBoss = true)
@@ -26,6 +26,7 @@ object LeverAura : Module(
     private val deviceLevers by switch("Lights device")
     private val sectionLevers by switch("S1/2/3/4 levers", desc = "Flips levers on gold pillar things")
     private val ignorePowered by switch("Ignore powered", desc = "Ignores powered lever check")
+    private val range by slider("Range", 5.0, 2.1, 6.5, 0.1, desc = "Maximum range for the lever aura.")
     private val delay by slider("Delay", 400, 0, 1000, 10)
 
     private val leverCooldowns = HashMap<BlockPos, Long>()
@@ -85,7 +86,7 @@ object LeverAura : Module(
 
     private fun processLevers(positions: List<BlockPos>, forceIgnorePowered: Boolean = false): Boolean {
         for (pos in positions) {
-            if (player.distanceToSqr(Vec3.atCenterOf(pos)) > 25) continue
+            if (player.distanceToSqr(Vec3.atCenterOf(pos)) > range * range) continue
 
             val state = level.getBlockState(pos)
             if (state.block != Blocks.LEVER) continue

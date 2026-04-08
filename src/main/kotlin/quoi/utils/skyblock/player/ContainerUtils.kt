@@ -234,12 +234,6 @@ object ContainerUtils {
             else -> ClickType.PICKUP
         }
 
-        println("container: $containerId")
-        println("state: $lastStateId")
-        println("slot: $slot")
-        println("button: $button")
-        println("type: $clickType")
-
         scheduleTask {
             mc.connection?.send(
                 ServerboundContainerClickPacket(

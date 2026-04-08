@@ -26,11 +26,11 @@ import quoi.utils.render.drawText
 object ArrowAlign : Module(
     "Arrow Align",
     desc = "Shows the solution for arrow align device.",
-    area = Island.Dungeon(inBoss = true)
+    area = Island.Dungeon(7, inBoss = true)
 ) {
     private val solver by switch("Solver")
     private val auto by switch("Auto")
-    private val range by slider("Range", 5.0, 2.1, 6.5, 0.1, desc = "Maximum range for secret aura.").childOf(::auto)
+    private val range by slider("Range", 5.0, 2.1, 6.5, 0.1, desc = "Maximum range for the align aura.").childOf(::auto)
 
     private val deviceStandLocation = BlockPos(0, 120, 77)
     private val deviceCorner = BlockPos(-2, 120, 75)
