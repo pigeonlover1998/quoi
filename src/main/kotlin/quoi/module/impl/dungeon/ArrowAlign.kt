@@ -16,12 +16,11 @@ import quoi.api.skyblock.dungeon.Dungeon.inP3
 import quoi.api.skyblock.dungeon.Dungeon.isDead
 import quoi.api.skyblock.invoke
 import quoi.module.Module
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.ChatUtils.literal
 import quoi.utils.EntityUtils
 import quoi.utils.addVec
 import quoi.utils.render.drawText
-import quoi.utils.skyblock.player.AuraAction
-import quoi.utils.skyblock.player.AuraManager
 
 // Kyleen
 object ArrowAlign : Module(
@@ -31,6 +30,7 @@ object ArrowAlign : Module(
 ) {
     private val solver by switch("Solver")
     private val auto by switch("Auto")
+    private val range by slider("Range", 5.0, 2.1, 6.5, 0.1, desc = "Maximum range for secret aura.").childOf(::auto)
 
     private val deviceStandLocation = BlockPos(0, 120, 77)
     private val deviceCorner = BlockPos(-2, 120, 75)
@@ -116,15 +116,21 @@ object ArrowAlign : Module(
 
         if (!auto) return
 
+        val closest = (0 until 25).minByOrNull { i ->
+            val f = currentFrames[i] ?: return@minByOrNull Double.MAX_VALUE
+            val t = solution[i] ?: return@minByOrNull Double.MAX_VALUE
+            if ((t - f.rotation + 8) % 8 <= 0) Double.MAX_VALUE else player.distanceToSqr(f.entity)
+        }
+
         for (i in 0 until 25) {
             val frame = currentFrames[i] ?: continue
             val targetRotation = solution[i] ?: continue
             var clicksNeeded = (targetRotation - frame.rotation + 8) % 8
 
             if (clicksNeeded <= 0) continue
-            if (frame.entity.distanceToSqr(player) > 25) continue
+            if (frame.entity.distanceToSqr(player) > range * range) continue
 
-            if (!inP3 && frames <= 1) {
+            if (!inP3 && i == closest) {
                 clicksNeeded--
             }
 
