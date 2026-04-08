@@ -79,18 +79,18 @@ object AutoLeap : Module(
 
         on<MouseEvent.Click> {
             if (!fastLeap || button != 0 || !state) return@on
-            if (!Dungeon.inP3 && !Dungeon.inClear) return@on
+            if (Dungeon.getP3Section() == P3Section.Unknown && !Dungeon.inClear) return@on
 //            if (player.mainHandItem.skyblockId != "INFINITE_SPIRIT_LEAP") return@on
             if (!player.mainHandItem.displayName.string.contains("InfiniLeap", true)) return@on
 
             val currentTime = System.currentTimeMillis()
-            if (currentTime - lastClick < fastDelay || LeapManager.leapCD > 0) return@on
-            handleLeap()
+            if (currentTime - lastClick < fastDelay) return@on
+            handleLeap(autoLeap = false)
             lastClick = currentTime
         }
     }
 
-    private fun handleLeap(completedSection: P3Section? = null, forceS1: Boolean = false) {
+    private fun handleLeap(completedSection: P3Section? = null, forceS1: Boolean = false, autoLeap: Boolean = true) {
         if (autoLeap) {
             for ((pos, distSqr) in doNotLeapLocations) {
                 if (player.distanceToSqr(pos) <= distSqr) {
