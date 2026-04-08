@@ -4,6 +4,7 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
 import quoi.QuoiMod.mc
 import quoi.annotations.Init
+import quoi.api.events.ChatEvent
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.core.EventBus.on
@@ -15,6 +16,7 @@ import quoi.api.skyblock.dungeon.DungeonClass
 import quoi.api.skyblock.dungeon.DungeonPlayer
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleTask
+import quoi.utils.StringUtils.noControlCodes
 
 @Init
 object LeapManager { // still schizophrenia
@@ -60,6 +62,13 @@ object LeapManager { // still schizophrenia
                     menuOpened = true
                     cancel()
                 }
+            }
+        }
+
+        on<ChatEvent.Packet> {
+            if (message.noControlCodes == "You cannot use this in a solo dungeon!") { // probably will never happen on main server
+                modMessage("&cFailed to leap! You're in a solo dungeon!")
+                reloadGui()
             }
         }
 
