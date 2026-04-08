@@ -16,7 +16,7 @@ import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.skyblock.player.LeapManager
 
 // Kyleen (maybe)
-object AutoLeap : Module(
+object AutoLeap : Module( // todo clean up
     "Auto Leap",
     desc = "Automatically leaps to predefined targets.",
     area = Island.Dungeon
@@ -92,6 +92,7 @@ object AutoLeap : Module(
 
     private fun handleLeap(completedSection: P3Section? = null, forceS1: Boolean = false, autoLeap: Boolean = true) {
         if (autoLeap) {
+            if (Dungeon.getP3Section() == P3Section.Unknown) return
             for ((pos, distSqr) in doNotLeapLocations) {
                 if (player.distanceToSqr(pos) <= distSqr) {
                     return
