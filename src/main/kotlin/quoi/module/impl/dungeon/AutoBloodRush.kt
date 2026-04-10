@@ -2,6 +2,7 @@ package quoi.module.impl.dungeon
 
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
 import net.minecraft.world.phys.Vec3
 import quoi.api.events.*
 import quoi.api.skyblock.Island
@@ -18,8 +19,8 @@ import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.WorldUtils.state
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.PlayerUtils.at
-import quoi.utils.skyblock.player.RotationUtils.rotate
 import quoi.utils.skyblock.player.PlayerUtils.useItem
+import quoi.utils.skyblock.player.RotationUtils.rotate
 import quoi.utils.skyblock.player.SwapManager
 import kotlin.math.roundToInt
 
@@ -87,8 +88,8 @@ object AutoBloodRush : Module( // inconsistent
             }
         }
 
-        on<PacketEvent.Received, ClientboundPlayerPositionPacket> {
-            if (goingMid) {
+        on<PacketEvent.Received> {
+            if (goingMid && packet is ClientboundPlayerPositionPacket) {
                 if (packet.change.position.y in 75.0..77.0) {
                     goingMid = false
                     scheduleTask(2) {
@@ -101,6 +102,13 @@ object AutoBloodRush : Module( // inconsistent
                 }
             }
 
+            val flag = when (packet) {
+                is ClientboundSystemChatPacket -> packet.content.string.noControlCodes == "There are blocks in the way!" // if it goes in the bedrock
+                is ClientboundPlayerPositionPacket -> true
+                else -> false
+            }
+
+            if (!flag) return@on
             if (tickerThing == null || tpsAmount == 0) return@on
             if (++tpsReceived == tpsAmount) {
                 doneTeleporting = true
@@ -174,9 +182,7 @@ object AutoBloodRush : Module( // inconsistent
     private fun TickerScope.roof() {
         action {
             if (SwapManager.swapByName("pearl").success) {
-                tpsReceived = 0
-                tpsAmount = 4
-                doneTeleporting = false
+                awaitTp(4)
             } else cancel()
         }
         repeat(4) { // split otherwise it gets fucked
@@ -186,9 +192,7 @@ object AutoBloodRush : Module( // inconsistent
         await { doneTeleporting() }
 
         action {
-            tpsReceived = 0
-            tpsAmount = 4
-            doneTeleporting = false
+            awaitTp(4)
         }
 
         repeat(4) {
@@ -205,9 +209,7 @@ object AutoBloodRush : Module( // inconsistent
 
             if (tpsAmount == 0 || doneTeleporting()) { // todo fix
 //                modMessage("I AM A NI")
-                tpsReceived = 0
-                tpsAmount = 1
-                doneTeleporting = false
+                awaitTp(1)
                 PlayerUtils.interact()
             }
 
@@ -218,8 +220,6 @@ object AutoBloodRush : Module( // inconsistent
 
     private fun br() = ticker {
 
-//        await { Dungeon.deathTick > 30 }
-
         action {
             if (player.y < 95 || !SwapManager.swapById("ASPECT_OF_THE_VOID").success) {
                 cancel()
@@ -229,36 +229,37 @@ object AutoBloodRush : Module( // inconsistent
 
         action(1) {
             val yaw = getFreeDirection(currentRoom!!) ?: cancel()
+            modMessage(yaw)
+            awaitTp(4)
+            repeat(4) { player.useItem(yaw, 0) }
+        }
 
+        await { doneTeleporting() }
+
+        action {
+            awaitTp(8)
+            repeat(8) { player.useItem(0, 90) }
+        }
+
+        await { doneTeleporting() }
+
+        action {
+            val blood = bloodCoords != null
             val target = bloodCoords ?: mid
 
-            val edgeTimes = 4
-            val moved = edgeTimes * 12.0
-            val px = player.x + when (yaw) {
-                90f -> -moved
-                -90f -> moved
-                else -> 0.0
-            }
+            val bloodDir = getDirection(player.position(), target)
+            val bloodTimes = (player.position().distanceTo2D(target) / 12).roundToInt() + if (!blood) 3 else 0
 
-            val pz = player.z + when (yaw) {
-                180f -> -moved
-                0f -> moved
-                else -> 0.0
-            }
-            val predictedPos = Vec3(px, player.y, pz)
-
-            val bloodDir = getDirection(predictedPos, target)
-            val bloodTimes = (predictedPos.distanceTo2D(target) / 12).roundToInt()
-
-            tpsReceived = 0
-            tpsAmount = 3
-            doneTeleporting = false
-
-            repeat(edgeTimes) { player.useItem(yaw, 0) }
-            repeat(9) { player.useItem(0, 90) }
+            awaitTp(bloodTimes)
             repeat(bloodTimes) { player.useItem(bloodDir.yaw, 0) }
+            if (!blood) cancel()
+        }
 
+        await { doneTeleporting() }
+
+        action {
             if (bloodCoords != null) {
+                awaitTp(8)
                 repeat(8) { player.useItem(0, -90) }
             } else {
                 cancel()
@@ -292,6 +293,12 @@ object AutoBloodRush : Module( // inconsistent
         return false
     }
 
+    private fun awaitTp(amount: Int) {
+        tpsReceived = 0
+        tpsAmount = amount
+        doneTeleporting = false
+    }
+
     private fun getFreeDirection(entrance: OdonRoom): Float? {
         val directions = mapOf(
             (0 to -32) to 180f,
@@ -305,7 +312,7 @@ object AutoBloodRush : Module( // inconsistent
 
             entrance.roomComponents.none { comp ->
 
-                val vec = Vec2(comp.x + dx, comp.z + dz)
+                val vec = Vec2i(comp.x + dx, comp.z + dz)
 
                 ScanUtils.scannedRooms.any { room ->
                     room.roomComponents.any { it.vec2 == vec }

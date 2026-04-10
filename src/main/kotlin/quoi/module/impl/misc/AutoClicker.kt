@@ -149,7 +149,10 @@ object AutoClicker: Module(
                 }
             }
 
-            delay(Random.nextLong(1000L / range.second, 1000L / range.first))
+            val min = 1000L / range.second
+            val max = 1000L / range.first
+
+            delay(if (min == max) min else Random.nextLong(min, max))
         }
     }
 
