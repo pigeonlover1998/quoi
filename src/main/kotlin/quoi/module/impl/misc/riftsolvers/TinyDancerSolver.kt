@@ -8,7 +8,7 @@ import net.minecraft.sounds.SoundEvents
 import quoi.QuoiMod.mc
 import quoi.utils.ChatUtils
 import quoi.utils.Scheduler
-import quoi.utils.skyblock.player.PlayerUtils.hold
+import quoi.utils.skyblock.player.MovementUtils.hold
 import quoi.utils.skyblock.player.PlayerUtils.leftClick
 import quoi.utils.skyblock.player.RotationUtils.pitch
 import quoi.utils.skyblock.player.RotationUtils.yaw

@@ -11,7 +11,7 @@ import quoi.module.Module
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.skyblock.player.ContainerUtils
-import quoi.utils.skyblock.player.PlayerUtils.stop
+import quoi.utils.skyblock.player.MovementUtils.stop
 
 // Kyleen
 object AutoMask : Module( // todo remove in the future

@@ -20,7 +20,7 @@ import quoi.utils.WorldUtils.state
 import quoi.utils.render.drawLine
 import quoi.utils.skyblock.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.PlayerUtils.at
-import quoi.utils.skyblock.player.PlayerUtils.isMoving
+import quoi.utils.skyblock.player.MovementUtils.isMoving
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 import quoi.utils.skyblock.player.SwapManager
 import java.io.InputStreamReader

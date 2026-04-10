@@ -7,11 +7,9 @@ import com.google.gson.reflect.TypeToken
 import net.minecraft.core.BlockPos
 import net.minecraft.util.Mth.wrapDegrees
 import net.minecraft.world.phys.Vec3
-import quoi.utils.Vec2
-import quoi.utils.rotate
+import quoi.utils.Vec2i
 import quoi.utils.rotateAroundNorth
 import quoi.utils.rotateToNorth
-import quoi.utils.unrotate
 import java.lang.reflect.Type
 
 data class OdonRoom(
@@ -32,7 +30,7 @@ data class OdonRoom(
 }
 
 data class RoomComponent(val x: Int, val z: Int, val core: Int = 0) {
-    val vec2 = Vec2(x, z)
+    val vec2 = Vec2i(x, z)
     val blockPos = BlockPos(x, 70, z)
 }
 

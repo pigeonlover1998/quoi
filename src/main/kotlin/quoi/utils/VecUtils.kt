@@ -19,7 +19,7 @@ import kotlin.math.*
  * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/me/odinmain/utils/VecUtils.kt
  */
 
-data class Vec2(val x: Int, val z: Int)
+data class Vec2i(val x: Int, val z: Int)
 data class Direction(val yaw: Float, val pitch: Float, val distance: Double = 0.0) {
     fun toVec(): Vec3 {
         val f2 = -cos(-pitch * 0.017453292f).toDouble()
@@ -79,17 +79,6 @@ fun BlockPos(x: Number, y: Number, z: Number) =
         floor(y.toDouble()).toInt(),
         floor(z.toDouble()).toInt(),
     )
-
-fun Vec3.rotate(rotation: Int): Vec3 =
-    when ((rotation % 360 + 360) % 360) {
-        0   -> Vec3(x, y, z)
-        90  -> Vec3(z, y, -x)
-        180 -> Vec3(-x, y, -z)
-        270 -> Vec3(-z, y, x)
-        else -> this
-    }
-
-fun Vec3.unrotate(rotation: Int): Vec3 = rotate(360 - rotation)
 
 /**
  * Rotates a Vec3 around the given rotation.
@@ -167,13 +156,17 @@ fun Vec3.multiply(x: Double = 1.0, y: Double = 1.0, z: Double = 1.0): Vec3 =
 fun Vec3.equal(other: Vec3): Boolean =
     this.x == other.x && this.y == other.y && this.z == other.z
 
-fun BlockPos.equal(other: BlockPos): Boolean =
-    this.x == other.x && this.y == other.y && this.z == other.z
-
 fun Vec3.distanceTo2D(to: Vec3): Double {
     val dx = this.x - to.x
     val dz = this.z - to.z
     return sqrt(dx * dx + dz * dz)
+}
+
+fun BlockPos.distanceTo(to: BlockPos): Double {
+    val dx = (this.x - to.x).toDouble()
+    val dy = (this.y - to.y).toDouble()
+    val dz = (this.z - to.z).toDouble()
+    return sqrt(dx * dx + dy * dy + dz * dz)
 }
 
 /**

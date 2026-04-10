@@ -22,8 +22,8 @@ import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleLoop
 import quoi.utils.WorldUtils
 import quoi.utils.WorldUtils.day
-import quoi.utils.skyblock.player.PlayerUtils.hold
-import quoi.utils.skyblock.player.PlayerUtils.isMoving
+import quoi.utils.skyblock.player.MovementUtils.hold
+import quoi.utils.skyblock.player.MovementUtils.isMoving
 import quoi.utils.ticker
 import quoi.utils.ui.hud.HudManager
 import quoi.utils.ui.screens.UIScreen.Companion.open

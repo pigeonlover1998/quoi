@@ -82,15 +82,6 @@ object PlayerUtils {
         KeyMapping.click(key)
     }
 
-    fun KeyMapping.hold(ticks: Int) {
-        isDown = true
-        scheduleTask(ticks) {
-            isDown = false
-        }
-    }
-
-    val LocalPlayer.isMoving get() = deltaMovement.x != 0.0 || deltaMovement.z != 0.0 || input.hasForwardImpulse()
-
     val LocalPlayer.isLookingAtBreakable: Boolean get() {
         val hit = mc.hitResult as? BlockHitResult ?: return false
         if (hit.type != HitResult.Type.BLOCK) return false
@@ -100,14 +91,6 @@ object PlayerUtils {
     }
 
     fun LocalPlayer.at(pos: BlockPos) = this.blockPosition().above(-1) == pos
-
-    fun LocalPlayer.stop() {
-        mc.options.keyUp.isDown = false
-        mc.options.keyDown.isDown = false
-        mc.options.keyLeft.isDown = false
-        mc.options.keyRight.isDown = false
-        mc.options.keyJump.isDown = false
-    }
 
     fun getItemsAmount(itemId: String): Int {
         val player = mc.player ?: return 0

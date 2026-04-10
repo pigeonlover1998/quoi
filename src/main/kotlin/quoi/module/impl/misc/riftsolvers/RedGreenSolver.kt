@@ -16,7 +16,7 @@ import quoi.utils.render.drawFilledBox
 import quoi.utils.skyblock.player.AuraManager
 import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.RotationUtils.rotate
-import quoi.utils.skyblock.player.PlayerUtils.stop
+import quoi.utils.skyblock.player.MovementUtils.stop
 
 object RedGreenSolver {
     private var isActive = false

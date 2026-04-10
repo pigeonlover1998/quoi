@@ -1,7 +1,6 @@
 package quoi.utils
 
 import quoi.QuoiMod.mc
-import quoi.utils.LegacyIdMapper
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.multiplayer.PlayerInfo
 import net.minecraft.core.BlockPos
@@ -10,13 +9,28 @@ import net.minecraft.world.level.GameType
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.shapes.Shapes
+import net.minecraft.world.phys.shapes.VoxelShape
 
 /**
  * modified Stella (LGPL-3.0) (c) Eclipse-5214
  * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/WorldUtils.kt
  */
 object WorldUtils {
-    val BlockPos.state: BlockState get() = mc.level?.getBlockState(this) ?: Blocks.AIR.defaultBlockState()
+    inline val BlockPos.state: BlockState
+        get() = mc.level?.getBlockState(this) ?: Blocks.AIR.defaultBlockState()
+
+    inline val BlockPos.shape: VoxelShape
+        get() = mc.level?.let { this.state.getCollisionShape(it, this) } ?: Shapes.empty()
+
+    inline val BlockPos.solid: Boolean
+        get() = !this.shape.isEmpty
+
+    inline val BlockPos.airLike: Boolean
+        get() = /*!solid &&*/ state.block in BlockTypes.AirLike
+
+    inline val BlockPos.walkable: Boolean
+        get() = this.airLike && this.above().airLike
 
     val Block.registryName: String get() {
         val registry = BuiltInRegistries.BLOCK.getKey(this)

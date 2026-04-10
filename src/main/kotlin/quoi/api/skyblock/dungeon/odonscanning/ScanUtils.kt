@@ -21,7 +21,7 @@ import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomComponent
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomData
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomDataDeserializer
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
-import quoi.utils.Vec2
+import quoi.utils.Vec2i
 import quoi.utils.equalsOneOf
 
 /**
@@ -39,7 +39,7 @@ object ScanUtils {
 
     private val horizontals = Direction.entries.filter { it.axis.isHorizontal }
     private val mutableBlockPos = BlockPos.MutableBlockPos()
-    private var lastRoomPos: Vec2 = Vec2(0, 0)
+    private var lastRoomPos: Vec2i = Vec2i(0, 0)
 
     var currentRoom: OdonRoom? = null
         private set
@@ -101,7 +101,7 @@ object ScanUtils {
             passedRooms.clear()
             scannedRooms.clear()
             currentRoom = null
-            lastRoomPos = Vec2(0, 0)
+            lastRoomPos = Vec2i(0, 0)
         }
     }
 
@@ -131,7 +131,7 @@ object ScanUtils {
             for (z in 0..5) {
                 val x = START + (x shl ROOM_SIZE_SHIFT)
                 val z = START + (z shl ROOM_SIZE_SHIFT)
-                val centre = Vec2(x, z)
+                val centre = Vec2i(x, z)
 
                 if (scannedRooms.any { room -> room.roomComponents.any { it.vec2 == centre } }) continue
 
@@ -145,7 +145,7 @@ object ScanUtils {
         }
     }
 
-    fun scanRoom(vec2: Vec2): OdonRoom? {
+    fun scanRoom(vec2: Vec2i): OdonRoom? {
         val level = mc.level ?: return null
         val chunk = level.getChunk(vec2.x shr 4, vec2.z shr 4)
         val roomHeight = getTopLayerOfRoom(vec2, chunk)
@@ -156,7 +156,7 @@ object ScanUtils {
         }
     }
 
-    private fun findRoomComponentsRecursively(vec2: Vec2, cores: List<Int>, roomHeight: Int, level: ClientLevel, visited: MutableSet<Vec2> = mutableSetOf(), tiles: MutableSet<RoomComponent> = mutableSetOf()): MutableSet<RoomComponent> {
+    private fun findRoomComponentsRecursively(vec2: Vec2i, cores: List<Int>, roomHeight: Int, level: ClientLevel, visited: MutableSet<Vec2i> = mutableSetOf(), tiles: MutableSet<RoomComponent> = mutableSetOf()): MutableSet<RoomComponent> {
         if (vec2 in visited) return tiles else visited.add(vec2)
 
         val chunk = level.getChunk(vec2.x shr 4, vec2.z shr 4)
@@ -166,7 +166,7 @@ object ScanUtils {
         tiles.add(RoomComponent(vec2.x, vec2.z, core))
         horizontals.forEach { facing ->
             findRoomComponentsRecursively(
-                Vec2(
+                Vec2i(
                     vec2.x + ((if (facing.axis == Direction.Axis.X) facing.stepX else 0) shl ROOM_SIZE_SHIFT),
                     vec2.z + ((if (facing.axis == Direction.Axis.Z) facing.stepZ else 0) shl ROOM_SIZE_SHIFT)
                 ), cores, roomHeight, level, visited, tiles
@@ -175,19 +175,19 @@ object ScanUtils {
         return tiles
     }
 
-    fun getRoomCenter(posX: Int, posZ: Int): Vec2 {
+    fun getRoomCenter(posX: Int, posZ: Int): Vec2i {
         val roomX = (posX - START + (1 shl (ROOM_SIZE_SHIFT - 1))) shr ROOM_SIZE_SHIFT
         val roomZ = (posZ - START + (1 shl (ROOM_SIZE_SHIFT - 1))) shr ROOM_SIZE_SHIFT
-        return Vec2(((roomX shl ROOM_SIZE_SHIFT) + START), ((roomZ shl ROOM_SIZE_SHIFT) + START))
+        return Vec2i(((roomX shl ROOM_SIZE_SHIFT) + START), ((roomZ shl ROOM_SIZE_SHIFT) + START))
     }
 
-    fun getCore(vec2: Vec2): Int {
+    fun getCore(vec2: Vec2i): Int {
         val level = mc.level ?: return 0
         val chunk = level.getChunk(vec2.x shr 4, vec2.z shr 4)
         return getCoreAtHeight(vec2, getTopLayerOfRoom(vec2, chunk), chunk)
     }
 
-    private fun getCoreAtHeight(vec2: Vec2, roomHeight: Int, chunk: LevelChunk): Int {
+    private fun getCoreAtHeight(vec2: Vec2i, roomHeight: Int, chunk: LevelChunk): Int {
         val sb = StringBuilder(150)
         val clampedHeight = roomHeight.coerceIn(11..140)
         sb.append(CharArray(140 - clampedHeight) { '0' })
@@ -211,7 +211,7 @@ object ScanUtils {
         return sb.toString().hashCode()
     }
 
-    fun getTopLayerOfRoom(vec2: Vec2, chunk: LevelChunk): Int {
+    fun getTopLayerOfRoom(vec2: Vec2i, chunk: LevelChunk): Int {
         for (y in 160 downTo 12) {
             mutableBlockPos.set(vec2.x, y, vec2.z)
             val blockState = chunk.getBlockState(mutableBlockPos)

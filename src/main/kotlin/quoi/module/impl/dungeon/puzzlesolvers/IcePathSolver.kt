@@ -29,7 +29,7 @@ object IcePathSolver { // todo add pre fire maybe
     private val DIRECTIONS = setOf(1 to 0, -1 to 0, 0 to 1, 0 to -1)
 
     private val silverfishBoard = Array(BOARD_SIZE) { BooleanArray(BOARD_SIZE) }
-    private var silverfishPos: Vec2? = null
+    private var silverfishPos: Vec2i? = null
     private var silverfishPath = mutableListOf<Vec3>()
 
     private var repositionTicker: Ticker? = null
@@ -68,7 +68,7 @@ object IcePathSolver { // todo add pre fire maybe
 
         if (!isMoving) {
             val relPos = room.getRelativeCoords(silverfish.blockPosition())
-            val newSilverfishPos = Vec2((24 - relPos.z), (23 - relPos.x))
+            val newSilverfishPos = Vec2i((24 - relPos.z), (23 - relPos.x))
 
             if (newSilverfishPos.x !in 0 until BOARD_SIZE || newSilverfishPos.z !in 0 until BOARD_SIZE) return
             if (newSilverfishPos != silverfishPos || boardChanged) {
@@ -100,8 +100,8 @@ object IcePathSolver { // todo add pre fire maybe
 
     private fun solve(room: OdonRoom) {
         val start = silverfishPos ?: return
-        val visited = mutableSetOf<Vec2>()
-        val queue = ArrayDeque<MutableList<Vec2>>()
+        val visited = mutableSetOf<Vec2i>()
+        val queue = ArrayDeque<MutableList<Vec2i>>()
 
         queue.add(mutableListOf(start))
         visited.add(start)
@@ -130,7 +130,7 @@ object IcePathSolver { // todo add pre fire maybe
                     nextCol += dc
                 }
 
-                val nextPos = Vec2(nextRow, nextCol)
+                val nextPos = Vec2i(nextRow, nextCol)
 
                 if (visited.add(nextPos)) {
                     val newPath = ArrayList(path).apply { add(nextPos) }

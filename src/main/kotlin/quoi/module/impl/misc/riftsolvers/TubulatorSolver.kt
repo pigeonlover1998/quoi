@@ -13,7 +13,7 @@ import quoi.utils.getDirection
 import quoi.utils.render.drawFilledBox
 import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.RotationUtils.rotate
-import quoi.utils.skyblock.player.PlayerUtils.stop
+import quoi.utils.skyblock.player.MovementUtils.stop
 import kotlin.math.abs
 import kotlin.math.hypot
 
