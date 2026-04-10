@@ -66,7 +66,8 @@ object LeapManager { // still schizophrenia
         }
 
         on<ChatEvent.Packet> {
-            if (message.noControlCodes == "You cannot use this in a solo dungeon!") { // probably will never happen on main server
+            if (message.noControlCodes == "You cannot use this in a solo dungeon!" ||
+                message.noControlCodes == "There are no other players to teleport to!") { // probably will never happen on main server
                 modMessage("&cFailed to leap! You're in a solo dungeon!")
                 reloadGui()
             }
