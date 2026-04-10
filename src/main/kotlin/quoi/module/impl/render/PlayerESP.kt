@@ -27,8 +27,6 @@ object PlayerESP : Module(
     private val tracerDistance by slider("Max distance", 256, 0, 256, 1).childOf(::tracer)
     private val tracerThickness by slider("Thickness", 4f, 1f, 8f, 1f).json("Tracer thickness").childOf(::tracer)
 
-
-    // todo figure what's going on here. I'm lazy right now
     private val ironmenOnly by switch("Ir*nmen only")
     private val depth by switch("Depth check")
     private val style by selector("Style", "Box", arrayListOf("Box", "Filled box", "Glow", "2D"), desc = "Esp render style to be used.")
