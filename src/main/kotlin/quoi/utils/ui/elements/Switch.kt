@@ -74,7 +74,6 @@ inline fun ElementScope<*>.switch(
         )
 
         watch(ref) {
-            trackCol.swap()
             trackCol.animate(0.35.seconds, Animation.Style.EaseInOutQuint)
             outlineCol.animate(0.35.seconds, Animation.Style.EaseInOutQuint)
             handleCol.animate(0.35.seconds, Animation.Style.EaseInOutQuint)
