@@ -8,8 +8,8 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
-import net.minecraft.util.Mth.wrapDegrees
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import quoi.QuoiMod.mc
@@ -18,9 +18,9 @@ import quoi.module.settings.Setting.Companion.gson
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.literal
 import quoi.utils.Direction
-import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.SoundUtils
 import quoi.utils.key
+import quoi.utils.skyblock.ItemUtils.getBreakerCharges
 import quoi.utils.skyblock.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.RotationUtils.pitch
 import quoi.utils.skyblock.player.RotationUtils.yaw
@@ -28,6 +28,9 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 
 object PlayerUtils {
+
+    inline val breakerSlot: Int?
+        get() = (0..8).find { getBreakerCharges(mc.player?.inventory?.getItem(it) ?: ItemStack.EMPTY) > 0 }
 
     fun setTitle(
         title: String,

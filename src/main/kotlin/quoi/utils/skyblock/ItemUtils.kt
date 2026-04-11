@@ -11,6 +11,8 @@ import net.minecraft.world.item.component.CustomData
 import quoi.utils.StringUtils.noControlCodes
 
 object ItemUtils {
+    private val chargesRegex = Regex("Charges: (\\d+)/(\\d+)⸕")
+
     inline val ItemStack?.extraAttributes: CompoundTag?
         get() = this?.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)?.copyTag()
 
@@ -47,4 +49,13 @@ object ItemUtils {
             }
             return false
         }
+
+    fun getBreakerCharges(stack: ItemStack): Int {
+        if (stack.isEmpty || stack.skyblockId != "DUNGEONBREAKER") return 0
+
+        return stack.lore?.firstNotNullOfOrNull { line ->
+            chargesRegex.find(line.noControlCodes)?.groupValues?.get(1)?.toIntOrNull()
+        } ?: 0
+    }
+
 }

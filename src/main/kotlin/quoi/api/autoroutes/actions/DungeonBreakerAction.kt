@@ -17,6 +17,8 @@ import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.WorldUtils.state
 import quoi.utils.skyblock.ItemUtils.lore
 import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.player.AuraManager
+import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.SwapManager
 
 @TypeName("dungeon_breaker")
@@ -45,14 +47,7 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
         }
         if (!needsBreaking) return
 
-        val breakerSlot = (0..8).find { slot -> // todo make it a util
-            getBreakerCharges(player.inventory.getItem(slot)) > 0
-        }
-
-        if (breakerSlot == null) {
-            modMessage("&cDungeon breaker not found or has no charges.")
-            return
-        }
+        val breakerSlot = PlayerUtils.breakerSlot ?: return modMessage("&cDungeon breaker not found or has no charges.")
 
         val initialCharges = getBreakerCharges(player.inventory.getItem(breakerSlot))
         var chargesUsed = 0
@@ -82,14 +77,7 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
                 if (!ring.inside(room) || outOfRangeTicks > 40) return modMessage("&cStopping. Out of range.")
             }
 
-            mc.connection?.send(
-                ServerboundPlayerActionPacket(
-                    ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,
-                    realPos,
-                    Direction.UP
-                )
-            )
-            player.swing(InteractionHand.MAIN_HAND)
+            AuraManager.breakBlock(realPos)
             recentlyBroken[realPos] = System.currentTimeMillis()
             chargesUsed++
             if (!AutoRoutes.zeroTickDb) wait(1)

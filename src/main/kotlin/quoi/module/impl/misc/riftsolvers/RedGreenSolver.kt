@@ -220,7 +220,7 @@ object RedGreenSolver {
                 } else {
 //                    player.rightClick()
                     if (player.distanceToSqr(action.pos.vec3) < 25) {
-                        AuraManager.auraBlock(action.pos)
+                        AuraManager.interactBlock(action.pos)
                     }
                     interactStage = 0
                     waitingTicks = actionsDelay
@@ -230,7 +230,7 @@ object RedGreenSolver {
             is Action.Swap -> {
                 action.target?.let { target ->
                     if (player.distanceToSqr(target) < 25) {
-                        AuraManager.auraBlock(target.blockPos)
+                        AuraManager.interactBlock(target.blockPos)
                     }
                     waitingTicks = actionsDelay
                 }

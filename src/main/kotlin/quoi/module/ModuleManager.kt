@@ -23,7 +23,6 @@ object ModuleManager {
             LeapMenu,
             ArrowAlign,
             AutoLeap,
-            LeverAura,
             AutoCloseChest,
             FullBlockHitboxes,
             CancelInteract,

@@ -97,7 +97,7 @@ object QuizSolver {
         val answerPos = triviaOptions.firstOrNull { it.isCorrect }?.blockPos ?: return
         if (player.eyePosition.distanceToSqr(answerPos.vec3) > 36) return
 
-        AuraManager.auraBlock(answerPos)
+        AuraManager.interactBlock(answerPos)
         lastClick = System.currentTimeMillis()
     }
 

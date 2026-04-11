@@ -12,6 +12,7 @@ import quoi.utils.render.drawWireFrameBox
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.protocol.game.ServerboundInteractPacket
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
@@ -20,6 +21,7 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 import quoi.annotations.Init
+import quoi.utils.eyePosition
 
 // modified https://github.com/Hypericat/NoobRoutes/blob/main/src/main/kotlin/noobroutes/utils/AuraManager.kt
 @Init
@@ -76,7 +78,7 @@ object AuraManager {
         }
     }
 
-    fun auraBlock(pos: BlockPos, force: Boolean = false, callback: () -> Unit = { }) {
+    fun interactBlock(pos: BlockPos, force: Boolean = false, callback: () -> Unit = { }) {
         val blockAura = BlockAura(pos, force, callback)
         if (clickBlockCooldown > 0) {
             queuedBlocks.add(blockAura)
@@ -85,8 +87,8 @@ object AuraManager {
         }
     }
 
-    fun auraBlock(x: Int, y: Int, z: Int, force: Boolean = false, callback: () -> Unit = { }) {
-        auraBlock(BlockPos(x, y, z), force, callback)
+    fun interactBlock(x: Int, y: Int, z: Int, force: Boolean = false, callback: () -> Unit = { }) {
+        interactBlock(BlockPos(x, y, z), force, callback)
     }
 
     fun auraEntity(entity: Entity, action: AuraAction) {
@@ -98,27 +100,28 @@ object AuraManager {
         }
     }
 
-    fun clickBlock(aura: BlockAura, removeFirst: Boolean = false) {
-        val level = mc.level ?: return
-        val player = mc.player ?: return
+    fun breakBlock(pos: BlockPos, swing: Boolean = true) {
+        val hitResult = getHitResult(pos, false) ?: return
+        debugBox(hitResult.location)
 
-        var shape = level.getBlockState(aura.pos).getShape(level, aura.pos)
+        mc.connection?.send(
+            ServerboundPlayerActionPacket(
+                ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,
+                pos,
+                hitResult.direction
+            )
+        )
+        if (swing) mc.player?.swing(InteractionHand.MAIN_HAND)
+    }
 
-        if (shape.isEmpty && aura.force) {
-            shape = Shapes.block()
-        }
+    private fun clickBlock(aura: BlockAura, removeFirst: Boolean = false) {
+        val hitResult = getHitResult(aura.pos, aura.force)
 
-        if (shape.isEmpty) {
+        if (hitResult == null) {
             aura.callback()
             if (removeFirst) queuedBlocks.removeFirst()
             return
         }
-
-        val centre = shape.bounds().center.add(aura.pos.x.toDouble(), aura.pos.y.toDouble(), aura.pos.z.toDouble())
-        val eyePos = player.eyePosition
-
-        val hitResult = shape.clip(eyePos, centre, aura.pos)
-            ?: BlockHitResult(centre, Direction.UP, aura.pos, false)
 
         debugBox(hitResult.location)
 
@@ -133,17 +136,17 @@ object AuraManager {
         if (removeFirst) queuedBlocks.removeFirst()
     }
 
-    fun clickEntity(entityAura: EntityAura, removeFirst: Boolean = false) {
+    private fun clickEntity(entityAura: EntityAura, removeFirst: Boolean = false) {
         if (removeFirst) queuedEntityClicks.removeFirst()
         val player = mc.player ?: return
         val entity = entityAura.entity
-        if (player.eyePosition.distanceTo(entity.position()) > 5) return
+        if (player.eyePosition().distanceTo(entity.position()) > 5) return
 
         if (entityAura.action == AuraAction.INTERACT_AT) {
             val expand = entity.pickRadius.toDouble()
             val boundingBox = entity.boundingBox.inflate(expand)
 
-            val clipResult = boundingBox.clip(player.eyePosition, boundingBox.center)
+            val clipResult = boundingBox.clip(player.eyePosition(), boundingBox.center)
 
             if (clipResult.isPresent) {
                 val hitVec = clipResult.get()
@@ -179,8 +182,22 @@ object AuraManager {
         }
     }
 
+    private fun getHitResult(pos: BlockPos, force: Boolean): BlockHitResult? {
+        val level = mc.level ?: return null
+        val player = mc.player ?: return null
+
+        var shape = level.getBlockState(pos).getShape(level, pos)
+        if (shape.isEmpty && force) shape = Shapes.block()
+        if (shape.isEmpty) return null
+
+        val centre = shape.bounds().center.add(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
+        return shape.clip(player.eyePosition(), centre, pos)
+            ?: BlockHitResult(centre, Direction.UP, pos, false)
+    }
+
+
     private fun debugBox(vec3: Vec3) {
-        return // comm to debug
+//        return // comm to debug
         recentClicks.add(vec3)
         scheduleTask(10) { recentClicks.remove(vec3) }
     }

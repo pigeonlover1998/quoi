@@ -266,12 +266,12 @@ object SimonSays : Module(
             player.rotateSmoothly(getDirection(pos.randomVec), duration = delay.ms, style = rotateStyle.selected) {
                 if (Dungeon.isDead || player.distanceToSqr(pos.center) > 25) return@rotateSmoothly
                 clickedButton = pos
-                AuraManager.auraBlock(pos)
+                AuraManager.interactBlock(pos)
                 player.swing(InteractionHand.MAIN_HAND)
             }
         } else {
             clickedButton = pos
-            AuraManager.auraBlock(pos)
+            AuraManager.interactBlock(pos)
             player.swing(InteractionHand.MAIN_HAND)
         }
     }

@@ -86,7 +86,7 @@ object Location {
 
         EventBus.on<WorldEvent.Change>(Priority.LOW) {
             currentArea = Island.Unknown
-            inSkyblock = false
+            inSkyblock = ClickGui.forceSkyblock
             AreaEvent.Main(currentArea).post()
 
             if (subarea !== null) {

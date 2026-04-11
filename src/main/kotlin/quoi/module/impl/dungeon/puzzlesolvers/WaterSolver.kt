@@ -181,7 +181,7 @@ object WaterSolver {
         val water = lever == LeverBlock.WATER
 
         if ((water && (openedWaterTicks == -1 || remaining <= 0)) || (!water && remaining <= 0)) {
-            AuraManager.auraBlock(lever.leverPos)
+            AuraManager.interactBlock(lever.leverPos)
             lastCLick = System.currentTimeMillis()
         }
     }

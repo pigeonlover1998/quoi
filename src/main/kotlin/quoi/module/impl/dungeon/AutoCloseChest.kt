@@ -30,7 +30,7 @@ object AutoCloseChest : Module(
             if (packet.type !in chestMenuTypes || packet.title.string.trim() !in secretChestTitles) return@on
 
             SecretAura.lastClickedPos?.let { pos ->
-                SecretAura.blocksDone.add(pos)
+                SecretAura.blocksDone.add(pos.asLong())
                 SecretAura.lastClickedPos = null
             }
 

@@ -175,7 +175,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
         command.sub("blockaura") {
             mc.hitResult?.let {
                 if (it !is BlockHitResult) return@let
-                AuraManager.auraBlock(it.blockPos)
+                AuraManager.interactBlock(it.blockPos)
             }
         }
 

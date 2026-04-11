@@ -78,7 +78,7 @@ object WeirdosSolver {
 
         val pos = correctPos ?: return
         if (wrongPositions.size == 2 &&player.eyePosition.distanceToSqr(pos.vec3) < 30 && currentTime - lastClick >= 150L) {
-            AuraManager.auraBlock(pos)
+            AuraManager.interactBlock(pos)
             clickedChest = true
             lastClick = currentTime
         }

@@ -176,7 +176,7 @@ object SecretAura : Module(
             clickedBlocks[blockCandidate.pos] = System.currentTimeMillis() + 500
 
             lastClickedPos = blockCandidate.pos
-            AuraManager.auraBlock(blockCandidate.pos)
+            AuraManager.interactBlock(blockCandidate.pos)
             if (swing && !player.isShiftKeyDown) player.swing(InteractionHand.MAIN_HAND)
         }
 

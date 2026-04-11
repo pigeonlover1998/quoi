@@ -62,8 +62,8 @@ interface HudDSL {
     ): ResizableHud {
         val width = SliderComponent("Width", width, 10f, 10000f, 1f).hide()
         val height = SliderComponent("Height", height, 10f, 10000f, 1f).hide()
-        val colour = ColourPickerComponent("Colour", colour)
-        val outlineColour = outline?.let { ColourPickerComponent("Outline colour", it) }
+        val colour = ColourPickerComponent("Colour", colour, allowAlpha = true)
+        val outlineColour = outline?.let { ColourPickerComponent("Outline colour", it, allowAlpha = true) }
         val outlineThickness = outline?.let { SliderComponent("Outline thickness", thickness, 1f, 10f, increment = 0.5f) }
 
         val hud = ResizableHud(name, this as Module, toggleable, width, height, colour, outlineColour, outlineThickness, block)

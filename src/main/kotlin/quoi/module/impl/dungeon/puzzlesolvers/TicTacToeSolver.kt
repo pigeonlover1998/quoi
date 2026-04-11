@@ -58,7 +58,7 @@ object TicTacToeSolver {
 
         if (auto) bestMove?.let {
             if (player.eyePosition.distanceToSqr(it.vec3) > 30 || System.currentTimeMillis() - lastClick < 500L) return@let
-            AuraManager.auraBlock(it)
+            AuraManager.interactBlock(it)
             lastClick = System.currentTimeMillis()
         }
 
