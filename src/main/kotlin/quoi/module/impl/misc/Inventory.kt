@@ -93,12 +93,10 @@ object Inventory : Module(
 
     private val playerModel = false//by switch("Player model")
 
-    private val inventoryHud by hud("Inventory") {
-        val bgCol = Colour.RGB(139, 139, 139).withAlpha(155)
-        val outlineCol = Colour.RGB(250, 250, 250).withAlpha(155)
+    private val inventoryHud by resizableHud("Inventory", colour = Colour.RGB(139, 139, 139).withAlpha(155), outline = Colour.RGB(250, 250, 250).withAlpha(155)) {
         block(
             size(if (playerModel) 488.px else 400.px, 136.px),
-            colour = bgCol,
+            colour = colour,
             5.radius()
         ) {
             inventorySlots = refreshableGroup(copies()) {
@@ -110,12 +108,12 @@ object Inventory : Module(
                                     val slotIndex = 9 + (row * 9 + col)
                                     val stack = player.inventory.getItem(slotIndex)
 
-                                    block(
+                                    outlineBlock(
                                         size(40.px, 40.px),
-                                        colour = bgCol,
+                                        colour = outline,
+                                        thickness = thickness,
                                         radius = 5.radius()
                                     ) {
-                                        outline(outlineCol, thickness = 2.px)
 
                                         object : Element(size(40.px, 40.px)) {
                                             init { usingCtx = true }
