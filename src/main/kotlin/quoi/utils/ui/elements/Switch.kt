@@ -10,11 +10,10 @@ import quoi.api.abobaui.elements.ElementScope
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
 import quoi.api.animations.Animation
 import quoi.api.colour.Colour
-import quoi.api.colour.colour
-import quoi.api.colour.multiply
 import quoi.api.input.CursorShape
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.cursor
+import quoi.utils.ui.watch
 import kotlin.getValue
 import kotlin.reflect.KMutableProperty0
 import kotlin.setValue
@@ -62,7 +61,6 @@ inline fun ElementScope<*>.switch(
         (size.pixels / 2f).radius()
     ) {
         outline(outlineCol, thickness = (size * 0.0625.px).coerceAtLeast(2.px))
-//        hoverEffect(factor = 1.15f)
         tonalHover()
         cursor(CursorShape.HAND)
 
@@ -74,15 +72,20 @@ inline fun ElementScope<*>.switch(
             colour = handleCol,
             (size.pixels * 0.375f).radius()
         )
-        onClick {
-            onToggle()
-            value = !value
+
+        watch(ref) {
+            trackCol.swap()
             trackCol.animate(0.35.seconds, Animation.Style.EaseInOutQuint)
             outlineCol.animate(0.35.seconds, Animation.Style.EaseInOutQuint)
             handleCol.animate(0.35.seconds, Animation.Style.EaseInOutQuint)
             handlePos.animate(0.35.seconds, Animation.Style.EaseInOutQuint)
             handleSize.animate(0.35.seconds, Animation.Style.EaseInOutQuint)
             redraw()
+        }
+
+        onClick {
+            onToggle()
+            value = !value
             true
         }
     }

@@ -160,7 +160,7 @@ object PlayerDisplay : Module(
                 init {
                     usingCtx = true
                 }
-                override fun draw() {
+                override fun drawCtx() {
                     withScale {
                         ctx.pose().scale(2f, 2f)
                         ctx.renderItem(ItemStack(Blocks.CHEST), 0, 0)

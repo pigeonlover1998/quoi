@@ -15,6 +15,7 @@ import quoi.module.impl.render.ClickGui.description
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.cursor
 import quoi.utils.ui.settingFromK0
+import quoi.utils.ui.watch
 import kotlin.reflect.KProperty0
 
 abstract class UIComponent<T>(
@@ -66,6 +67,10 @@ abstract class UIComponent<T>(
     }
 
     fun render(scope: ElementScope<*>, asSub: Boolean = isSubsetting): ElementScope<*> {
+
+        if (isSubsetting && !asSub) {
+            return scope.row(size(0.px, 0.px)) { element.enabled = false }
+        }
         var rendering: ElementScope<*>
         var chevronImage: ElementScope<*>? = null
 
@@ -103,12 +108,16 @@ abstract class UIComponent<T>(
                     val (from, to) = if (collapsed) 180f to 90f else 90f to 180f
                     val rotationAnim = rotation(from = from, to = to)
 
+                    watch(::collapsed) {
+                        rotationAnim.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
+                        gapAnim.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
+                        redraw()
+                    }
+
                     transform(chevronAlphaAnim)
 
                     onClick {
                         collapsed = !collapsed
-                        rotationAnim.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
-                        redraw()
                         true
                     }
                 }

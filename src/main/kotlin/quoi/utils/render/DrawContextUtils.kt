@@ -9,12 +9,19 @@ import quoi.utils.ui.data.Gradient
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.PlayerFaceRenderer
 import net.minecraft.client.renderer.RenderPipelines
+import net.minecraft.client.renderer.entity.EntityRenderer
+import net.minecraft.client.renderer.entity.state.EntityRenderState
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState
 import net.minecraft.client.resources.DefaultPlayerSkin
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.FormattedCharSequence
+import net.minecraft.util.Mth.wrapDegrees
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.PlayerSkin
 import org.joml.Matrix3x2f
+import org.joml.Quaternionf
+import org.joml.Vector3f
 import java.util.Optional
 import java.util.UUID
 import kotlin.math.*
@@ -192,5 +199,46 @@ object DrawContextUtils {
     fun GuiGraphics.drawImage(image: ResourceLocation, x: Int, y: Int, width: Int, height: Int) {
 //        blitSprite(RenderPipelines.GUI_TEXTURED, image, x, y, width, height)
         blit(RenderPipelines.GUI_TEXTURED, image, x, y, 0f, 0f, width, height, width, height)
+    }
+
+    fun GuiGraphics.drawEntity(
+        entity: LivingEntity,
+        x: Int,
+        y: Int,
+        width: Int,
+        height: Int,
+        scale: Float,
+        yaw: Pair<Float, Float>? = null,
+        pitch: Pair<Float, Float>? = null
+    ) {
+        @Suppress("UNCHECKED_CAST")
+        val renderer = mc.entityRenderDispatcher.getRenderer(entity) as EntityRenderer<LivingEntity, EntityRenderState>
+
+        val state = renderer.createRenderState() as LivingEntityRenderState
+        renderer.extractRenderState(entity, state, mc.deltaTracker.getGameTimeDeltaPartialTick(true))
+
+//        if (yaw != null) { // todo fix this shit
+//            state.yRot = wrapDegrees(state.yRot).coerceIn(yaw.first..yaw.second)
+//            state.bodyRot = wrapDegrees(state.bodyRot).coerceIn(yaw.first..yaw.second)
+//        }
+
+//        if (pitch != null) {
+//            state.xRot = wrapDegrees(state.xRot).coerceIn(pitch.first..pitch.second)
+//        }
+
+        val x = x + this.pose().m20.toInt()
+        val y = y + this.pose().m21.toInt()
+
+        this.submitEntityRenderState(
+            state,
+            scale,
+            Vector3f(-(width / (scale * 4f)), -(height / (scale * (2.6f * scale - 50f))), 0f),
+            Quaternionf().rotationZ(Math.PI.toFloat()).rotationX(Math.PI.toFloat()),
+            Quaternionf(),
+            x,
+            y,
+            x + width,
+            y + height
+        )
     }
 }

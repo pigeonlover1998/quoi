@@ -18,7 +18,7 @@ class Shadow(
 
     private val radii = radii ?: Block.EMPTY_RADIUS
 
-    override fun draw() {
+    override fun drawNvg() {
         NVGRenderer.dropShadow(x + offsetX, y + offsetY, width, height, blur, spread, radii, colour!!.rgb)
     }
 }

@@ -42,7 +42,7 @@ import quoi.utils.ui.screens.UIScreen.Companion.open
 import kotlin.collections.forEach
 import kotlin.math.abs
 
-object HudManager {
+object HudManager { // todo add hud grouping
     val huds = arrayListOf<Hud>()
     var stupid = false
 
@@ -107,7 +107,7 @@ object HudManager {
         var hoverInfo: Popup? = null
 
         object : Element(copies()) {
-            override fun draw() {
+            override fun drawNvg() {
                 NVGRenderer.line(lineX, 0f, lineX, ui.main.height, 1f, Colour.YELLOW.rgb)
                 NVGRenderer.line(0f, lineY, ui.main.width, lineY, 1f, Colour.YELLOW.rgb)
             }
@@ -168,8 +168,11 @@ object HudManager {
                     val newX = ui.mx - clickedX
                     val newY = ui.my - clickedY
 
-                    element.constraints.x.pixels = newX.coerceIn(0f, ui.main.width - element.screenWidth())
-                    element.constraints.y.pixels = newY.coerceIn(0f, ui.main.height - element.screenHeight())
+                    val maxX = maxOf(0f, ui.main.width - element.screenWidth())
+                    val maxY = maxOf(0f, ui.main.height - element.screenHeight())
+
+                    element.constraints.x.pixels = newX.coerceIn(0f, maxX)
+                    element.constraints.y.pixels = newY.coerceIn(0f, maxY)
 
                     element.redraw()
                     true
@@ -309,8 +312,8 @@ object HudManager {
                 if (!mouseDown) return@onMouseMove false
 
                 val parent = element.parent ?: return@onMouseMove false
-                val centerX = parent.width / 2
-                val centerY = parent.height / 2
+                val centreX = parent.width / 2
+                val centreY = parent.height / 2
 
                 var newX = (ui.mx - offsetX).coerceIn(0f, parent.width - element.screenWidth())
                 var newY = (ui.my - offsetY).coerceIn(0f, parent.height - element.screenHeight())
@@ -318,14 +321,36 @@ object HudManager {
                 lineX = -1f
                 lineY = -1f
 
-                if (abs(newX + element.screenWidth() / 2 - centerX) <= SNAP_THRESHOLD) {
-                    newX = centerX - element.screenWidth() / 2
-                    lineX = centerX
+                when {
+                    abs(newX - centreX) <= SNAP_THRESHOLD -> { // left - centre
+                        newX = centreX
+                        lineX = centreX
+                    }
+                    abs(newX + element.screenWidth() / 2 - centreX) <= SNAP_THRESHOLD -> { // centre - centre
+                        newX = centreX - element.screenWidth() / 2
+                        lineX = centreX
+                    }
+                    abs(newX + element.screenWidth() - centreX) <= SNAP_THRESHOLD -> { // right - centre
+                        newX = centreX - element.screenWidth()
+                        lineX = centreX
+                    }
                 }
-                if (abs(newY + element.screenHeight() / 2 - centerY) <= SNAP_THRESHOLD) {
-                    newY = centerY - element.screenHeight() / 2
-                    lineY = centerY
+
+                when {
+                    abs(newY - centreY) <= SNAP_THRESHOLD -> { // top - centre
+                        newY = centreY
+                        lineY = centreY
+                    }
+                    abs(newY + element.screenHeight() / 2 - centreY) <= SNAP_THRESHOLD -> { // centre - centre
+                        newY = centreY - element.screenHeight() / 2
+                        lineY = centreY
+                    }
+                    abs(newY + element.screenHeight() - centreY) <= SNAP_THRESHOLD -> { // bot - centre
+                        newY = centreY - element.screenHeight()
+                        lineY = centreY
+                    }
                 }
+
 
                 parent.children?.forEach { other ->
                     if (other !is Hud.Element || other in selectedHuds || !other.enabled) return@forEach

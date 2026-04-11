@@ -26,7 +26,7 @@ class UIScreen(val instance: AbobaUI.Instance) : Screen(Component.literal(instan
         NVGSpecialRenderer.draw(ctx, 0, 0, ctx.guiWidth(), ctx.guiHeight()) {
             instance.render(true)
         }
-//        instance.render()
+        instance.render(false)
         super.render(ctx, mouseX, mouseY, deltaTicks)
     }
 

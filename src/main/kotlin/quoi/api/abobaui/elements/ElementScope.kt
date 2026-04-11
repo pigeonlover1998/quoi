@@ -59,13 +59,6 @@ open class ElementScope<E : Element>(val element: E) {
     ) = Block.Gradient(constraints, colours.first, colours.second, gradient, radius).scope(block)
 
     @AbobaDSL
-    inline fun ctxBlock(
-        constraints: Constraints,
-        colour: Colour,
-        block: ElementScope<Block>.() -> Unit = {}
-    ) = Block.CtxBlock(constraints, colour).scope(block)
-
-    @AbobaDSL
     inline fun text(
         string: String,
         font: Font = NVGRenderer.defaultFont,
@@ -144,14 +137,6 @@ open class ElementScope<E : Element>(val element: E) {
         radius: Radii? = null,
         block: ElementScope<ImageElement>.() -> Unit = {}
     ) = ImageElement(image, constraints, colour, radius).scope(block)
-
-    @AbobaDSL
-    inline fun image(
-        textureId: Int,
-        constraints: Constraints,
-        radius: Radii? = null,
-        block: ElementScope<GlImageElement>.() -> Unit = {}
-    ) = GlImageElement(textureId, constraints, radius).scope(block)
 
     inline fun <E : Element> E.scope(block: ElementScope<E>.() -> Unit) = createScope(this, block)
 

@@ -272,7 +272,7 @@ fun ElementScope<*>.lengthInput(
 }
 
 // use with [themedInput] only for now
-fun ElementScope<*>.suggestionInput( // todo make it not look like shit. also add scrollbar maybe
+fun ElementScope<*>.suggestionInput( // todo move it to selectors
     suggestions: () -> List<String>,
     content: ElementScope<*>.() -> ElementScope<TextInput>
 ): ElementScope<TextInput> {

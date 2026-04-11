@@ -82,36 +82,38 @@ abstract class Element(
         shadows?.forEach { it.init() }
     }
 
-    abstract fun draw()
+    open fun draw() {
+        if (ui.nvgPass) drawNvg() else if (usingCtx) drawCtx()
+    }
+
+    open fun drawNvg() {}
+
+    open fun drawCtx() {}
 
     fun render() {
-        if (redraw) {
+        if (ui.nvgPass && redraw) {
             redraw = false
             size()
             positionChildren()
             clip()
         }
-        if (renders) {
-            if (!ui.nvgPass) {
-                if (usingCtx) ctx.pose().pushMatrix()
-            } else {
-                NVGRenderer.push()
-            }
-            if (scissors) {
-                if (!ui.nvgPass) {
-                    ctx.pushScissor(x.toInt(), y.toInt(), width.toInt(), height.toInt())
-                } else {
-                    NVGRenderer.pushScissor(x, y, width, height)
-                }
-            }
+
+        if (!renders) return
+
+        if (ui.nvgPass) {
+            NVGRenderer.push()
+
+            if (scissors) NVGRenderer.pushScissor(x, y, width, height)
 
             shadows?.forEach { it.render() }
 
             transforms?.forEach {
                 it.apply(element = this)
             }
+
             draw()
-            if (ui.nvgPass && ui.debug) {
+
+            if (ui.debug) {
                 val col = when(this) {
                     is Column -> Colour.CYAN
                     is Grid -> Colour.ORANGE
@@ -125,18 +127,23 @@ abstract class Element(
                 }
                 NVGRenderer.hollowRect(x, y, width, height, 1.0f, col.rgb)
             }
+
             children?.forEach { it.render() }
-            if (scissors) {
-                if (!ui.nvgPass) {
-                    ctx.disableScissor()
-                } else {
-                    NVGRenderer.popScissor()
-                }
+
+            if (scissors) NVGRenderer.popScissor()
+            NVGRenderer.pop()
+        } else {
+            if (usingCtx) {
+                ctx.pose().pushMatrix()
+                if (scissors) ctx.pushScissor(x.toInt(), y.toInt(), width.toInt(), height.toInt())
+                draw()
             }
-            if (!ui.nvgPass) {
-                if (usingCtx) ctx.pose().popMatrix()
-            } else {
-                NVGRenderer.pop()
+
+            children?.forEach { it.render() }
+
+            if (usingCtx) {
+                if (scissors) ctx.disableScissor()
+                ctx.pose().popMatrix()
             }
         }
     }

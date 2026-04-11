@@ -80,7 +80,7 @@ open class Text(
     }
 
     protected fun drawText(string: String, x: Float = this.x, y: Float = this.y, colour: Int) {
-        if (font.name == "Minecraft") {
+        if (font.name == "Minecraft" && !ui.nvgPass) {
             val fontScale = height / mc.font.lineHeight
             withScale {
                 if (shadow) {
@@ -97,14 +97,13 @@ open class Text(
                 }
                 ctx.drawText(string, 0, 0, colour, fontScale, false)
             }
-            return
+        } else if (ui.nvgPass) {
+            if (shadow) {
+                val offset = height / 25f
+                NVGRenderer.text(string, x + offset, y + offset, height, colour.multiply(0.25f), font)
+            }
+            NVGRenderer.text(string, x, y, height, colour, font)
         }
-
-        if (shadow) {
-            val offset = height / 25f
-            NVGRenderer.text(string, x + offset, y + offset, height, colour.multiply(0.25f), font)
-        }
-        NVGRenderer.text(string, x, y, height, colour, font)
     }
 
     open fun getTextWidth(): Float = textWidth(text)

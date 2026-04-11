@@ -100,11 +100,11 @@ fun Element.withScale(block: () -> Unit) {
     val screenX = scaledElement.x + dx * scale
     val screenY = scaledElement.y + dy * scale
 
-    ctx?.withMatrix {
-        ctx?.pose()?.identity()
-        ctx?.pose()?.scale(1f / sf, 1f / sf)
-        ctx?.pose()?.translate(screenX, screenY)
-        ctx?.pose()?.scale(scale)
+    ctx.withMatrix {
+        ctx.pose()?.identity()
+        ctx.pose()?.scale(1f / sf, 1f / sf)
+        ctx.pose()?.translate(screenX, screenY)
+        ctx.pose()?.scale(scale)
 
         block()
     }

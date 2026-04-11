@@ -108,7 +108,6 @@ object EventBus { // todo cleanup
         HudElementRegistry.attachElementBefore(VanillaHudElements.SLEEP, ResourceLocation.fromNamespaceAndPath(QuoiMod.MOD_ID, "quoi_hud")) { ctx, a ->
             if (mc.options.hideGui || mc.level == null || mc.player == null) return@attachElementBefore
             post(RenderEvent.Overlay(ctx, a))
-            NVGSpecialRenderer.draw(ctx, 0, 0, ctx.guiWidth(), ctx.guiHeight()) {}
         }
     }
 

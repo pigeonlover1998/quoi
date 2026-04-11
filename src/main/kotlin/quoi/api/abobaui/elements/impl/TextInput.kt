@@ -90,15 +90,9 @@ class TextInput(
         }
 
         when {
-            text.isEmpty() -> {
-                drawText(placeholder, colour = placeholderColour.rgb)
-            }
-            visibleText != null -> {
-                drawText(visibleText!!, colour = this@TextInput.colour!!.rgb)
-            }
-            else -> {
-                drawText(text, x - offset, colour = this@TextInput.colour!!.rgb)
-            }
+            text.isEmpty() -> drawText(placeholder, colour = placeholderColour.rgb)
+            visibleText != null -> drawText(visibleText!!, colour = this@TextInput.colour!!.rgb)
+            else -> drawText(text, x - offset, colour = this@TextInput.colour!!.rgb)
         }
     }
 

@@ -16,7 +16,7 @@ import quoi.module.settings.impl.SliderComponent
 import quoi.utils.ui.settingFromK0
 import kotlin.reflect.KProperty0
 
-open class Hud( // todo fix children shit
+open class Hud(
     val name: String,
     val module: Module,
     val toggleable: Boolean,
@@ -46,17 +46,14 @@ open class Hud( // todo fix children shit
     }
 
     fun withSettings(vararg settings: UIComponent<*>): Hud {
-        settings.forEach { addSetting(it) }
+        val list = settings.toList()
+        list.forEach { addSetting(it, list) }
         return this
     }
 
     fun withSettings(vararg settings: KProperty0<*>): Hud {
-        settings.forEach { property ->
-            val setting = settingFromK0(property)
-
-            addSetting(setting)
-        }
-
+        val list = settings.map { settingFromK0(it) }
+        list.forEach { addSetting(it, list) }
         return this
     }
 
@@ -74,12 +71,18 @@ open class Hud( // todo fix children shit
         y.value = (element.y / screenHeight) * 100f
     }
 
-    private fun addSetting(setting: UIComponent<*>) {
+    private fun addSetting(setting: UIComponent<*>, adding: List<UIComponent<*>> = emptyList()) {
         if (setting in module.settings) {
-            setting.parent?.children?.remove(setting)
+            if (setting.parent != null && setting.parent as UIComponent !in this.settings && setting.parent !in adding) {
+                setting.parent?.children?.remove(setting)
+                setting.parent = null
+            }
 
-            dummy.childOf(setting)
-            /*if (toggleable) */module.settings.remove(setting)
+            if (setting.parent == null) {
+                dummy.childOf(setting.asParent())
+            }
+
+            module.settings.remove(setting)
         }
 
         settings.add(setting)

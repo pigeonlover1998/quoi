@@ -1,12 +1,18 @@
 package quoi.module.impl.misc
 
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import net.minecraft.world.entity.LivingEntity
+import quoi.api.abobaui.constraints.impl.size.Fill
 import quoi.api.abobaui.dsl.*
+import quoi.api.abobaui.elements.Element
+import quoi.api.abobaui.elements.Layout.Companion.divider
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
+import quoi.api.abobaui.elements.impl.RefreshableGroup
 import quoi.api.abobaui.elements.impl.Text.Companion.shadow
 import quoi.api.abobaui.elements.impl.Text.Companion.string
 import quoi.api.abobaui.elements.impl.TextInput.Companion.maxWidth
 import quoi.api.abobaui.elements.impl.TextInput.Companion.onTextChanged
+import quoi.api.abobaui.elements.impl.refreshableGroup
 import quoi.api.colour.*
 import quoi.api.events.GuiEvent
 import quoi.api.events.TickEvent
@@ -14,11 +20,13 @@ import quoi.api.events.core.Priority
 import quoi.api.input.CursorShape
 import quoi.module.Module
 import quoi.utils.StringUtils.toFixed
+import quoi.utils.render.DrawContextUtils.drawEntity
 import quoi.utils.render.DrawContextUtils.rect
 import quoi.utils.skyblock.ItemUtils.loreString
 import quoi.utils.ui.cursor
 import quoi.utils.ui.delegateClick
 import quoi.utils.ui.inHudEditor
+import quoi.utils.ui.rendering.NVGRenderer.minecraftFont
 import kotlin.math.pow
 
 object Inventory : Module(
@@ -83,49 +91,72 @@ object Inventory : Module(
     }.container().withSettings(::bgColour, ::outlineColour, ::nameColour, ::loreColour).setting()
 
 
-//    private val playerModel by switch("Player model")
-//
-//    private val inventoryHud by Hud("Inventory") {
-//        val bgCol = Colour.RGB(139, 139, 139).withAlpha(155)
-//        val outlineCol = Colour.RGB(250, 250, 250).withAlpha(155)
-//        block(
-//            size(400.px, 136.px),
-//            colour = bgCol,
-//            5.radius()
-//        ) {
-//            inventorySlots = refreshableGroup(copies()) {
-//                column(at(4.px, 4.px), gap = 4.px) {
-//                    for (row in 0..2) {
-//                        row(gap = 4.px) {
-//                            repeat(9) { col ->
-//                                val slotIndex = 9 + (row * 9 + col)
-//                                val stack = player.inventory.getItem(slotIndex)
-//
-//                                block(
-//                                    size(40.px, 40.px),
-//                                    colour = bgCol,
-//                                    radius = 5.radius()
-//                                ) {
-//                                    outline(outlineCol, thickness = 2.px)
-//
-//                                    object : Element(size(40.px, 40.px)) {
-//                                        override fun draw() {
-//                                            withScale {
-//                                                ctx.pose().scale(2f, 2f)
-//                                                ctx.renderItem(stack, 2, 2)
-//                                            }
-//                                        }
-//                                    }.add()
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }.withSettings(::playerModel).setting()
-//
-//    private lateinit var inventorySlots: RefreshableGroup
+    private val playerModel = false//by switch("Player model")
+
+    private val inventoryHud by hud("Inventory") {
+        val bgCol = Colour.RGB(139, 139, 139).withAlpha(155)
+        val outlineCol = Colour.RGB(250, 250, 250).withAlpha(155)
+        block(
+            size(if (playerModel) 488.px else 400.px, 136.px),
+            colour = bgCol,
+            5.radius()
+        ) {
+            inventorySlots = refreshableGroup(copies()) {
+                row(inset(4f)) {
+                    column(gap = 4.px) {
+                        for (row in 0..2) {
+                            row(gap = 4.px) {
+                                repeat(9) { col ->
+                                    val slotIndex = 9 + (row * 9 + col)
+                                    val stack = player.inventory.getItem(slotIndex)
+
+                                    block(
+                                        size(40.px, 40.px),
+                                        colour = bgCol,
+                                        radius = 5.radius()
+                                    ) {
+                                        outline(outlineCol, thickness = 2.px)
+
+                                        object : Element(size(40.px, 40.px)) {
+                                            init { usingCtx = true }
+                                            override fun drawCtx() {
+                                                withScale {
+                                                    ctx.pose().scale(2f, 2f)
+                                                    ctx.renderItem(stack, 2, 2)
+                                                }
+                                            }
+                                        }.add()
+
+                                        if (stack.count > 1) text(
+                                            string = stack.count.toString(),
+                                            size = 18.px,
+                                            font = minecraftFont,
+                                            pos = at(2.px.alignOpposite, 0.px.alignOpposite)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (playerModel) {
+                        divider(4.px)
+                        object : Element(size(Fill, Fill)) {
+                            init { usingCtx = true }
+                            override fun drawCtx() {
+                                withScale {
+                                    ctx.drawEntity(mc.player as LivingEntity, 0, 0, width.toInt(), height.toInt(), 30f, yaw = -45f to 45f)
+                                }
+                            }
+                        }.add()
+                    }
+                }
+            }
+        }
+    }/*.withSettings(::playerModel)*/.setting()
+
+    private lateinit var inventorySlots: RefreshableGroup
+    private var inventoryHash: Int = 0
 
     private var searchText = ""
     private var focused = false
@@ -143,8 +174,24 @@ object Inventory : Module(
 
     init {
         on<TickEvent.End> {
-            highlightSlots.clear()
+            if (inventoryHud.enabled) {
+                var currHash = 0
+
+                for (i in 9..35) {
+                    val stack = player.inventory.getItem(i)
+                    if (!stack.isEmpty) {
+                        currHash += stack.item.hashCode()
+                        currHash += stack.count
+                    }
+                }
+
+                if (currHash != inventoryHash) {
+                    inventoryHash = currHash
+                    inventorySlots.refresh()
+                }
+            }
             if (mc.screen !is AbstractContainerScreen<*> || !searchBar.enabled || searchText.isEmpty()) return@on
+            highlightSlots.clear()
 
             val queries = searchText.lowercase().split(",").map { it.trim() }
             player.containerMenu.items.forEachIndexed { i, stack ->

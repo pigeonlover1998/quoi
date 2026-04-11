@@ -71,7 +71,7 @@ fun ElementScope<*>.colourPicker(
         )
 
         object : Element(constraints, colour) {
-            override fun draw() {
+            override fun drawNvg() {
                 val r = 11f
                 val centerX = round(x + r - 3f)
                 val centerY = round(y + r - 3f)

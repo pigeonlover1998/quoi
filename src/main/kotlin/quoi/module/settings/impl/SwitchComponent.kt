@@ -14,6 +14,7 @@ import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.elements.switch
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
+import quoi.utils.ui.watch
 
 
 class SwitchComponent(
@@ -61,11 +62,13 @@ class SwitchComponent(
 //                hoverEffect(factor = 1.15f)
                 tonalHover()
 
-                onClick {
-                    value = !value
-
+                watch(::value) {
                     col.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
                     outlineCol.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
+                }
+
+                onClick {
+                    value = !value
                     true
                 }
             }

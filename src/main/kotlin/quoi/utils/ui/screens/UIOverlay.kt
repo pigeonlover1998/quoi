@@ -20,11 +20,11 @@ class UIOverlay(ui: AbobaUI.Instance) : UIHandler(ui) {
             resize(width, height)
             ui.ctx = ctx
             mouseMove(mx, my)
-//            NVGSpecialRenderer.draw(ctx, 0, 0, ctx.guiWidth(), ctx.guiHeight()) {
-//                ui.render(true)
-//            }
+            NVGSpecialRenderer.draw(ctx, 0, 0, ctx.guiWidth(), ctx.guiHeight()) {
+                ui.render(true)
+            }
 
-            ui.render()
+            ui.render(false)
         },
 
         on<GuiEvent.Click> {
