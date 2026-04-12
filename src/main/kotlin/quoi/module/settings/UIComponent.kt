@@ -239,7 +239,7 @@ abstract class UIComponent<T>(
 
     class ValueUpdated : AbobaEvent
 
-    companion object { // todo fully impl
+    companion object {
 
         private fun UIComponent<*>.addVisibility(condition: () -> Boolean) {
             val prev = visibilityDependency

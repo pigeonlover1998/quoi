@@ -49,7 +49,6 @@ object ModuleManager {
             Test,
             Chat,
             ChatReplacements, // todo remove/replace
-            AutoDialogue,
             PetKeybinds,
             WardrobeKeybinds,
             AntiNick,

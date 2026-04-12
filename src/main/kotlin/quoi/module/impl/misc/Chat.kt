@@ -2,6 +2,7 @@ package quoi.module.impl.misc
 
 import net.minecraft.client.gui.components.ChatComponent
 import net.minecraft.client.gui.screens.ChatScreen
+import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.Style
@@ -41,6 +42,8 @@ object Chat : Module(
     private val copyChatKey by keybind("Copy key", CatKeys.MOUSE_RIGHT).includingOnly(CatKeys.MOUSE_RIGHT, CatKeys.MOUSE_LEFT, *CatKeyboard.modifierCodes).childOf(::copyChat)
     private val copyChatCodesKey by keybind("Copy with codes key", CatKeys.KEY_NONE).includingOnly(CatKeys.MOUSE_RIGHT, CatKeys.MOUSE_LEFT, *CatKeyboard.modifierCodes).childOf(::copyChat)
 
+    private val autoDialogue by switch("Auto dialogue", desc = "Automatically continues dialogues with NPCs.")
+
     init {
         on<ChatEvent.Sent> {
             if (!chatBypass) return@on
@@ -74,6 +77,10 @@ object Chat : Module(
         }
 
         on<ChatEvent.Receive> (Priority.LOWEST) {
+            if (autoDialogue) message.noControlCodes.takeIf { it.startsWith("Select an option: ") && "[BARBARIANS] [MAGES]" !in it }?.let {
+                (text.siblings.getOrNull(0)?.style?.clickEvent as? ClickEvent.RunCommand)?.command?.let { ChatUtils.command(it) }
+            }
+
             if (!compactChat || id != 0) return@on // don't compact messages with ids
 
             val msg = this.message.trim()

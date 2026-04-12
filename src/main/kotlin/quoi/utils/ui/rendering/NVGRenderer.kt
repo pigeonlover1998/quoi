@@ -42,8 +42,6 @@ object NVGRenderer {
 
     private var scissor: Scissor? = null
 
-    private var previousTexture = -1
-
     private var vg = -1L
 
     private var drawing: Boolean = false
@@ -100,33 +98,6 @@ object NVGRenderer {
         color(color)
         nvgStrokeColor(vg, nvgColor)
         nvgStroke(vg)
-    }
-
-    fun drawHalfRoundedRect(x: Float, y: Float, w: Float, h: Float, color: Int, radius: Float, roundTop: Boolean) { // todo remove prob
-        nvgBeginPath(vg)
-
-        if (roundTop) {
-            nvgMoveTo(vg, x, y + h)
-            nvgLineTo(vg, x + w, y + h)
-            nvgLineTo(vg, x + w, y + radius)
-            nvgArcTo(vg, x + w, y, x + w - radius, y, radius)
-            nvgLineTo(vg, x + radius, y)
-            nvgArcTo(vg, x, y, x, y + radius, radius)
-            nvgLineTo(vg, x, y + h)
-        } else {
-            nvgMoveTo(vg, x, y)
-            nvgLineTo(vg, x + w, y)
-            nvgLineTo(vg, x + w, y + h - radius)
-            nvgArcTo(vg, x + w, y + h, x + w - radius, y + h, radius)
-            nvgLineTo(vg, x + radius, y + h)
-            nvgArcTo(vg, x, y + h, x, y + h - radius, radius)
-            nvgLineTo(vg, x, y)
-        }
-
-        nvgClosePath(vg)
-        color(color)
-        nvgFillColor(vg, nvgColor)
-        nvgFill(vg)
     }
 
     fun rect(
