@@ -1,6 +1,5 @@
 package quoi.utils.ui.rendering
 
-import quoi.QuoiMod.mc
 import com.mojang.blaze3d.opengl.GlConst
 import com.mojang.blaze3d.opengl.GlDevice
 import com.mojang.blaze3d.opengl.GlStateManager
@@ -13,27 +12,28 @@ import net.minecraft.client.gui.render.pip.PictureInPictureRenderer
 import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState
 import net.minecraft.client.renderer.MultiBufferSource
 import org.joml.Matrix3x2f
+import org.lwjgl.opengl.GL33C
 
 /**
  * from OdinFabric (BSD 3-Clause)
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/ui/rendering/NVGPIPRenderer.kt
  */
-class NVGSpecialRenderer(vertexConsumers: MultiBufferSource.BufferSource)
-    : PictureInPictureRenderer<NVGSpecialRenderer.NVGRenderState>(vertexConsumers) {
+class NVGSpecialRenderer(vertexConsumers: MultiBufferSource.BufferSource) : PictureInPictureRenderer<NVGSpecialRenderer.NVGRenderState>(vertexConsumers) {
 
     override fun renderToTexture(state: NVGRenderState, poseStack: PoseStack) {
-        val colorTex = RenderSystem.outputColorTextureOverride
-
+        val colorTex = RenderSystem.outputColorTextureOverride ?: return
         val bufferManager = (RenderSystem.getDevice() as? GlDevice)?.directStateAccess() ?: return
         val glDepthTex = (RenderSystem.outputDepthTextureOverride?.texture() as? GlTexture) ?: return
 
-        (colorTex?.texture() as? GlTexture)?.getFbo(bufferManager, glDepthTex)?.apply {
+        val (width, height) = colorTex.let { it.getWidth(0) to it.getHeight(0) }
+        (colorTex.texture() as? GlTexture)?.getFbo(bufferManager, glDepthTex)?.apply {
             GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, this)
-            GlStateManager._viewport(0, 0, colorTex.getWidth(0), colorTex.getHeight(0))
+            GlStateManager._viewport(0, 0, width, height)
         }
 
-        NVGRenderer.beginFrame(mc.window.width.toFloat(), mc.window.height.toFloat())
+        GL33C.glBindSampler(0, 0)
+        NVGRenderer.beginFrame(width.toFloat(), height.toFloat())
         state.renderContent()
         NVGRenderer.endFrame()
 

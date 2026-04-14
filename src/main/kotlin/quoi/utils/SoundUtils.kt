@@ -2,7 +2,7 @@ package quoi.utils
 
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
 import quoi.QuoiMod.MOD_ID
@@ -12,7 +12,7 @@ import quoi.utils.SoundUtils.register
 object SoundUtils {
 
     internal fun register(name: String): SoundEvent {
-        val id = ResourceLocation.fromNamespaceAndPath(MOD_ID, name)
+        val id = Identifier.fromNamespaceAndPath(MOD_ID, name)
         return Registry.register(
             BuiltInRegistries.SOUND_EVENT,
             id,

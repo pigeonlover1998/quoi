@@ -5,9 +5,9 @@ import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.monster.CaveSpider
+import net.minecraft.world.entity.monster.spider.CaveSpider
 import net.minecraft.world.entity.monster.Slime
-import net.minecraft.world.entity.monster.Zombie
+import net.minecraft.world.entity.monster.zombie.Zombie
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.phys.AABB

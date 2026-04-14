@@ -8,7 +8,7 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.state.GuiTextRenderState;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.util.FormattedCharSequence;
-import org.joml.Matrix3x2f;
+import org.joml.Matrix3x2fc;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -25,7 +25,7 @@ public class GuiGraphicsMixin {
                     target = "Lnet/minecraft/client/gui/render/state/GuiTextRenderState;"
             )
     )
-    private GuiTextRenderState disableShadow(Font textRenderer, FormattedCharSequence orderedText, Matrix3x2f matrix, int x, int y, int color, int backgroundColor, boolean shadow, ScreenRectangle clipBounds) {
+    private GuiTextRenderState disableShadow(Font textRenderer, FormattedCharSequence orderedText, Matrix3x2fc matrix, int x, int y, int color, int backgroundColor, boolean shadow, boolean bl2, ScreenRectangle clipBounds) {
         boolean disableShadows = should(RenderOptimiser.getDisableTextShadow());
         boolean forceContainerShadows = should(RenderOptimiser.getContainerTextShadow());
         boolean inContainer = Minecraft.getInstance().screen instanceof AbstractContainerScreen;
@@ -40,6 +40,6 @@ public class GuiGraphicsMixin {
             finalShadow = shadow;
         }
 
-        return new GuiTextRenderState(textRenderer, orderedText, matrix, x, y, color, backgroundColor, finalShadow, clipBounds);
+        return new GuiTextRenderState(textRenderer, orderedText, matrix, x, y, color, backgroundColor, finalShadow, bl2, clipBounds);
     }
 }

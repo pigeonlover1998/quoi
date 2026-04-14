@@ -1,7 +1,6 @@
 package quoi.api.skyblock.dungeon
 
 import quoi.api.colour.Colour
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.PlayerSkin
 import quoi.api.events.DungeonEvent

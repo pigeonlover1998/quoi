@@ -6,6 +6,7 @@ import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.Style
+import net.minecraft.util.Mth
 import quoi.api.events.ChatEvent
 import quoi.api.events.GuiEvent
 import quoi.api.events.core.Priority
@@ -118,11 +119,12 @@ object Chat : Module(
             if (!isCopyBtn && !isCodeBtn) return@on
             cancel()
 
-            val dx = chatHudAccessor.toChatLineMX(mx)
-            val dy = chatHudAccessor.toChatLineMY(my)
-            val idx = chatHudAccessor.getMessageLineIdx(dx, dy)
+            val scale = chatHudAccessor.invokeGetScale()
+            val dx = Mth.floor(mx / scale - 4.0).toDouble()
+            val dy = Mth.floor((mc.window.guiScaledHeight - my - 40.0) / scale).toDouble()
+            val idx = (dy / chatHudAccessor.invokeGetLineHeight()).toInt() + chatHudAccessor.scrolledLines
             if (idx !in chatHudAccessor.visibleMessages.indices) return@on
-            if (idx == 0 && dy !in 0.0..1.0 || dx >= chatGui!!.width.plus(10)) return@on
+            if (idx == 0 && dy !in 0.0..1.0 || dx >= chatHudAccessor.invokeGetWidth().plus(10)) return@on
 
             val fullText = chatGui?.getFullText(idx)?.string ?: return@on
             val finalText = if (isCodeBtn) fullText else fullText.noControlCodes

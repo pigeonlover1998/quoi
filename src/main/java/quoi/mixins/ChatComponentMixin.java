@@ -60,12 +60,12 @@ public abstract class ChatComponentMixin implements IChatComponent {
             method = "addMessageToDisplayQueue",
             at = @At(
                     value = "INVOKE",
-                    target = "Ljava/util/List;add(ILjava/lang/Object;)V"
+                    target = "Ljava/util/List;addFirst(Ljava/lang/Object;)V"
             ),
-            index = 1
+            index = 0
     )
     private Object onAddVisibleLine(Object line) {
-        if (nextId != 0) {
+        if (nextId != 0 && line instanceof IGuiMessage) {
             ((IGuiMessage) line).quoi$setId(nextId);
         }
         return line;
@@ -117,14 +117,15 @@ public abstract class ChatComponentMixin implements IChatComponent {
     @ModifyVariable(
             method = "render",
             at = @At("HEAD"),
-            argsOnly = true
+            argsOnly = true,
+            ordinal = 0
     )
     private boolean renderFocused(boolean focused) {
         return focused || Chat.INSTANCE.isDown();
     }
 
     @ModifyExpressionValue(
-            method = {"getHeight()I", "addMessageToDisplayQueue"},
+            method = {"getLinesPerPage", "addMessageToDisplayQueue"},
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/components/ChatComponent;isChatFocused()Z"

@@ -3,7 +3,7 @@ package quoi.module.impl.misc
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundSoundPacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.util.FormattedCharSequence
 import quoi.api.events.GuiEvent
@@ -103,7 +103,7 @@ object CatMode : Module(
         Cut,
         Toast;
 
-        val path = ResourceLocation.parse("quoi:ui/fallingkittens/${name.lowercase()}.png")
+        val path = Identifier.parse("quoi:ui/fallingkittens/${name.lowercase()}.png")
     }
 
     private enum class CatModel(p: String) {
@@ -119,7 +119,7 @@ object CatMode : Module(
         Tabby("tabby"),
         White("white");
 
-        val path = ResourceLocation.withDefaultNamespace("textures/entity/cat/$p.png")
+        val path = Identifier.withDefaultNamespace("textures/entity/cat/$p.png")
     }
 
     private class FallingCatsRenderer {
@@ -129,7 +129,7 @@ object CatMode : Module(
             ctx: GuiGraphics,
             width: Int,
             height: Int,
-            texture: ResourceLocation,
+            texture: Identifier,
             size: Int,
             speedMultiplier: Float,
         ) {
@@ -176,7 +176,7 @@ object CatMode : Module(
 
         fun draw(
             ctx: GuiGraphics,
-            texture: ResourceLocation,
+            texture: Identifier,
             size: Int,
         ) {
             val offset = size / 2f

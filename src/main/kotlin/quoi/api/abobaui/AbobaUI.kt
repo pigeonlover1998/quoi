@@ -38,7 +38,7 @@ class AbobaUI(val title: String) {
     inline var clipboard: String?
         get() = mc.keyboardHandler.clipboard
         set(value) {
-            mc.keyboardHandler.clipboard = value
+            mc.keyboardHandler.clipboard = value ?: ""
         }
 
     private var operations = arrayListOf<Operation>()

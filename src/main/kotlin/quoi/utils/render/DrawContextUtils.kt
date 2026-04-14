@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.entity.state.EntityRenderState
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState
 import net.minecraft.client.resources.DefaultPlayerSkin
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.FormattedCharSequence
 import net.minecraft.util.Mth.wrapDegrees
 import net.minecraft.world.entity.LivingEntity
@@ -196,7 +196,7 @@ object DrawContextUtils {
         }
     }
 
-    fun GuiGraphics.drawImage(image: ResourceLocation, x: Int, y: Int, width: Int, height: Int) {
+    fun GuiGraphics.drawImage(image: Identifier, x: Int, y: Int, width: Int, height: Int) {
 //        blitSprite(RenderPipelines.GUI_TEXTURED, image, x, y, width, height)
         blit(RenderPipelines.GUI_TEXTURED, image, x, y, 0f, 0f, width, height, width, height)
     }

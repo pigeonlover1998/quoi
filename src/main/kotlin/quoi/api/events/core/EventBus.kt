@@ -32,7 +32,7 @@ import net.minecraft.network.protocol.game.ClientboundSoundPacket
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
 import net.minecraft.network.protocol.game.ClientboundTakeItemEntityPacket
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
@@ -105,7 +105,7 @@ object EventBus { // todo cleanup
             }
         }
 
-        HudElementRegistry.attachElementBefore(VanillaHudElements.SLEEP, ResourceLocation.fromNamespaceAndPath(QuoiMod.MOD_ID, "quoi_hud")) { ctx, a ->
+        HudElementRegistry.attachElementBefore(VanillaHudElements.SLEEP, Identifier.fromNamespaceAndPath(QuoiMod.MOD_ID, "quoi_hud")) { ctx, a ->
             if (mc.options.hideGui || mc.level == null || mc.player == null) return@attachElementBefore
             post(RenderEvent.Overlay(ctx, a))
         }

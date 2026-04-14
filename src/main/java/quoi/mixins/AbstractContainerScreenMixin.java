@@ -39,7 +39,7 @@ public class AbstractContainerScreenMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    private void quoi$onDrawSlot(GuiGraphics context, Slot slot, CallbackInfo ci) {
+    private void quoi$onDrawSlot(GuiGraphics context, Slot slot, int x, int y, CallbackInfo ci) {
         if (new GuiEvent.Slot.Draw((Screen) (Object) this, context, slot).post()) ci.cancel();
     }
 

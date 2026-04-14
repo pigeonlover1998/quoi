@@ -1,7 +1,7 @@
 package quoi.module.settings
 
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
 import quoi.api.colour.Colour
@@ -89,8 +89,8 @@ abstract class SettingsDSL {
         val settings = {
             val soundEvent =
                 if (sound.selected == SoundUtils.SoundSetting.Custom)
-                    BuiltInRegistries.SOUND_EVENT.getOptional(ResourceLocation.parse(customSound.value)).orElse(null)
-                        ?: SoundEvent.createVariableRangeEvent(ResourceLocation.parse(customSound.value))
+                    BuiltInRegistries.SOUND_EVENT.getOptional(Identifier.parse(customSound.value)).orElse(null)
+                        ?: SoundEvent.createVariableRangeEvent(Identifier.parse(customSound.value))
                 else
                     sound.selected.sound
             Triple(soundEvent ?: SoundEvents.BLAZE_HURT, soundVolume.value, soundPitch.value)
