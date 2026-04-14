@@ -21,6 +21,8 @@ import quoi.utils.StringUtils.formatTime
 import quoi.utils.StringUtils.toFixed
 import quoi.utils.skyblock.player.AuraAction
 import quoi.utils.skyblock.player.AuraManager
+import quoi.utils.skyblock.player.interact.AuraAction
+import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.ContainerUtils
 import quoi.utils.skyblock.player.LeapManager
 import quoi.utils.ui.hud.impl.TextHud
@@ -181,9 +183,15 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 
         command.sub("entityaura") {
             val entity = EntityUtils.entities.filter { it != player }.minByOrNull { it.distanceTo(player) } ?: return@sub
-            AuraManager.auraEntity(entity, action = AuraAction.INTERACT_AT)
+            AuraManager.interactEntity(entity, action = AuraAction.INTERACT_AT)
         }
 
+        command.sub("mineblock") {
+            mc.hitResult?.let {
+                if (it !is BlockHitResult) return@let
+                AuraManager.breakBlock(it.blockPos, custom = false)
+            }
+        }
 
         command.sub("raycast") {
             val res = rayCast()

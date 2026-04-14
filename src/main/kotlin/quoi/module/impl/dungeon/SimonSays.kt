@@ -26,7 +26,7 @@ import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.WorldUtils.state
 import quoi.utils.getDirection
 import quoi.utils.render.drawFilledBox
-import quoi.utils.skyblock.player.AuraManager
+import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.RotationUtils.rotateSmoothly
 import kotlin.random.Random
 
@@ -101,7 +101,7 @@ object SimonSays : Module(
             }
         }
 
-        on<BlockUpdateEvent> {
+        on<BlockEvent.Update> {
             if (pos.y !in 120..123 || pos.z !in 92..95) return@on
 
             if (pos.x == 111 && updated.block == Blocks.SEA_LANTERN) {

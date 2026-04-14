@@ -2,9 +2,6 @@ package quoi.api.autoroutes.actions
 
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
-import net.minecraft.core.Direction
-import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
-import net.minecraft.world.InteractionHand
 import net.minecraft.world.item.ItemStack
 import quoi.QuoiMod.mc
 import quoi.api.colour.Colour
@@ -17,7 +14,7 @@ import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.WorldUtils.state
 import quoi.utils.skyblock.ItemUtils.lore
 import quoi.utils.skyblock.ItemUtils.skyblockId
-import quoi.utils.skyblock.player.AuraManager
+import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.SwapManager
 
@@ -77,7 +74,7 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
                 if (!ring.inside(room) || outOfRangeTicks > 40) return modMessage("&cStopping. Out of range.")
             }
 
-            AuraManager.breakBlock(realPos)
+            AuraManager.breakBlock(realPos, immediate = true)
             recentlyBroken[realPos] = System.currentTimeMillis()
             chargesUsed++
             if (!AutoRoutes.zeroTickDb) wait(1)

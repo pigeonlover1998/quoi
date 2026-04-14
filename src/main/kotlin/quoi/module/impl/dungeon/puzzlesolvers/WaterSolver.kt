@@ -22,7 +22,7 @@ import quoi.utils.WorldUtils.state
 import quoi.utils.getEtherwarpDirection
 import quoi.utils.render.drawLine
 import quoi.utils.render.drawText
-import quoi.utils.skyblock.player.AuraManager
+import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 import quoi.utils.skyblock.player.SwapManager

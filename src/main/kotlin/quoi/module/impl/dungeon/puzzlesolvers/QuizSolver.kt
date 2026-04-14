@@ -14,7 +14,7 @@ import quoi.utils.EntityUtils.getEntities
 import quoi.utils.StringUtils.startsWithOneOf
 import quoi.utils.aabb
 import quoi.utils.render.drawFilledBox
-import quoi.utils.skyblock.player.AuraManager
+import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.vec3
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets

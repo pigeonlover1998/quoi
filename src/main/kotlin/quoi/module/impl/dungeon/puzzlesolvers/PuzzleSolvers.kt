@@ -163,7 +163,7 @@ object PuzzleSolvers : Module(
             if (weirdosSolver || weirdosAuto) weirdosRegex.find(msg)?.destructured?.let { (npc, message) -> WeirdosSolver.onMessage(npc, message) }
         }
 
-        on<BlockUpdateEvent> {
+        on<BlockEvent.Update> {
             if (!inPuzzle) return@on
             if (beamsSolver || beamsAuto) BeamsSolver.onBlockChange(this@on, beamsAnnounce, beamsAuto)
         }

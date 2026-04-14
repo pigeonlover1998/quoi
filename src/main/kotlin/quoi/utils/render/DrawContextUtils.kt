@@ -3,7 +3,6 @@ package quoi.utils.render
 import quoi.QuoiMod.mc
 import quoi.api.colour.Colour
 import quoi.utils.ChatUtils.literal
-import quoi.utils.StringUtils.textRenderer
 import quoi.utils.rad
 import quoi.utils.ui.data.Gradient
 import net.minecraft.client.gui.GuiGraphics
@@ -159,7 +158,7 @@ object DrawContextUtils {
     fun GuiGraphics.drawText(text: Component, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true) {
         withMatrix(x, y) {
             if (scale != 1f) pose().scale(scale, scale)
-            drawString(textRenderer, text, 0, 0, colour, shadow)
+            drawString(mc.font, text, 0, 0, colour, shadow)
         }
     }
 
@@ -169,7 +168,7 @@ object DrawContextUtils {
     fun GuiGraphics.drawText(text: FormattedCharSequence, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true) {
         withMatrix(x, y) {
             if (scale != 1f) pose().scale(scale, scale)
-            drawString(textRenderer, text, 0, 0, colour, shadow)
+            drawString(mc.font, text, 0, 0, colour, shadow)
         }
     }
 

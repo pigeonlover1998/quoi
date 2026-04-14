@@ -53,6 +53,7 @@
     "accessors.KeyMappingAccessor",
     "accessors.LocalPlayerAccessor",
     "accessors.MapStateAccessor",
+    "accessors.MultiPlayerGameModeAccessor",
     "accessors.TexturedButtonWidgetAccessor"
   ]
 }

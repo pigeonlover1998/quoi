@@ -20,11 +20,14 @@ object WorldUtils {
     inline val BlockPos.state: BlockState
         get() = mc.level?.getBlockState(this) ?: Blocks.AIR.defaultBlockState()
 
-    inline val BlockPos.shape: VoxelShape
+    inline val BlockPos.collisionShape: VoxelShape
         get() = mc.level?.let { this.state.getCollisionShape(it, this) } ?: Shapes.empty()
 
+    inline val BlockPos.shape: VoxelShape
+        get() = mc.level?.let { this.state.getShape(it, this) } ?: Shapes.empty()
+
     inline val BlockPos.solid: Boolean
-        get() = !this.shape.isEmpty
+        get() = !this.collisionShape.isEmpty
 
     inline val BlockPos.airLike: Boolean
         get() = /*!solid &&*/ state.block in BlockTypes.AirLike

@@ -6,11 +6,14 @@ import net.minecraft.util.Mth.wrapDegrees
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.AABB
+import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
+import net.minecraft.world.phys.shapes.Shapes
 import quoi.QuoiMod.mc
 import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
+import quoi.utils.WorldUtils.shape
 import kotlin.math.*
 
 /**
@@ -79,6 +82,15 @@ fun BlockPos(x: Number, y: Number, z: Number) =
         floor(y.toDouble()).toInt(),
         floor(z.toDouble()).toInt(),
     )
+
+fun AABB.copy(
+    minX: Double = this.minX,
+    minY: Double = this.minY,
+    minZ: Double = this.minZ,
+    maxX: Double = this.maxX,
+    maxY: Double = this.maxY,
+    maxZ: Double = this.maxZ
+) = AABB(minX, minY, minZ, maxX, maxY, maxZ)
 
 /**
  * Rotates a Vec3 around the given rotation.
@@ -167,6 +179,20 @@ fun BlockPos.distanceTo(to: BlockPos): Double {
     val dy = (this.y - to.y).toDouble()
     val dz = (this.z - to.z).toDouble()
     return sqrt(dx * dx + dy * dy + dz * dz)
+}
+
+fun BlockPos.getHitResult(force: Boolean = false): BlockHitResult? {
+    val player = mc.player ?: return null
+    val eyes = player.eyePosition()
+    val centre = this.center
+
+    var shape = this.shape
+    if (shape.isEmpty && force) shape = Shapes.block()
+    if (shape.isEmpty) return null
+
+    val dir = centre.subtract(eyes).normalize()
+    val end = eyes.add(dir.scale(eyes.distanceTo(centre) + 1.5))
+    return shape.clip(eyes, end, this)
 }
 
 /**

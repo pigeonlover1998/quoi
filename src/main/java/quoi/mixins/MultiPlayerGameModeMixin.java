@@ -1,5 +1,9 @@
 package quoi.mixins;
 
+import net.minecraft.core.Direction;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import quoi.api.events.BlockEvent;
 import quoi.module.impl.player.Tweaks;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -23,5 +27,14 @@ public class MultiPlayerGameModeMixin {
     private boolean fixInteract(WorldBorder instance, BlockPos blockPos, Operation<Boolean> original) {
         if (!shouldSb(Tweaks.getFixInteract())) return original.call(instance, blockPos);
         return true;
+    }
+
+    @Inject(
+            method = "startDestroyBlock",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private void onStartDestroyBlock(BlockPos blockPos, Direction direction, CallbackInfoReturnable<Boolean> cir) {
+        if (new BlockEvent.Destroy.Start(blockPos, direction).post()) cir.setReturnValue(false);
     }
 }
