@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.state.BlockState
 import quoi.QuoiMod.mc
 import quoi.utils.WorldUtils.state
@@ -23,6 +24,8 @@ class MineTarget(
     var finished = false
         private set
     private var doStop = false
+
+    private var item: ItemStack = ItemStack.EMPTY
 
     private fun start() {
         mc.gameMode?.startPrediction { sequence ->
@@ -86,8 +89,9 @@ class MineTarget(
         } else {
             if (!custom) {
                 progress += state.getDestroyProgress(player, level, pos)
-                level.destroyBlockProgress(player.id, pos, (progress * 10).toInt())
             }
+
+            level.destroyBlockProgress(player.id, pos, (progress * 10).toInt())
 
             if (swing) player.swing(InteractionHand.MAIN_HAND)
 
@@ -98,7 +102,24 @@ class MineTarget(
         }
     }
 
-    fun onBlockUpdate(pos: BlockPos, state: BlockState) {
+    fun onBlockUpdate(pos: BlockPos, state: BlockState) =
         mc.execute { if (pos == this.pos && state.isAir) finished = true }
+
+
+    fun onSlotChange(stack: ItemStack) {
+        if (ItemStack.matches(item, stack)) return
+
+        if (!finished && started) {
+            mc.connection?.send(
+                ServerboundPlayerActionPacket(
+                    ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,
+                    pos,
+                    Direction.DOWN,
+                )
+            )
+            started = false
+            progress = 0f
+            doStop = false
+        }
     }
 }

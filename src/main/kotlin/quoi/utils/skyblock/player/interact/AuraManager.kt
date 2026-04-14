@@ -74,6 +74,7 @@ object AuraManager {
         on<PacketEvent.Sent> {
             if (packet is ServerboundUseItemOnPacket) interactBlockCd = 1
             if (packet is ServerboundInteractPacket) interactEntityCd = 1
+            if (packet is ServerboundSetCarriedItemPacket) mineTarget?.onSlotChange(mc.player!!.inventory.getItem(packet.slot))
         }
 
         on<PacketEvent.Received> {
