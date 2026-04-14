@@ -19,6 +19,7 @@ import quoi.utils.ui.rendering.NVGRenderer
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.TextColor
 import net.minecraft.util.FormattedCharSequence
+import quoi.utils.StringUtils.FORMATTING_CODE_PATTERN
 
 open class Text(
     string: String,
@@ -82,10 +83,10 @@ open class Text(
     protected fun drawText(string: String, x: Float = this.x, y: Float = this.y, colour: Int) {
         if (font.name == "Minecraft" && !ui.nvgPass) {
             val fontScale = height / mc.font.lineHeight
+            val string = string.replace(FORMATTING_CODE_PATTERN) { "§${it.value[1]}" }
             withScale {
                 if (shadow) {
                     val visual = Component.literal(string).visualOrderText
-
                     val shadowSeq = FormattedCharSequence { sink ->
                         visual.accept { index, style, codePoint ->
                             val base = style.color?.value ?: colour
@@ -97,12 +98,12 @@ open class Text(
                 }
                 ctx.drawText(string, 0, 0, colour, fontScale, false)
             }
-        } else if (ui.nvgPass) {
+        } else if (font.name != "Minecraft" && ui.nvgPass) {
             if (shadow) {
                 val offset = height / 25f
-                NVGRenderer.text(string, x + offset, y + offset, height, colour.multiply(0.25f), font)
+                NVGRenderer.formattedText(string, x + offset, y + offset, height, colour.multiply(0.25f), font)
             }
-            NVGRenderer.text(string, x, y, height, colour, font)
+            NVGRenderer.formattedText(string, x, y, height, colour, font)
         }
     }
 

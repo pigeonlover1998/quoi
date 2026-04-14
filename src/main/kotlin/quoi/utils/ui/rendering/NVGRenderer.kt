@@ -13,6 +13,7 @@ import org.lwjgl.nanovg.NanoVGGL3.*
 import org.lwjgl.stb.STBImage.stbi_load_from_memory
 import org.lwjgl.system.MemoryUtil.memAlloc
 import org.lwjgl.system.MemoryUtil.memFree
+import quoi.utils.StringUtils.FORMATTING_CODE_PATTERN
 import java.io.File
 import java.nio.ByteBuffer
 import kotlin.math.max
@@ -228,6 +229,72 @@ object NVGRenderer {
         color(color)
         nvgFillColor(vg, nvgColor)
         nvgText(vg, x, y + .5f, text)
+    }
+
+    fun formattedText(text: String, x: Float, y: Float, size: Float, colour: Int, font: Font) {
+        var x = x
+        var col = colour
+        val alpha = colour and -0x1000000
+
+        var underline = false
+        var strike = false
+
+        val list = text.split(Regex("(?=${FORMATTING_CODE_PATTERN.pattern})"))
+
+        for (string in list) {
+            var text = string
+            if (text.length >= 2 && (text[0] == '§' || text[0] == '&')) {
+                when (val code = text[1].lowercaseChar()) {
+                    'n' -> underline = true
+                    'm' -> strike = true
+                    'r' -> {
+                        col = colour
+                        underline = false
+                        strike = false
+                    }
+                    'l', 'o', 'k' -> {}
+                    else -> {
+                        val c = when (code) {
+                            '0' -> Colour.BLACK;
+                            '1' -> Colour.MINECRAFT_DARK_BLUE
+                            '2' -> Colour.MINECRAFT_DARK_GREEN;
+                            '3' -> Colour.MINECRAFT_DARK_AQUA
+                            '4' -> Colour.MINECRAFT_DARK_RED;
+                            '5' -> Colour.MINECRAFT_DARK_PURPLE
+                            '6' -> Colour.MINECRAFT_GOLD;
+                            '7' -> Colour.MINECRAFT_GRAY
+                            '8' -> Colour.MINECRAFT_DARK_GRAY;
+                            '9' -> Colour.MINECRAFT_BLUE
+                            'a' -> Colour.MINECRAFT_GREEN;
+                            'b' -> Colour.MINECRAFT_AQUA
+                            'c' -> Colour.MINECRAFT_RED;
+                            'd' -> Colour.MINECRAFT_LIGHT_PURPLE
+                            'e' -> Colour.MINECRAFT_YELLOW;
+                            'f' -> Colour.WHITE
+                            else -> null
+                        }
+                        if (c != null) col = alpha or (c.rgb and 0xFFFFFF)
+                    }
+                }
+                text = text.substring(2)
+            }
+
+            if (text.isNotEmpty()) {
+                text(text, x, y, size, col, font)
+
+                val w = textWidth(text, size, font)
+                val t = size / 12f
+                if (underline) {
+                    line(x, y + size * 0.95f, x + w, y + size * 0.95f, t, col)
+                }
+
+                if (strike) {
+                    line(x, y + size * 0.5f, x + w, y + size * 0.5f, t, col)
+                }
+
+                x += w
+            }
+        }
     }
 
     fun textShadow(text: String, x: Float, y: Float, size: Float, color: Int, font: Font) {
