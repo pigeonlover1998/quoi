@@ -13,7 +13,6 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import quoi.QuoiMod.mc
-import quoi.mixins.accessors.ClientLevelAccessor
 import quoi.module.settings.Setting.Companion.gson
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.literal

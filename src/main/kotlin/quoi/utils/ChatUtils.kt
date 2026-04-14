@@ -19,34 +19,23 @@ object ChatUtils {
         = literal("[").withColor(bracketsColour.rgb)
             .append(literal(text).withColor(prefixColour.rgb))
             .append("]").withColor(bracketsColour.rgb)
-    val chatHudAccessor get() = mc.gui?.chat as ChatComponentAccessor
-    val chatGui get() = mc.gui?.chat
-    val chatHud get() = mc.gui?.chat as IChatComponent
-
-    @Suppress("CAST_NEVER_SUCCEEDS")
-    val GuiMessage.asI: IGuiMessage? get() = this as? IGuiMessage
-    val IGuiMessage.id: Int get() = this.`quoi$getId`()
-    fun IGuiMessage.setId(id: Int) = this.`quoi$setId`(id)
-    val IGuiMessage.text: String get() = this.`quoi$getText`()
-    val IGuiMessage.sender: GameProfile get() = this.`quoi$getSender`()
-    fun IGuiMessage.setSender(profile: GameProfile) = this.`quoi$setSender`(profile)
-    fun IChatComponent.add(text: Component, id: Int) = this.`quoi$add`(text, id)
+    val chatGui get() = mc.gui?.chat!!
 
     fun literal(string: String): MutableComponent {
         return Component.literal(string.replace("&", "§"))
     }
 
     fun removeLines(id: Int, text: String): Boolean {
-        return removeLines { it.asI?.id == id || it.content?.string?.noControlCodes == text }
+        return removeLines { it.id == id || it.content?.string?.noControlCodes == text }
     }
 
     fun removeLines(id: Int): Boolean {
-        return removeLines { it.asI?.id == id }
+        return removeLines { it.id == id }
     }
 
     fun removeLines(cb: (GuiMessage) -> Boolean): Boolean {
         var removedLine = false
-        val messageList = chatHudAccessor.messages?.listIterator() ?: return false
+        val messageList = chatGui.messages.listIterator()
 
         while (messageList.hasNext()) {
             val msg = messageList.next()
@@ -56,13 +45,13 @@ object ChatUtils {
             removedLine = true
         }
 
-        if (removedLine) chatHudAccessor.invokeRefreshTrimmedMessages()
+        if (removedLine) chatGui.refreshTrimmedMessages()
 
         return removedLine
     }
 
     fun editLines(id: Int, replaceWith: Component): Boolean {
-        return editLines({ it.asI?.id == id }, replaceWith)
+        return editLines({ it.id == id }, replaceWith)
     }
 
     fun editLines(cb: (GuiMessage) -> Boolean, replaceWith: Component): Boolean {
@@ -70,7 +59,7 @@ object ChatUtils {
         val indicator =
             if (mc.isSingleplayer) GuiMessageTag.systemSinglePlayer()
             else GuiMessageTag.system()
-        val messageList = chatHudAccessor.messages?.listIterator() ?: return false
+        val messageList = chatGui.messages.listIterator()
 
         while (messageList.hasNext()) {
             val msg = messageList.next()
@@ -80,11 +69,11 @@ object ChatUtils {
             messageList.remove()
 
             val line = GuiMessage(msg.addedTime, replaceWith, null, indicator)
-            line.asI?.setId(msg.asI!!.id)
+            line.id = msg.id
             messageList.add(line)
         }
 
-        if (editedLine) chatHudAccessor.invokeRefreshTrimmedMessages()
+        if (editedLine) chatGui.refreshTrimmedMessages()
 
         return editedLine
     }
@@ -133,7 +122,7 @@ object ChatUtils {
         }.also { chatStyle?.let(it::setStyle) }
 
         mc.execute {
-            id?.let { chatHud.add(text, it) } ?: chatGui?.addMessage(text)
+            id?.let { chatGui.add(text, it) } ?: chatGui.addMessage(text)
         }
     }
 }

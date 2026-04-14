@@ -48,12 +48,10 @@
     "SkullBlockMixin",
     "WallSkullBlockMixin",
     "accessors.ChatComponentAccessor",
-    "accessors.ClientLevelAccessor",
     "accessors.InventoryAccessor",
     "accessors.KeyMappingAccessor",
     "accessors.LocalPlayerAccessor",
-    "accessors.MapStateAccessor",
     "accessors.MultiPlayerGameModeAccessor",
-    "accessors.TexturedButtonWidgetAccessor"
+    "accessors.ImageButtonAccessor"
   ]
 }
