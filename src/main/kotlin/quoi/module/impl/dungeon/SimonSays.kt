@@ -108,7 +108,7 @@ object SimonSays : Module(
                 val buttonPos = BlockPos(110, pos.y, pos.z)
                 if (clicks.getOrNull(0) == buttonPos) {
                     progress = 0
-                    if (smoothRotate && doingSS) player.rotateSmoothly(getDirection(pos.randomVec), duration = delay.ms, style = rotateStyle.selected)
+                    if (auto && smoothRotate && doingSS) player.rotateSmoothly(getDirection(pos.randomVec), duration = delay.ms, style = rotateStyle.selected)
                 }
 
                 if (clicks.size == 2 && clicks[0] == buttonPos && !doneFirst) {
