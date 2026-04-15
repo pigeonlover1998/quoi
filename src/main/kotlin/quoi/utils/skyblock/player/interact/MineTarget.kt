@@ -7,23 +7,59 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.state.BlockState
 import quoi.QuoiMod.mc
+import quoi.annotations.Internal
 import quoi.utils.WorldUtils.state
 import quoi.utils.eyePosition
 import quoi.utils.getHitResult
 import quoi.utils.startPrediction
+import kotlin.math.ceil
 
+@OptIn(Internal::class)
 class MineTarget(
     val pos: BlockPos,
     private var direction: Direction,
     val custom: Boolean,
     private val swing: Boolean
 ) {
-    var progress = 0f
-
     private var started = false
     var finished = false
         private set
     private var doStop = false
+
+
+    private var ticksMined = 0
+    private var customDelta = -1f
+    private var lastProgress = 0f
+
+    var progress = 0f
+        @Internal set(value) {
+            if (custom) {
+                val diff = value - lastProgress
+                if (diff > 0 && ticksMined > 0) {
+                    customDelta = value / ticksMined
+                }
+                lastProgress = value
+            }
+            field = value
+        }
+
+    val ticksRemaining: Int // todo maybe make actual calc based on mining speed for custom
+        get() {
+            if (finished || progress >= 1f) return 0
+
+            val delta = if (custom) {
+                if (customDelta <= 0f) return -1
+                customDelta
+            } else {
+                val player = mc.player ?: return -1
+                val level = mc.level ?: return -1
+                pos.state.getDestroyProgress(player, level, pos)
+            }
+
+            if (delta <= 0f) return -1
+
+            return ceil((1f - progress) / delta).toInt()
+        }
 
     private var item: ItemStack = ItemStack.EMPTY
 
@@ -70,6 +106,8 @@ class MineTarget(
     fun onTick(cd: Int) {
         if (finished) return
 
+        if (started) ticksMined++
+
         val level = mc.level ?: return
         val player = mc.player ?: return
 
@@ -86,12 +124,14 @@ class MineTarget(
 
         if (!started) {
             if (cd <= 0) start()
+            else if (swing) player.swing(InteractionHand.MAIN_HAND)
         } else {
             if (!custom) {
                 progress += state.getDestroyProgress(player, level, pos)
+                level.destroyBlockProgress(player.id, pos, (progress * 10).toInt())
             }
 
-            level.destroyBlockProgress(player.id, pos, (progress * 10).toInt())
+            level.addBreakingBlockEffect(pos, direction)
 
             if (swing) player.swing(InteractionHand.MAIN_HAND)
 

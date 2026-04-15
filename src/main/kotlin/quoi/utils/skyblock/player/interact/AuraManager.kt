@@ -8,6 +8,7 @@ import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import quoi.QuoiMod.mc
 import quoi.annotations.Init
+import quoi.annotations.Internal
 import quoi.api.colour.Colour
 import quoi.api.colour.lerpColour
 import quoi.api.colour.withAlpha
@@ -24,6 +25,7 @@ import quoi.utils.render.drawWireFrameBox
 import quoi.utils.startPrediction
 
 @Init
+@OptIn(Internal::class)
 object AuraManager {
     private val blockTasks = mutableListOf<BlockInteract>()
     private var interactBlockCd = 0
@@ -31,7 +33,8 @@ object AuraManager {
     private val entityTasks = mutableListOf<EntityInteract>()
     private var interactEntityCd = 0
 
-    private var mineTarget: MineTarget? = null
+    var mineTarget: MineTarget? = null
+        private set
     private var mineBlockCd = 0
 
     private val recentClicks = mutableListOf<Vec3>()
@@ -84,6 +87,7 @@ object AuraManager {
                 is ClientboundBlockDestructionPacket -> mc.execute {
                     val target = mineTarget ?: return@execute
                     if (target.custom && target.pos == packet.pos) {
+                        if (packet.progress >= 10 && target.progress == 0f) return@execute
                         target.progress = (packet.progress / 10f).coerceIn(0f, 1f)
                     }
                 }

@@ -65,6 +65,20 @@ sealed class IslandArea { // idkmaybe
             return true
         }
     }
+
+    object MiningIslands : IslandArea() {
+        override val island: Island = Island.Unknown
+
+        override fun inBase(): Boolean {
+            return Location.currentArea.isArea(
+                Island.GoldMine,
+                Island.DeepCaverns,
+                Island.DwarvenMines,
+                Island.CrystalHollows,
+                Island.Mineshaft
+            )
+        }
+    }
 }
 
 operator fun Island.invoke(

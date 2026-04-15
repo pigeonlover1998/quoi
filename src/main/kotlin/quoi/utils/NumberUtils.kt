@@ -14,6 +14,9 @@ fun Number.round(decimals: Int): Number {
 
 inline val Number.rad get() = (toFloat() * PI / 180).toFloat()
 inline val Number.deg get() = (toFloat() * 180 / Math.PI).toFloat()
+inline val Int.sq get() = this * this
+inline val Float.sq get() = this * this
+inline val Double.sq get() = this * this
 
 fun Number.commas(): String = NumberFormat.getInstance(Locale.US).format(this)
 
