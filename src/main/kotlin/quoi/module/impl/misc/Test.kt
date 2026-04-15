@@ -11,6 +11,7 @@ import quoi.api.abobaui.dsl.size
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
 import quoi.api.colour.Colour
 import quoi.api.commands.internal.BaseCommand
+import quoi.api.events.RenderEvent
 import quoi.api.events.TickEvent
 import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.Dungeon
@@ -22,14 +23,16 @@ import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.Scheduler.wait
 import quoi.utils.StringUtils.formatTime
 import quoi.utils.StringUtils.toFixed
-import quoi.utils.skyblock.player.AuraAction
-import quoi.utils.skyblock.player.AuraManager
 import quoi.utils.WorldUtils.nearbyBlocks
 import quoi.utils.WorldUtils.state
+import quoi.utils.pathfinding.Pathfinder
+import quoi.utils.render.drawFilledBox
+import quoi.utils.render.drawLine
 import quoi.utils.skyblock.player.interact.AuraAction
 import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.ContainerUtils
 import quoi.utils.skyblock.player.LeapManager
+import quoi.utils.skyblock.player.MovementUtils.moveTo
 import quoi.utils.ui.hud.impl.TextHud
 import quoi.utils.ui.textPair
 
@@ -50,6 +53,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
     private val segmented by segmented("Segmented", "1", listOf("1", "2", "3"))
     private val segmented2 by segmented("Segmented enum", TextHud.HudFont.Minecraft)
 
+    val auraDebug by switch("Aura debug")
     val uiDebug by switch("UI debug").onValueChanged { old, new -> ClickGui.reopen() }
     val reopen by button("Reopen") { ClickGui.reopen() }
 
@@ -179,6 +183,20 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 //            ticker = tickerExample() // set ticker
 //        }
 
+        command.sub("moveto") {
+//            val path = listOf(
+//                BlockPos(92, 70, -225),
+//                BlockPos(91, 71, -220),
+//                BlockPos(97, 71, -219),
+//                BlockPos(102, 72, -216),
+//                BlockPos(104, 73, -213),
+//            )
+
+            val path = path ?: return@sub
+
+            player.moveTo(path)
+        }
+
         command.sub("blockaura") {
             mc.hitResult?.let {
                 if (it !is BlockHitResult) return@let
@@ -239,7 +257,58 @@ object Test : Module("Test", desc = "Dev module for testing.") {
             }
         }
 
+        command.sub("block") {
+            val shit = player.eyePosition().nearbyBlocks(30f) { it.state.block == Blocks.DIAMOND_ORE }
+            modMessage(shit)
+        }
+
+        command.sub("path") {
+            val start = player.blockPosition()
+            val goal = BlockPos(-17, 68, 19878)
+
+            scope.launch {
+                val p = Pathfinder.findPath(start, goal, maxNodes = 40_000) ?: return@launch
+                path = p
+
+                val path = p.map { it.center.addVec(y = 0.5) }
+                val points = mutableListOf<Vec3>()
+
+                for (i in path.indices) {
+                    val node = path[i]
+
+                    if (i > 0 && i < path.size -1) {
+                        val start = node.add(path[i - 1].subtract(node).scale(0.5))
+                        val end = node.add(path[i + 1].subtract(node).scale(0.5))
+
+                        for (j in 0..5) {
+                            val t = j / 5.0
+
+                            val x = t.lerp(t.lerp(start.x, node.x), t.lerp(node.x, end.x))
+                            val z = t.lerp(t.lerp(start.z, node.z), t.lerp(node.z, end.z))
+
+                            points.add(Vec3(x, node.y, z))
+                        }
+                    } else points.add(node)
+                }
+
+                drawPoints = points
+            }
+        }
+
+        on<RenderEvent.World> {
+            val points = drawPoints ?: return@on
+            val path = path ?: return@on
+
+            path.forEach { pos ->
+                ctx.drawFilledBox(pos.aabb, colour = Colour.ORANGE, depth = true)
+            }
+            ctx.drawLine(points, colour = Colour.WHITE, depth = true)
+        }
+
         command.register()
     }
     var stupid = 0
+
+    var path: List<BlockPos>? = null
+    var drawPoints: List<Vec3>? = null
 }
