@@ -524,6 +524,7 @@ object HudManager { // todo add hud grouping
                         divider(5.px)
                         hud.settings.forEach { setting ->
                             if (setting !is UIComponent) return@forEach
+                            if (setting.parent != null && setting.parent as UIComponent in hud.settings) return@forEach
 
                             var wasRainbow = (setting as? ColourPickerComponent)?.rainbow ?: false
 

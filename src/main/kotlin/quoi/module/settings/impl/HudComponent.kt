@@ -64,6 +64,7 @@ class HudComponent<T : Hud>(
             column(size(w = Copying), gap = 7.px) {
                 value.settings.forEach { setting ->
                     if (setting !is UIComponent) return@forEach
+                    if (setting.parent != null && setting.parent as UIComponent in value.settings) return@forEach
                     val dummy = value.settings.first() as UIComponent<*>
                     val asSub = setting in dummy.children || setting.children.isNotEmpty()
                     setting.render(this, asSub)
