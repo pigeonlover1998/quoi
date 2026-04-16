@@ -2,7 +2,6 @@ package quoi.module.impl.misc
 
 import net.minecraft.client.gui.components.ChatComponent
 import net.minecraft.client.gui.screens.ChatScreen
-import net.minecraft.util.Mth
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent

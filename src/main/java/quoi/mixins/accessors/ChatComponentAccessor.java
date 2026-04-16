@@ -19,9 +19,6 @@ public interface ChatComponentAccessor {
     @Invoker("getWidth")
     int invokeGetWidth();
 
-    @Invoker("getHeight")
-    int invokeGetHeight();
-
     @Invoker("getScale")
     double invokeGetScale();
 

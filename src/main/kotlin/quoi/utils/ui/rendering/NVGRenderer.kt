@@ -119,9 +119,6 @@ object NVGRenderer {
         nvgFill(vg)
     }
 
-    fun rect(x: Float, y: Float, w: Float, h: Float, color: Int, radius: Float = 0f) =
-        rect(x, y, w, h, color, radius, radius, radius, radius)
-
     fun rect(x: Float, y: Float, w: Float, h: Float, color: Int, radii: Radii) =
         rect(x, y, w, h, color, radii.topLeft, radii.bottomLeft, radii.bottomRight, radii.topRight)
 
@@ -179,10 +176,6 @@ object NVGRenderer {
         nvgFillPaint(vg, nvgPaint)
         nvgFill(vg)
     }
-
-    fun gradientRect(
-        x: Float, y: Float, w: Float, h: Float, color1: Int, color2: Int, direction: Gradient, radius: Float = 0f
-    ) = gradientRect(x, y, w, h, color1, color2, direction, radius, radius, radius, radius)
 
     fun gradientRect(
         x: Float, y: Float, w: Float, h: Float, color1: Int, color2: Int, direction: Gradient, radii: Radii
@@ -297,55 +290,10 @@ object NVGRenderer {
         }
     }
 
-    fun textShadow(text: String, x: Float, y: Float, size: Float, color: Int, font: Font) {
-        nvgFontFaceId(vg, getFontID(font))
-        nvgFontSize(vg, size)
-        color(-16777216)
-        nvgFillColor(vg, nvgColor)
-        nvgText(vg, round(x + 3f), round(y + 3f), text)
-
-        color(color)
-        nvgFillColor(vg, nvgColor)
-        nvgText(vg, round(x), round(y), text)
-    }
-
     fun textWidth(text: String, size: Float, font: Font): Float {
         nvgFontSize(vg, size)
         nvgFontFaceId(vg, getFontID(font))
         return nvgTextBounds(vg, 0f, 0f, text, fontBounds)
-    }
-
-    fun drawWrappedString(
-        text: String,
-        x: Float,
-        y: Float,
-        w: Float,
-        size: Float,
-        color: Int,
-        font: Font,
-        lineHeight: Float = 1f
-    ) {
-        nvgFontSize(vg, size)
-        nvgFontFaceId(vg, getFontID(font))
-        nvgTextLineHeight(vg, lineHeight)
-        color(color)
-        nvgFillColor(vg, nvgColor)
-        nvgTextBox(vg, x, y, w, text)
-    }
-
-    fun wrappedTextBounds(
-        text: String,
-        w: Float,
-        size: Float,
-        font: Font,
-        lineHeight: Float = 1f
-    ): FloatArray {
-        val bounds = FloatArray(4)
-        nvgFontSize(vg, size)
-        nvgFontFaceId(vg, getFontID(font))
-        nvgTextLineHeight(vg, lineHeight)
-        nvgTextBoxBounds(vg, 0f, 0f, w, text, bounds)
-        return bounds // [minX, minY, maxX, maxY]
     }
 
     fun wrapText(text: String, maxWidth: Float, size: Float, font: Font): List<String> {
@@ -364,13 +312,6 @@ object NVGRenderer {
 
         if (currentLine.isNotEmpty()) lines.add(currentLine)
         return lines
-    }
-
-    fun createNVGImage(textureId: Int, textureWidth: Int, textureHeight: Int): Int {
-        val key = textureId to (textureWidth to textureHeight)
-        return nvgImages.getOrPut(key) {
-            nvglCreateImageFromHandle(vg, textureId, textureWidth, textureHeight, NVG_IMAGE_NEAREST or NVG_IMAGE_NODELETE)
-        }
     }
 
     fun image(image: Int, textureWidth: Float, textureHeight: Float, subX: Float, subY: Float, subW: Float, subH: Float, x: Float, y: Float, w: Float, h: Float, radius: Float) {
@@ -426,16 +367,6 @@ object NVGRenderer {
         if (image.isSVG) images.getOrPut(image) { NVGImage(0, loadSVG(image)) }.count++
         else images.getOrPut(image) { NVGImage(0, loadImage(image)) }.count++
         return image
-    }
-
-    // lowers reference count by 1, if it reaches 0 it gets deleted from mem
-    fun deleteImage(image: Image) {
-        val nvgImage = images[image] ?: return
-        nvgImage.count--
-        if (nvgImage.count == 0) {
-            nvgDeleteImage(vg, nvgImage.nvg)
-            images.remove(image)
-        }
     }
 
     private fun getImage(image: Image): Int {
@@ -515,9 +446,4 @@ object NVGRenderer {
 
     private data class NVGImage(var count: Int, val nvg: Int)
     private data class NVGFont(val id: Int, val buffer: ByteBuffer)
-}
-
-object TextureTracker {
-    @JvmStatic
-    var previousBoundTexture = -1
 }

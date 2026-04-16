@@ -35,9 +35,6 @@ inline val ChatComponent.visibleMessages: List<GuiMessage.Line>
 inline val ChatComponent.chatWidth: Int
     get() = (this as ChatComponentAccessor).invokeGetWidth()
 
-inline val ChatComponent.chatHeight: Int
-    get() = (this as ChatComponentAccessor).invokeGetHeight()
-
 inline val ChatComponent.chatScale: Double
     get() = (this as ChatComponentAccessor).invokeGetScale()
 
