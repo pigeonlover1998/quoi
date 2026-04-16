@@ -18,7 +18,6 @@ import java.io.File
 import java.nio.ByteBuffer
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.round
 
 /**
  * modified OdinFabric (BSD 3-Clause)
@@ -39,8 +38,6 @@ object NVGRenderer {
     private val fontBounds = FloatArray(4)
 
     private val images = HashMap<Image, NVGImage>()
-    private val nvgImages = HashMap<Pair<Int, Pair<Int, Int>>, Int>()
-
     private var scissor: Scissor? = null
 
     private var vg = -1L
