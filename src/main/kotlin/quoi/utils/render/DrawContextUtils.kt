@@ -213,31 +213,61 @@ object DrawContextUtils {
         @Suppress("UNCHECKED_CAST")
         val renderer = mc.entityRenderDispatcher.getRenderer(entity) as EntityRenderer<LivingEntity, EntityRenderState>
 
+        val prevXRot = entity.xRot
+        val prevXRotO = entity.xRotO
+        val prevYRot = entity.yRot
+        val prevYRotO = entity.yRotO
+        val prevYBodyRot = entity.yBodyRot
+        val prevYBodyRotO = entity.yBodyRotO
+        val prevYHeadRot = entity.yHeadRot
+        val prevYHeadRotO = entity.yHeadRotO
+
+        yaw?.let { (min, max) -> // kinda ass but seems to be working.
+            val mid = (min + max) / 2f
+            val dev = (max - min) / 2f
+            entity.yHeadRot = mid + wrapDegrees(entity.yHeadRot - entity.yBodyRot).coerceIn(-dev, dev)
+            entity.yHeadRotO = mid + wrapDegrees(entity. yHeadRotO - entity.yBodyRotO).coerceIn(-dev, dev)
+            entity.yBodyRot = mid
+            entity.yBodyRotO = mid
+            entity.yRot = mid
+            entity.yRotO = mid
+        }
+
+        pitch?.let { (min, max) ->
+            entity.xRot = wrapDegrees(entity.xRot).coerceIn(min, max)
+            entity.xRotO = wrapDegrees(entity.xRotO).coerceIn(min, max)
+        }
+
         val state = renderer.createRenderState() as LivingEntityRenderState
         renderer.extractRenderState(entity, state, mc.deltaTracker.getGameTimeDeltaPartialTick(true))
 
-//        if (yaw != null) { // todo fix this shit
-//            state.yRot = wrapDegrees(state.yRot).coerceIn(yaw.first..yaw.second)
-//            state.bodyRot = wrapDegrees(state.bodyRot).coerceIn(yaw.first..yaw.second)
-//        }
+        state.outlineColor = 0
 
-//        if (pitch != null) {
-//            state.xRot = wrapDegrees(state.xRot).coerceIn(pitch.first..pitch.second)
-//        }
+        entity.xRot = prevXRot
+        entity.xRotO = prevXRotO
+        entity.yRot = prevYRot
+        entity.yRotO = prevYRotO
+        entity.yBodyRot = prevYBodyRot
+        entity.yBodyRotO = prevYBodyRotO
+        entity.yHeadRot = prevYHeadRot
+        entity.yHeadRotO = prevYHeadRotO
 
-        val x = x + this.pose().m20.toInt()
-        val y = y + this.pose().m21.toInt()
+        val s = this.pose().m00 * 2
+        val x = x * s + this.pose().m20
+        val y = y * s + this.pose().m21
+        val w = x + width * s
+        val h = y + height * s
 
         this.submitEntityRenderState(
             state,
-            scale,
+            scale * (this.pose().m00 * 2),
             Vector3f(-(width / (scale * 4f)), -(height / (scale * (2.6f * scale - 50f))), 0f),
             Quaternionf().rotationZ(Math.PI.toFloat()).rotationX(Math.PI.toFloat()),
             Quaternionf(),
-            x,
-            y,
-            x + width,
-            y + height
+            x.toInt(),
+            y.toInt(),
+            w.toInt(),
+            h.toInt()
         )
     }
 }
