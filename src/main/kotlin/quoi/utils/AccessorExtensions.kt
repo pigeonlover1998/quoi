@@ -8,6 +8,7 @@ import net.minecraft.client.gui.components.ImageButton
 import net.minecraft.client.gui.components.WidgetSprites
 import net.minecraft.client.multiplayer.MultiPlayerGameMode
 import net.minecraft.client.multiplayer.prediction.PredictiveAction
+import net.minecraft.util.Mth
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.item.ItemStack
@@ -31,14 +32,38 @@ inline val ChatComponent.messages: MutableList<GuiMessage>
 inline val ChatComponent.visibleMessages: List<GuiMessage.Line>
     get() = (this as ChatComponentAccessor).visibleMessages
 
+inline val ChatComponent.chatWidth: Int
+    get() = (this as ChatComponentAccessor).invokeGetWidth()
+
+inline val ChatComponent.chatHeight: Int
+    get() = (this as ChatComponentAccessor).invokeGetHeight()
+
+inline val ChatComponent.chatScale: Double
+    get() = (this as ChatComponentAccessor).invokeGetScale()
+
+inline val ChatComponent.chatLineHeight: Int
+    get() = (this as ChatComponentAccessor).invokeGetLineHeight()
+
 fun ChatComponent.toChatLineMX(x: Double): Double =
-    (this as ChatComponentAccessor).toChatLineMX(x)
+    x / chatScale - 4.0
 
-fun ChatComponent.toChatLineMY(y: Double): Double =
-    (this as ChatComponentAccessor).toChatLineMY(y)
+fun ChatComponent.toChatLineMY(y: Double): Double {
+    val chatY = mc.window.guiScaledHeight - y - 40.0
+    return chatY / (chatScale * chatLineHeight)
+}
 
-fun ChatComponent.getMessageLineIdx(chatLineX: Double, chatLineY: Double): Int =
-    (this as ChatComponentAccessor).getMessageLineIdx(chatLineX, chatLineY)
+fun ChatComponent.getMessageLineIdx(chatLineX: Double, chatLineY: Double): Int {
+    if (!isChatFocused || visibleMessages.isEmpty()) return -1
+
+    val maxChatX = Mth.floor(chatWidth / chatScale.toFloat()).toDouble()
+    if (chatLineX < -4.0 || chatLineX > maxChatX) return -1
+
+    val maxLine = minOf(linesPerPage, visibleMessages.size)
+    if (chatLineY < 0.0 || chatLineY >= maxLine.toDouble()) return -1
+
+    val idx = Mth.floor(chatLineY + scrolledLines.toDouble())
+    return idx.takeIf { it in visibleMessages.indices } ?: -1
+}
 
 fun ChatComponent.refreshTrimmedMessages() =
     (this as ChatComponentAccessor).invokeRefreshTrimmedMessages()

@@ -4,7 +4,7 @@ import quoi.QuoiMod.mc
 import quoi.api.colour.*
 import quoi.utils.ui.data.Gradient
 import quoi.utils.ui.data.Radii
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import org.lwjgl.nanovg.NVGColor
 import org.lwjgl.nanovg.NVGPaint
 import org.lwjgl.nanovg.NanoSVG.*
@@ -31,8 +31,8 @@ object NVGRenderer {
     private val nvgColor = NVGColor.malloc()
     private val nvgColor2: NVGColor = NVGColor.malloc()
 
-    val defaultFont = Font("Default", mc.resourceManager.getResource(ResourceLocation.parse("quoi:font.ttf")).get().open())
-    val customFont = Font("Custom", File("config/quoi!/font.ttf").takeIf { it.exists() }?.inputStream() ?: mc.resourceManager.getResource(ResourceLocation.parse("quoi:font.ttf")).get().open())
+    val defaultFont = Font("Default", mc.resourceManager.getResource(Identifier.parse("quoi:font.ttf")).get().open())
+    val customFont = Font("Custom", File("config/quoi!/font.ttf").takeIf { it.exists() }?.inputStream() ?: mc.resourceManager.getResource(Identifier.parse("quoi:font.ttf")).get().open())
     val minecraftFont = Font("Minecraft")
 
     private val fontMap = HashMap<Font, NVGFont>()

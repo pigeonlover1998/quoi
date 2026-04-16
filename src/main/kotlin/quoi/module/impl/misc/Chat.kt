@@ -2,6 +2,7 @@ package quoi.module.impl.misc
 
 import net.minecraft.client.gui.components.ChatComponent
 import net.minecraft.client.gui.screens.ChatScreen
+import net.minecraft.util.Mth
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
@@ -22,6 +23,7 @@ import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.add
+import quoi.utils.chatWidth
 import quoi.utils.getMessageLineIdx
 import quoi.utils.scrolledLines
 import quoi.utils.toChatLineMX
@@ -126,7 +128,7 @@ object Chat : Module(
             val dy = chatGui.toChatLineMY(my)
             val idx = chatGui.getMessageLineIdx(dx, dy)
             if (idx !in chatGui.visibleMessages.indices) return@on
-            if (idx == 0 && dy !in 0.0..1.0 || dx >= chatGui.width.plus(10)) return@on
+            if (idx == 0 && dy !in 0.0..1.0 || dx >= chatGui.chatWidth + 10) return@on
 
             val fullText = chatGui.getFullText(idx)?.string ?: return@on
             val finalText = if (isCodeBtn) fullText else fullText.noControlCodes
