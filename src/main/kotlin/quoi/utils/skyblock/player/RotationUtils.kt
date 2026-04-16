@@ -5,33 +5,50 @@ import net.minecraft.util.Mth.wrapDegrees
 import quoi.QuoiMod.mc
 import quoi.annotations.Init
 import quoi.api.animations.Animation
+import quoi.api.events.MouseEvent
 import quoi.api.events.RenderEvent
+import quoi.api.events.WorldEvent
 import quoi.api.events.core.EventBus.on
 import quoi.utils.Direction
 
 @Init
 object RotationUtils {
 
+    private var rotationTask: (LocalPlayer.() -> Boolean)? = null
+
     init {
         on<RenderEvent.World> {
-            val task = rotationTask ?: return@on
             val player = mc.player ?: return@on
 
-            val anim = task.anim
-            val progress = anim.get()
-
-            player.rotate(
-                task.startYaw + (task.deltaYaw * progress),
-                task.startPitch + (task.deltaPitch * progress)
-            )
-
-            if (anim.finished && rotationTask?.anim === anim) {
-                rotationTask = null
+            while (rotationTask != null) {
+                val current = rotationTask!!
+                if (player.current()) {
+                    if (rotationTask === current) {
+                        rotationTask = null
+                        break
+                    }
+                } else break
             }
+        }
+
+        on<MouseEvent.Move> {
+            if (rotationTask != null) cancel()
+        }
+
+        on<WorldEvent.Change> {
+            rotationTask = null
         }
     }
 
-    private var rotationTask: RotationTask? = null
+    fun rotationTask(task: (LocalPlayer.() -> Boolean)?): Boolean {
+        val player = mc.player ?: return false
+        rotationTask = task
+        return if (task != null) player.task() else true
+    }
+
+    fun cancelRotationTask() {
+        rotationTask = null
+    }
 
     var LocalPlayer.yaw
         get() = wrapDegrees(this.yRot)
@@ -60,29 +77,38 @@ object RotationUtils {
         style: Animation.Style = Animation.Style.EaseOutQuint,
         onFinish: (() -> Unit)? = null
     ) {
-        val startYaw = this.yaw
-        val startPitch = this.pitch
+        var initialised = false
+        var startYaw = 0f
+        var startPitch = 0f
+        var deltaYaw = 0f
+        var deltaPitch = 0f
+        lateinit var anim: Animation
 
-        val deltaYaw = wrapDegrees(yaw - startYaw)
-        val deltaPitch = pitch - startPitch
+        rotationTask {
+            if (!initialised) {
+                startYaw = this.yaw
+                startPitch = this.pitch
+                deltaYaw = wrapDegrees(yaw - startYaw)
+                deltaPitch = pitch - startPitch
+                anim = Animation(duration, style).onFinish { onFinish?.invoke() }
+                initialised = true
+            }
 
-        rotationTask = RotationTask(
-            startYaw,
-            startPitch,
-            deltaYaw,
-            deltaPitch,
-            Animation(duration, style).onFinish { onFinish?.invoke() }
-        )
+            val progress = anim.get()
+
+            this.rotate(
+                startYaw + (deltaYaw * progress),
+                startPitch + (deltaPitch * progress)
+            )
+
+            anim.finished
+        }
     }
 
-    fun LocalPlayer.rotateSmoothly(dir: Direction, duration: Float, style: Animation.Style = Animation.Style.EaseOutQuint, onFinish: (() -> Unit)? = null) =
-        this.rotateSmoothly(dir.yaw, dir.pitch, duration, style, onFinish)
-
-    private data class RotationTask(
-        val startYaw: Float,
-        val startPitch: Float,
-        val deltaYaw: Float,
-        val deltaPitch: Float,
-        val anim: Animation
-    )
+    fun LocalPlayer.rotateSmoothly(
+        dir: Direction,
+        duration: Float,
+        style: Animation.Style = Animation.Style.EaseOutQuint,
+        onFinish: (() -> Unit)? = null
+    ) = this.rotateSmoothly(dir.yaw, dir.pitch, duration, style, onFinish)
 }

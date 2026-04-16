@@ -59,6 +59,10 @@ object MovementUtils {
         return if (task != null) player.task(input) else true
     }
 
+    fun cancelMovementTask() {
+        movementTask = null
+    }
+
     fun LocalPlayer.fullStop() = movementTask { input ->
         if (!this.isMoving) return@movementTask this.resetInput()
 

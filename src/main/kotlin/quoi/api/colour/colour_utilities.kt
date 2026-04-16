@@ -165,3 +165,10 @@ inline fun hsb(crossinline block: () -> Colour.HSB): Colour.HSB = object : Colou
         get() = block().rgb
         set(_) {}
 }
+
+fun lerpColour(from: Colour, to: Colour, amount: Float): Colour {
+    val r = from.red + (to.red - from.red) * amount
+    val g = from.green + (to.green - from.green) * amount
+    val b = from.blue + (to.blue - from.blue) * amount
+    return Colour.RGB(r.toInt(), g.toInt(), b.toInt())
+}

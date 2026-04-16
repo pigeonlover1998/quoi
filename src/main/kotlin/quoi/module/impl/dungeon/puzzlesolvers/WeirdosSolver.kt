@@ -14,8 +14,8 @@ import quoi.utils.ChatUtils.modMessage
 import quoi.utils.EntityUtils.getEntities
 import quoi.utils.SoundUtils
 import quoi.utils.render.drawStyledBox
-import quoi.utils.skyblock.player.AuraAction
-import quoi.utils.skyblock.player.AuraManager
+import quoi.utils.skyblock.player.interact.AuraAction
+import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.vec3
 import java.util.concurrent.CopyOnWriteArraySet
 
@@ -68,7 +68,7 @@ object WeirdosSolver {
                 if (entity.id in clickedNPCs || entity.distanceToSqr(player) > 30 || currentTime - lastClick < 200L) return@any false
                 modMessage(entity.name)
 
-                AuraManager.auraEntity(entity, AuraAction.INTERACT_AT)
+                AuraManager.interactEntity(entity, AuraAction.INTERACT_AT)
                 clickedNPCs.add(entity.id)
                 lastClick = currentTime
                 true

@@ -14,7 +14,7 @@ import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.utils.*
 import quoi.utils.render.drawWireFrameBox
-import quoi.utils.skyblock.player.AuraManager
+import quoi.utils.skyblock.player.interact.AuraManager
 
 /**
  * modified Skyblocker (LGPL-3.0) (c) kevinthegreat1

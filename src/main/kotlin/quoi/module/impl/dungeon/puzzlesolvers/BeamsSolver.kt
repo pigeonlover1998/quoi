@@ -13,7 +13,7 @@ import quoi.QuoiMod.logger
 import quoi.QuoiMod.mc
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
-import quoi.api.events.BlockUpdateEvent
+import quoi.api.events.BlockEvent
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.utils.*
@@ -101,7 +101,7 @@ object BeamsSolver {
         }
     }
 
-    fun onBlockChange(event: BlockUpdateEvent, announce: Boolean, auto: Boolean) {
+    fun onBlockChange(event: BlockEvent.Update, announce: Boolean, auto: Boolean) {
         if (Dungeon.currentRoom?.name != "Creeper Beams") return
         if (
             event.old.block.equalsOneOf(Blocks.PRISMARINE, Blocks.SEA_LANTERN) &&

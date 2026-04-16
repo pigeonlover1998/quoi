@@ -48,7 +48,7 @@ object MirrorverseSolvers : Module(
             }
         }
 
-        on<GuiEvent.Open.Pre> {
+        on<GuiEvent.Open> {
             if (tinyDancer) TinyDancerSolver.onScreen()
             if (lavaMaze)   LavaMazeSolver.onScreen()
             if (parkour)    ParkourSolver.onScreen()

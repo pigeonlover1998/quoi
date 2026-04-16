@@ -17,7 +17,7 @@ public class ScreenMixin {
             cancellable = true
     )
     protected void quoi$onInitPre(CallbackInfo ci) {
-        if (new GuiEvent.Open.Pre((Screen) (Object) this).post()) ci.cancel();
+        if (new GuiEvent.Open((Screen) (Object) this).post()) ci.cancel();
     }
 
     @Inject(

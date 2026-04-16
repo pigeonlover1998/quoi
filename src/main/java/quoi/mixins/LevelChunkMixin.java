@@ -1,6 +1,6 @@
 package quoi.mixins;
 
-import quoi.api.events.BlockUpdateEvent;
+import quoi.api.events.BlockEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -18,6 +18,6 @@ public abstract class LevelChunkMixin {
     @Inject(method = "setBlockState", at = @At("HEAD"))
     private void onBlockChange(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir) {
         BlockState old = this.getBlockState(pos);
-        if (old != state) (new BlockUpdateEvent(pos, old, state)).post();
+        if (old != state) (new BlockEvent.Update(pos, old, state)).post();
     }
 }

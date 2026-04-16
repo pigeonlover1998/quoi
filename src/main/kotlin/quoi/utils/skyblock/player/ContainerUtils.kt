@@ -19,6 +19,7 @@ import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.noControlCodes
+import quoi.utils.items
 import quoi.utils.skyblock.ItemUtils.loreString
 import quoi.utils.skyblock.ItemUtils.skyblockUuid
 import quoi.utils.skyblock.player.ContainerUtils.closeContainer
@@ -109,6 +110,7 @@ object ContainerUtils {
     ): Boolean {
         require(uuid != null || name != null) { "You must provide either uuid or name." }
         require(!(uuid != null && name != null)) { "Provide only one of uuid or name." }
+        val inventory = mc.player?.inventory ?: return false
 
         val items = getContainerItems(command, container, slots, timeout)
         if (items.isEmpty()) {
@@ -116,7 +118,7 @@ object ContainerUtils {
             return false
         }
 
-        val invItems = (mc.player?.inventory as InventoryAccessor).items.take(36)
+        val invItems = inventory.items.take(36)
         val finalItems = if (inContainer) items else invItems
 
         val slot = finalItems.indexOfFirst { item ->

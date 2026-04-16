@@ -6,7 +6,6 @@ import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.Style
-import net.minecraft.util.Mth
 import quoi.api.events.ChatEvent
 import quoi.api.events.GuiEvent
 import quoi.api.events.core.Priority
@@ -17,13 +16,17 @@ import quoi.mixins.accessors.ChatComponentAccessor
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.ChatUtils
-import quoi.utils.ChatUtils.add
 import quoi.utils.ChatUtils.chatGui
-import quoi.utils.ChatUtils.chatHudAccessor
 import quoi.utils.ChatUtils.literal
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.noControlCodes
+import quoi.utils.add
+import quoi.utils.getMessageLineIdx
+import quoi.utils.scrolledLines
+import quoi.utils.toChatLineMX
+import quoi.utils.toChatLineMY
+import quoi.utils.visibleMessages
 
 object Chat : Module(
     "Chat",
@@ -98,11 +101,11 @@ object Chat : Module(
                 this.cancel()
 
                 scheduleTask {
-                    val scrollBefore = chatHudAccessor.scrolledLines // without this scroll resets every time message gets compacted. visual bug: scroll bar changes colour for a split second. I can't be asked fixing it
+                    val scrollBefore = chatGui.scrolledLines // without this scroll resets every time message gets compacted. visual bug: scroll bar changes colour for a split second. I can't be asked fixing it
                     ChatUtils.removeLines(id, msg)
-                    ChatUtils.chatHud.add(text.copy().append(literal(" &7($count)")), id)
+                    chatGui.add(text.copy().append(literal(" &7($count)")), id)
                     chatList[msg] = Pair(count, System.currentTimeMillis())
-                    chatHudAccessor.scrolledLines = scrollBefore
+                    chatGui.scrolledLines = scrollBefore
                 }
 
                 return@on
@@ -112,21 +115,20 @@ object Chat : Module(
 
         on<GuiEvent.Click> {
             if (!state || !copyChat || screen !is ChatScreen) return@on
-            if (chatHudAccessor.visibleMessages.isEmpty()) return@on
+            if (chatGui.visibleMessages.isEmpty()) return@on
 
             val isCopyBtn = button == copyChatKey.key + 100 && copyChatKey.isModifierDown()
             val isCodeBtn = button == copyChatCodesKey.key + 100 && copyChatCodesKey.isModifierDown()
             if (!isCopyBtn && !isCodeBtn) return@on
             cancel()
 
-            val scale = chatHudAccessor.invokeGetScale()
-            val dx = Mth.floor(mx / scale - 4.0).toDouble()
-            val dy = Mth.floor((mc.window.guiScaledHeight - my - 40.0) / scale).toDouble()
-            val idx = (dy / chatHudAccessor.invokeGetLineHeight()).toInt() + chatHudAccessor.scrolledLines
-            if (idx !in chatHudAccessor.visibleMessages.indices) return@on
-            if (idx == 0 && dy !in 0.0..1.0 || dx >= chatHudAccessor.invokeGetWidth().plus(10)) return@on
+            val dx = chatGui.toChatLineMX(mx)
+            val dy = chatGui.toChatLineMY(my)
+            val idx = chatGui.getMessageLineIdx(dx, dy)
+            if (idx !in chatGui.visibleMessages.indices) return@on
+            if (idx == 0 && dy !in 0.0..1.0 || dx >= chatGui.width.plus(10)) return@on
 
-            val fullText = chatGui?.getFullText(idx)?.string ?: return@on
+            val fullText = chatGui.getFullText(idx)?.string ?: return@on
             val finalText = if (isCodeBtn) fullText else fullText.noControlCodes
             mc.keyboardHandler.clipboard = finalText
             modMessage(

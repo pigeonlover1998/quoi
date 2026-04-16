@@ -31,7 +31,7 @@ import quoi.utils.render.drawWireFrameBox
 import quoi.utils.scaledHeight
 import quoi.utils.scaledWidth
 import quoi.utils.skyblock.ItemUtils.getBreakerCharges
-import quoi.utils.skyblock.player.AuraManager
+import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.SwapManager
 import quoi.utils.ui.textPair
@@ -163,7 +163,7 @@ object DungeonBreaker : Module(
 
             blocks.forEachIndexed { i, pos ->
                 if (i >= initialCharges) return@on
-                AuraManager.breakBlock(pos)
+                AuraManager.breakBlock(pos, immediate = true)
                 recentlyBroken[pos] = System.currentTimeMillis()
                 if (!zeroTickDb) return@on
             }

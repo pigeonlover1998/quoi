@@ -6,12 +6,14 @@ import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
 import net.minecraft.world.phys.Vec3
 import quoi.api.events.*
 import quoi.api.skyblock.Island
+import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.api.skyblock.dungeon.Dungeon.isDead
 import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
 import quoi.module.Module
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.*
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleTask
@@ -20,18 +22,18 @@ import quoi.utils.WorldUtils.state
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.PlayerUtils.useItem
-import quoi.utils.skyblock.player.RotationUtils.rotate
 import quoi.utils.skyblock.player.SwapManager
 import kotlin.math.roundToInt
 
-object AutoBloodRush : Module( // inconsistent
+object AutoBloodRush : Module( // todo clean up some day (probably never)
     "Auto Blood Rush",
     desc = "Automatically blood rushes.",
     area = Island.Dungeon
 ) {
+    private val minTicksBeforeDeath by slider("Minimum ticks before death", 35, 15, 40, unit = "t", desc = "Triggers when remaining ticks until death are at least this value. Higher values make the macro slower (in some cases), but more consistent.")
+    private val scanCorners by switch("Scan corners", desc = "Scans the corners when looking for blood.").open()
+    private val cornersAmount by slider("Amount", 2, 1, 3, desc = "Amount of corners to go through.").childOf(::scanCorners)
     private val debug by switch("Debug").hide()
-
-    private val mid = Vec3(-104.0, 0.0, -104.0)
 
     private var bloodCoords: Vec3? = null
     private var tickerThing: Ticker? = null
@@ -42,8 +44,25 @@ object AutoBloodRush : Module( // inconsistent
 
     private var firstScan = true
     private var goingMid = false
+    private var runStarted = false
 
-    private val etherBlock: BlockPos
+    private val mid = Vec3(-104.0, 0.0, -104.0)
+
+    val corners = arrayOf(
+        Vec3(-188.0, 0.0, -188.0), // nw
+        Vec3(-28.0, 0.0, -188.0), // ne
+        Vec3(-188.0, 0.0, -28.0), // sw
+        Vec3(-28.0, 0.0, -28.0) // se
+    )
+
+//    val sides = arrayOf(
+//        Vec3(-104.0, 0.0, -188.0), // n
+//        Vec3(-104.0, 0.0, -28.0), // s
+//        Vec3(-188.0, 0.0, -104.0), // w
+//        Vec3(-28.0, 0.0, -104.0) // e
+//    )
+
+    private inline val etherBlock: BlockPos
         get() {
             val room = currentRoom!!
 
@@ -81,22 +100,22 @@ object AutoBloodRush : Module( // inconsistent
         on<ChatEvent.Packet> {
             if (debug) return@on
             if (currentRoom?.name != "Entrance") return@on
-            if (bloodCoords == null || player.y < 95.0) return@on
-            when (message.noControlCodes) {
-//                "Starting in 4 seconds." -> tickerThing = leaf()
-                "[NPC] Mort: Here, I found this map when I first entered the dungeon." -> tickerThing = br()
-            }
+            if (bloodCoords == null) return@on
+            if (message.noControlCodes == "[NPC] Mort: Here, I found this map when I first entered the dungeon.")
+                runStarted = true
         }
 
         on<PacketEvent.Received> {
             if (goingMid && packet is ClientboundPlayerPositionPacket) {
                 if (packet.change.position.y in 75.0..77.0) {
                     goingMid = false
+                    tickerThing = null
                     scheduleTask(2) {
                         tickerThing = ticker {
                             position()
                             roof()
-                            delay(10)
+//                            delay(2)
+                            br()
                         }
                     }
                 }
@@ -131,13 +150,14 @@ object AutoBloodRush : Module( // inconsistent
             tickerThing = ticker {
                 position()
                 roof()
-                delay(10)
+                delay(5)
                 action {
                     if (bloodCoords == null) {
                         goingMid = true
-                        tickerThing = br()
+                        tickerThing = findBlood()
                     }
                 }
+                br()
             }
         }
 
@@ -151,11 +171,11 @@ object AutoBloodRush : Module( // inconsistent
 
             firstScan = true
             goingMid = false
+            runStarted = false
         }
     }
 
     private fun TickerScope.position() {
-        val spot = etherBlock
         await { player.onGround() }
         action {
             val swap = SwapManager.swapById("ASPECT_OF_THE_VOID")
@@ -167,11 +187,11 @@ object AutoBloodRush : Module( // inconsistent
         }
         delay(1) // idk
         action {
-            val dir = getEtherwarpDirection(spot) ?: cancel()
+            val dir = getEtherwarpDirection(etherBlock) ?: cancel()
             player.useItem(dir)
         }
         await {
-            if (player.at(spot)) {
+            if (player.at(etherBlock)) {
                 mc.options.keyShift.isDown = false
                 return@await true
             }
@@ -192,23 +212,24 @@ object AutoBloodRush : Module( // inconsistent
         await { doneTeleporting() }
 
         action {
-            awaitTp(4)
+            awaitTp(3)
         }
 
-        repeat(4) {
+        repeat(3) {
             action { PlayerUtils.interact() }
         }
 
         await { doneTeleporting() }
 
-        await {
+        await { // throws an extra pearl sometimes
             if (player.blockPosition().above(1).state.isAir) {
                 SwapManager.swapById("ASPECT_OF_THE_VOID").success
                 return@await true
             }
 
-            if (tpsAmount == 0 || doneTeleporting()) { // todo fix
-//                modMessage("I AM A NI")
+            if (doneTeleporting()) return@await false
+
+            if (tpsAmount == 0) {
                 awaitTp(1)
                 PlayerUtils.interact()
             }
@@ -218,7 +239,9 @@ object AutoBloodRush : Module( // inconsistent
         delay(1) // dk
     }
 
-    private fun br() = ticker {
+    private fun findBlood() = ticker {
+        var c1: Vec3? = null
+        var c2: Vec3? = null
 
         action {
             if (player.y < 95 || !SwapManager.swapById("ASPECT_OF_THE_VOID").success) {
@@ -227,9 +250,56 @@ object AutoBloodRush : Module( // inconsistent
             mc.options.keyShift.isDown = false
         }
 
+        action {
+            awaitTp(6)
+            repeat(6) { player.useItem(0, -90) }
+        }
+
+        await { doneTeleporting() }
+
+        action {
+            teleport(to = mid)
+        }
+
+        if (!scanCorners) return@ticker
+
+        await { doneTeleporting() }
+
+        action {
+            c1 = getUnexploredCorner()
+            teleport(to = c1)
+        }
+
+        await { doneTeleporting() }
+
+        action {
+            if (cornersAmount < 2) cancel()
+            c2 = getUnexploredCorner { it != c1 }
+            teleport(to = c2)
+        }
+
+        await { doneTeleporting() }
+
+        action {
+            if (cornersAmount < 3) cancel()
+            val c3 = getUnexploredCorner { it != c1 && it != c2 }
+            teleport(to = c3)
+        }
+    }
+
+    private fun TickerScope.br() {
+
+        action {
+            if (player.y < 95 || !SwapManager.swapById("ASPECT_OF_THE_VOID").success) {
+                cancel()
+            }
+            mc.options.keyShift.isDown = false
+        }
+
+        await { runStarted && Dungeon.deathTick >= minTicksBeforeDeath }
+
         action(1) {
             val yaw = getFreeDirection(currentRoom!!) ?: cancel()
-            modMessage(yaw)
             awaitTp(4)
             repeat(4) { player.useItem(yaw, 0) }
         }
@@ -244,45 +314,42 @@ object AutoBloodRush : Module( // inconsistent
         await { doneTeleporting() }
 
         action {
-            val blood = bloodCoords != null
-            val target = bloodCoords ?: mid
-
-            val bloodDir = getDirection(player.position(), target)
-            val bloodTimes = (player.position().distanceTo2D(target) / 12).roundToInt() + if (!blood) 3 else 0
-
-            awaitTp(bloodTimes)
-            repeat(bloodTimes) { player.useItem(bloodDir.yaw, 0) }
-            if (!blood) cancel()
+            val target = bloodCoords ?: cancel()
+            teleport(to = target)
         }
 
         await { doneTeleporting() }
 
         action {
-            if (bloodCoords != null) {
-                awaitTp(8)
-                repeat(8) { player.useItem(0, -90) }
-            } else {
-                cancel()
-            }
+            awaitTp(8)
+            repeat(8) { player.useItem(0, -90) }
         }
 
         await { doneTeleporting() }
 
-
-        // todo find a way to make this part consistent
         action {
             SwapManager.swapByName("pearl")
-            player.rotate(0, -90)
+            awaitTp(2)
         }
 
         repeat(2) {
-            action { PlayerUtils.interact() }
+            action { player.useItem(0, -90) }
         }
 
-        action {
-            player.rotate(0, 45)
-            PlayerUtils.interact()
+        await { doneTeleporting() }
+
+        await {
+            if (player.y >= 67) {
+                return@await true
+            }
+
+            if (tpsAmount == 0 || doneTeleporting()) {
+                awaitTp(1)
+                player.useItem(0, -90)
+            }
+            false
         }
+
     }
 
     private fun doneTeleporting(): Boolean {
@@ -299,6 +366,14 @@ object AutoBloodRush : Module( // inconsistent
         doneTeleporting = false
     }
 
+    private fun teleport(to: Vec3) {
+        val dir = getDirection(from = player.position(), to = to)
+        val times = (player.position().distanceTo2D(to) / 12).roundToInt()
+
+        awaitTp(times)
+        repeat(times) { player.useItem(dir.yaw, 0) }
+    }
+
     private fun getFreeDirection(entrance: OdonRoom): Float? {
         val directions = mapOf(
             (0 to -32) to 180f,
@@ -307,19 +382,40 @@ object AutoBloodRush : Module( // inconsistent
             (32 to 0) to -90f
         )
 
+//        val yaw = directions.entries.firstOrNull { (offset, _) ->
+//            val (dx, dz) = offset
+//
+//            entrance.roomComponents.none { comp ->
+//
+//                val vec = Vec2i(comp.x + dx, comp.z + dz)
+//
+//                ScanUtils.scannedRooms.any { room ->
+//                    room.roomComponents.any { it.vec2 == vec }
+//                }
+//            }
+//        }?.value ?: return null
+
         val yaw = directions.entries.firstOrNull { (offset, _) ->
             val (dx, dz) = offset
 
-            entrance.roomComponents.none { comp ->
+            entrance.roomComponents.all { comp ->
+                val x = comp.x + dx
+                val z = comp.z + dz
 
-                val vec = Vec2i(comp.x + dx, comp.z + dz)
-
-                ScanUtils.scannedRooms.any { room ->
-                    room.roomComponents.any { it.vec2 == vec }
-                }
+                x < -200 || x > -8 || z < -200 || z > -8
             }
         }?.value ?: return null
 
         return yaw
+    }
+
+    private fun getUnexploredCorner(predicate: (Vec3) -> Boolean = { true }): Vec3 {
+        return corners.filter(predicate).minByOrNull { corner ->
+            ScanUtils.scannedRooms.count { room ->
+                val inX = if (corner.x < -104) room.clayPos.x < -104 else room.clayPos.x > -104
+                val inZ = if (corner.z < -104) room.clayPos.z < -104 else room.clayPos.z > -104
+                inX && inZ
+            }
+        } ?: corners.firstOrNull(predicate) ?: corners[0]
     }
 }

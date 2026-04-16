@@ -13,8 +13,6 @@ inline val height get() = mc.window.height
 inline val scaledWidth get() = width / sf
 inline val scaledHeight get() = height / sf
 
-inline val KeyMapping.key: InputConstants.Key get() = (this as KeyMappingAccessor).boundKey
-
 fun Any?.equalsOneOf(vararg options: Any?): Boolean {
     return options.any { this == it }
 }

@@ -9,8 +9,10 @@ import net.minecraft.world.level.GameType
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 import net.minecraft.world.phys.shapes.VoxelShape
+import kotlin.math.floor
 
 /**
  * modified Stella (LGPL-3.0) (c) Eclipse-5214
@@ -20,11 +22,14 @@ object WorldUtils {
     inline val BlockPos.state: BlockState
         get() = mc.level?.getBlockState(this) ?: Blocks.AIR.defaultBlockState()
 
-    inline val BlockPos.shape: VoxelShape
+    inline val BlockPos.collisionShape: VoxelShape
         get() = mc.level?.let { this.state.getCollisionShape(it, this) } ?: Shapes.empty()
 
+    inline val BlockPos.shape: VoxelShape
+        get() = mc.level?.let { this.state.getShape(it, this) } ?: Shapes.empty()
+
     inline val BlockPos.solid: Boolean
-        get() = !this.shape.isEmpty
+        get() = !this.collisionShape.isEmpty
 
     inline val BlockPos.airLike: Boolean
         get() = /*!solid &&*/ state.block in BlockTypes.AirLike
@@ -56,4 +61,35 @@ object WorldUtils {
         get() = tablist.filter { it.profile.id.version() == 4 }
 
     val ClientLevel.day get() = this.dayTime / 24000
+
+    inline fun Vec3.nearbyBlocks(radius: Float, predicate: (BlockPos) -> Boolean = { true }): List<BlockPos> {
+        val res = mutableListOf<BlockPos>()
+        val mut = BlockPos.MutableBlockPos()
+
+        CachedSphere.forEachInRadius(
+            floor(this.x).toInt(),
+            floor(this.y).toInt(),
+            floor(this.z).toInt(),
+            radius
+        ) { x, y, z ->
+            mut.set(x, y, z)
+            if (predicate(mut)) {
+                res.add(mut.immutable())
+            }
+        }
+        return res
+    }
+
+    inline fun BlockPos.nearbyBlocks(radius: Float, predicate: (BlockPos) -> Boolean = { true }): List<BlockPos> {
+        val res = mutableListOf<BlockPos>()
+        val mut = BlockPos.MutableBlockPos()
+
+        CachedSphere.forEachInRadius(this.x, this.y, this.z, radius) { x, y, z ->
+            mut.set(x, y, z)
+            if (predicate(mut)) {
+                res.add(mut.immutable())
+            }
+        }
+        return res
+    }
 }

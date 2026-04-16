@@ -4,7 +4,7 @@ import quoi.QuoiMod.mc
 import quoi.api.colour.*
 import quoi.utils.ui.data.Gradient
 import quoi.utils.ui.data.Radii
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import org.lwjgl.nanovg.NVGColor
 import org.lwjgl.nanovg.NVGPaint
 import org.lwjgl.nanovg.NanoSVG.*
@@ -13,6 +13,7 @@ import org.lwjgl.nanovg.NanoVGGL3.*
 import org.lwjgl.stb.STBImage.stbi_load_from_memory
 import org.lwjgl.system.MemoryUtil.memAlloc
 import org.lwjgl.system.MemoryUtil.memFree
+import quoi.utils.StringUtils.FORMATTING_CODE_PATTERN
 import java.io.File
 import java.nio.ByteBuffer
 import kotlin.math.max
@@ -30,8 +31,8 @@ object NVGRenderer {
     private val nvgColor = NVGColor.malloc()
     private val nvgColor2: NVGColor = NVGColor.malloc()
 
-    val defaultFont = Font("Default", mc.resourceManager.getResource(Identifier.parse("quoi:font.ttf")).get().open())
-    val customFont = Font("Custom", File("config/quoi!/font.ttf").takeIf { it.exists() }?.inputStream() ?: mc.resourceManager.getResource(Identifier.parse("quoi:font.ttf")).get().open())
+    val defaultFont = Font("Default", mc.resourceManager.getResource(ResourceLocation.parse("quoi:font.ttf")).get().open())
+    val customFont = Font("Custom", File("config/quoi!/font.ttf").takeIf { it.exists() }?.inputStream() ?: mc.resourceManager.getResource(ResourceLocation.parse("quoi:font.ttf")).get().open())
     val minecraftFont = Font("Minecraft")
 
     private val fontMap = HashMap<Font, NVGFont>()
@@ -118,6 +119,9 @@ object NVGRenderer {
         nvgFill(vg)
     }
 
+    fun rect(x: Float, y: Float, w: Float, h: Float, color: Int, radius: Float = 0f) =
+        rect(x, y, w, h, color, radius, radius, radius, radius)
+
     fun rect(x: Float, y: Float, w: Float, h: Float, color: Int, radii: Radii) =
         rect(x, y, w, h, color, radii.topLeft, radii.bottomLeft, radii.bottomRight, radii.topRight)
 
@@ -177,6 +181,10 @@ object NVGRenderer {
     }
 
     fun gradientRect(
+        x: Float, y: Float, w: Float, h: Float, color1: Int, color2: Int, direction: Gradient, radius: Float = 0f
+    ) = gradientRect(x, y, w, h, color1, color2, direction, radius, radius, radius, radius)
+
+    fun gradientRect(
         x: Float, y: Float, w: Float, h: Float, color1: Int, color2: Int, direction: Gradient, radii: Radii
     ) = gradientRect(x, y, w, h, color1, color2, direction, radii.topLeft, radii.bottomLeft, radii.bottomRight, radii.topRight)
 
@@ -223,10 +231,121 @@ object NVGRenderer {
         nvgText(vg, x, y + .5f, text)
     }
 
+    fun formattedText(text: String, x: Float, y: Float, size: Float, colour: Int, font: Font) {
+        var x = x
+        var col = colour
+        val alpha = colour and -0x1000000
+
+        var underline = false
+        var strike = false
+
+        val list = text.split(Regex("(?=${FORMATTING_CODE_PATTERN.pattern})"))
+
+        for (string in list) {
+            var text = string
+            if (text.length >= 2 && (text[0] == '§' || text[0] == '&')) {
+                when (val code = text[1].lowercaseChar()) {
+                    'n' -> underline = true
+                    'm' -> strike = true
+                    'r' -> {
+                        col = colour
+                        underline = false
+                        strike = false
+                    }
+                    'l', 'o', 'k' -> {}
+                    else -> {
+                        val c = when (code) {
+                            '0' -> Colour.BLACK;
+                            '1' -> Colour.MINECRAFT_DARK_BLUE
+                            '2' -> Colour.MINECRAFT_DARK_GREEN;
+                            '3' -> Colour.MINECRAFT_DARK_AQUA
+                            '4' -> Colour.MINECRAFT_DARK_RED;
+                            '5' -> Colour.MINECRAFT_DARK_PURPLE
+                            '6' -> Colour.MINECRAFT_GOLD;
+                            '7' -> Colour.MINECRAFT_GRAY
+                            '8' -> Colour.MINECRAFT_DARK_GRAY;
+                            '9' -> Colour.MINECRAFT_BLUE
+                            'a' -> Colour.MINECRAFT_GREEN;
+                            'b' -> Colour.MINECRAFT_AQUA
+                            'c' -> Colour.MINECRAFT_RED;
+                            'd' -> Colour.MINECRAFT_LIGHT_PURPLE
+                            'e' -> Colour.MINECRAFT_YELLOW;
+                            'f' -> Colour.WHITE
+                            else -> null
+                        }
+                        if (c != null) col = alpha or (c.rgb and 0xFFFFFF)
+                    }
+                }
+                text = text.substring(2)
+            }
+
+            if (text.isNotEmpty()) {
+                text(text, x, y, size, col, font)
+
+                val w = textWidth(text, size, font)
+                val t = size / 12f
+                if (underline) {
+                    line(x, y + size * 0.95f, x + w, y + size * 0.95f, t, col)
+                }
+
+                if (strike) {
+                    line(x, y + size * 0.5f, x + w, y + size * 0.5f, t, col)
+                }
+
+                x += w
+            }
+        }
+    }
+
+    fun textShadow(text: String, x: Float, y: Float, size: Float, color: Int, font: Font) {
+        nvgFontFaceId(vg, getFontID(font))
+        nvgFontSize(vg, size)
+        color(-16777216)
+        nvgFillColor(vg, nvgColor)
+        nvgText(vg, round(x + 3f), round(y + 3f), text)
+
+        color(color)
+        nvgFillColor(vg, nvgColor)
+        nvgText(vg, round(x), round(y), text)
+    }
+
     fun textWidth(text: String, size: Float, font: Font): Float {
         nvgFontSize(vg, size)
         nvgFontFaceId(vg, getFontID(font))
         return nvgTextBounds(vg, 0f, 0f, text, fontBounds)
+    }
+
+    fun drawWrappedString(
+        text: String,
+        x: Float,
+        y: Float,
+        w: Float,
+        size: Float,
+        color: Int,
+        font: Font,
+        lineHeight: Float = 1f
+    ) {
+        nvgFontSize(vg, size)
+        nvgFontFaceId(vg, getFontID(font))
+        nvgTextLineHeight(vg, lineHeight)
+        color(color)
+        nvgFillColor(vg, nvgColor)
+        nvgTextBox(vg, x, y, w, text)
+    }
+
+    fun wrappedTextBounds(
+        text: String,
+        w: Float,
+        size: Float,
+        font: Font,
+        lineHeight: Float = 1f
+    ): FloatArray {
+        val bounds = FloatArray(4)
+        nvgFontSize(vg, size)
+        nvgFontFaceId(vg, getFontID(font))
+        nvgTextLineHeight(vg, lineHeight)
+        nvgTextBoxBounds(vg, 0f, 0f, w, text, bounds)
+        return bounds // [minX, minY, maxX, maxY]
     }
 
     fun wrapText(text: String, maxWidth: Float, size: Float, font: Font): List<String> {
@@ -245,6 +364,13 @@ object NVGRenderer {
 
         if (currentLine.isNotEmpty()) lines.add(currentLine)
         return lines
+    }
+
+    fun createNVGImage(textureId: Int, textureWidth: Int, textureHeight: Int): Int {
+        val key = textureId to (textureWidth to textureHeight)
+        return nvgImages.getOrPut(key) {
+            nvglCreateImageFromHandle(vg, textureId, textureWidth, textureHeight, NVG_IMAGE_NEAREST or NVG_IMAGE_NODELETE)
+        }
     }
 
     fun image(image: Int, textureWidth: Float, textureHeight: Float, subX: Float, subY: Float, subW: Float, subH: Float, x: Float, y: Float, w: Float, h: Float, radius: Float) {
@@ -300,6 +426,16 @@ object NVGRenderer {
         if (image.isSVG) images.getOrPut(image) { NVGImage(0, loadSVG(image)) }.count++
         else images.getOrPut(image) { NVGImage(0, loadImage(image)) }.count++
         return image
+    }
+
+    // lowers reference count by 1, if it reaches 0 it gets deleted from mem
+    fun deleteImage(image: Image) {
+        val nvgImage = images[image] ?: return
+        nvgImage.count--
+        if (nvgImage.count == 0) {
+            nvgDeleteImage(vg, nvgImage.nvg)
+            images.remove(image)
+        }
     }
 
     private fun getImage(image: Image): Int {
@@ -379,4 +515,9 @@ object NVGRenderer {
 
     private data class NVGImage(var count: Int, val nvg: Int)
     private data class NVGFont(val id: Int, val buffer: ByteBuffer)
+}
+
+object TextureTracker {
+    @JvmStatic
+    var previousBoundTexture = -1
 }

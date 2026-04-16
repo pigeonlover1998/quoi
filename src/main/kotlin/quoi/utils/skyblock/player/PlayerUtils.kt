@@ -13,7 +13,6 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import quoi.QuoiMod.mc
-import quoi.mixins.accessors.ClientLevelAccessor
 import quoi.module.settings.Setting.Companion.gson
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.literal
@@ -24,6 +23,7 @@ import quoi.utils.skyblock.ItemUtils.getBreakerCharges
 import quoi.utils.skyblock.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.RotationUtils.pitch
 import quoi.utils.skyblock.player.RotationUtils.yaw
+import quoi.utils.startPrediction
 import java.nio.charset.StandardCharsets
 import java.util.*
 
@@ -59,18 +59,13 @@ object PlayerUtils {
         if (swing) player.swing(hand)
     }
 
-    fun LocalPlayer.useItem(yaw: Number = this.yaw, pitch: Number = this.pitch) {
-        val level = mc.level as? ClientLevelAccessor ?: return
-        val session = level.blockStatePredictionHandler.startPredicting()
-        mc.connection!!.send(
-            ServerboundUseItemPacket(
-                InteractionHand.MAIN_HAND,
-                session.currentSequence(),
-                yaw.toFloat(),
-                pitch.toFloat()
-            )
+    fun LocalPlayer.useItem(yaw: Number = this.yaw, pitch: Number = this.pitch) = mc.gameMode?.startPrediction { sequence ->
+        ServerboundUseItemPacket(
+            InteractionHand.MAIN_HAND,
+            sequence,
+            yaw.toFloat(),
+            pitch.toFloat()
         )
-        session.close()
     }
 
     fun LocalPlayer.useItem(dir: Direction) = this.useItem(dir.yaw, dir.pitch)

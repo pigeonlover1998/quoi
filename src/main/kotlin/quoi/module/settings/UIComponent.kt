@@ -67,10 +67,6 @@ abstract class UIComponent<T>(
     }
 
     fun render(scope: ElementScope<*>, asSub: Boolean = isSubsetting): ElementScope<*> {
-
-        if (isSubsetting && !asSub) {
-            return scope.row(size(0.px, 0.px)) { element.enabled = false }
-        }
         var rendering: ElementScope<*>
         var chevronImage: ElementScope<*>? = null
 
@@ -110,7 +106,7 @@ abstract class UIComponent<T>(
 
                     watch(::collapsed) {
                         rotationAnim.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
-                        gapAnim.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
+//                        gapAnim.animate(0.25.seconds, Animation.Style.EaseInOutQuint)
                         redraw()
                     }
 
