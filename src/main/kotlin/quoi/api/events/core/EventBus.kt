@@ -117,6 +117,7 @@ object EventBus { // todo cleanup
 
         return when (packet) {
             is ClientboundPingPacket -> {
+                if (packet.id >= 0) return false
                 totalTicks++
                 TickEvent.Server(totalTicks).post()
             }

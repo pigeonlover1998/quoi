@@ -310,6 +310,7 @@ object Dungeon {
                     is ClientboundContainerClosePacket -> inTerminal = false
 
                     is ClientboundPingPacket -> {
+                        if (id >= 0) return@on
                         if (!inClear) return@on
                         if (deathTick == 0) deathTick = 40
                         if (deathTick >= 0) deathTick--

@@ -4,6 +4,7 @@ import kotlinx.coroutines.launch
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.Vec3
 import quoi.QuoiMod.scope
 import quoi.api.abobaui.AbobaUI
@@ -240,7 +241,7 @@ object AutoClear : Module(
         val start = player.blockPosition().below()
 
         // todo check if door to that room is closed
-        val goal = room.roomComponents.first().blockPos.nearbyBlocks(20f) { it.etherwarpable && !it.state.blackListed }.firstOrNull() ?: return // idk
+        val goal = room.roomComponents.first().blockPos.nearbyBlocks(20f) { it.etherwarpable && !it.state.blackListed && it.state.block != Blocks.REDSTONE_BLOCK }.firstOrNull() ?: return // idk
 
 //        modMessage("${room.name} $goal")
 
