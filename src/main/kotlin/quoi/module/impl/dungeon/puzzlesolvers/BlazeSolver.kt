@@ -146,7 +146,7 @@ object BlazeSolver { // todo maybe improve terminator shit some day
         if (!player.mainHandItem.isShortbow) return
         if (currentTime - lastShotTime < shootCd) return
 
-        val finalTarget = player.eyePosition.add(hitDir.toVec().scale(10.0))
+        val finalTarget = player.eyePosition.add(hitDir.getLook().scale(10.0))
         val dir = getDirection(player.eyePosition, finalTarget)
         player.useItem(dir)
 

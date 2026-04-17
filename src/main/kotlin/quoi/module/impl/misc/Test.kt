@@ -1,6 +1,7 @@
 package quoi.module.impl.misc
 
 import kotlinx.coroutines.launch
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.BlockHitResult
@@ -10,11 +11,14 @@ import quoi.api.abobaui.dsl.radius
 import quoi.api.abobaui.dsl.size
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
 import quoi.api.colour.Colour
+import quoi.api.colour.withAlpha
 import quoi.api.commands.internal.BaseCommand
 import quoi.api.events.RenderEvent
 import quoi.api.events.TickEvent
 import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.Dungeon
+import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
+import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
 import quoi.module.Module
 import quoi.module.impl.render.ClickGui
 import quoi.utils.*
@@ -25,7 +29,10 @@ import quoi.utils.StringUtils.formatTime
 import quoi.utils.StringUtils.toFixed
 import quoi.utils.WorldUtils.nearbyBlocks
 import quoi.utils.WorldUtils.state
-import quoi.utils.pathfinding.Pathfinder
+import quoi.utils.WorldUtils.worldToMap
+import quoi.api.pathfinding.impl.EtherwarpPathfinder
+import quoi.api.pathfinding.impl.Pathfinder
+import quoi.utils.render.DrawContextUtils.rect
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawLine
 import quoi.utils.skyblock.player.interact.AuraAction
@@ -49,6 +56,8 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 //    val outline by switch("Outline").childOf(::style) { it.index == 1 }
 //    val colour by colourPicker("Colour2", Colour.WHITE, true).childOf(::style) { it.index == 0 || (outline && it.index != 0) }
 //    val fillColour by colourPicker("Fill colour", Colour.WHITE, true).childOf(::style) { it.index == 1 }
+
+    private val texttest by text("&cTest")
 
     private val segmented by segmented("Segmented", "1", listOf("1", "2", "3"))
     private val segmented2 by segmented("Segmented enum", TextHud.HudFont.Minecraft)
@@ -264,7 +273,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 
         command.sub("path") {
             val start = player.blockPosition()
-            val goal = BlockPos(-17, 68, 19878)
+            val goal = BlockPos(-35, 79, -73)
 
             scope.launch {
                 val p = Pathfinder.findPath(start, goal, maxNodes = 40_000) ?: return@launch
@@ -295,20 +304,113 @@ object Test : Module("Test", desc = "Dev module for testing.") {
             }
         }
 
-        on<RenderEvent.World> {
-            val points = drawPoints ?: return@on
-            val path = path ?: return@on
+        command.sub("etherpath") {
+            val start = player.blockPosition().below()
+            val goal = BlockPos(-35, 79, -73)
 
-            path.forEach { pos ->
-                ctx.drawFilledBox(pos.aabb, colour = Colour.ORANGE, depth = true)
+            scope.launch {
+                val p = EtherwarpPathfinder.findPath(
+                    start,
+                    goal,
+                    pitchStep = 22f,
+                    yawStep = 22f,
+                    hWeight = 5.0,
+                    threads = 4
+                ) ?: return@launch
+                etherPath = p
+                etherPoints = etherPath!!.map { Vec3(it.x + 0.5, it.y + 1.0, it.z + 0.5) }
             }
-            ctx.drawLine(points, colour = Colour.WHITE, depth = true)
+        }
+
+        on<RenderEvent.World> {
+            if (drawPoints != null && path != null) {
+                val points = drawPoints!!
+                val path = path!!
+
+                path.forEach { pos ->
+                    ctx.drawFilledBox(pos.aabb, colour = Colour.ORANGE, depth = true)
+                }
+                ctx.drawLine(points, colour = Colour.WHITE, depth = true)
+            }
+
+            if (etherPoints != null && etherPath != null) {
+                val points = etherPoints!!
+                val path = etherPath!!
+                path.forEach { pos ->
+                    ctx.drawFilledBox(pos.aabb, colour = Colour.ORANGE.withAlpha(100), depth = true)
+                }
+                ctx.drawLine(points, colour = Colour.WHITE, depth = true)
+            }
+        }
+
+        on<RenderEvent.Overlay> {
+            if (ScanUtils.scannedRooms.isEmpty()) return@on
+            ctx.pose().pushMatrix()
+            ctx.pose().scale(1.75f, 1.75f)
+            ctx.drawMap()
+            ctx.pose().popMatrix()
         }
 
         command.register()
     }
-    var stupid = 0
+    private var stupid = 0
 
-    var path: List<BlockPos>? = null
-    var drawPoints: List<Vec3>? = null
+    private var path: List<BlockPos>? = null
+    private var drawPoints: List<Vec3>? = null
+
+    private var etherPath: List<BlockPos>? = null
+    private var etherPoints: List<Vec3>? = null
+
+    private const val MAP_X = 10
+    private const val MAP_Y = 10
+    private const val ROOM_SIZE = 15
+    private const val GAP = 5
+    private const val START_COORD = -185
+
+    private fun GuiGraphics.drawMap() {
+        val bgSize = 6 * (ROOM_SIZE + GAP) + GAP
+        rect(MAP_X, MAP_Y, bgSize, bgSize, Colour.BLACK.withAlpha(100).rgb)
+
+        ScanUtils.scannedRooms.forEach { room ->
+            val col = getRoomCol(room.data.type)
+            room.roomComponents.forEach { component ->
+                val gx = (component.x - START_COORD) / 32
+                val gz = (component.z - START_COORD) / 32
+
+                val rx = MAP_X + GAP + (gx * (ROOM_SIZE + GAP))
+                val ry = MAP_Y + GAP + (gz * (ROOM_SIZE + GAP))
+
+                val east = room.roomComponents.any { it.x == component.x + 32 && it.z == component.z }
+                val south = room.roomComponents.any { it.x == component.x && it.z == component.z + 32 }
+
+                val rw = if (east) ROOM_SIZE + GAP else ROOM_SIZE
+                val rh = if (south) ROOM_SIZE + GAP else ROOM_SIZE
+
+                rect(rx, ry, rw, rh, col)
+            }
+        }
+
+        val wStart = START_COORD - 16.0
+        val wEnd = START_COORD + 176.0
+
+        val mStart = (MAP_X + GAP).toDouble()
+        val mEnd = (MAP_X + bgSize - GAP).toDouble()
+
+        val px = worldToMap(player.x, wStart, wEnd, mStart, mEnd)
+        val pz = worldToMap(player.z, wStart, wEnd, mStart, mEnd)
+
+        rect(px - 1.5, pz - 1.5, 3, 3, Colour.WHITE.rgb)
+    }
+
+    private fun getRoomCol(type: RoomType): Int {
+        return when (type) {
+            RoomType.ENTRANCE -> Colour.GREEN
+            RoomType.BLOOD    -> Colour.RED
+            RoomType.FAIRY    -> Colour.PINK
+            RoomType.PUZZLE   -> Colour.PURPLE
+            RoomType.TRAP     -> Colour.ORANGE
+            RoomType.CHAMPION -> Colour.YELLOW
+            else              -> Colour.BROWN
+        }.rgb
+    }
 }

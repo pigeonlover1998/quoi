@@ -1,18 +1,19 @@
-package quoi.utils.pathfinding
+package quoi.api.pathfinding.impl
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.minecraft.core.BlockPos
-import net.minecraft.core.Direction.Axis
-import quoi.utils.ChatUtils.modMessage
+import net.minecraft.core.Direction
+import quoi.utils.ChatUtils
 import quoi.utils.WorldUtils.airLike
 import quoi.utils.WorldUtils.collisionShape
-import quoi.utils.WorldUtils.walkable
 import quoi.utils.WorldUtils.solid
+import quoi.utils.WorldUtils.walkable
 import quoi.utils.distanceTo
+import quoi.api.pathfinding.PathNode
 import java.util.PriorityQueue
 
-object Pathfinder {
+object Pathfinder { // todo impl abstract pathfinder
 
     private val directions = arrayOf(
         intArrayOf(1, 0, 0), // n
@@ -28,7 +29,8 @@ object Pathfinder {
     fun findPath(
         start: BlockPos,
         goal: BlockPos,
-        maxNodes: Int = 10000
+        maxNodes: Int = 10_000,
+        hWeight: Double = 1.1
     ): List<BlockPos>? {
         val goal = goal.above()
 
@@ -56,7 +58,7 @@ object Pathfinder {
             }
 
             if (current.pos == goal) {
-                modMessage("Found path in ${System.currentTimeMillis() - startTime}ms ($processed)")
+                ChatUtils.modMessage("Found path in ${System.currentTimeMillis() - startTime}ms ($processed)")
                 return current.path
             }
 
@@ -74,7 +76,7 @@ object Pathfinder {
                     val neighbourNode = nodeMap[neighbourLong]
 
                     if (neighbourNode == null || gCost < neighbourNode.g) {
-                        val hCost = neighbour.distanceTo(goal) * 1.1
+                        val hCost = neighbour.distanceTo(goal) * hWeight
                         val node = PathNode(neighbour, gCost, hCost, current)
                         openSet.add(node)
                         nodeMap[neighbourLong] = node
@@ -83,6 +85,7 @@ object Pathfinder {
             }
         }
 
+        ChatUtils.modMessage("Failed after ${System.currentTimeMillis() - startTime}ms ($processed)")
         return null
     }
 
@@ -135,7 +138,7 @@ object Pathfinder {
             val dir = directions[i]
             val neighbour = pos.offset(dir[0], dir[1], dir[2])
 
-            val height = neighbour.collisionShape.max(Axis.Y) // to not treat slabs/trapdoors/etc as walls
+            val height = neighbour.collisionShape.max(Direction.Axis.Y) // to not treat slabs/trapdoors/etc as walls
 
             val wallPenalty =
                 if (height > 1.0 && !neighbour.above().airLike) 1.5
@@ -162,4 +165,16 @@ object Pathfinder {
         cache[posLong] = penalty
         return penalty
     }
+
+    private inline val PathNode.path: List<BlockPos>
+        get() {
+            val path = mutableListOf<BlockPos>()
+            var current: PathNode? = this
+
+            while (current != null) {
+                path.add(0, current.pos.below())
+                current = current.parent
+            }
+            return path
+        }
 }
