@@ -1,39 +1,25 @@
 package quoi.module.impl.render
 
-import net.minecraft.world.InteractionHand
-import net.minecraft.world.item.Items
-import net.minecraft.world.phys.AABB
-import net.minecraft.world.phys.BlockHitResult
-import net.minecraft.world.phys.HitResult
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
 import quoi.api.events.RenderEvent
-import quoi.api.events.TickEvent
-import quoi.mixins.accessors.LocalPlayerAccessor
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf
-import quoi.utils.BlockTypes
-import quoi.utils.rayCast
+import quoi.utils.aabb
+import quoi.utils.eyeHeight
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawWireFrameBox
 import quoi.utils.skyblock.ItemUtils.extraAttributes
 import quoi.utils.skyblock.ItemUtils.skyblockId
-import kotlin.math.hypot
+import quoi.utils.traverseVoxels
 
-// Kyleen
-
-/**
- * modified devonian (GPL-3.0) (c) Synnerz
- * original: https://github.com/Synnerz/devonian/blob/1.21.10/src/main/kotlin/com/github/synnerz/devonian/features/misc/EtherwarpOverlay.kt
- */
-object EtherwarpOverlay : Module ( // todo recode
+object EtherwarpOverlay : Module (
     "Etherwarp Overlay",
     desc = "Renders a box at the location where the etherwarp is going to be at."
 ) {
-
-    private val useCameraHeight by switch("Use camera height", desc = "Should be used with Tweaks -> Skyblock only -> Legacy sneak height")
     private val validColour by colourPicker("Valid colour", Colour.GREEN.withAlpha(60), true)
     private val invalidColour by colourPicker("Invalid colour", Colour.RED.withAlpha(60), true)
     private val wireframe by switch("Show outline")
@@ -41,122 +27,45 @@ object EtherwarpOverlay : Module ( // todo recode
     private val invalidLineColour by colourPicker("Invalid colour", Colour.RED.withAlpha(60), true).json("Invalid outline colour").childOf(::wireframe)
     private val lineWidth by slider("Outline width", 2.0, 0.1, 10.0, 0.1).childOf(::wireframe)
     private val depth by switch("Depth check")
-    private val cancelInteract by switch("Cancel interact", desc = "Enables even when looking at an interactable block. (Use with CancelInteract feature)")
-    private val tooFar by switch("Stop rendering when too far")
 
-    private val validWeapons = mutableListOf("ASPECT_OF_THE_END", "ASPECT_OF_THE_VOID", "ETHERWARP_CONDUIT")
-    private var dist = 0
-    var failReason = ""
+    private var cachedItem: ItemStack? = null
+    private var dist = 0.0
+    private var conduit = false
 
-    //a bit schizo cus we dont ever render failReason but wtv
     init {
-        on<TickEvent.Start> {
-            dist = 0
+        on<RenderEvent.World> {
+            val heldItem = player.mainHandItem
+            if (heldItem !== cachedItem) {
+                cachedItem = heldItem
+                val attributes = heldItem.extraAttributes
 
-            val player = mc.player ?: return@on
+                conduit = heldItem.skyblockId == "ETHERWARP_CONDUIT"
+                val merge = attributes?.getInt("ethermerge")?.orElse(0) == 1
 
-            val heldItem = player.getItemInHand(InteractionHand.MAIN_HAND)
-            if (
-                heldItem.item != Items.DIAMOND_SHOVEL &&
-                heldItem.item != Items.DIAMOND_SWORD &&
-                heldItem.item != Items.PLAYER_HEAD
-            ) return@on
-
-            val itemId = heldItem.skyblockId ?: return@on
-            val requireSneak = heldItem.item == Items.DIAMOND_SHOVEL || heldItem.item == Items.DIAMOND_SWORD
-
-            if (requireSneak && !player.isSteppingCarefully) return@on
-            if (!validWeapons.contains(itemId)) return@on
-
-            val extraAttributes = heldItem.extraAttributes ?: return@on
-            if (requireSneak && !extraAttributes.contains("ethermerge")) return@on
-
-            val tunedTransmission = extraAttributes.get("tuned_transmission")
-            val tunedInt = tunedTransmission?.asInt()
-            val tuners = if (tunedInt == null || tunedInt.isEmpty) 0 else tunedInt.get()
-
-            dist = 57 + tuners
-        }
-        on<RenderEvent.World> { // todo recode
-            failReason = ""
-
-            if (dist == 0) return@on
-
-            val player = mc.player ?: return@on
-            val world = mc.level ?: return@on
-
-            if (cancelInteract) {
-                val target = mc.hitResult
-                if (target != null && target.type == HitResult.Type.BLOCK) {
-                    val blockTarget = target as BlockHitResult
-                    if (BlockTypes.Interactable.contains(world.getBlockState(blockTarget.blockPos).block)) return@on
+                if (conduit || merge) {
+                    val tuners = attributes?.getInt("tuned_transmission")?.orElse(0) ?: 0
+                    dist = 57.0 + tuners
+                } else {
+                    dist = 0.0
                 }
             }
 
-            val px: Double
-            val py: Double
-            val pz: Double
-            val lookVec: Vec3
-            if (useCameraHeight) {
-                val pt = mc.deltaTracker.getGameTimeDeltaPartialTick(false)
-                val posVec = player.getPosition(pt)
-                val camVec = player.getEyePosition(pt)
-                px = posVec.x
-                py = camVec.y
-                pz = posVec.z
-                lookVec = player.getViewVector(pt)
-            } else {
-                val playerAccessor = player as LocalPlayerAccessor
-                px = playerAccessor.lastXClient
-                py = playerAccessor.lastYClient + if (player.isShiftKeyDown) 1.54f else 1.62f
-                pz = playerAccessor.lastZClient
-                lookVec = player.calculateViewVector(playerAccessor.lastPitchClient, playerAccessor.lastYawClient)
-            }
+            if (dist == 0.0 || (!conduit && !player.isShiftKeyDown)) return@on
 
-            var hitResult = rayCast(
-                px, py, pz,
-                lookVec.x * dist,
-                lookVec.y * dist,
-                lookVec.z * dist,
-                false,
-            )
+            val start = Vec3(player.xo, player.yo + player.eyeHeight(), player.zo)
+            val end = start.add(player.lookAngle.scale(dist))
 
-            if (hitResult == null) {
-                failReason = "Can't TP: Too far!"
-                val maxDist = hypot(256.0, 16.0 * mc.options.effectiveRenderDistance)
-                hitResult = rayCast(
-                    px,
-                    py,
-                    pz,
-                    lookVec.x * maxDist,
-                    lookVec.y * maxDist,
-                    lookVec.z * maxDist,
-                    false,
-                )
-                if (hitResult == null) return@on
-            } else {
-                val bpFoot = hitResult.above(1)
-                val bpHead = hitResult.above(2)
+            val result = traverseVoxels(start, end, true)
+            val box = result.pos?.aabb ?: return@on
 
-                val bsFoot = world.getBlockState(bpFoot)
-                val bsHead = world.getBlockState(bpHead)
-                if (
-                    !BlockTypes.AirLike.contains(bsFoot.block) ||
-                    !BlockTypes.AirLike.contains(bsHead.block)
-                ) failReason = "Can't TP: No air above!"
-            }
-            if (tooFar && failReason == "Can't TP: Too far!") return@on
-            val colour1 = if (failReason.isEmpty()) validColour else invalidColour
-
-            val box = AABB(hitResult)
-
-            if (colour1.alpha > 0) {
-                ctx.drawFilledBox(box, colour1, depth)
+            val fillCol = if (result.succeeded) validColour else invalidColour
+            if (fillCol.alpha > 0) {
+                ctx.drawFilledBox(box, fillCol, depth)
             }
 
             if (wireframe) {
-                val colour2 = if (failReason.isEmpty()) validLineColour else invalidLineColour
-                ctx.drawWireFrameBox(box, colour2, lineWidth.toFloat(), depth)
+                val lineCol = if (result.succeeded) validLineColour else invalidLineColour
+                ctx.drawWireFrameBox(box, lineCol, lineWidth.toFloat(), depth)
             }
         }
     }

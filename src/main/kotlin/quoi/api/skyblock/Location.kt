@@ -36,7 +36,7 @@ object Location {
     var previousServer: String? = null
         private set
 
-    val onModernIsland: Boolean get() = currentArea.equalsOneOf(Island.ThePark, Island.Galatea, Island.Hub)
+    val onModernIsland: Boolean get() = currentArea.equalsOneOf(Island.ThePark, Island.Galatea, Island.Hub, Island.SpiderDen)
 
     private val teamRegex = Regex("^team_(\\d+)$")
     private val subAreaRegex = Regex("^ ([⏣ф]) .*")
