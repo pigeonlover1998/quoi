@@ -14,7 +14,7 @@ import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.network.chat.Component
 
-class UIScreen(val instance: AbobaUI.Instance) : Screen(Component.literal(instance.title)) {
+class UIScreen(val instance: AbobaUI.Instance, val background: Boolean = true ) : Screen(Component.literal(instance.title)) {
 
     override fun init() {
         instance.init(width * sf, height * sf)
@@ -70,9 +70,11 @@ class UIScreen(val instance: AbobaUI.Instance) : Screen(Component.literal(instan
 
     override fun isPauseScreen() = false
 
-//    override fun renderBackground(guiGraphics: GuiGraphics, mouseY: Int, j: Int, deltaTicks: Float) {  }
+    override fun renderBackground(guiGraphics: GuiGraphics, mouseY: Int, j: Int, deltaTicks: Float) {
+        if (background) super.renderBackground(guiGraphics, mouseY, j, deltaTicks)
+    }
 
     companion object {
-        fun open(ui: AbobaUI.Instance) = scheduleTask { mc.setScreen(UIScreen(ui)) }
+        fun open(ui: AbobaUI.Instance, background: Boolean = true) = scheduleTask { mc.setScreen(UIScreen(ui, background)) }
     }
 }

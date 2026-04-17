@@ -44,7 +44,7 @@ class UIContainer(ui: AbobaUI.Instance, val cancelling: Boolean = true) : UIHand
             if (cancelling) cancel()
         },
 
-        on<GuiEvent.Key> {
+        on<GuiEvent.Key.Press> {
             keyTyped(key)
 
             val ctrlHotkeys = setOf(

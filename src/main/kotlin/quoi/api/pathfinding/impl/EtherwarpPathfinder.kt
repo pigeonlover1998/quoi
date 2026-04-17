@@ -58,7 +58,7 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherwarpContext>() {
             ChatUtils.modMessage("Found path in ${System.currentTimeMillis() - ctx.startTime}ms (${ctx.processed.get()}). ${path.size} || ${smoothed.size}")
             smoothed
         } else {
-            ChatUtils.modMessage("Failed after ${System.currentTimeMillis() - ctx.startTime}ms (${ctx.processed.get()}).")
+            ChatUtils.modMessage("&cFailed &rafter ${System.currentTimeMillis() - ctx.startTime}ms (${ctx.processed.get()}).")
             null
         }
     }
@@ -206,7 +206,7 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherwarpContext>() {
         return smoothed
     }
 
-    private inline val BlockState?.blackListed: Boolean
+    inline val BlockState?.blackListed: Boolean
         get() {
             if (this == null) return true
             val isBottomSlab = block is SlabBlock && hasProperty(SlabBlock.TYPE) && getValue(SlabBlock.TYPE) == SlabType.BOTTOM

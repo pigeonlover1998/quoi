@@ -138,7 +138,7 @@ object PetKeybinds : Module(
             if (screen is AbstractContainerScreen<*> && onClick(screen, button)) cancel()
         }
 
-        on<GuiEvent.Key> {
+        on<GuiEvent.Key.Press> {
             if (screen is AbstractContainerScreen<*> && onClick(screen, this.key)) cancel()
         }
     }

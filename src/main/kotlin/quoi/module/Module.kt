@@ -43,7 +43,7 @@ abstract class Module(
     @Transient
     val category: Category = getCategory(this::class.java) ?: Category.RENDER
 
-    val keybinding: Keybinding = this@Module.key.let { Keybinding(it).apply { onPress = ::onKeybind } }
+    val keybinding: Keybinding = this@Module.key.let { Keybinding(it).apply { onPress = ::onKeybind } }  // todo on press/release/hold
 
     var enabled: Boolean = toggled
         private set
@@ -68,6 +68,7 @@ abstract class Module(
     }
 
     open fun onKeybind() {
+        if (mc.screen != null) return
         toggle()
         toggleMessage()
     }

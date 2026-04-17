@@ -13,7 +13,10 @@ abstract class GuiEvent {
     class Close(val screen: Screen) : CancellableEvent()
 
     class Click(val screen: Screen, val mx: Double, val my: Double, val button: Int, val state: Boolean) : CancellableEvent()
-    class Key(val screen: Screen, val key: Int) : CancellableEvent()
+    abstract class Key {
+        class Press(val screen: Screen, val key: Int) : CancellableEvent()
+        class Release(val screen: Screen, val key: Int) : CancellableEvent()
+    }
     class Char(val screen: Screen, val char: kotlin.Char) : CancellableEvent()
 
     class Draw(val screen: Screen, val ctx: GuiGraphics, val mx: Int, val my: Int) : CancellableEvent() {

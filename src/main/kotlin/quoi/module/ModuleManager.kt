@@ -1,5 +1,6 @@
 package quoi.module
 
+import quoi.api.events.GuiEvent
 import quoi.api.events.KeyEvent
 import quoi.api.events.MouseEvent
 import quoi.api.events.core.EventBus
@@ -44,6 +45,7 @@ object ModuleManager {
             AutoRoutes,
             SecretAura,
             PuzzleSolvers,
+            AutoClear,
 
             // MISC
             Test,
@@ -86,17 +88,25 @@ object ModuleManager {
 //        EventBus.on<AreaEvent.Main> { modules.forEach { it.onToggle(it.enabled) } }
 //        EventBus.on<AreaEvent.Sub> { modules.forEach { it.onToggle(it.enabled) } }
 
-        EventBus.on<KeyEvent.Press> { invokeKeybind(key) }
-        EventBus.on<MouseEvent.Click> { if (state) invokeKeybind(button - 100) }
+        EventBus.on<KeyEvent.Press> { invokeKeybind(key, true) }
+        EventBus.on<KeyEvent.Release> { invokeKeybind(key, false) }
+        EventBus.on<MouseEvent.Click> { invokeKeybind(button - 100, state) }
+
+        EventBus.on<GuiEvent.Key.Press> { invokeKeybind(key, true) }
+        EventBus.on<GuiEvent.Key.Release> { invokeKeybind(key, false) }
+        EventBus.on<GuiEvent.Click> { invokeKeybind(button - 100, state) }
     }
 
-    private fun invokeKeybind(key: Int) {
+    private fun invokeKeybind(key: Int, pressed: Boolean) {
         if (key == CatKeys.KEY_NONE) return
 
         modules.forEach { module ->
             module.settings.filterIsInstance<KeybindComponent>()
                 .filter { it.value.key == key && it.value.isModifierDown() }
-                .forEach { it.value.onPress?.invoke() }
+                .forEach { component ->
+                    if (pressed) component.value.onPress?.invoke()
+                    else component.value.onRelease?.invoke()
+                }
         }
     }
 

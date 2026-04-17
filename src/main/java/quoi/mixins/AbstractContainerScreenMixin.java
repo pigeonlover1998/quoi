@@ -73,14 +73,14 @@ public class AbstractContainerScreenMixin {
 //            cir.cancel();
 //    }
 
-    @Inject(
-            method = "keyPressed",
-            at = @At("HEAD"),
-            cancellable = true
-    )
-    public void quoi$onKeyPressed(KeyEvent input, CallbackInfoReturnable<Boolean> cir) {
-        if (new GuiEvent.Key((Screen) (Object) this, input.input()).post()) cir.cancel();
-    }
+//    @Inject(
+//            method = "keyPressed",
+//            at = @At("HEAD"),
+//            cancellable = true
+//    )
+//    public void quoi$onKeyPressed(KeyEvent input, CallbackInfoReturnable<Boolean> cir) {
+//        if (new GuiEvent.Key((Screen) (Object) this, input.input()).post()) cir.cancel();
+//    }
 
     @Inject(
             method = "renderTooltip",

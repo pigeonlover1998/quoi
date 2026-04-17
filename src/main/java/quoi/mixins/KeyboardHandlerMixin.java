@@ -20,8 +20,15 @@ public class KeyboardHandlerMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    private void quoi$onKey(long window, int action, net.minecraft.client.input.KeyEvent input, CallbackInfo ci) { // todo fix media keys
-        if (mc.screen != null) return;
+    private void quoi$onKey(long window, int action, net.minecraft.client.input.KeyEvent input, CallbackInfo ci) {
+        if (mc.screen != null) {
+            if (action == 1) {
+                if (new GuiEvent.Key.Press(mc.screen, input.input()).post()) ci.cancel();
+            } else if (action == 0) {
+                if (new GuiEvent.Key.Release(mc.screen, input.input()).post()) ci.cancel();
+            }
+            return;
+        }
         if (action == 1) {
             if (new KeyEvent.Press(input.input(), input.scancode(), input.modifiers()).post()) ci.cancel();
         } else if (action == 0) {

@@ -45,6 +45,11 @@ class KeybindComponent(
         return this
     }
 
+    fun onRelease(block: () -> Unit): KeybindComponent {
+        value.onRelease = block
+        return this
+    }
+
     override fun write(): JsonElement = JsonObject().apply {
         addProperty("key", value.key)
         if (value.modifiers.isNotEmpty()) {
@@ -193,6 +198,8 @@ class Keybinding(var key: Int, val modifiers: MutableSet<Int> = mutableSetOf()) 
      */
     var onPress: (() -> Unit)? = null
 
+    var onRelease: (() -> Unit)? = null
+
     /**
      * @return `true` if [key] is held down.
      */
@@ -221,6 +228,7 @@ class Keybinding(var key: Int, val modifiers: MutableSet<Int> = mutableSetOf()) 
         if (key != other.key) return false
         if (modifiers != other.modifiers) return false
         if (onPress != other.onPress) return false
+        if (onRelease != other.onRelease) return false
 
         return true
     }

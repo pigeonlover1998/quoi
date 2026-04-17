@@ -343,14 +343,6 @@ object Test : Module("Test", desc = "Dev module for testing.") {
             }
         }
 
-        on<RenderEvent.Overlay> {
-            if (ScanUtils.scannedRooms.isEmpty()) return@on
-            ctx.pose().pushMatrix()
-            ctx.pose().scale(1.75f, 1.75f)
-            ctx.drawMap()
-            ctx.pose().popMatrix()
-        }
-
         command.register()
     }
     private var stupid = 0
@@ -360,57 +352,4 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 
     private var etherPath: List<BlockPos>? = null
     private var etherPoints: List<Vec3>? = null
-
-    private const val MAP_X = 10
-    private const val MAP_Y = 10
-    private const val ROOM_SIZE = 15
-    private const val GAP = 5
-    private const val START_COORD = -185
-
-    private fun GuiGraphics.drawMap() {
-        val bgSize = 6 * (ROOM_SIZE + GAP) + GAP
-        rect(MAP_X, MAP_Y, bgSize, bgSize, Colour.BLACK.withAlpha(100).rgb)
-
-        ScanUtils.scannedRooms.forEach { room ->
-            val col = getRoomCol(room.data.type)
-            room.roomComponents.forEach { component ->
-                val gx = (component.x - START_COORD) / 32
-                val gz = (component.z - START_COORD) / 32
-
-                val rx = MAP_X + GAP + (gx * (ROOM_SIZE + GAP))
-                val ry = MAP_Y + GAP + (gz * (ROOM_SIZE + GAP))
-
-                val east = room.roomComponents.any { it.x == component.x + 32 && it.z == component.z }
-                val south = room.roomComponents.any { it.x == component.x && it.z == component.z + 32 }
-
-                val rw = if (east) ROOM_SIZE + GAP else ROOM_SIZE
-                val rh = if (south) ROOM_SIZE + GAP else ROOM_SIZE
-
-                rect(rx, ry, rw, rh, col)
-            }
-        }
-
-        val wStart = START_COORD - 16.0
-        val wEnd = START_COORD + 176.0
-
-        val mStart = (MAP_X + GAP).toDouble()
-        val mEnd = (MAP_X + bgSize - GAP).toDouble()
-
-        val px = worldToMap(player.x, wStart, wEnd, mStart, mEnd)
-        val pz = worldToMap(player.z, wStart, wEnd, mStart, mEnd)
-
-        rect(px - 1.5, pz - 1.5, 3, 3, Colour.WHITE.rgb)
-    }
-
-    private fun getRoomCol(type: RoomType): Int {
-        return when (type) {
-            RoomType.ENTRANCE -> Colour.GREEN
-            RoomType.BLOOD    -> Colour.RED
-            RoomType.FAIRY    -> Colour.PINK
-            RoomType.PUZZLE   -> Colour.PURPLE
-            RoomType.TRAP     -> Colour.ORANGE
-            RoomType.CHAMPION -> Colour.YELLOW
-            else              -> Colour.BROWN
-        }.rgb
-    }
 }

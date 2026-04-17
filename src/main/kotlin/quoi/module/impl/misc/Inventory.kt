@@ -188,7 +188,7 @@ object Inventory : Module(
             ctx.rect(slot.x, slot.y, 16, 16, colour)
         }
 
-        on<GuiEvent.Key> (Priority.LOW) {
+        on<GuiEvent.Key.Press> (Priority.LOW) {
             if (focused) cancel()
         }
     }

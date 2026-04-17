@@ -16,6 +16,7 @@ import quoi.api.events.core.EventBus.on
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.Dungeon
+import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonDoor
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomComponent
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomData
@@ -43,10 +44,9 @@ object ScanUtils {
 
     var currentRoom: OdonRoom? = null
         private set
-    var passedRooms: MutableSet<OdonRoom> = mutableSetOf()
-        private set
-    var scannedRooms: MutableSet<OdonRoom> = mutableSetOf()
-        private set
+    val passedRooms: MutableSet<OdonRoom> = mutableSetOf()
+    val scannedRooms: MutableSet<OdonRoom> = mutableSetOf()
+    val scannedDoors: MutableSet<OdonDoor> = mutableSetOf()
 
     private fun loadRoomData(): Set<RoomData> {
         return try {
@@ -75,6 +75,7 @@ object ScanUtils {
             } // We want the current room to register as null if we are not in a dungeon
 
             scanAllRooms()
+            scanAllDoors()
 
             val roomCenter = getRoomCenter(mc.player?.x?.toInt() ?: return@on, mc.player?.z?.toInt() ?: return@on)
             if (roomCenter == lastRoomPos && Location.currentArea.isArea(Island.SinglePlayer)) return@on // extra SinglePlayer caching for invalid placed rooms
@@ -100,6 +101,7 @@ object ScanUtils {
         on<WorldEvent.Change> {
             passedRooms.clear()
             scannedRooms.clear()
+            scannedDoors.clear()
             currentRoom = null
             lastRoomPos = Vec2i(0, 0)
         }
@@ -137,10 +139,45 @@ object ScanUtils {
 
                 val room = scanRoom(centre) ?: continue
 
-                if (room.rotation != Rotations.NONE) {
+                if (room.rotation == Rotations.NONE) continue
+
+                val old = scannedRooms.find { r -> r.roomComponents.any { a -> room.roomComponents.any { b -> b.vec2 == a.vec2 } } }
+
+                if (old == null || room.roomComponents.size > old.roomComponents.size) {
+                    old?.let { scannedRooms.remove(it) }
                     scannedRooms.add(room)
                     DungeonEvent.Room.Scan(room).post()
                 }
+            }
+        }
+    }
+
+    private fun scanAllDoors() {
+        val level = mc.level ?: return
+        fun handleDoor(pos: Vec2i) {
+            if (scannedDoors.any { it.pos == pos }) return
+
+            val chunk = level.getChunk(pos.x shr 4, pos.z shr 4)
+            val height = getTopLayerOfRoom(pos, chunk)
+
+            if (height !in arrayOf(73, 81)) return
+
+            val type = when (level.getBlockState(mutableBlockPos.set(pos.x, 69, pos.z)).block) {
+                Blocks.COAL_BLOCK -> OdonDoor.Type.WITHER
+                Blocks.RED_TERRACOTTA -> OdonDoor.Type.BLOOD
+                else -> OdonDoor.Type.NORMAL
+            }
+
+            scannedDoors.add(OdonDoor(pos, type))
+        }
+
+        for (x in 0..5) {
+            for (z in 0..4) {
+                val goingRight = Vec2i(START + x * 32, START + 16 + 32 * z)
+                handleDoor(goingRight)
+
+                val goingDown = Vec2i(START + 16 + 32 * z, START + x * 32)
+                handleDoor(goingDown)
             }
         }
     }

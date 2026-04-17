@@ -27,7 +27,9 @@ import kotlin.math.*
  * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/me/odinmain/utils/VecUtils.kt
  */
 
-data class Vec2i(val x: Int, val z: Int)
+data class Vec2i(val x: Int, val z: Int) {
+    fun add(other: Vec2i) = Vec2i(x + other.x, z + other.z)
+}
 data class Direction(val yaw: Float, val pitch: Float, val distance: Double = 0.0) {
     fun getLook() = getLook(yaw, pitch)
 }
@@ -637,26 +639,26 @@ fun traverseVoxels(x0: Double, y0: Double, z0: Double, x1: Double, y1: Double, z
         val isSolid = !isPassable
 
         if ((etherwarp && isSolid) || (!etherwarp && id != 0)) {
+            val hitPos = mut.immutable()
 
-            if (!etherwarp && isPassable) return EtherPos(false, mut.immutable(), state)
+            if (!etherwarp && isPassable) return EtherPos(false, hitPos, state)
 
-            val collisionTop = state.getCollisionShape(level, mut).max(McDirection.Axis.Y)
-            val clearanceBaseY = mut.y + max(1.0, ceil(collisionTop))
+            val collisionTop = state.getCollisionShape(level, hitPos).max(McDirection.Axis.Y)
+            val clearanceBaseY = hitPos.y + max(1.0, ceil(collisionTop))
 
             mut.set(x, clearanceBaseY, z)
 
             val feetFlags = blockFlags[Block.getId(level.getBlockState(mut))]
             if ((feetFlags and PASSABLE) == 0 || (feetFlags and BLOCKS_FEET) != 0)
-                return EtherPos(false, mut.immutable(), state)
+                return EtherPos(false, hitPos, state)
 
             mut.set(x, clearanceBaseY + 1, z)
 
             val headFlags = blockFlags[Block.getId(level.getBlockState(mut))]
             if ((headFlags and PASSABLE) == 0 || (headFlags and BLOCKS_FEET) != 0)
-                return EtherPos(false, mut.immutable(), state)
+                return EtherPos(false, hitPos, state)
 
-            mut.set(x, y, z)
-            return EtherPos(true, mut.immutable(), state)
+            return EtherPos(true, hitPos, state)
         }
 
         if (x == endX && y == endY && z == endZ) return EtherPos.NONE
@@ -686,10 +688,10 @@ fun traverseVoxels(from: Vec3, to: Vec3, etherwarp: Boolean): EtherPos {
     return traverseVoxels(x0, y0, z0, x1, y1, z1, etherwarp)
 }
 
-private const val PASSABLE = 1        // ray passes through
-private const val BLOCKS_FEET = 2     // cannot stand inside
+const val PASSABLE = 1        // ray passes through // todo move
+const val BLOCKS_FEET = 2     // cannot stand inside
 
-private val blockFlags: IntArray = IntArray(Block.BLOCK_STATE_REGISTRY.size()).apply {
+val blockFlags: IntArray = IntArray(Block.BLOCK_STATE_REGISTRY.size()).apply {
     Block.BLOCK_STATE_REGISTRY.forEach { state ->
         val block = state.block
         val id = Block.getId(state)

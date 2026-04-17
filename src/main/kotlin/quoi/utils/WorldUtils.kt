@@ -12,7 +12,10 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 import net.minecraft.world.phys.shapes.VoxelShape
+import net.minecraft.core.Direction as McDirection
+import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.max
 
 /**
  * modified Stella (LGPL-3.0) (c) Eclipse-5214
@@ -36,6 +39,23 @@ object WorldUtils {
 
     inline val BlockPos.walkable: Boolean
         get() = this.airLike && this.above().airLike
+//        get() = mc.level?.getBlockCollisions(mc.player!!, this.aabb)?.none() == true
+
+    inline val BlockPos.etherwarpable: Boolean
+        get() {
+            val level = mc.level ?: return false
+            val state = level.getBlockState(this)
+            if ((blockFlags[Block.getId(state)] and PASSABLE) != 0) return false
+
+            val collisionTop = state.getCollisionShape(level, this).max(McDirection.Axis.Y)
+            val feetY = this.y + max(1.0, ceil(collisionTop)).toInt()
+
+            val feetFlags = blockFlags[Block.getId(level.getBlockState(BlockPos(this.x, feetY, this.z)))]
+            if ((feetFlags and PASSABLE) == 0 || (feetFlags and BLOCKS_FEET) != 0) return false
+
+            val headFlags = blockFlags[Block.getId(level.getBlockState(BlockPos(this.x, feetY + 1, this.z)))]
+            return !((headFlags and PASSABLE) == 0 || (headFlags and BLOCKS_FEET) != 0)
+        }
 
     val Block.registryName: String get() {
         val registry = BuiltInRegistries.BLOCK.getKey(this)

@@ -31,7 +31,7 @@ class UIOverlay(ui: AbobaUI.Instance) : UIHandler(ui) {
             if (state) mouseClick(button) else mouseRelease(button)
         },
 
-        on<GuiEvent.Key> {
+        on<GuiEvent.Key.Press> {
             keyTyped(key)
         }
     )

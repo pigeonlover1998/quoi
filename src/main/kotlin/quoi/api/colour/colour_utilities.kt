@@ -87,6 +87,16 @@ fun Colour.toHexString(returnAlpha: Boolean = false): String {
     }
 }
 
+inline fun Colour.mix(other: Colour, weight: Float = 0.5f): Colour {
+    val inv = 1f - weight
+    return Colour.RGB(
+        (this.red * inv + other.red * weight).roundToInt(),
+        (this.green * inv + other.green * weight).roundToInt(),
+        (this.blue * inv + other.blue * weight).roundToInt(),
+        (this.alphaFloat * inv + other.alphaFloat * weight)
+    )
+}
+
 /**
  * Copies a colour with the new alpha value provided.
  */
