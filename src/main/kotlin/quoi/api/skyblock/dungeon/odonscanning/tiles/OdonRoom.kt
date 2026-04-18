@@ -95,7 +95,7 @@ data class RoomData(
     val colour: Colour get() {
         val col = when (type) {
             RoomType.ENTRANCE -> Colour.MINECRAFT_DARK_GREEN
-            RoomType.BLOOD    -> Colour.MINECRAFT_RED
+            RoomType.BLOOD    -> Colour.RED
             RoomType.FAIRY    -> Colour.MINECRAFT_LIGHT_PURPLE
             RoomType.PUZZLE   -> Colour.MINECRAFT_DARK_PURPLE
             RoomType.TRAP     -> Colour.MINECRAFT_GOLD

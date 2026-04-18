@@ -9,7 +9,7 @@ import quoi.api.abobaui.elements.ElementScope
 import quoi.module.settings.UIComponent
 import quoi.utils.ThemeManager.theme
 
-class TextComponent(
+class TextComponent( // todo multiline
     override val default: String,
     desc: String = "",
 ) : UIComponent<String>(default, desc) {

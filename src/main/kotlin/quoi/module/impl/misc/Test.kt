@@ -40,6 +40,8 @@ import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.ContainerUtils
 import quoi.utils.skyblock.player.LeapManager
 import quoi.utils.skyblock.player.MovementUtils.moveTo
+import quoi.utils.skyblock.player.RotationUtils.pitch
+import quoi.utils.skyblock.player.RotationUtils.yaw
 import quoi.utils.ui.hud.impl.TextHud
 import quoi.utils.ui.textPair
 
@@ -308,18 +310,21 @@ object Test : Module("Test", desc = "Dev module for testing.") {
             val start = player.blockPosition().below()
             val goal = BlockPos(-35, 79, -73)
 
-            scope.launch {
-                val p = EtherwarpPathfinder.findPath(
-                    start,
-                    goal,
-                    pitchStep = 22f,
-                    yawStep = 22f,
-                    hWeight = 5.0,
-                    threads = 4
-                ) ?: return@launch
-                etherPath = p
-                etherPoints = etherPath!!.map { Vec3(it.x + 0.5, it.y + 1.0, it.z + 0.5) }
-            }
+//            scope.launch {
+//                val p = EtherwarpPathfinder.findPath(
+//                    start,
+//                    goal,
+//                    pitchStep = 22f,
+//                    yawStep = 22f,
+//                    hWeight = 5.0,
+//                    threads = 4
+//                ) ?: return@launch
+////                etherPath = p
+////                etherPoints = etherPath!!.map { Vec3(it.x + 0.5, it.y + 1.0, it.z + 0.5) }
+//            }
+            val y = 23.094011f
+            val p = 30f
+            modMessage(player.eyePosition(true).addVec(y = 0.05).getEtherPos(y, p))
         }
 
         on<RenderEvent.World> {

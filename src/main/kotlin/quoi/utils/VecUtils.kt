@@ -434,6 +434,11 @@ fun getVisiblePoint(from: Vec3, to: BlockPos): Vec3? {
 
 fun getVisiblePoint(to: BlockPos) = getVisiblePoint(mc.player!!.eyePosition(), to)
 
+fun Vec3.getEtherPos(yaw: Float, pitch: Float, distance: Double = 61.0): EtherPos {
+    val to = getLook(wrapDegrees(yaw), wrapDegrees(pitch)).scale(distance).add(this)
+    return traverseVoxels(this, to, true)
+}
+
 fun rayCast(
     x: Double, y: Double, z: Double,
     dx: Double, dy: Double, dz: Double,
@@ -442,8 +447,8 @@ fun rayCast(
     return traverseVoxels(x, y, z, x + dx, y + dy, z + dz, etherwarp).pos
 }
 
-fun rayCast(vec3: Vec3, vec31: Vec3, firstBlock: Boolean = false) =
-    rayCast(vec3.x, vec3.y, vec3.z, vec31.x, vec31.y, vec31.z, firstBlock)
+fun rayCast(vec3: Vec3, vec31: Vec3, etherwarp: Boolean = true) =
+    rayCast(vec3.x, vec3.y, vec3.z, vec31.x, vec31.y, vec31.z, etherwarp)
 
 fun rayCast(
     lookVec: Vec3 = mc.player!!.getViewVector(mc.deltaTracker.getGameTimeDeltaPartialTick(false)),

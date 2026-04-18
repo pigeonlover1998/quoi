@@ -11,6 +11,7 @@ fun getBrigadierType(type: Type): ArgumentType<*> {
     return when (type) {
         Int::class.java, Integer::class.java -> IntegerArgumentType.integer()
         Double::class.java, java.lang.Double::class.java -> DoubleArgumentType.doubleArg()
+        Float::class.java, java.lang.Float::class.java -> FloatArgumentType.floatArg()
         Boolean::class.java, java.lang.Boolean::class.java -> BoolArgumentType.bool()
         String::class.java -> StringArgumentType.string()
         GreedyString::class.java -> StringArgumentType.greedyString()
@@ -22,6 +23,7 @@ fun getBrigadierType(type: Type): ArgumentType<*> {
         return when (type) {
             Int::class.java, Integer::class.java -> IntegerArgumentType.getInteger(context, name)
             Double::class.java, java.lang.Double::class.java -> DoubleArgumentType.getDouble(context, name)
+            Float::class.java, java.lang.Float::class.java -> FloatArgumentType.getFloat(context, name)
             Boolean::class.java, java.lang.Boolean::class.java -> BoolArgumentType.getBool(context, name)
             String::class.java -> StringArgumentType.getString(context, name)
             GreedyString::class.java -> GreedyString(StringArgumentType.getString(context, name))

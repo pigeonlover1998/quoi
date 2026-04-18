@@ -1,6 +1,7 @@
 package quoi.api.pathfinding.impl
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList
+import it.unimi.dsi.fastutil.floats.FloatArrayList
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.CarpetBlock
@@ -19,7 +20,7 @@ import quoi.utils.getEtherwarpDirection
 import quoi.utils.getEyeHeight
 import quoi.utils.getLook
 import quoi.api.pathfinding.AbstractPathfinder
-import quoi.api.pathfinding.PathNode
+import quoi.api.pathfinding.EtherPathNode
 import quoi.api.pathfinding.context.EtherwarpContext
 import quoi.utils.Vec3
 import quoi.utils.rad
@@ -29,7 +30,7 @@ import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sqrt
 
-object EtherwarpPathfinder : AbstractPathfinder<EtherwarpContext>() {
+object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>() {
 
     private var lastDist = -1.0
     private var lastPitchStep = -1.0f
@@ -44,17 +45,18 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherwarpContext>() {
         yawStep: Float = 15f,
         hWeight: Double = 1.1,
         threads: Int = 2,
-        timeout: Long = 1000L
-    ): List<BlockPos>? {
+        timeout: Long = 1000L,
+        offset: Boolean = true
+    ): List<EtherPathNode>? {
         val raycasts = getRaycasts(dist, pitchStep, yawStep)
-        val ctx = EtherwarpContext(goal, dist, hWeight, raycasts, timeout)
+        val ctx = EtherwarpContext(goal, dist, hWeight, raycasts, timeout, offset)
 
-        ctx.addNode(start, 0.0, start.distanceTo(goal) / dist, null)
+        ctx.addNode(EtherPathNode(start, 0.0, start.distanceTo(goal) / dist, null, 0f, 0f))
 
         val path = find(ctx, threads)
 
         return if (path != null) {
-            val smoothed = smoothPath(path, dist)
+            val smoothed = smoothPath(path, dist, offset)
             ChatUtils.modMessage("Found path in ${System.currentTimeMillis() - ctx.startTime}ms (${ctx.processed.get()}). ${path.size} || ${smoothed.size}")
             smoothed
         } else {
@@ -63,17 +65,19 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherwarpContext>() {
         }
     }
 
-    override fun expand(ctx: EtherwarpContext, current: PathNode) {
+    override fun expand(ctx: EtherwarpContext, current: EtherPathNode) {
 
-        current.forEachEtherwarpHit(ctx) { hitPos ->
-            val hCost = (hitPos.distanceTo(ctx.goal) / ctx.dist) * ctx.hWeight
-            ctx.addNode(hitPos, current.g + 1.0, hCost, current)
+        current.forEachEtherwarpHit(ctx) { pos, yaw, pitch ->
+            val hCost = (pos.distanceTo(ctx.goal) / ctx.dist) * ctx.hWeight
+            val node = EtherPathNode(pos, current.g + 1.0, hCost, current, yaw, pitch)
+            ctx.addNode(node)
         }
     }
 
-    private inline fun PathNode.forEachEtherwarpHit(ctx: EtherwarpContext, block: (BlockPos) -> Unit) {
+    private inline fun EtherPathNode.forEachEtherwarpHit(ctx: EtherwarpContext, block: (BlockPos, Float, Float) -> Unit) {
+        val off = if (ctx.offset) 1.05 else 1.0
         val eyeX = pos.x + 0.5
-        val eyeY = pos.y + 1.0 + getEyeHeight(true)
+        val eyeY = pos.y + off + getEyeHeight(true)
         val eyeZ = pos.z + 0.5
 
 //        if (getEtherwarpDirection(eyePos, ctx.goal, ctx.dist) != null) {
@@ -138,7 +142,7 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherwarpContext>() {
 
             if (result.succeeded && result.pos != null && !result.state.blackListed) {
                 if (hitCache.add(result.pos.asLong())) {
-                    block(result.pos)
+                    block(result.pos, ctx.raycasts.yaws[i], ctx.raycasts.pitches[i])
                 }
             }
         }
@@ -153,6 +157,9 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherwarpContext>() {
         val dy = DoubleArrayList()
         val dz = DoubleArrayList()
 
+        val yaws = FloatArrayList()
+        val pitches = FloatArrayList()
+
         var pitch = -90f
         while (pitch <= 90f) {
             val actualYawStep = (yawStep / max(0.01f, cos(pitch.rad)))
@@ -164,12 +171,15 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherwarpContext>() {
                 dy.add(vec.y * maxDist)
                 dz.add(vec.z * maxDist)
 
+                yaws.add(yaw)
+                pitches.add(pitch)
+
                 yaw += actualYawStep
             }
             pitch += pitchStep
         }
 
-        val raycasts = Raycasts(dx.toDoubleArray(), dy.toDoubleArray(), dz.toDoubleArray())
+        val raycasts = Raycasts(dx.toDoubleArray(), dy.toDoubleArray(), dz.toDoubleArray(), yaws.toFloatArray(), pitches.toFloatArray())
 
         lastDist = maxDist
         lastPitchStep = pitchStep
@@ -180,28 +190,39 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherwarpContext>() {
         return raycasts
     }
 
-    private fun smoothPath(path: List<BlockPos>, maxDist: Double): List<BlockPos> {
+    private fun smoothPath(path: List<EtherPathNode>, dist: Double, offset: Boolean): List<EtherPathNode> {
         if (path.size <= 2) return path
 
-        val smoothed = mutableListOf(path.first())
+        val smoothed = mutableListOf<EtherPathNode>()
         var i = 0
 
         while (i < path.size - 1) {
-            var furthest = i + 1
+            var next = i + 1
+
+            val current = path[i]
+            val off = if (offset) 1.05 else 1.0
+            val from = Vec3(current.pos.x + 0.5, current.pos.y + off + getEyeHeight(true), current.pos.z + 0.5)
+
+            var yaw = path[next].yaw
+            var pitch = path[next].pitch
 
             for (j in path.size - 1 downTo i + 2) {
-                val current = path[i]
-                val eyePos = Vec3(current.x + 0.5, current.y + 1 + getEyeHeight(true), current.z + 0.5)
-
-                if (getEtherwarpDirection(eyePos, path[j], maxDist) != null) {
-                    furthest = j
+                val dir = getEtherwarpDirection(from, path[j].pos, dist)
+                if (dir != null) {
+                    next = j
+                    yaw = dir.yaw
+                    pitch = dir.pitch
                     break
                 }
             }
 
-            smoothed.add(path[furthest])
-            i = furthest
+            smoothed.add(EtherPathNode(current.pos, current.g, current.h, current.parent, yaw, pitch))
+
+            i = next
         }
+
+        val goal = path.last()
+        smoothed.add(EtherPathNode(goal.pos, goal.g, goal.h, goal.parent, 0f, 0f))
 
         return smoothed
     }
@@ -220,5 +241,5 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherwarpContext>() {
                     block is CauldronBlock
         }
 
-    class Raycasts(val dx: DoubleArray, val dy: DoubleArray, val dz: DoubleArray)
+    class Raycasts(val dx: DoubleArray, val dy: DoubleArray, val dz: DoubleArray, val yaws: FloatArray, val pitches: FloatArray)
 }

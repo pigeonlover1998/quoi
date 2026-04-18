@@ -37,8 +37,6 @@ data class OdonDoor(val pos: Vec2i, var type: Type) {
     }
 
     fun updateState(col: Int) {
-        if (col == 0 || col == 30) return
-
         locked = when (col) {
             119 -> {
                 type = Type.WITHER

@@ -2,7 +2,7 @@ package quoi.api.pathfinding
 
 import net.minecraft.core.BlockPos
 
-data class PathNode(
+open class PathNode(
     val pos: BlockPos,
     var g: Double,
     var h: Double,
@@ -12,3 +12,12 @@ data class PathNode(
 
     override fun compareTo(other: PathNode): Int = this.f.compareTo(other.f)
 }
+
+class EtherPathNode(
+    pos: BlockPos,
+    g: Double,
+    h: Double,
+    parent: PathNode?,
+    val yaw: Float,
+    val pitch: Float
+) : PathNode(pos, g, h, parent)

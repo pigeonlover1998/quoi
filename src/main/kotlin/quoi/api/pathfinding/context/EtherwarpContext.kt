@@ -1,6 +1,7 @@
 package quoi.api.pathfinding.context
 
 import net.minecraft.core.BlockPos
+import quoi.api.pathfinding.EtherPathNode
 import quoi.api.pathfinding.impl.EtherwarpPathfinder.Raycasts
 
 class EtherwarpContext(
@@ -8,5 +9,6 @@ class EtherwarpContext(
     val dist: Double,
     val hWeight: Double,
     val raycasts: Raycasts,
-    timeout: Long
-) : PathContext(goal, timeout)
+    timeout: Long,
+    val offset: Boolean,
+) : PathContext<EtherPathNode>(goal, timeout)

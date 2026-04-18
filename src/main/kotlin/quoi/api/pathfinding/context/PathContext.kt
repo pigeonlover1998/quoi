@@ -7,7 +7,7 @@ import quoi.api.pathfinding.PathNode
 import java.util.PriorityQueue
 import java.util.concurrent.atomic.AtomicInteger
 
-open class PathContext(
+open class PathContext<N : PathNode>(
     val goal: BlockPos,
     val timeout: Long
 ) {
@@ -16,18 +16,18 @@ open class PathContext(
 
     @Volatile var solved = false
     @Volatile var timedOut = false
-    @Volatile var finalPath: List<BlockPos>? = null
+    @Volatile var finalPath: List<N>? = null
 
     val processed = AtomicInteger(0)
-    val openSet = PriorityQueue<PathNode>()
-    val nodeMap = Long2ObjectOpenHashMap<PathNode>()
+    val openSet = PriorityQueue<N>()
+    val nodeMap = Long2ObjectOpenHashMap<N>()
     private val activeSet = LongOpenHashSet()
 
     val isDone: Boolean
         @Synchronized get() = openSet.isEmpty() && activeSet.isEmpty()
 
     @Synchronized
-    fun getNext(): PathNode? {
+    fun getNext(): N? {
         while (openSet.isNotEmpty()) {
             val node = openSet.poll()
             val posLong = node.pos.asLong()
@@ -49,15 +49,13 @@ open class PathContext(
     }
 
     @Synchronized
-    fun addNode(pos: BlockPos, gCost: Double, hCost: Double, parent: PathNode?) {
+    fun addNode(node: N) {
         if (solved) return
 
-        val posLong = pos.asLong()
+        val posLong = node.pos.asLong()
 
         val existing = nodeMap[posLong]
-        if (existing == null || gCost < existing.g) {
-            val node = PathNode(pos, gCost, hCost, parent)
-
+        if (existing == null || node.g < existing.g) {
             nodeMap[posLong] = node
             openSet.add(node)
         }

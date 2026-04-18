@@ -1,26 +1,26 @@
 package quoi.api.pathfinding
 
-import net.minecraft.core.BlockPos
 import quoi.api.pathfinding.context.PathContext
 import kotlin.concurrent.thread
 
-abstract class AbstractPathfinder<T : PathContext> {
+abstract class AbstractPathfinder<N : PathNode, T : PathContext<N>> {
 
-    abstract fun expand(ctx: T, current: PathNode)
+    abstract fun expand(ctx: T, current: N)
 
-    open fun isGoal(ctx: T, current: PathNode) = current.pos == ctx.goal
+    open fun isGoal(ctx: T, current: N) = current.pos == ctx.goal
 
-    open fun reconstructPath(node: PathNode): List<BlockPos> {
-        val path = mutableListOf<BlockPos>()
+    @Suppress("UNCHECKED_CAST")
+    open fun reconstructPath(node: N): List<N> {
+        val path = mutableListOf<N>()
         var current: PathNode? = node
         while (current != null) {
-            path.add(current.pos)
+            path.add(current as N)
             current = current.parent
         }
         return path.reversed()
     }
 
-    fun find(ctx: T, threadCount: Int): List<BlockPos>? {
+    fun find(ctx: T, threadCount: Int): List<N>? {
         val threads = List(threadCount - 1) {
             thread { runWorker(ctx) }
         }
