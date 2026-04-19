@@ -14,6 +14,7 @@ import org.lwjgl.stb.STBImage.stbi_load_from_memory
 import org.lwjgl.system.MemoryUtil.memAlloc
 import org.lwjgl.system.MemoryUtil.memFree
 import quoi.utils.StringUtils.FORMATTING_CODE_PATTERN
+import quoi.utils.StringUtils.noControlCodes
 import java.io.File
 import java.nio.ByteBuffer
 import kotlin.math.max
@@ -350,19 +351,22 @@ object NVGRenderer {
 
     fun wrapText(text: String, maxWidth: Float, size: Float, font: Font): List<String> {
         val lines = mutableListOf<String>()
-        var currentLine = ""
 
-        text.split(" ").forEach { word ->
-            val line = if (currentLine.isEmpty()) word else "$currentLine $word"
-            if (textWidth(line, size, font) <= maxWidth) {
-                currentLine = line
-            } else {
-                lines.add(currentLine)
-                currentLine = word
+        text.split("\n").forEach { p ->
+            var currentLine = ""
+
+            p.split(" ").forEachIndexed { i, word ->
+                val line = if (i == 0) word else "$currentLine $word"
+                if (textWidth(line.noControlCodes, size, font) <= maxWidth) {
+                    currentLine = line
+                } else {
+                    lines.add(currentLine)
+                    currentLine = word
+                }
             }
-        }
 
-        if (currentLine.isNotEmpty()) lines.add(currentLine)
+            lines.add(currentLine)
+        }
         return lines
     }
 

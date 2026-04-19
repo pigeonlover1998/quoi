@@ -1,6 +1,5 @@
 package quoi.module.settings.impl
 
-import quoi.api.abobaui.constraints.impl.measurements.Animatable
 import quoi.api.abobaui.constraints.impl.size.Bounding
 import quoi.api.abobaui.constraints.impl.size.Copying
 import quoi.api.abobaui.dsl.*
@@ -128,8 +127,9 @@ class KeybindComponent(
             size = theme.textSize,
             colour = theme.onSurfaceVariant
         )
+        val w = Bounding + 5.px
         block(
-            constrain(x = 0.px.alignOpposite, w = Bounding + 5.px, h = if (asSub) Bounding else 20.px),
+            constrain(x = 0.px.alignOpposite, w = if (parent != null) w else w.coerceAtLeast(32.5.px), h = if (asSub) Bounding else 20.px),
             colour = theme.surfaceContainerHighest,
             5.radius()
         ) {

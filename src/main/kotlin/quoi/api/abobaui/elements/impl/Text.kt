@@ -20,6 +20,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.TextColor
 import net.minecraft.util.FormattedCharSequence
 import quoi.utils.StringUtils.FORMATTING_CODE_PATTERN
+import quoi.utils.StringUtils.noControlCodes
 
 open class Text(
     string: String,
@@ -110,7 +111,7 @@ open class Text(
     open fun getTextWidth(): Float = textWidth(text)
 
     protected fun textWidth(string: String) =
-        if (font.name == "Minecraft") text.width(height / mc.font.lineHeight) else NVGRenderer.textWidth(string, height, font)
+        if (font.name == "Minecraft") text.width(height / mc.font.lineHeight) else NVGRenderer.textWidth(string.noControlCodes, height, font)
 
     companion object {
         @AbobaDSL

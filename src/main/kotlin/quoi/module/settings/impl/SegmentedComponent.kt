@@ -27,6 +27,7 @@ class SegmentedComponent<T>(
 
     init {
         require(options.size in 2..3) { "segmented component must have 2 or 3 options. current: ${options.size}" }
+        this.asParent()
     }
 
     override val default: SegmentedComponent<T> = this
