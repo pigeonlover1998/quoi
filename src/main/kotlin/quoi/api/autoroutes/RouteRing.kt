@@ -7,6 +7,7 @@ import quoi.api.autoroutes.actions.RingAction
 import quoi.api.autoroutes.arguments.BlockArgument
 import quoi.api.autoroutes.arguments.RingArgument
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
+import quoi.utils.BlockPos
 import quoi.utils.component1
 import quoi.utils.component2
 import quoi.utils.component3
@@ -22,6 +23,8 @@ data class RouteRing(
     val delay: Int? = null,
     val chain: String? = null
 ) {
+
+    fun pos() = BlockPos(x, y, z)
 
     fun boundingBox(room: OdonRoom? = null): AABB {
         val r = radius / 2

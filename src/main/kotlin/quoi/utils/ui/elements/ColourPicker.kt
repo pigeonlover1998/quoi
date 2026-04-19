@@ -107,7 +107,7 @@ fun ElementScope<*>.colourPicker(
             w = Bounding + thickness,
             h = Bounding + thickness
         ),
-        colour = theme.background,
+        colour = theme.surfaceContainerLow,
         6.radius()
     ) {
         onClick { true }
@@ -205,7 +205,7 @@ fun ElementScope<*>.colourPicker(
                         ) {
                             block(
                                 copies(),
-                                colours = Colour.TRANSPARENT to colourOnlyHue,
+                                colours = Colour.TRANSPARENT to colour { value.withAlpha(255).rgb },
                                 gradient = Gradient.LeftToRight,
                                 8.radius(),
                             ) {

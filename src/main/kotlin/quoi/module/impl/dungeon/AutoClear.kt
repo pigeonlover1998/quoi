@@ -1,6 +1,7 @@
 package quoi.module.impl.dungeon
 
 import kotlinx.coroutines.launch
+import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket
 import net.minecraft.world.entity.player.Input
@@ -13,8 +14,10 @@ import quoi.api.abobaui.constraints.impl.size.Bounding
 import quoi.api.abobaui.dsl.*
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
 import quoi.api.abobaui.elements.impl.RefreshableGroup
+import quoi.api.abobaui.elements.impl.Text.Companion.shadow
 import quoi.api.abobaui.elements.impl.refreshableGroup
 import quoi.api.animations.Animation
+import quoi.api.autoroutes.actions.StartAction
 import quoi.api.colour.*
 import quoi.api.events.*
 import quoi.api.pathfinding.impl.EtherwarpPathfinder
@@ -26,15 +29,16 @@ import quoi.api.skyblock.dungeon.Dungeon.inClear
 import quoi.api.skyblock.dungeon.Dungeon.isDead
 import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
+import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomComponent
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
 import quoi.api.skyblock.invoke
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.*
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.containsOneOf
 import quoi.utils.StringUtils.width
-import quoi.utils.ThemeManager.theme
 import quoi.utils.WorldUtils.etherwarpable
 import quoi.utils.WorldUtils.nearbyBlocks
 import quoi.utils.WorldUtils.state
@@ -47,36 +51,45 @@ import quoi.utils.ui.screens.UIScreen.Companion.open
 
 /**
  * TODO:
- *  fix room states
- *  fix L rooms in small dungeon
- *  fix path executor getting fucked sometimes
+ *  make it not require to stand on etherwarpable
  *  add players to map
- *  improve goal finder, it can't find anything in some rooms
- *  add right click to pathfind to start node
- *  clearable rooms highlight
- *  auto auto clear
+ *  improve goal finder:
+ *    - Mage: dead body secret side component
+ *    - Deathmite: last secret side component
+ *    - Puzzles: ether to start puzzle positions for auto to trigger
+ *  clearable rooms highlight:
+ *    -
  *  auto mobs clear maybe (star mob esp needs a recode for it)
+ *  .
+ *  auto auto clear:
+ *   -room queuing while auto routing option
+ *   -auto room queueing option
  *  .
  *  change this fucking scanner
  *
  */
 object AutoClear : Module(
     "Auto clear",
+    desc = "Automatically teleports to a specified room.",
     area = Island.Dungeon(inClear = true)
 ) {
-    private val must_stand by text("You &cmust&r stand on etherwarpable")
-    private val to_work by text("block for it to work.")
-    private val for_special_people by text("&c! &rTHIS MODULE IS NOT FINISHED &c!")
-    private val for_special_people2 by text("              &c!! &rEXPECT BUGS &c!!")
+    private val info by text(
+        """
+            You &cmust&r stand on etherwarpable
+            &cfull&r block for it to work.
+            
+            &c! &rTHIS MODULE IS NOT FINISHED &c!
+                          &c!! &rEXPECT BUGS &c!!
+        """.trimIndent()
+    )
 
-    private val font by segmented("Font", TextHud.HudFont.Minecraft)
-    private val scale by slider("Scale", 5f, 1f, 10f, 0.5f, desc = "Map scale")
-    private val closeOnRelease by switch("Close on release")//.visibleIf { !closeOnRepress }
-    private val closeOnRepress: Boolean by switch("Close on repress")//.visibleIf { !closeOnRelease }
+    private val keepChunks by switch("Keep chunks loaded", true, desc = "Keeps the chunks loaded. Good for long distances.")
+    private val rightToStart by switch("Right click for start", desc = "Teleports to auto route start node on mouse right click.")
+
     private val openKey by keybind("Open key")
         .onPress {
-            if (!enabled  || !inClear || isDead) return@onPress
-            if (mc.screen?.title?.string == "quoi clear map" && closeOnRepress) {
+            if (!enabled || !inClear || isDead) return@onPress
+            if (mc.screen?.title?.string == "quoi clear map" && closeOn.index == 1) {
                 mc.setScreen(null)
             } else if (mc.screen == null) {
                 map = map()
@@ -84,16 +97,25 @@ object AutoClear : Module(
             }
         }
         .onRelease {
-            if (!enabled || !closeOnRelease || !inClear || isDead) return@onRelease
+            if (!enabled || closeOn.index != 0 || !inClear || isDead) return@onRelease
             if (mc.screen?.title?.string == "quoi clear map") mc.setScreen(null)
         }
 
-    private val sett by text("Pathfinder settings").open()
-    private val yawStep by slider("Yaw step", 22f, 10f, 30f).childOf(::sett)
-    private val pitchStep by slider("Pitch step", 22f, 10f, 30f).childOf(::sett)
-    private val hWeight by slider("Guess weight", 6.7, 1.0, 15.0, 0.1, desc = "Higher = faster, but worse paths").childOf(::sett)
-    private val threads by slider("Threads", 2, 1, 16).childOf(::sett)
-    private val timeout by slider("Timeout", 1000L, 1000L, 2000L, 50L, unit = "ms").childOf(::sett)
+    private val closeOn by segmented("Close on", "Release", listOf("Release", "Repress"))
+
+    private val visuals by text("Visuals")
+    private val shadow by switch("Shadow", true).childOf(::visuals).asParent()
+    private val font by segmented("Font", TextHud.HudFont.Minecraft).childOf(::visuals)
+    private val fontScale by slider("Font scale", 1f, 0.5f, 3f, 0.1f).childOf(::visuals)
+    private val scale by slider("Map scale", 5f, 1f, 10f, 0.5f).childOf(::visuals)
+    private val roomInCol by colourPicker("Highlight colour", Colour.GREY.withAlpha(0.5f), allowAlpha = true, desc = "Room the player currently in colour.").childOf(::visuals)
+
+    private val sett by text("Pathfinder settings")
+    private val yawStep by slider("Yaw step", 22f, 10f, 30f, desc = "Horizontal density of raycasts. Lower values increase precision but reduce performance.").childOf(::sett)
+    private val pitchStep by slider("Pitch step", 22f, 10f, 30f, desc = "Vertical density of raycasts. Lower values increase precision but reduce performance.").childOf(::sett)
+    private val hWeight by slider("Guess weight", 6.7, 1.0, 15.0, 0.1, desc = "Higher values make the search much faster; due to path smoothing, the difference in final path quality is negligible.").childOf(::sett)
+    private val threads by slider("Threads", 2, 1, 16, desc = "Number of CPU threads to use for simultaneous path expansion.").childOf(::sett)
+    private val timeout by slider("Timeout", 1000L, 1000L, 2000L, 50L, unit = "ms", desc = "Maximum time allowed for the pathfinder to search before giving up.").childOf(::sett)
 
     private var map: AbobaUI.Instance = map()
     private var refreshableMap: RefreshableGroup? = null
@@ -101,7 +123,8 @@ object AutoClear : Module(
     private var nodes: MutableList<ClearNode>? = null
 
     private var delay = 0
-    private var active = false
+    var active = false
+        private set
 
     private var pending: Direction? = null
     private var position: Stupid? = null
@@ -111,12 +134,12 @@ object AutoClear : Module(
             refreshableMap?.refresh()
         }
 
-        on<PacketEvent.Received, ClientboundMapItemDataPacket> {
-            mc.execute { rescan(packet) }
-        }
-
-        on<PacketEvent.Received, ClientboundPlayerPositionPacket> {
-            if (delay == 1) delay = 2
+        on<PacketEvent.Received> {
+            when (packet) {
+                is ClientboundMapItemDataPacket -> mc.execute { rescan(packet) }
+                is ClientboundPlayerPositionPacket -> if (delay == 1) delay = 2
+                is ClientboundForgetLevelChunkPacket -> if (keepChunks) cancel()
+            }
         }
 
         on<TickEvent.Server> {
@@ -202,14 +225,33 @@ object AutoClear : Module(
         return false
     }
 
-    private fun getPath(room: OdonRoom) {
+    private fun getPath(room: OdonRoom, comp: RoomComponent, button: Int) {
+        if (button != 0 && button != 1) return
         if (Dungeon.currentRoom?.name?.containsOneOf("Trap", "Maze", "Boulder") == true) return
+
         val start = player.blockPosition().below()
 
-        // todo check if door to that room is closed
-        val goal = room.roomComponents.first().blockPos.nearbyBlocks(20f) { it.etherwarpable && !it.state.blackListed && it.state.block != Blocks.REDSTONE_BLOCK }.firstOrNull() ?: return // idk
+        val state = start.state
+        if (state.blackListed || !start.etherwarpable) return modMessage("You &cmust&r stand on a full etherwarpable block! You're standing on ${state.block}")
 
-//        modMessage("${room.name} $goal")
+        val goal = when(button) {
+            0 -> comp.blockPos.nearbyBlocks(25f) { it.etherwarpable && !it.state.blackListed && it.state.block != Blocks.REDSTONE_BLOCK }.firstOrNull()
+                ?: return modMessage("Couldn't find goal position for component &e#${room.roomComponents.indexOf(comp)}&r in ${room.name}")
+            1 -> {
+                if (!rightToStart) return
+                val rings = AutoRoutes.routes[room.name] ?: return modMessage("No rings found in ${room.name}")
+                val starts = rings.filter { it.action is StartAction }
+
+                val target = starts.map { room.getRealCoords(it.pos()).below() }
+                    .filter { it.etherwarpable && !it.state.blackListed }
+                    .let { pos ->
+                        pos.find { it.distanceToSqr(comp.blockPos) < 225 } ?: pos.firstOrNull()
+                    } ?: return modMessage("&cCouldn't find start ring.")
+
+                target
+            }
+            else -> return
+        }
 
         scope.launch {
             val p = EtherwarpPathfinder.findPath(
@@ -259,20 +301,37 @@ object AutoClear : Module(
                     )
                 }
 
-                ScanUtils.scannedRooms.distinctBy { it.roomComponents.firstOrNull()?.placement }.forEach { room ->
+                ScanUtils.scannedRooms.forEach { room ->
                     val components = room.roomComponents
                     if (components.isEmpty()) return@forEach
-                    val coords = components.map { it.x to it.z }.toSet()
 
                     val c = {
                         val base = room.data.colour
-                        if (Dungeon.currentRoom == room) base.mix(Colour.GREY, 0.5f).rgb else base.rgb
+                        if (Dungeon.currentRoom == room) base.mix(roomInCol.withAlpha(255), roomInCol.alpha).rgb else base.rgb
                     }
 
                     val outlineCol = Colour.Animated(
                         from = Colour.TRANSPARENT,
                         to = Colour.WHITE.withAlpha(180)
                     )
+
+                    val byPos = components.associateBy { it.placement }
+                    fun has(p: Vec2i, dx: Int, dz: Int) = byPos.containsKey(p.add(dx, dz))
+
+                    val lCorners = components.filter {
+                        val p = it.placement
+                        val (n, s, w, e) = listOf(has(p, 0, -20), has(p, 0, 20), has(p, -20, 0), has(p, 20, 0))
+                        val long = (n && s) || (w && e)
+                        val twoByTwo =
+                                    (n && e && has(p, 20, -20)) ||
+                                    (n && w && has(p, -20, -20)) ||
+                                    (s && e && has(p, 20, 20)) ||
+                                    (s && w && has(p, -20, 20))
+
+                        // l corner: 2 connections, not a line, not a part of 2x2
+                        listOf(n, s, w, e).count { c -> c } == 2 && !long && !twoByTwo
+                    }.map { it.placement }.toSet()
+
 
                     components.forEach { comp ->
 
@@ -281,57 +340,88 @@ object AutoClear : Module(
                             to = colour { c().multiply(1.15f) }
                         )
 
-                        val pos = comp.placement
-                        fun has(dx: Int, dz: Int) = (comp.x + dx to comp.z + dz) in coords
+                        val p = comp.placement
+                        val isL = p in lCorners
 
-                        val north = has(0, -32)
-                        val south = has(0, 32)
-                        val west  = has(-32, 0)
-                        val east  = has(32, 0)
+                        val (n, s, w, e) = listOf(has(p, 0, -20), has(p, 0, 20), has(p, -20, 0), has(p, 20, 0))
 
-                        val nw = has(-32, -32)
-                        val ne = has(32, -32)
-                        val sw = has(-32, 32)
-                        val se = has(32, 32)
+                        // all blocks start at 16x 16
+                        // if L corner don't touch
+                        // if next to L corner 4
+                        // if 2x2 or long 2
+                        fun gap(exists: Boolean, dx: Int, dz: Int) = when {
+                            !exists || isL -> 0f
+                            p.add(dx, dz) in lCorners -> 4f
+                            else -> 2f
+                        }
 
-                        val w = (if (east) 20 else 16) * scale + 1f
-                        val h = (if (south) 20 else 16) * scale + 1f
+                        val ng = gap(n, 0, -20)
+                        val sg = gap(s, 0, 20)
+                        val wg = gap(w, -20, 0)
+                        val eg = gap(e, 20, 0)
+
+                        val width = (16f + wg + eg) * scale
+                        val height = (16f + ng + sg) * scale
 
                         block(
-                            constrain(x = (pos.x * scale).px, y = (pos.z * scale).px, w = w.px, h = h.px),
+                            constrain(((p.x - wg) * scale).px, ((p.z - ng) * scale).px, width.px, height.px),
                             colour = col,
                             radius = radius(
-                                tl = if (north || west) 0 else scale,
-                                bl = if (south || west) 0 else scale,
-                                br = if (south || east) 0 else scale,
-                                tr = if (north || east) 0 else scale
+                                tl = if (n || w) 0 else scale,
+                                bl = if (s || w) 0 else scale,
+                                br = if (s || e) 0 else scale,
+                                tr = if (n || e) 0 else scale
                             )
                         ) {
                             outline(outlineCol, 2.px)
 
-                            fun mask(side: Boolean, vert: Boolean, p: Float, s1: Boolean, d1: Boolean, s2: Boolean, d2: Boolean) {
-                                if (!side) return
-                                val a = if (s1) (if (d1) -0.5f else 4.15f * scale) else 1f
-                                val b = if (s2) (if (d2) -0.5f else 4.15f * scale) else 1f
-                                val rect =
+                            // this shit a bit overlaps needed lines
+                            // but looks good enough so I'm not fixing it.
+
+                            val mx = wg * scale + 0.5f
+                            val my = ng * scale + 0.5f
+                            val mw = width - eg * scale - 0.5f
+                            val mh = height - sg * scale - 0.5f
+
+                            fun mask(vert: Boolean, start: Float, end: Float, pos: Float) {
+                                val constraints =
                                     if (vert)
-                                        constrain(p.px, a.px, 5.px, (h - a - b).px)
+                                        constrain(pos.px, start.px, 4.px, (end - start).px)
                                     else
-                                        constrain(a.px, p.px, (w - a - b).px, 5.px)
-                                block(rect, colour = col)
+                                        constrain(start.px, pos.px, (end - start).px, 4.px)
+                                block(constraints, colour = col)
                             }
 
-                            mask(north, false, -2f,    west,  nw, east,  ne)
-                            mask(south, false, h - 3f, west,  sw, east,  se)
-                            mask(west,  true,  -2f,    north, nw, south, sw)
-                            mask(east,  true,  w - 3f, north, ne, south, se)
+                            if (n) mask(false,
+                                start = if (has(p, -20, -20)) -1f else mx,
+                                end   = if (has(p, 20, -20)) width + 1f else mw,
+                                pos   = -2f
+                            )
+
+                            if (s) mask(false,
+                                start = if (has(p, -20, 20)) -1f else mx,
+                                end   = if (has(p, 20, 20)) width + 1f else mw,
+                                pos   = height - 2f
+                            )
+
+                            if (w) mask(true,
+                                start = if (has(p, -20, -20)) -1f else my,
+                                end   = if (has(p, -20, 20)) height + 1f else mh,
+                                pos   = -2f
+                            )
+
+                            if (e) mask(true,
+                                start = if (has(p, 20, -20)) -1f else my,
+                                end   = if (has(p, 20, 20)) height + 1f else mh,
+                                pos   = width - 2f
+                            )
 
                             onMouseEnterExit {
                                 col.animate(0.15.seconds, style = Animation.Style.EaseOutQuint)
                                 outlineCol.animate(0.15.seconds, style = Animation.Style.EaseOutQuint)
                             }
-                            onClick {
-                                getPath(room)
+                            onClick(nonSpecific = true) { (button) ->
+                                getPath(room, comp, button)
                                 true
                             }
                         }
@@ -340,7 +430,7 @@ object AutoClear : Module(
                     if (room.data.type in listOf(RoomType.ENTRANCE, RoomType.FAIRY, RoomType.BLOOD)) return@forEach
 
                     val lines = room.name.split(" ")
-                    val textSize = (theme.textSize.pixels * 1.2f) * (scale / 4f)
+                    val textSize = 18f * fontScale
                     val font = font.selected.get()
 
                     lines.forEachIndexed { i, s ->
@@ -354,7 +444,7 @@ object AutoClear : Module(
                             colour = colour { room.textColour.rgb },
                             font = font,
                             pos = at(x = tx.px, y = ty.px)
-                        )
+                        ).shadow = shadow
                     }
                 }
             }
@@ -398,7 +488,6 @@ object AutoClear : Module(
                     val col = colours[index].toInt() and 0xFF
                     if (col != 0) {
                         room.updateState(col)
-                        break
                     }
                 }
             }
@@ -414,7 +503,7 @@ object AutoClear : Module(
 
             if (index in colours.indices) {
                 val col = colours[index].toInt() and 0xFF
-                if (col != 0 && col != 30) {
+                if (col != 0) {
                     door.updateState(col)
                 }
             }
@@ -454,7 +543,8 @@ object AutoClear : Module(
             val ether = from.getEtherPos(yaw, pitch)
 
             if (!ether.succeeded || ether.pos == null) {
-                if (nodes?.last() == this) return true
+                nodes = null
+                position = null
                 modMessage("failed from &c$from &e$yaw $pitch &d$ether")
                 return false
             }

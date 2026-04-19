@@ -29,6 +29,7 @@ import kotlin.math.*
 
 data class Vec2i(val x: Int, val z: Int) {
     fun add(other: Vec2i) = Vec2i(x + other.x, z + other.z)
+    fun add(x: Number, z: Number) = Vec2i(this.x + x.toInt(), this.z + z.toInt())
 }
 data class Direction(val yaw: Float, val pitch: Float, val distance: Double = 0.0) {
     fun getLook() = getLook(yaw, pitch)
@@ -177,11 +178,14 @@ fun Vec3.distanceTo2D(to: Vec3): Double {
     return sqrt(dx * dx + dz * dz)
 }
 
-fun BlockPos.distanceTo(to: BlockPos): Double {
+fun BlockPos.distanceTo(to: BlockPos) =
+    sqrt(distanceToSqr(to))
+
+fun BlockPos.distanceToSqr(to: BlockPos): Double {
     val dx = (this.x - to.x).toDouble()
     val dy = (this.y - to.y).toDouble()
     val dz = (this.z - to.z).toDouble()
-    return sqrt(dx.sq + dy.sq + dz.sq)
+    return dx.sq + dy.sq + dz.sq
 }
 
 fun BlockPos.getHitResult(force: Boolean = false): BlockHitResult? {
