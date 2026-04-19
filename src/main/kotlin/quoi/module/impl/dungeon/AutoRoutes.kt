@@ -46,11 +46,9 @@ import kotlin.coroutines.cancellation.CancellationException
 object AutoRoutes : Module(
     "Auto Routes",
     desc = "/route",
-    area = Island.Dungeon(inClear = true)
+    area = Island.Dungeon(inClear = true),
+    tag = Tag.LEGACY
 ) {
-    val zeroTick by switch("Zero tick etherwarp").onValueChanged { _, new ->
-        if (new) modMessage("&cVery buggy.", prefix = "[ZeroTick]")
-    }
     val zeroTickDb by switch("Zero tick dungeon breaker")
     private val style by selector("Style", "Box", listOf("Box", "Filled box", "Cylinder"))
     private val multicolour by switch("Multicolour")

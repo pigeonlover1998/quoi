@@ -25,7 +25,8 @@ abstract class Module(
     val subarea: String? = null,
     val key: Int = CatKeys.KEY_NONE,
     @Transient val desc: String = "",
-    toggled: Boolean = false
+    toggled: Boolean = false,
+    val tag: Tag = Tag.NONE
 ) : SettingsDSL(), HudDSL {
     constructor(
         name: String,
@@ -33,8 +34,9 @@ abstract class Module(
         subarea: String? = null,
         key: Int = CatKeys.KEY_NONE,
         desc: String = "",
-        toggled: Boolean = false
-    ) : this(name, IslandArea.Base(area), subarea, key, desc, toggled)
+        toggled: Boolean = false,
+        tag: Tag = Tag.NONE
+    ) : this(name, IslandArea.Base(area), subarea, key, desc, toggled, tag)
 
     private var isRegistered = false
 
@@ -145,6 +147,10 @@ abstract class Module(
         events.add(EventBus.on<E, P>(priority, {
             if (inEnvironment()) cb()
         }, false))
+    }
+
+    enum class Tag(val desc: String = "") {
+        NONE, LEGACY("A rewrite is currently planned. This module is no longer updated.")
     }
 
     private companion object {

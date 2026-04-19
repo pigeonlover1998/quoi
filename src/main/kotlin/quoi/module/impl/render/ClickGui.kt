@@ -306,6 +306,12 @@ object ClickGui : Module(
                 colour = theme.onSurface
             )
 
+            if (module.tag == Tag.LEGACY) image(
+                image = theme.refreshImage,
+                constraints = constrain(3.percent.alignOpposite, w = 20.px, h = 20.px),
+                colour = theme.onSurfaceVariant
+            ).description(module.tag.desc)
+
             var lastEnabled = module.enabled
             onAdd {
                 if (lastEnabled != module.enabled) {
