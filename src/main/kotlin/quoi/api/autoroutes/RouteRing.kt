@@ -11,6 +11,7 @@ import quoi.utils.BlockPos
 import quoi.utils.component1
 import quoi.utils.component2
 import quoi.utils.component3
+import kotlin.math.ceil
 
 data class RouteRing(
     val x: Double,
@@ -24,7 +25,7 @@ data class RouteRing(
     val chain: String? = null
 ) {
 
-    fun pos() = BlockPos(x, y, z)
+    fun pos() = BlockPos(x, ceil(y), z)
 
     fun boundingBox(room: OdonRoom? = null): AABB {
         val r = radius / 2

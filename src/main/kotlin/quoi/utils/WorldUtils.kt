@@ -9,6 +9,7 @@ import net.minecraft.world.level.GameType
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.chunk.status.ChunkStatus
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 import net.minecraft.world.phys.shapes.VoxelShape
@@ -81,6 +82,23 @@ object WorldUtils {
         get() = tablist.filter { it.profile.id.version() == 4 }
 
     val ClientLevel.day get() = this.dayTime / 24000
+
+    fun getBlockEntityList(): List<BlockPos> {
+        val player = mc.player ?: return emptyList()
+        val level = mc.level ?: return emptyList()
+        val renderDistance = mc.options.renderDistance().get()
+        val pX = player.chunkPosition().x
+        val pZ = player.chunkPosition().z
+
+        return buildList {
+            for (x in (pX - renderDistance) .. (pX + renderDistance)) {
+                for (z in (pZ - renderDistance) .. (pZ + renderDistance)) {
+                    val chunk = level.getChunk(x, z, ChunkStatus.FULL, false) ?: continue
+                    addAll(chunk.blockEntitiesPos)
+                }
+            }
+        }
+    }
 
     inline fun Vec3.nearbyBlocks(radius: Float, predicate: (BlockPos) -> Boolean = { true }): List<BlockPos> {
         val res = mutableListOf<BlockPos>()

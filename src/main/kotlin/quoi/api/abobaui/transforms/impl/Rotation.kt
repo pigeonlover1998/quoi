@@ -24,6 +24,12 @@ class Rotation(override var amount: Float) : Transform.Mutable {
             rotate(element, get())
         }
     }
+
+    class Dynamic(private val amount: () -> Float) : Transform {
+        override fun apply(element: Element) {
+            rotate(element, amount())
+        }
+    }
 }
 
 private fun rotate(element: Element, amount: Float) {

@@ -18,7 +18,7 @@ import quoi.utils.ui.settingFromK0
 import quoi.utils.ui.watch
 import kotlin.reflect.KProperty0
 
-abstract class UIComponent<T>(
+abstract class UIComponent<T>( // todo cleanup
     name: String,
     desc: String,
 ) : Setting<T>(name, desc) {
@@ -42,6 +42,8 @@ abstract class UIComponent<T>(
     private var hidden = false
     private var collapsed = true
     private var asParent = { children.isNotEmpty() }
+    var forceParent = false
+        private set
 
     val isSubsetting get() = parent != null
 
@@ -60,6 +62,7 @@ abstract class UIComponent<T>(
 
     fun asParent() = apply {
         asParent = { true }
+        forceParent = true
     }
 
     fun onValueChanged(action: (old: T, new: T) -> Unit) = apply {

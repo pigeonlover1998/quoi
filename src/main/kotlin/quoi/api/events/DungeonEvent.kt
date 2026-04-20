@@ -9,6 +9,8 @@ import quoi.api.skyblock.dungeon.P3Section
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 
 abstract class DungeonEvent {
+    class Start : Event()
+
     abstract class Secret {
         class Interact(val blockPos: BlockPos, val blockState: BlockState) : Event()
         class Item(val entity: ItemEntity) : Event()

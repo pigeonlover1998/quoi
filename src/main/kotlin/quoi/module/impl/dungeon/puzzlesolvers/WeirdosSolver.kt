@@ -66,7 +66,7 @@ object WeirdosSolver {
             getEntities<ArmorStand>(10.0).any { entity ->
                 if (!entity.name.string.contains("CLICK")) return@any false
                 if (entity.id in clickedNPCs || entity.distanceToSqr(player) > 30 || currentTime - lastClick < 200L) return@any false
-                modMessage(entity.name)
+//                modMessage(entity.name)
 
                 AuraManager.interactEntity(entity, AuraAction.INTERACT_AT)
                 clickedNPCs.add(entity.id)

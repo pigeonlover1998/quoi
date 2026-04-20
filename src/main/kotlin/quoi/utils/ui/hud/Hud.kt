@@ -1,9 +1,11 @@
 package quoi.utils.ui.hud
 
+import quoi.api.abobaui.constraints.Constraint
 import quoi.api.abobaui.constraints.impl.measurements.Undefined
 import quoi.api.abobaui.constraints.impl.size.Bounding
 import quoi.api.abobaui.dsl.constrain
 import quoi.api.abobaui.dsl.percent
+import quoi.api.abobaui.elements.Element
 import quoi.api.abobaui.elements.ElementScope
 import quoi.api.abobaui.elements.impl.Group
 import quoi.api.abobaui.transforms.impl.Scale
@@ -78,8 +80,8 @@ open class Hud(
                 setting.parent = null
             }
 
-            if (setting.parent == null) {
-                dummy.childOf(setting.asParent())
+            if (setting.parent == null && !setting.forceParent) {
+                dummy.childOf(setting)
             }
 
             module.settings.remove(setting)
@@ -88,7 +90,7 @@ open class Hud(
         settings.add(setting)
     }
 
-    inner class Element : Group(constrain(x.value.percent, y.value.percent, Bounding, Bounding)) {
+    inner class Element : Group(constrain(x.value.percent, y.value.percent, IsolatedBounding, IsolatedBounding)) {
 
         override var enabled: Boolean = true
             get() = field && (this@Hud.module.enabled || this@Hud.module.alwaysActive) && (this@Hud.enabled || !this@Hud.toggleable)
@@ -100,6 +102,25 @@ open class Hud(
         }
 
         override fun getDefaultPositions() = Pair(Undefined, Undefined)
+
+        override fun prePosition() {
+            parent?.let { p ->
+                this.internalX = this.constraints.x.calculatePos(this, true)
+                this.internalY = this.constraints.y.calculatePos(this, false)
+                this.x = this.internalX + p.x
+                this.y = this.internalY + p.y
+            }
+            super.prePosition()
+        }
+
+        override fun postPosition() {
+            width = Bounding.calculateSize(this, true)
+            height = Bounding.calculateSize(this, false)
+            parent?.let { p ->
+                this.renders = this.intersects(p) && !(this.width == 0f && this.height == 0f)
+            }
+            super.postPosition()
+        }
 
         fun rebuild(scope: Scope) {
             removeAll()
@@ -124,4 +145,12 @@ open class Hud(
             element.rebuild(this)
         }
     }
+}
+
+private val IsolatedBounding = object : Constraint.Size {
+    override fun calculateSize(element: Element, horizontal: Boolean): Float {
+        return Bounding.calculateSize(element, horizontal)
+    }
+
+    override fun reliesOnChildren(): Boolean = false
 }

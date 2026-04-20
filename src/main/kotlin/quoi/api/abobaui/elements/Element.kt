@@ -63,7 +63,7 @@ abstract class Element(
 
     var renders: Boolean = true
         get() = field && enabled
-        private set
+//        private set
 
     var pressed: Boolean = false
 

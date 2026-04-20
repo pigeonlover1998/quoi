@@ -61,6 +61,12 @@ fun ElementScope<*>.rotation(from: Float, to: Float): Rotation.Animated {
     return rotation
 }
 
+fun ElementScope<*>.rotation(amount: () -> Float): Rotation.Dynamic {
+    val rotation = Rotation.Dynamic(amount)
+    transform(rotation)
+    return rotation
+}
+
 fun ElementScope<*>.alpha(amount: Float): Alpha {
     val alpha = Alpha(amount)
     transform(alpha)

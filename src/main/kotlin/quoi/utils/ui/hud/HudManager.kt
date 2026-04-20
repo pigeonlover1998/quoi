@@ -529,7 +529,7 @@ object HudManager { // todo add hud grouping
                             var wasRainbow = (setting as? ColourPickerComponent)?.rainbow ?: false
 
                             val dummy = hud.settings.first() as UIComponent<*>
-                            val asSub = setting in dummy.children || setting.children.isNotEmpty()
+                            val asSub = setting in dummy.children && setting.children.isNotEmpty() && !setting.forceParent
                             setting.render(this, asSub).onEvent(setting.valueUpdated) {
                                 val cs = setting as? ColourPickerComponent
                                 if (cs?.rainbow != wasRainbow) onValue()

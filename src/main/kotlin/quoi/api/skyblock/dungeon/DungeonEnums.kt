@@ -1,11 +1,13 @@
 package quoi.api.skyblock.dungeon
 
 import quoi.api.colour.Colour
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.PlayerSkin
 import quoi.api.events.DungeonEvent
 import quoi.api.events.core.EventBus
+import quoi.api.skyblock.dungeon.odonscanning.MapRenderer.mapSize
+import quoi.utils.EntityUtils.playerEntities
+import quoi.utils.Vec2i
 
 /**
  * from OdinFabric (BSD 3-Clause)
@@ -26,12 +28,40 @@ data class DungeonPlayer(
     val clazz: DungeonClass,
     val clazzLvl: Int,
     val playerSkin: PlayerSkin?,
-    var entity: Player? = null,
     var isDead: Boolean = false,
     var deaths: Int = 0,
     val colour: Colour = Colour.WHITE,
     val p3Stats: P3Stats = P3Stats(),
+    var mapPos: Vec2i = Vec2i(0, 0),
+    var yaw: Float = 0f,
 ) {
+    private var cachedEntity: Player? = null
+
+    fun position(): Pair<Float, Float> =
+        entity?.let {
+            ((it.x + 201f) / (32f / 20f)).toFloat() to ((it.z + 201f) / (32f / 20f)).toFloat()
+        } ?: run {
+            val w = (mapSize.x * 16 + (mapSize.x - 1) * 4).toFloat()
+            val h = (mapSize.z * 16 + (mapSize.z - 1) * 4).toFloat()
+
+            val x = (mapPos.x / 2.0f) + (w / 2.0f)
+            val z = (mapPos.z / 2.0f) + (h / 2.0f)
+            x to z
+        }
+
+    fun yaw(): Float = entity?.yRot ?: yaw
+
+    val entity: Player?
+        get() {
+            val curr = cachedEntity
+            if (curr != null && !curr.isRemoved) {
+                return curr
+            }
+
+            cachedEntity = playerEntities.firstOrNull { it.name.string == name }
+            return cachedEntity
+        }
+
     companion object {
         val EMPTY = DungeonPlayer("Empty", DungeonClass.Unknown, 0, null)
     }

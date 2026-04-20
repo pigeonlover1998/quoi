@@ -8,7 +8,10 @@ import net.minecraft.core.BlockPos
 import net.minecraft.util.Mth.wrapDegrees
 import net.minecraft.world.phys.Vec3
 import quoi.api.colour.Colour
+import quoi.api.colour.mix
 import quoi.api.colour.multiply
+import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
+import quoi.module.impl.dungeon.DungeonMap
 import quoi.utils.Vec2i
 import quoi.utils.equalsOneOf
 import quoi.utils.rotateAroundNorth
@@ -33,15 +36,24 @@ data class OdonRoom(
     fun getRealYaw(yaw: Float) = wrapDegrees(yaw - rotation.deg)
 
     val textPlacement: Vec2i get() {
-        if (roomComponents.size == 3) return roomComponents.elementAt(1).placement
-
-        if (rotation == Rotations.NONE) return roomComponents.minBy { it.x * 1000 + it.z }.placement
+        if (roomComponents.isEmpty()) return Vec2i(0, 0)
         val placements = roomComponents.map { it.placement }
 
-        val x = (placements.minOf { it.x } + placements.maxOf { it.x }) / 2
-        val z = (placements.minOf { it.z } + placements.maxOf { it.z }) / 2
+        if (placements.size == 3) {
+            val horiz = placements.groupBy { it.z }.values.find { it.size == 2 }
 
-        return Vec2i(x, z)
+            if (horiz != null) {
+                val x = (horiz[0].x + horiz[1].x) / 2
+                val z = horiz[0].z
+                return Vec2i(x, z)
+            }
+        }
+        val minX = placements.minOf { it.x }
+        val maxX = placements.maxOf { it.x }
+        val minZ = placements.minOf { it.z }
+        val maxZ = placements.maxOf { it.z }
+
+        return Vec2i((minX + maxX) / 2, (minZ + maxZ) / 2)
     }
 
     val textColour: Colour get() = when(data.state) {
@@ -67,17 +79,18 @@ data class OdonRoom(
                 else -> RoomState.GREEN
             }
             85, 119 -> RoomState.UNOPENED
+            0 -> RoomState.UNDISCOVERED
             else -> RoomState.DISCOVERED
         }
 
-        if (new.ordinal < data.state.ordinal) {
+        if (data.state != new) {
             data.state = new
         }
     }
 }
 
 data class RoomComponent(val x: Int, val z: Int, val core: Int = 0) {
-    val vec2 = Vec2i(x, z)
+    var vec2 = Vec2i(0, 0)
     val blockPos = BlockPos(x, 70, z)
 
     val placement: Vec2i get() {
@@ -93,19 +106,22 @@ data class RoomData(
     val crypts: Int, val secrets: Int, val trappedChests: Int, var state: RoomState = RoomState.UNDISCOVERED
 ) {
     val colour: Colour get() {
-        val col = when (type) {
-            RoomType.ENTRANCE -> Colour.MINECRAFT_DARK_GREEN
-            RoomType.BLOOD    -> Colour.RED
-            RoomType.FAIRY    -> Colour.MINECRAFT_LIGHT_PURPLE
-            RoomType.PUZZLE   -> Colour.MINECRAFT_DARK_PURPLE
-            RoomType.TRAP     -> Colour.MINECRAFT_GOLD
-            RoomType.CHAMPION -> Colour.MINECRAFT_YELLOW
-            else              -> Colour.RGB(107, 58, 17)
+        val base = when (type) {
+            RoomType.ENTRANCE -> DungeonMap.entranceRoom
+            RoomType.BLOOD    -> DungeonMap.bloodRoom
+            RoomType.FAIRY    -> DungeonMap.fairyRoom
+            RoomType.PUZZLE   -> DungeonMap.puzzleRoom
+            RoomType.TRAP     -> DungeonMap.trapRoom
+            RoomType.CHAMPION -> DungeonMap.miniRoom
+            RoomType.RARE     -> DungeonMap.rareRoom
+            else              -> DungeonMap.normalRoom
         }
 
+        val withMimic = if (this == ScanUtils.mimicRoom) base.mix(Colour.RED) else base
+
         return if (state.equalsOneOf(RoomState.UNDISCOVERED, RoomState.UNOPENED)) {
-            Colour.RGB(col.rgb.multiply(0.5f))
-        } else col
+            Colour.RGB(withMimic.rgb.multiply(1f - DungeonMap.darkenMultiplier))
+        } else withMimic
     }
 }
 

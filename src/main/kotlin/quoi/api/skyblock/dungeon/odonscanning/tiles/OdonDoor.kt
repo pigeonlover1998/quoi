@@ -1,13 +1,15 @@
 package quoi.api.skyblock.dungeon.odonscanning.tiles
 
 import quoi.api.colour.Colour
+import quoi.api.colour.multiply
+import quoi.module.impl.dungeon.DungeonMap
 import quoi.utils.Vec2i
 import quoi.utils.equalsOneOf
 
-data class OdonDoor(val pos: Vec2i, var type: Type) {
-    enum class Type { BLOOD, NORMAL, WITHER }
+data class OdonDoor(val pos: Vec2i, var type: DoorType) {
 
-    var locked = type.equalsOneOf(Type.WITHER, Type.BLOOD)
+    var state: RoomState = RoomState.UNDISCOVERED
+    var locked = type.equalsOneOf(DoorType.WITHER, DoorType.BLOOD)
 
     val size: Vec2i get() {
         val xOffset = ((pos.x + 185) shr 4) % 2
@@ -30,25 +32,33 @@ data class OdonDoor(val pos: Vec2i, var type: Type) {
     }
 
 
-    val colour: Colour get() = when (type) {
-        Type.BLOOD  -> Colour.RED
-        Type.WITHER if (locked) -> Colour.GREEN
-        else -> Colour.ORANGE
+    val colour: Colour get() {
+        val col = when (type) {
+            DoorType.BLOOD  -> DungeonMap.bloodDoor
+            DoorType.WITHER if (locked) -> DungeonMap.witherDoor
+            DoorType.ENTRANCE -> DungeonMap.entranceDoor
+            else -> DungeonMap.normalDoor
+        }
+
+        return if (state == RoomState.UNDISCOVERED) {
+            Colour.RGB(col.rgb.multiply(1f - DungeonMap.darkenMultiplier))
+        } else col
     }
 
     fun updateState(col: Int) {
-        locked = when (col) {
-            119 -> {
-                type = Type.WITHER
-                true
-            }
-            85 -> true
-            82 -> false
-            18 -> {
-                type = Type.BLOOD
-                true
-            }
-            else -> locked
+        if (col == 0) return
+
+        state = when (col) {
+            85, 119 -> RoomState.UNOPENED
+            else -> RoomState.DISCOVERED
         }
+
+        when (col) {
+            18 -> type = DoorType.BLOOD
+            119 -> type = DoorType.WITHER
+            30 -> type = DoorType.ENTRANCE
+        }
+
+        locked = state == RoomState.UNOPENED && (type == DoorType.WITHER || type == DoorType.BLOOD)
     }
 }

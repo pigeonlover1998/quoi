@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList
 import it.unimi.dsi.fastutil.floats.FloatArrayList
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.BannerBlock
 import net.minecraft.world.level.block.CarpetBlock
 import net.minecraft.world.level.block.CauldronBlock
 import net.minecraft.world.level.block.FenceBlock
@@ -23,6 +24,7 @@ import quoi.api.pathfinding.AbstractPathfinder
 import quoi.api.pathfinding.EtherPathNode
 import quoi.api.pathfinding.context.EtherwarpContext
 import quoi.utils.Vec3
+import quoi.utils.WorldUtils.etherwarpable
 import quoi.utils.rad
 import quoi.utils.sq
 import quoi.utils.traverseVoxels
@@ -30,7 +32,7 @@ import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sqrt
 
-object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>() {
+object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>() { // todo improve performance
 
     private var lastDist = -1.0
     private var lastPitchStep = -1.0f
@@ -48,6 +50,7 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>
         timeout: Long = 1000L,
         offset: Boolean = true
     ): List<EtherPathNode>? {
+        if (!goal.etherwarpable) return null
         val raycasts = getRaycasts(dist, pitchStep, yawStep)
         val ctx = EtherwarpContext(goal, dist, hWeight, raycasts, timeout, offset)
 
@@ -140,7 +143,7 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>
                 etherwarp = true
             )
 
-            if (result.succeeded && result.pos != null && !result.state.blackListed) {
+            if (result.succeeded && result.pos != null && (result.pos == ctx.goal || !result.state.blackListed)) {
                 if (hitCache.add(result.pos.asLong())) {
                     block(result.pos, ctx.raycasts.yaws[i], ctx.raycasts.pitches[i])
                 }
@@ -238,7 +241,8 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>
                     block is FenceBlock ||
                     block is FenceGateBlock ||
                     block is HopperBlock ||
-                    block is CauldronBlock
+                    block is CauldronBlock ||
+                    block is BannerBlock
         }
 
     class Raycasts(val dx: DoubleArray, val dy: DoubleArray, val dz: DoubleArray, val yaws: FloatArray, val pitches: FloatArray)

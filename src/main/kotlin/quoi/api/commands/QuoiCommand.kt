@@ -34,7 +34,6 @@ import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.addVec
 import quoi.utils.skyblock.player.RotationUtils.rotate
-import quoi.utils.ui.rendering.NVGRenderer
 import kotlin.collections.sortedBy
 
 object QuoiCommand {
@@ -69,9 +68,30 @@ object QuoiCommand {
             }
 
             "currentroom" {
-                currentRoom?.let {
-                    modMessage("Current room: ${it.data.name}")
-                    modMessage("DATA: CORNER: ${it.clayPos} ROTATION: ${it.rotation.deg} ")
+                currentRoom?.let { room ->
+                    val player = mc.player!!
+                    val currentComp = room.roomComponents.minByOrNull { comp ->
+                        val dx = player.x - comp.x
+                        val dz = player.z - comp.z
+                        dx * dx + dz * dz
+                    }
+
+                    val componentsString = room.roomComponents.mapIndexed { index, comp ->
+                        val curr = if (comp == currentComp) "&a->&f" else "   "
+                        "$curr &7$index: ${comp.vec2} &7| &f${comp.core}"
+                    }.joinToString("\n")
+
+
+                    val msg = listOf(
+                        "&e${room.data.name} &7(${room.data.type})",
+                        "&7|&fState: &7${room.data.state}",
+                        "&7|&fCorner: &7${room.clayPos.x}, ${room.clayPos.y}, ${room.clayPos.z}",
+                        "&7|&fRotation: &7${room.rotation} (${room.rotation.deg})",
+                        "&7|&fComponents:",
+                        componentsString
+                    ).joinToString("\n")
+
+                    modMessage(msg, prefix = "")
                 }
             }
 

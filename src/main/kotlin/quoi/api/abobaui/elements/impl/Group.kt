@@ -21,6 +21,11 @@ open class RefreshableGroup(
         removeAll()
         val scope = ElementScope(this)
         scope.builder()
+
+        if (ui.initialised) {
+            children?.forEach { it.init() }
+        }
+
         redraw()
     }
 }

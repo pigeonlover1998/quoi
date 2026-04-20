@@ -15,6 +15,7 @@ import quoi.api.colour.Colour
 import quoi.api.input.CursorShape
 import quoi.module.settings.Saving
 import quoi.module.settings.UIComponent
+import quoi.utils.ChatUtils.modMessage
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.cursor
 import quoi.utils.ui.elements.switch
@@ -66,8 +67,11 @@ class HudComponent<T : Hud>(
                     if (setting !is UIComponent) return@forEach
                     if (setting.parent != null && setting.parent as UIComponent in value.settings) return@forEach
                     val dummy = value.settings.first() as UIComponent<*>
-                    val asSub = setting in dummy.children || setting.children.isNotEmpty()
-                    setting.render(this, asSub)
+                    val asSub = setting in dummy.children && !setting.children.isNotEmpty() && !setting.forceParent
+                    setting.render(this, asSub).onEvent(setting.valueUpdated) {
+                        HudManager.reinit()
+                        true
+                    }
                 }
                 row(size(w = Copying)) {
                     text(

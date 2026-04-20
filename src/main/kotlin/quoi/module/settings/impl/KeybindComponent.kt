@@ -129,7 +129,7 @@ class KeybindComponent(
         )
         val w = Bounding + 5.px
         block(
-            constrain(x = 0.px.alignOpposite, w = if (parent != null) w else w.coerceAtLeast(32.5.px), h = if (asSub) Bounding else 20.px),
+            constrain(x = 0.px.alignOpposite, w = if (asSub) w else w.coerceAtLeast(32.5.px), h = if (asSub) Bounding else 20.px),
             colour = theme.surfaceContainerHighest,
             5.radius()
         ) {

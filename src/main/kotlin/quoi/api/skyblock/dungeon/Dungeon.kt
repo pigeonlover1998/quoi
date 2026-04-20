@@ -17,6 +17,7 @@ import quoi.QuoiMod.scope
 import quoi.annotations.Init
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
+import quoi.api.events.DungeonEvent
 import quoi.api.events.PacketEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.EventBus.on
@@ -26,6 +27,7 @@ import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.module.impl.dungeon.LeapMenu
 import quoi.module.impl.render.ClickGui
+import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.equalsOneOf
 import quoi.utils.romanToInt
@@ -286,6 +288,7 @@ object Dungeon {
                                 P3Section.resetAll()
                                 p3Section.start()
                             }
+                            "[NPC] Mort: Here, I found this map when I first entered the dungeon." -> DungeonEvent.Start().post()
                         }
 
                         if (inBoss && inP3) {
@@ -325,19 +328,6 @@ object Dungeon {
 //                            else
 //                                -1
 
-                    }
-
-                    is ClientboundRemoveEntitiesPacket -> {
-                        dungeonTeammates.forEach {
-                            val id = it.entity?.id ?: return@forEach
-                            if (entityIds.contains(id)) it.entity = null
-                        }
-                    }
-
-                    is ClientboundAddEntityPacket -> {
-                        if (type == EntityType.PLAYER)
-                            dungeonTeammates.find { it.entity == null && it.name == mc.level?.getEntity(id)?.name?.string }?.entity =
-                                mc.level?.getEntity(id) as? Player
                     }
 
                 }
@@ -426,7 +416,6 @@ object Dungeon {
                             clazz = DungeonClass.entries.find { it.name == clazz } ?: continue,
                             clazzLvl = romanToInt(clazzLevel),
                             playerSkin = player.skin,
-                            entity = mc.level?.getPlayerByUUID(player.profile.id),
                             colour = colour
                         )
                     )
