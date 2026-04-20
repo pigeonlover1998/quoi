@@ -104,7 +104,7 @@ object AutoClear : Module(
     private val yawStep by slider("Yaw step", 22f, 10f, 30f, desc = "Horizontal density of raycasts. Lower values increase precision but reduce performance.").childOf(::sett)
     private val pitchStep by slider("Pitch step", 22f, 10f, 30f, desc = "Vertical density of raycasts. Lower values increase precision but reduce performance.").childOf(::sett)
     private val hWeight by slider("Guess weight", 6.7, 1.0, 15.0, 0.1, desc = "Higher values make the search much faster; due to path smoothing, the difference in final path quality is negligible.").childOf(::sett)
-    private val threads by slider("Threads", 2, 1, 16, desc = "Number of CPU threads to use for simultaneous path expansion.").childOf(::sett)
+    private val threads by slider("Threads", 4, 1, 16, desc = "Number of CPU threads to use for simultaneous path expansion.").childOf(::sett)
     private val timeout by slider("Timeout", 1000L, 1000L, 2000L, 50L, unit = "ms", desc = "Maximum time allowed for the pathfinder to search before giving up.").childOf(::sett)
 
     private var nodes: MutableList<ClearNode>? = null
@@ -117,19 +117,21 @@ object AutoClear : Module(
     private var pending: Direction? = null
     private var position: Stupid? = null
 
-    private val roomOverrides get() = mapOf(
+    private val roomOverrides = mapOf(
         "Creeper Beams" to BlockPos(15, 68, 5),
         "Three Weirdos" to BlockPos(15, 68, 22),
         "Water Board" to BlockPos(15, 58, 9),
-        "Ice Path" to BlockPos(10, 67, 18),
+        "Ice Path" to BlockPos(10, 67, 8),
         "Tic Tac Toe" to BlockPos(11, 68, 16),
-        "Ice Fill" to BlockPos(15, 69, 18),
+        "Ice Fill" to BlockPos(15, 69, 7),
+        "Quiz" to BlockPos(15, 68, 5),
+        "Boulder" to BlockPos(15, 68, -2),
         "Old Trap" to BlockPos(15, 68, -2),
         "New Trap" to BlockPos(15, 68, -2),
         "Cages" to BlockPos(15, 64, 16)
     )
 
-    private val coreOverrides get() = mapOf( // suboptimal if room rot is none, todo find a different way to find goal
+    private val coreOverrides = mapOf( // suboptimal if room rot is none, todo find a different way to find goal
         "Gold" to mapOf(
             35550104 to BlockPos(5, 68, 15),
             992885012 to BlockPos(55, 68, 15)
@@ -137,12 +139,14 @@ object AutoClear : Module(
         "Layers" to mapOf(
             161195688 to BlockPos(53, 68, 53)
         ),
-
         "Mage" to mapOf(
             925853313 to BlockPos(15, 75, 15)
         ),
         "Deathmite" to mapOf(
             706341009 to BlockPos(5, 68, 15)
+        ),
+        "Dragon" to mapOf(
+            -1334473473 to BlockPos(15, 68, 18)
         )
     )
     

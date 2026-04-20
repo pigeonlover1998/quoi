@@ -28,6 +28,7 @@ import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.*
+import quoi.utils.EntityUtils.getEntities
 import quoi.utils.WorldUtils.state
 import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.SwapManager
@@ -297,9 +298,9 @@ object SecretAura : Module(
 
     private fun BlockPos.isBossBlock(state: BlockState): Boolean {
         if (state.block != Blocks.LEVER) return false
-        val p3Lever = this in levers && EntityUtils.getEntities<ArmorStand>(vec3.aabb(0.5)) { it.displayName?.string == "Not Activated" }.isNotEmpty()
+        val p3Lever = this in levers && getEntities<ArmorStand>(above().vec3.aabb(1.5)) { it.displayName?.string == "Not Activated" }.isNotEmpty()
         val devLever = this in deviceLevers && state.hasProperty(LeverBlock.POWERED) && !state.getValue(LeverBlock.POWERED)
-        val extraDevLever = this == extraDevLever && !devLever && EntityUtils.getEntities<ArmorStand>(vec3.aabb(2.0)) { it.displayName?.string == "Inactive" }.isNotEmpty() // untested
+        val extraDevLever = this == extraDevLever && !devLever && getEntities<ArmorStand>(vec3.aabb(2.0)) { it.displayName?.string == "Inactive" }.isNotEmpty() // untested
         return p3Lever || devLever || extraDevLever
     }
 
