@@ -70,11 +70,11 @@ object DungeonMap : Module(
         renderMap(config = MapConfig(font = font.selected.get()))
     }.withSettings(
         ::shadow, ::font, ::fontScale,
-        ::roomRadius, ::darkenMultiplier,
-        ::bgColour, ::border, ::borderThickness, ::borderColour,
-        ::roomColour, ::normalRoom, ::entranceRoom, ::puzzleRoom, ::trapRoom, ::miniRoom, ::bloodRoom, :: fairyRoom, ::rareRoom,
-        ::doorColour, ::normalDoor, ::witherDoor, ::bloodDoor, ::entranceDoor,
-        ::showHeads, ::showOwnHead, ::iconScale, ::iconBorder, ::classColour, ::iconBorderColour, ::iconBorderThickness,
-        ::showNames, ::whenLeap, ::nameScale
+//        ::roomRadius, ::darkenMultiplier,
+//        ::bgColour, ::border, ::borderThickness, ::borderColour,
+//        ::roomColour, ::normalRoom, ::entranceRoom, ::puzzleRoom, ::trapRoom, ::miniRoom, ::bloodRoom, :: fairyRoom, ::rareRoom,
+//        ::doorColour, ::normalDoor, ::witherDoor, ::bloodDoor, ::entranceDoor,
+//        ::showHeads, ::showOwnHead, ::iconScale, ::iconBorder, ::classColour, ::iconBorderColour, ::iconBorderThickness,
+//        ::showNames, ::whenLeap, ::nameScale
     ).setting()
 }
