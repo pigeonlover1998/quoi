@@ -19,7 +19,8 @@ import quoi.utils.skyblock.player.LeapManager
 object AutoLeap : Module( // todo clean up
     "Auto Leap",
     desc = "Automatically leaps to predefined targets.",
-    area = Island.Dungeon
+    area = Island.Dungeon,
+    tag = Tag.BETA
 ) {
     private val fastLeap by switch("Fast leap", desc = "Leaps to a set player on infinileap left click.")
     private val fastDelay by slider("Delay", 250L, 100L, 500L, 50L).childOf(::fastLeap) // to not pull bko

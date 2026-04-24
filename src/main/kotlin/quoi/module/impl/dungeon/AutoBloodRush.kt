@@ -28,7 +28,8 @@ import kotlin.math.roundToInt
 object AutoBloodRush : Module( // todo clean up some day (probably never)
     "Auto Blood Rush",
     desc = "Automatically blood rushes.",
-    area = Island.Dungeon
+    area = Island.Dungeon,
+    tag = Tag.LEGACY
 ) {
     private val minTicksBeforeDeath by slider("Minimum ticks before death", 35, 15, 40, unit = "t", desc = "Triggers when remaining ticks until death are at least this value. Higher values make the macro slower (in some cases), but more consistent.")
     private val scanCorners by switch("Scan corners", desc = "Scans the corners when looking for blood.").open()
