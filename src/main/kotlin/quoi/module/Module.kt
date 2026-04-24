@@ -150,7 +150,9 @@ abstract class Module(
     }
 
     enum class Tag(val desc: String = "") {
-        NONE, LEGACY("A rewrite is currently planned. This module is no longer updated.")
+        NONE,
+        LEGACY("A rewrite is currently planned. This module is no longer updated."),
+        BETA("This feature is in beta. Issues may occur; no need to report bugs.")
     }
 
     private companion object {
