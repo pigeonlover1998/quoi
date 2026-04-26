@@ -15,10 +15,10 @@ import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.api.skyblock.dungeon.Dungeon.isProtectedBlock
 import quoi.utils.LegacyIdMapper.legacyBlockIdMap
 import quoi.config.typeName
-import quoi.module.impl.dungeon.AutoRoutes
-import quoi.module.impl.dungeon.AutoRoutes.add
-import quoi.module.impl.dungeon.AutoRoutes.editMode
-import quoi.module.impl.dungeon.AutoRoutes.routes
+import quoi.module.impl.dungeon.AutoRoutesLegacy
+import quoi.module.impl.dungeon.AutoRoutesLegacy.add
+import quoi.module.impl.dungeon.AutoRoutesLegacy.editMode
+import quoi.module.impl.dungeon.AutoRoutesLegacy.routes
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.WorldUtils.registryName
 import quoi.utils.WorldUtils.state
@@ -29,7 +29,7 @@ import quoi.utils.rayCast
 import quoi.utils.rayCastVec
 import kotlin.math.floor
 
-internal fun AutoRoutes.registerCommands() {
+internal fun AutoRoutesLegacy.registerCommands() {
     ar.sub("em") {
         editMode = !editMode
         modMessage("Edit mode ${if (editMode) "&aenabled" else "&cdisabled"}&r!")
@@ -154,7 +154,7 @@ internal fun AutoRoutes.registerCommands() {
     ar.register()
 }
 
-private fun AutoRoutes.editDBRing(ring: RouteRing) {
+private fun AutoRoutesLegacy.editDBRing(ring: RouteRing) {
     if (interactListener != null) unsubscribeDBEditor()
     breakerRing = ring
 
@@ -217,14 +217,14 @@ private fun AutoRoutes.editDBRing(ring: RouteRing) {
     }
 }
 
-private fun AutoRoutes.unsubscribeDBEditor() {
+private fun AutoRoutesLegacy.unsubscribeDBEditor() {
     interactListener?.remove()
     interactListener = null
     breakerRing = null
     lastClickedBlock = null
 }
 
-private fun AutoRoutes.addRing(action: RingAction, input: GreedyString?): RouteRing? {
+private fun AutoRoutesLegacy.addRing(action: RingAction, input: GreedyString?): RouteRing? {
     val room = currentRoom ?: return null.also { modMessage("&cNo room detected") }
     var (x, y, z) = room.getRelativeCoords(player.position())
     val args = parseArgs(input)
@@ -284,7 +284,7 @@ private fun AutoRoutes.addRing(action: RingAction, input: GreedyString?): RouteR
     return ring
 }
 
-private fun AutoRoutes.editRing(ring: RouteRing, input: GreedyString?) {
+private fun AutoRoutesLegacy.editRing(ring: RouteRing, input: GreedyString?) {
     val room = currentRoom ?: return modMessage("&cUnable to get current room")
     val rings = routes[room.data.name] ?: return modMessage("${room.data.name} &chas no rings.")
 
@@ -335,7 +335,7 @@ private fun AutoRoutes.editRing(ring: RouteRing, input: GreedyString?) {
     modMessage("Updated &e${ring.action.typeName}&r!")
 }
 
-private fun AutoRoutes.removeRings(range: Double?, name: String? = null) {
+private fun AutoRoutesLegacy.removeRings(range: Double?, name: String? = null) {
     val room = currentRoom ?: return modMessage("&cUnable to get current room")
     val r = range ?: 2.0
 
@@ -427,12 +427,12 @@ private fun parseArgs(input: GreedyString?): RingArgs {
 private fun SubCommand.withEditMode() = requires("&cEdit mode is disabled!") { editMode }
 
 private fun String.action(action: () -> RingAction) {
-    add.sub(this) { args: GreedyString? -> AutoRoutes.addRing(action(), args) }.suggestArgs()
+    add.sub(this) { args: GreedyString? -> AutoRoutesLegacy.addRing(action(), args) }.suggestArgs()
 }
 
 private fun String.action(action: () -> RingAction, block: (RouteRing) -> Unit) {
     add.sub(this) { args: GreedyString? ->
-        val ring = AutoRoutes.addRing(action(), args)
+        val ring = AutoRoutesLegacy.addRing(action(), args)
         ring?.let { block(it) }
     }.suggestArgs()
 }

@@ -120,11 +120,11 @@ object DungeonBreaker : Module(
         on<PacketEvent.Sent> {
             if (!autoDb || !editMode || !inBoss || floor?.floorNumber != 7) return@on
             val (pos, adding) = when (packet) {
-                is ServerboundUseItemOnPacket -> packet.hitResult.blockPos to false
-                is ServerboundPlayerActionPacket -> {
-                    if (packet.action != ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) return@on
-                    packet.pos to true
-                }
+                is ServerboundUseItemOnPacket -> packet.hitResult.blockPos to !player.isCrouching //false
+//                is ServerboundPlayerActionPacket -> {
+//                    if (packet.action != ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) return@on
+//                    packet.pos to true
+//                }
                 else -> return@on
             }
 

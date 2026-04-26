@@ -7,7 +7,7 @@ import quoi.QuoiMod.mc
 import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.config.TypeName
-import quoi.module.impl.dungeon.AutoRoutes
+import quoi.module.impl.dungeon.AutoRoutesLegacy
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.wait
 import quoi.utils.StringUtils.noControlCodes
@@ -30,7 +30,7 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
     override suspend fun execute(player: LocalPlayer) {
         val level = mc.level ?: return
         val room = Dungeon.currentRoom ?: return
-        val ring = AutoRoutes.routes[room.data.name]?.find { it.action == this } ?: return
+        val ring = AutoRoutesLegacy.routes[room.data.name]?.find { it.action == this } ?: return
 
         clearCooldownCache()
 
@@ -77,7 +77,7 @@ class DungeonBreakerAction(val blocks: List<BlockPos> = emptyList()) : RingActio
             AuraManager.breakBlock(realPos, immediate = true)
             recentlyBroken[realPos] = System.currentTimeMillis()
             chargesUsed++
-            if (!AutoRoutes.zeroTickDb) wait(1)
+            if (!AutoRoutesLegacy.zeroTickDb) wait(1)
         }
     }
 

@@ -25,8 +25,7 @@ import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomData
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomDataDeserializer
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
-import quoi.utils.ChatUtils.modMessage
-import quoi.utils.Vec2i
+import quoi.api.vec.Vec2i
 import quoi.utils.WorldUtils.getBlockEntityList
 import quoi.utils.WorldUtils.state
 import quoi.utils.equalsOneOf

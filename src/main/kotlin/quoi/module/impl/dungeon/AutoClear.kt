@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.Vec3
 import quoi.QuoiMod.scope
 import quoi.api.abobaui.dsl.*
-import quoi.api.autoroutes.actions.StartAction
 import quoi.api.colour.*
 import quoi.api.events.*
 import quoi.api.pathfinding.impl.EtherwarpPathfinder
@@ -24,7 +23,6 @@ import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomComponent
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
 import quoi.api.skyblock.invoke
 import quoi.module.Module
-import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.*
 import quoi.utils.ChatUtils.modMessage
@@ -273,10 +271,10 @@ object AutoClear : Module(
             }
             1 -> {
                 if (!rightToStart) return
-                val rings = AutoRoutes.routes[room.name] ?: return modMessage("No rings found in ${room.name}")
-                val starts = rings.filter { it.action is StartAction }
+                val rings = AutoRoutes.routeNodes[room.name] ?: return modMessage("No rings found in &e${room.name}")
+                val starts = rings.filter { it.start == true }
 
-                val target = starts.map { room.getRealCoords(it.pos()).below() }
+                val target = starts.map { room.getRealCoords(BlockPos(it.relative.x, ceil(it.relative.y), it.relative.z).below()) }
                     .filter { it.etherwarpable }
                     .let { pos ->
                         pos.find { it.distanceToSqr(comp.blockPos) < 225 } ?: pos.firstOrNull()

@@ -7,7 +7,7 @@ import quoi.api.events.DungeonEvent
 import quoi.api.events.core.EventBus
 import quoi.api.skyblock.dungeon.odonscanning.MapRenderer.mapSize
 import quoi.utils.EntityUtils.playerEntities
-import quoi.utils.Vec2i
+import quoi.api.vec.Vec2i
 
 /**
  * from OdinFabric (BSD 3-Clause)

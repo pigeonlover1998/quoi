@@ -11,9 +11,11 @@ import quoi.api.colour.Colour
 import quoi.api.colour.mix
 import quoi.api.colour.multiply
 import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
+import quoi.api.vec.MutableVec3
 import quoi.module.impl.dungeon.DungeonMap
-import quoi.utils.Vec2i
+import quoi.api.vec.Vec2i
 import quoi.utils.equalsOneOf
+import quoi.utils.mutable
 import quoi.utils.rotateAroundNorth
 import quoi.utils.rotateToNorth
 import java.lang.reflect.Type
@@ -31,6 +33,7 @@ data class OdonRoom(
 
     fun getRealCoords(pos: BlockPos) = pos.rotateAroundNorth(rotation).offset(clayPos.x, 0, clayPos.z)
     fun getRealCoords(vec: Vec3) = vec.rotateAroundNorth(rotation).add(clayPos.x.toDouble(), 0.0, clayPos.z.toDouble())
+    fun getRealCoords(mutVec: MutableVec3) = mutVec.immutable().rotateAroundNorth(rotation).add(clayPos.x.toDouble(), 0.0, clayPos.z.toDouble()).mutable()
 
     fun getRelativeYaw(yaw: Float) = yaw + rotation.deg
     fun getRealYaw(yaw: Float) = wrapDegrees(yaw - rotation.deg)

@@ -275,7 +275,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 
         command.sub("path") {
             val start = player.blockPosition()
-            val goal = BlockPos(-35, 79, -73)
+            val goal = BlockPos(-121, 68, -153)
 
             scope.launch {
                 val p = Pathfinder.findPath(start, goal, maxNodes = 40_000) ?: return@launch

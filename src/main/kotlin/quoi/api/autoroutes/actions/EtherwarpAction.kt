@@ -2,18 +2,15 @@ package quoi.api.autoroutes.actions
 
 import kotlinx.coroutines.withTimeoutOrNull
 import quoi.QuoiMod.mc
-import quoi.api.autoroutes.arguments.AwaitArgument
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.config.TypeName
-import quoi.module.impl.dungeon.AutoRoutes
+import quoi.module.impl.dungeon.AutoRoutesLegacy
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.wait
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.RotationUtils.rotate
 import quoi.utils.skyblock.player.SwapManager
 import net.minecraft.client.player.LocalPlayer
-import net.minecraft.network.protocol.game.ServerboundUseItemPacket
-import net.minecraft.world.InteractionHand
 import net.minecraft.world.phys.Vec3
 import quoi.api.colour.Colour
 import quoi.utils.rayCast
@@ -36,7 +33,7 @@ class EtherwarpAction(val yaw: Float = 0f, val pitch: Float = 0f, val vec: Vec3?
         }
         player.rotate(room.getRealYaw(yaw), pitch)
 
-        AutoRoutes.interactDelay()
+        AutoRoutesLegacy.interactDelay()
         withTimeoutOrNull(500) {
             while (rayCast() == null) {
                 wait(1)

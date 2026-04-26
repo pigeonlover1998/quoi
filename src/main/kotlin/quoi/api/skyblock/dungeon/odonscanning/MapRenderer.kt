@@ -42,7 +42,7 @@ import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
 import quoi.module.impl.dungeon.AutoClear
 import quoi.module.impl.dungeon.DungeonMap
 import quoi.utils.StringUtils.width
-import quoi.utils.Vec2i
+import quoi.api.vec.Vec2i
 import quoi.utils.equalsOneOf
 import quoi.utils.rad
 import quoi.utils.render.DrawContextUtils.drawImage

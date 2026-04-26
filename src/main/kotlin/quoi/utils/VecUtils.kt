@@ -18,6 +18,7 @@ import net.minecraft.core.Direction as McDirection
 import quoi.QuoiMod.mc
 import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
+import quoi.api.vec.MutableVec3
 import quoi.utils.WorldUtils.shape
 import kotlin.math.*
 
@@ -27,10 +28,6 @@ import kotlin.math.*
  * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/me/odinmain/utils/VecUtils.kt
  */
 
-data class Vec2i(val x: Int, val z: Int) {
-    fun add(other: Vec2i) = Vec2i(x + other.x, z + other.z)
-    fun add(x: Number, z: Number) = Vec2i(this.x + x.toInt(), this.z + z.toInt())
-}
 data class Direction(val yaw: Float, val pitch: Float, val distance: Double = 0.0) {
     fun getLook() = getLook(yaw, pitch)
 }
@@ -58,6 +55,8 @@ operator fun Vec3.unaryMinus(): Vec3 = Vec3(-x, -y, -z)
 
 fun Vec3.addVec(x: Number = 0.0, y: Number = 0.0, z: Number = 0.0): Vec3 =
     Vec3(this.x + x.toDouble(), this.y + y.toDouble(), this.z + z.toDouble())
+
+fun Vec3.mutable() = MutableVec3(x, y, z)
 
 inline val Vec3.aabb: AABB get() = AABB(x, y, z, x + 1.0, y + 1.0, z + 1.0)
 fun Vec3.aabb(radius: Double = 0.0) = AABB(
@@ -176,6 +175,13 @@ fun Vec3.distanceTo2D(to: Vec3): Double {
     val dx = this.x - to.x
     val dz = this.z - to.z
     return sqrt(dx * dx + dz * dz)
+}
+
+fun Vec3.toDirection(): Direction {
+    val dist = sqrt(x.sq + z.sq)
+    val yaw = wrapDegrees(-atan2(x, z).deg)
+    val pitch = wrapDegrees(-atan2(y, dist).deg)
+    return Direction(yaw, pitch)
 }
 
 fun BlockPos.distanceTo(to: BlockPos) =
@@ -460,11 +466,9 @@ fun rayCast(
     etherwarp: Boolean = true
 ): BlockPos? {
     val player = mc.player ?: return null
-    val pt = mc.deltaTracker.getGameTimeDeltaPartialTick(false)
-
     val origin = Vec3(
         player.x,
-        player.getEyePosition(pt).y,
+        player.eyePosition(etherwarp).y,
         player.z
     )
 
@@ -502,20 +506,19 @@ fun rayCastVec(
     return startVec
 }
 
-fun rayCastVec(vec3: Vec3, vec31: Vec3, firstBlock: Boolean = false): Vec3? =
-    rayCastVec(vec3.x, vec3.y, vec3.z, vec31.x, vec31.y, vec31.z, firstBlock)
+fun rayCastVec(vec3: Vec3, vec31: Vec3, etherwarp: Boolean = true): Vec3? =
+    rayCastVec(vec3.x, vec3.y, vec3.z, vec31.x, vec31.y, vec31.z, etherwarp)
 
 fun rayCastVec(
     lookVec: Vec3 = mc.player!!.getViewVector(mc.deltaTracker.getGameTimeDeltaPartialTick(false)),
     distance: Double = 61.0,
-    etherwarp: Boolean = false
+    etherwarp: Boolean = true
 ): Vec3? {
     val player = mc.player ?: return null
-    val pt = mc.deltaTracker.getGameTimeDeltaPartialTick(false)
 
     val origin = Vec3(
         player.x,
-        player.getEyePosition(pt).y,
+        player.eyePosition(etherwarp).y,
         player.z
     )
 

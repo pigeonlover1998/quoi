@@ -13,7 +13,8 @@ import quoi.utils.ui.hud.impl.TextHud
 
 object DungeonMap : Module(
     "Dungeon Map",
-    area = Island.Dungeon(inClear = true)
+    area = Island.Dungeon(inClear = true),
+    tag = Tag.BETA
 ) {
 //    private val renderHidden by switch("Render hidden rooms")
 

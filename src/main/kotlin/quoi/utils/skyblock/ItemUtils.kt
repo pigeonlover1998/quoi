@@ -5,6 +5,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.component.DataComponents
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.component.CustomData
@@ -38,6 +39,9 @@ object ItemUtils {
 
     inline val ItemStack.texture: String?
         get() = get(DataComponents.PROFILE)?.partialProfile()?.properties?.get("textures")?.firstOrNull()?.value
+
+    inline val ItemStack.registryPath: String
+        get() = BuiltInRegistries.ITEM.getKey(this.item).path
 
     inline val LocalPlayer.hasTerminator: Boolean
         get() {

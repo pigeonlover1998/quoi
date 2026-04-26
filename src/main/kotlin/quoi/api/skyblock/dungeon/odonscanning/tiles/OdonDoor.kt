@@ -3,7 +3,7 @@ package quoi.api.skyblock.dungeon.odonscanning.tiles
 import quoi.api.colour.Colour
 import quoi.api.colour.multiply
 import quoi.module.impl.dungeon.DungeonMap
-import quoi.utils.Vec2i
+import quoi.api.vec.Vec2i
 import quoi.utils.equalsOneOf
 
 data class OdonDoor(val pos: Vec2i, var type: DoorType) {

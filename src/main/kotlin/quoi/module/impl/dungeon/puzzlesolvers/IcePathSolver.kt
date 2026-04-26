@@ -11,6 +11,7 @@ import quoi.QuoiMod.mc
 import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
+import quoi.api.vec.Vec2i
 import quoi.utils.*
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.WorldUtils.state

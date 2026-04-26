@@ -8,13 +8,20 @@ import com.google.gson.*
 import com.google.gson.internal.Streams
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.Vec3
+import quoi.api.autoroutes2.RouteAwait
+import quoi.api.autoroutes2.RouteRegistry
+import quoi.api.autoroutes2.RouteNode
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.modMessage
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.findAnnotation
 
@@ -22,10 +29,14 @@ import kotlin.reflect.full.findAnnotation
 val configPath = File("config/quoi!")
 object ConfigSystem {
     val gson: Gson = GsonBuilder()
+        .registerTypeAdapter(Vec3::class.java, Vec3Adapter())
+        .registerTypeAdapter(BlockPos::class.java, BlockPosAdapter())
         .registerTypeAdapterFactory(typeAdapter<TriggerAction>())
         .registerTypeAdapterFactory(typeAdapter<TriggerCondition>())
         .registerTypeAdapterFactory(typeAdapter<RingAction>())
         .registerTypeAdapterFactory(typeAdapter<RingArgument>())
+        .registerTypeAdapterFactory(routeNodeAdapter<RouteNode>(RouteRegistry._nodeTypes))
+        .registerTypeAdapterFactory(routeNodeAdapter<RouteAwait>(RouteRegistry.awaitTypes))
         .setPrettyPrinting()
         .create()
 
@@ -200,3 +211,118 @@ inline fun <reified T> typedEntries(): List<Pair<String, () -> T>> where T : Any
 val TypeNamed.typeName: String
     get() = this::class.java.getAnnotation(TypeName::class.java)?.value
         ?: error("class ${this::class.simpleName} must be annotated with @TypeName")
+
+
+inline fun <reified T : TypeNamed> routeNodeAdapter(
+    subclasses: List<KClass<out T>>
+) : TypeAdapterFactory {
+
+    val subtypesByName = subclasses.associate { subclass ->
+        val typeName = subclass.findAnnotation<TypeName>()?.value ?: error("No @TypeName")
+        typeName to subclass.java
+    }
+
+    return object : TypeAdapterFactory {
+        override fun <R> create(gson: Gson, type: TypeToken<R>): TypeAdapter<R>? {
+            if (!T::class.java.isAssignableFrom(type.rawType)) return null
+
+            val factory = this
+
+            return object : TypeAdapter<R>() {
+                override fun write(out: JsonWriter, value: R) {
+                    if (value == null) error("stupid")
+                    val delegate = gson.getDelegateAdapter(factory, TypeToken.get(value.javaClass))
+                    val delegateJson = delegate.toJsonTree(value).asJsonObject
+                    val json = JsonObject()
+                    json.addProperty("type", (value as TypeNamed).typeName)
+                    for (entry in delegateJson.entrySet()) {
+                        json.add(entry.key, entry.value)
+                    }
+                    Streams.write(json, out)
+                }
+
+                override fun read(reader: JsonReader): R {
+                    val json = Streams.parse(reader).asJsonObject
+                    val label = json.get("type")?.asString
+                    val javaType = subtypesByName[label] ?: error("unknow type: $label")
+                    val delegate = gson.getDelegateAdapter(factory, TypeToken.get(javaType))
+                    @Suppress("UNCHECKED_CAST")
+                    return delegate.fromJsonTree(json) as R
+                }
+            }.nullSafe()
+        }
+    }
+}
+
+
+class Vec3Adapter : TypeAdapter<Vec3>() {
+    override fun write(out: JsonWriter, value: Vec3?) {
+        if (value == null) {
+            out.nullValue()
+            return
+        }
+        out.beginObject()
+        out.name("x").value(value.x)
+        out.name("y").value(value.y)
+        out.name("z").value(value.z)
+        out.endObject()
+    }
+
+    override fun read(reader: JsonReader): Vec3? {
+        if (reader.peek() == JsonToken.NULL) {
+            reader.nextNull()
+            return null
+        }
+        var x = 0.0
+        var y = 0.0
+        var z = 0.0
+
+        reader.beginObject()
+        while (reader.hasNext()) {
+            when (reader.nextName()) {
+                "x" -> x = reader.nextDouble()
+                "y" -> y = reader.nextDouble()
+                "z" -> z = reader.nextDouble()
+                else -> reader.skipValue()
+            }
+        }
+        reader.endObject()
+        return Vec3(x, y, z)
+    }
+}
+
+class BlockPosAdapter : TypeAdapter<BlockPos>() {
+    override fun write(out: JsonWriter, value: BlockPos?) {
+        if (value == null) {
+            out.nullValue()
+            return
+        }
+        out.beginObject()
+        out.name("x").value(value.x.toDouble())
+        out.name("y").value(value.y.toDouble())
+        out.name("z").value(value.z.toDouble())
+        out.endObject()
+    }
+
+    override fun read(reader: JsonReader): BlockPos? {
+        if (reader.peek() == JsonToken.NULL) {
+            reader.nextNull()
+            return null
+        }
+        var x = 0
+        var y = 0
+        var z = 0
+
+        reader.beginObject()
+        while (reader.hasNext()) {
+            when (reader.nextName()) {
+                "x", "field_11175" -> x = reader.nextDouble().toInt()
+                "y", "field_11174" -> y = reader.nextDouble().toInt()
+                "z", "field_11173" -> z = reader.nextDouble().toInt()
+                else -> reader.skipValue()
+            }
+        }
+        reader.endObject()
+        return BlockPos(x, y, z)
+    }
+}

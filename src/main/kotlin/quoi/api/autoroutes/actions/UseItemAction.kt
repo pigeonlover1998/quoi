@@ -5,7 +5,7 @@ import quoi.QuoiMod.mc
 import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.config.TypeName
-import quoi.module.impl.dungeon.AutoRoutes
+import quoi.module.impl.dungeon.AutoRoutesLegacy
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.RotationUtils.pitch
@@ -37,7 +37,7 @@ class UseItemAction(
 
         if (SwapManager.swapByName(item).success) {
             player.rotate(currentRoom!!.getRealYaw(yaw), pitch)
-            AutoRoutes.interactDelay()
+            AutoRoutesLegacy.interactDelay()
             repeat(times ?: 1) {
                 PlayerUtils.interact()
             }
