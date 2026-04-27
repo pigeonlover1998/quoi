@@ -107,7 +107,7 @@ object ScanUtils {
             val gx = (round((pX - START) / 32.0).toInt() * 2).coerceIn(0, 10)
             val gz = (round((pZ - START) / 32.0).toInt() * 2).coerceIn(0, 10)
 
-            if (gx == lastRoomPos.x && gz == lastRoomPos.z && !Location.currentArea.isArea(Island.SinglePlayer)) return@on
+            if (gx == lastRoomPos.x && gz == lastRoomPos.z && room == currentRoom && !Location.currentArea.isArea(Island.SinglePlayer)) return@on
             lastRoomPos = Vec2i(gx, gz)
 
             if (room != currentRoom) {

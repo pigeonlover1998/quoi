@@ -22,6 +22,7 @@ import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomComponent
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
 import quoi.api.skyblock.invoke
+import quoi.api.vec.MutableVec3
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.*
@@ -113,7 +114,7 @@ object AutoClear : Module(
         private set
 
     private var pending: Direction? = null
-    private var position: Stupid? = null
+    private var position: MutableVec3? = null
 
     private val roomOverrides = mapOf(
         "Creeper Beams" to BlockPos(15, 68, 5),
@@ -180,7 +181,7 @@ object AutoClear : Module(
             if (nodes.isEmpty()) return@on
 
             if (position == null) {
-                position = Stupid(player.x, player.y, player.z)
+                position = MutableVec3(player.x, player.y, player.z)
             }
             val stupid = position!!
 
@@ -213,7 +214,7 @@ object AutoClear : Module(
         }
     }
 
-    private fun handleQueue(stupid: Stupid, nodes: MutableList<ClearNode>): Boolean {
+    private fun handleQueue(stupid: MutableVec3, nodes: MutableList<ClearNode>): Boolean {
         val index = nodes.indexOfFirst { it.inside(stupid) }
 
         if (index < 0) return false
@@ -343,18 +344,16 @@ object AutoClear : Module(
         renderMap(config = cfg)
     }
 
-    private data class Stupid(var x: Double, var y: Double, var z: Double)
-
     private data class ClearNode(val pos: Vec3, val yaw: Float, val pitch: Float) {
 
-        fun inside(stupid: Stupid): Boolean {
+        fun inside(stupid: MutableVec3): Boolean {
             val dx = pos.x - stupid.x
             val dy = pos.y - stupid.y
             val dz = pos.z - stupid.z
             return dx.sq + dy.sq + dz.sq <= 0.1
         }
 
-        fun execute(stupid: Stupid): Boolean {
+        fun execute(stupid: MutableVec3): Boolean {
             if (player.mainHandItem.skyblockId != "ASPECT_OF_THE_VOID") return false
             if (!player.lastSentInput.shift) return false
 

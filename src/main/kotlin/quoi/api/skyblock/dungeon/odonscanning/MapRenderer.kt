@@ -126,7 +126,7 @@ object MapRenderer {
                         renderComponents(new, room)
                         renderName(new, room)
                     }
-//                    if (config.icons) renderIcons(new, dynamicW, dynamicH) // todo
+                    if (config.icons) renderIcons(new, dynamicW, dynamicH) // todo
                 }
             }
 
@@ -140,7 +140,7 @@ object MapRenderer {
         val (mapScale, _, font) = config
         val icon = config.icon
         val (scale, heads, ownHead, border, borderColour, classColour, thickness, name, whenLeap, nameScale) = icon
-        ui.debug = true
+//        ui.debug = true
         watch({ Dungeon.dungeonTeammates.size }) {
             refresh()
         }
