@@ -67,6 +67,11 @@ object RsaConverter {
                     ).toMutableList()
                 }
 
+                if (type == "bat") {
+                    if (node.awaits == null) node.awaits = mutableListOf()
+                    node.awaits?.add(SecretAwait(1))
+                }
+
                 new.add(node)
             }
         }
