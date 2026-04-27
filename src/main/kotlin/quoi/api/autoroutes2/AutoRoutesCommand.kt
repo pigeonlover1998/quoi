@@ -229,6 +229,12 @@ object AutoRoutesCommand {
         }.description("Converts configs. Must have auto_routes.json or rsa.json in the config folder.")
         .suggests("from", "legacy", "rsa")
 
+        ar.sub("reload") {
+            routeNodes.reload()
+            AutoRoutes.updateCache(room)
+            modMessage("Reloaded")
+        }
+
         ar.register()
     }
 

@@ -8,6 +8,7 @@ import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.vec.MutableVec3
 import quoi.config.TypeNamed
+import quoi.module.impl.dungeon.AutoRoutes
 import quoi.utils.ChatUtils.literal
 import quoi.utils.component1
 import quoi.utils.component2
@@ -80,7 +81,7 @@ abstract class RouteNode(
             "Cylinder" -> ctx.drawCylinder(pos, radius ?: 0.5f, height ?: 0.1f, colour, thickness = thickness, depth = depth)
         }
 
-        if (/*AutoRoutes2.editMode && */chain != null) {
+        if (AutoRoutes.editMode && chain != null) {
             ctx.drawText(
                 text = literal("${chain!!.index}"),
                 pos = pos.add(0.0, 0.3, 0.0),

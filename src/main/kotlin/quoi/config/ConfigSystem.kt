@@ -77,10 +77,12 @@ object ConfigSystem {
 
 class ConfigList<E>(
     private val list: MutableList<E>,
-    private val onMutation: () -> Unit
+    private val onMutation: () -> Unit,
+    private val onReload: () -> Unit
 ) : AbstractMutableList<E>() {
 
     fun save() = onMutation()
+    fun reload() = onReload()
 
     override val size: Int get() = list.size
     override fun get(index: Int): E = list[index]
@@ -106,18 +108,25 @@ inline fun <reified T : Any> configList(name: String): ReadOnlyProperty<Any?, Co
     val file = File(configPath, name)
     val loaded = ConfigSystem.load<MutableList<T>>(file) { mutableListOf() }
 
-    val wrapper = ConfigList(loaded) {
+    val wrapper = ConfigList(loaded, {
         ConfigSystem.save(file, loaded)
-    }
+    }, {
+        val new = ConfigSystem.load<MutableList<T>>(file) { mutableListOf() }
+        loaded.clear()
+        loaded.addAll(new)
+    })
 
     return ReadOnlyProperty { _, _ -> wrapper }
 }
 
 class ConfigMap<K, V>(
     private val map: MutableMap<K, V>,
-    private val onMutation: () -> Unit
+    private val onMutation: () -> Unit,
+    private val onReload: () -> Unit
 ) : AbstractMutableMap<K, V>() {
+
     fun save() = onMutation()
+    fun reload() = onReload()
 
     override val size: Int get() = map.size
     override val entries get() = map.entries
@@ -138,9 +147,13 @@ inline fun <reified K : Any, reified V : Any> configMap(name: String): ReadOnlyP
     val file = File(configPath, name)
     val loaded = ConfigSystem.load<MutableMap<K, V>>(file) { mutableMapOf() }
 
-    val wrapper = ConfigMap(loaded) {
+    val wrapper = ConfigMap(loaded, {
         ConfigSystem.save(file, loaded)
-    }
+    }, {
+        val new = ConfigSystem.load<MutableMap<K, V>>(file) { mutableMapOf() }
+        loaded.clear()
+        loaded.putAll(new)
+    })
 
     return ReadOnlyProperty { _, _ -> wrapper }
 }
