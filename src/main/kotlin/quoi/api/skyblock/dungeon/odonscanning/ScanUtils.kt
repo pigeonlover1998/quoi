@@ -81,22 +81,19 @@ object ScanUtils {
 
             scanDungeon()
 
-            scannedRooms.filter { it.rotation == Rotations.NONE }.forEach { room -> // suboptimal
-                val comp = room.roomComponents.firstOrNull() ?: return@forEach
-                val level = mc.level ?: return@forEach
-
-                if (level.hasChunk(comp.x shr 4, comp.z shr 4)) {
-                    val chunk = level.getChunk(comp.x shr 4, comp.z shr 4)
-                    val height = getTopLayerOfRoom(Vec2i(comp.x, comp.z), chunk)
-
-                    if (height > 0) {
-                        updateRotation(room, height)
-                        if (room.rotation != Rotations.NONE && room === currentRoom) {
-                            currentRoom = null
-                        }
-                    }
-                }
-            }
+//            scannedRooms.filter { it.rotation == Rotations.NONE }.forEach { room -> // suboptimal
+//                val comp = room.roomComponents.firstOrNull() ?: return@forEach
+//                val level = mc.level ?: return@forEach
+//
+//                if (level.hasChunk(comp.x shr 4, comp.z shr 4)) {
+//                    val chunk = level.getChunk(comp.x shr 4, comp.z shr 4)
+//                    val height = getTopLayerOfRoom(Vec2i(comp.x, comp.z), chunk)
+//
+//                    if (height > 0) {
+//                        updateRotation(room, height)
+//                    }
+//                }
+//            }
 
             if (mimicRoom == null && (Dungeon.floor?.floorNumber ?: -1) > 5) {
                 scanMimic()
@@ -247,6 +244,11 @@ object ScanUtils {
 
         if (room.rotation == Rotations.NONE) {
             updateRotation(room, height)
+            mc.player?.blockPosition()?.let { pos ->
+                if (getRoomFromPos(pos.x, pos.z) === room) {
+                    DungeonEvent.Room.Enter(room).post()
+                }
+            }
         }
 
         DungeonEvent.Room.Scan(room).post()

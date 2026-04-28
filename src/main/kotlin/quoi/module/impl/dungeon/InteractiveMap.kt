@@ -40,26 +40,16 @@ import kotlin.math.ceil
 
 /**
  * TODO:
- *  clearable rooms highlight:
- *    - can't be asked tbh, just use brain
- *  auto mobs clear maybe (star mob esp needs a recode for it)
- *  auto auto clear:
- *   -room queuing while auto routing option
- *   -auto room queueing option
- *
+ *  room queuing while auto routing
+ *  teleport to doors
+ *  teleport to minis
  */
-object AutoClear : Module(
-    "Auto clear",
-    desc = "Automatically teleports to a specified room.",
-    area = Island.Dungeon(inClear = true)
+object InteractiveMap : Module(
+    "Interactive Map",
+    desc = "Automatically teleports to a specified target.",
+    area = Island.Dungeon(inClear = true),
+    tag = Tag.BETA
 ) {
-    private val info by text(
-        """
-            &c! &rTHIS MODULE IS NOT FINISHED &c!
-                          &c!! &rEXPECT BUGS &c!!
-        """.trimIndent()
-    )
-
     private val keepChunks by switch("Keep chunks loaded", true, desc = "Keeps the chunks loaded. Good for long distances.")
     private val rightToStart by switch("Right click for start", desc = "Teleports to auto route start node on mouse right click.")
 

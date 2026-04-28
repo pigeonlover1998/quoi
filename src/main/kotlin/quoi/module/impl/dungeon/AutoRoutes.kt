@@ -89,7 +89,7 @@ object AutoRoutes : Module( // may or may not get you banned
                 pendingInteract = null
             }
 
-            if (editMode || roomNodes.isEmpty() || AutoClear.active) {
+            if (editMode || roomNodes.isEmpty() || InteractiveMap.active) {
                 position = null
                 active = false
                 return@on

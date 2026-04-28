@@ -11,7 +11,7 @@ import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
 import quoi.api.skyblock.invoke
 import quoi.module.Module
-import quoi.module.impl.dungeon.AutoClear
+import quoi.module.impl.dungeon.InteractiveMap
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.UIComponent.Companion.visibleIf
@@ -143,7 +143,7 @@ object PuzzleSolvers : Module(
 
         on<TickEvent.End> {
             if (!inPuzzle) return@on
-            if (AutoClear.active) return@on
+            if (InteractiveMap.active) return@on
             if (fillAuto)    IceFillSolver.onTick(player, fillDelay, fillReposition)
             if (beamsAuto)   BeamsSolver.onTick(player, shootCd, missCd)
             if (blazeAuto)   BlazeSolver.onTick(player, shootCd, missCd, blazeReposition)

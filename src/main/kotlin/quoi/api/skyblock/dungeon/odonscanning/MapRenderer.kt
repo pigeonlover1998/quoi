@@ -39,7 +39,7 @@ import quoi.api.skyblock.dungeon.Dungeon.floor
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonDoor
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
-import quoi.module.impl.dungeon.AutoClear
+import quoi.module.impl.dungeon.InteractiveMap
 import quoi.module.impl.dungeon.DungeonMap
 import quoi.utils.StringUtils.width
 import quoi.api.vec.Vec2i
@@ -126,7 +126,7 @@ object MapRenderer {
                         renderComponents(new, room)
                         renderName(new, room)
                     }
-                    if (config.icons) renderIcons(new, dynamicW, dynamicH) // todo
+//                    if (config.icons) renderIcons(new, dynamicW, dynamicH) // todo
                 }
             }
 
@@ -219,7 +219,7 @@ object MapRenderer {
 
         val c = {
             val base = room.data.colour
-            if (autoClear && Dungeon.currentRoom == room) base.mix(AutoClear.roomInCol.withAlpha(255), AutoClear.roomInCol.alpha).rgb else base.rgb
+            if (autoClear && Dungeon.currentRoom == room) base.mix(InteractiveMap.roomInCol.withAlpha(255), InteractiveMap.roomInCol.alpha).rgb else base.rgb
         }
 
         val outlineCol = Colour.Animated(
@@ -335,7 +335,7 @@ object MapRenderer {
                         outlineCol.animate(0.15.seconds, style = Animation.Style.EaseOutQuint)
                     }
                     onClick(nonSpecific = true) { (button) ->
-                        AutoClear.getPath(room, comp, button)
+                        InteractiveMap.getPath(room, comp, button)
                         true
                     }
                 }

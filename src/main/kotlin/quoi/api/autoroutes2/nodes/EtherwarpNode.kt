@@ -3,6 +3,7 @@ package quoi.api.autoroutes2.nodes
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.world.phys.Vec3
+import quoi.QuoiMod.mc
 import quoi.api.autoroutes2.RouteNode
 import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
@@ -95,7 +96,11 @@ class EtherwarpNode : RouteNode() {
         super.render(ctx, style, colour, fillColour, activeColour, thickness)
         val col = if (this.chain != null) Colour.GREEN else Colour.WHITE
         val final = if (yaw != null) Colour.ORANGE else col
-        ctx.drawLine(listOf(pos, realTarget), final, depth = true, thickness = 1.5f)
+
+        val inside = inside(mc.player!!)
+        val actualFinal = if (inside) Colour.CYAN else final
+        val thickness = if (inside) 3f else 1.5f
+        ctx.drawLine(listOf(pos, realTarget), actualFinal, depth = true, thickness = thickness)
     }
 
 }

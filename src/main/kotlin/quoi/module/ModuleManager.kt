@@ -45,7 +45,7 @@ object ModuleManager {
             AutoRoutesLegacy,
             SecretAura,
             PuzzleSolvers,
-            AutoClear,
+            InteractiveMap,
             DungeonMap,
             AutoRoutes,
 

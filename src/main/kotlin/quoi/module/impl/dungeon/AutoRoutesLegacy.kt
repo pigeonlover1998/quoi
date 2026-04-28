@@ -105,7 +105,7 @@ object AutoRoutesLegacy : Module(
     init {
         registerCommands()
         on<TickEvent.End> {
-            if (AutoClear.active) return@on
+            if (InteractiveMap.active) return@on
             val room = currentRoom ?: return@on
             val rings = routes[room.data.name] ?: return@on
             currentRings.clear()
