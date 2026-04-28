@@ -61,6 +61,7 @@ object ModuleManager {
 //            CustomTriggers,
             MirrorverseSolvers,
             CatMode,
+            AutoCarnival,
 
             // PLAYER
             AutoSprint,
