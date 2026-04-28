@@ -93,7 +93,7 @@ data class OdonRoom(
 }
 
 data class RoomComponent(val x: Int, val z: Int, val core: Int = 0) {
-    var vec2 = Vec2i(0, 0)
+    val vec2 = Vec2i(x, z)
     val blockPos = BlockPos(x, 70, z)
 
     val placement: Vec2i get() {

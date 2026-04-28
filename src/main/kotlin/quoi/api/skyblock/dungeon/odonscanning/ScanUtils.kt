@@ -91,6 +91,9 @@ object ScanUtils {
 
                     if (height > 0) {
                         updateRotation(room, height)
+                        if (room.rotation != Rotations.NONE && room === currentRoom) {
+                            currentRoom = null
+                        }
                     }
                 }
             }
@@ -234,7 +237,12 @@ object ScanUtils {
         }
 
         if (centre) {
-            room.roomComponents.add(RoomComponent(x, z, core))
+//            room.roomComponents.add(RoomComponent(x, z, core))
+            val isNEw = room.roomComponents.none { it.x == x && it.z == z }
+            if (isNEw) {
+                room.rotation = Rotations.NONE
+                room.roomComponents.add(RoomComponent(x, z, core))
+            }
         }
 
         if (room.rotation == Rotations.NONE) {
