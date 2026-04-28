@@ -41,10 +41,10 @@ class EtherwarpNode : RouteNode() {
 
         if (yaw != null && pitch != null) {
             realYaw = room.getRealYaw(yaw!!)
-//            val from = pos.addVec(y = getEyeHeight(false))
-//            val to = getLook(realYaw!!, pitch!!).scale(61.0)
-//
-//            realTarget = rayCastVec(from, to) ?: from.add(to)
+            val from = pos.addVec(y = getEyeHeight(false))
+            val to = getLook(realYaw!!, pitch!!).scale(61.0)
+
+            realTarget = rayCastVec(from, to) ?: from.add(to)
             return
         }
 

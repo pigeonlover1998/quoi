@@ -47,7 +47,13 @@ class BoomNode : RouteNode() {
         }
     }
 
+    override fun checkAwaits(player: LocalPlayer): Boolean {
+        if (this.pos.distanceToSqr(player.position()) > 0.1) return false
+        return super.checkAwaits(player)
+    }
+
     override fun execute(player: LocalPlayer, pos: MutableVec3): Boolean {
+        if (this.pos.distanceToSqr(player.position()) > 0.1) return false
         val block = if (::realTarget.isInitialized) { // rsa convert compat
             traverseVoxels(this.pos, realTarget, true).pos
         } else {

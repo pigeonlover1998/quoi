@@ -141,12 +141,32 @@ fun BlockPos.rotateToNorth(rotation: Rotations): BlockPos =
 //        else -> this
 //    }
 
-fun Vec3.rotateAroundNorth(rotation: Rotations): Vec3 { // fixes my stupidity
+fun Vec3.rotateAroundNorth(rotation: Rotations): Vec3 { // fixes my stupidity // I am actually the dumbest person alive.
     val ix = floor(x).toInt()
     val iy = floor(y).toInt()
     val iz = floor(z).toInt()
     val rotatedBlock = BlockPos(ix, iy, iz).rotateAroundNorth(rotation)
-    return Vec3(rotatedBlock.x + (x - ix), rotatedBlock.y + (y - iy), rotatedBlock.z + (z - iz))
+
+    val cx = (x - ix) - 0.5
+    val cz = (z - iz) - 0.5
+
+    val rx = when (rotation) {
+        Rotations.NORTH -> -cx
+        Rotations.WEST  -> -cz
+        Rotations.SOUTH -> cx
+        Rotations.EAST  -> cz
+        else -> cx
+    }
+
+    val rz = when (rotation) {
+        Rotations.NORTH -> -cz
+        Rotations.WEST  -> cx
+        Rotations.SOUTH -> cz
+        Rotations.EAST  -> -cx
+        else -> cz
+    }
+
+    return Vec3(rotatedBlock.x + rx + 0.5, rotatedBlock.y + (y - iy), rotatedBlock.z + rz + 0.5)
 }
 
 fun Vec3.rotateToNorth(rotation: Rotations): Vec3 {
@@ -154,7 +174,27 @@ fun Vec3.rotateToNorth(rotation: Rotations): Vec3 {
     val iy = floor(y).toInt()
     val iz = floor(z).toInt()
     val rotatedBlock = BlockPos(ix, iy, iz).rotateToNorth(rotation)
-    return Vec3(rotatedBlock.x + (x - ix), rotatedBlock.y + (y - iy), rotatedBlock.z + (z - iz))
+
+    val cx = (x - ix) - 0.5
+    val cz = (z - iz) - 0.5
+
+    val rx = when (rotation) {
+        Rotations.NORTH -> -cx
+        Rotations.WEST  -> cz
+        Rotations.SOUTH -> cx
+        Rotations.EAST  -> -cz
+        else -> cx
+    }
+
+    val rz = when (rotation) {
+        Rotations.NORTH -> -cz
+        Rotations.WEST  -> -cx
+        Rotations.SOUTH -> cz
+        Rotations.EAST  -> cx
+        else -> cz
+    }
+
+    return Vec3(rotatedBlock.x + rx + 0.5, rotatedBlock.y + (y - iy), rotatedBlock.z + rz + 0.5)
 }
 
 /**

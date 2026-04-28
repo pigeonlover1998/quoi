@@ -95,11 +95,13 @@ object AutoRoutes : Module( // may or may not get you banned
                 return@on
             }
 
-            getEntities<Bat>(radius = 10.0) { !it.maxHealth.equalsOneOf(100f, 200f, 400f, 800f) && it.id !in batIds }
-                .forEach { bat ->
-                    batIds.add(bat.id)
-                    activeNode?.onSecret()
-                }
+            if (activeNode?.hasSecretAwait == true) {
+                getEntities<Bat>(radius = 10.0) { it.maxHealth.equalsOneOf(100f, 200f, 400f, 800f) && it.id !in batIds }
+                    .forEach { bat ->
+                        batIds.add(bat.id)
+                        activeNode?.onSecret()
+                    }
+            }
 
             if (position == null) {
                 position = player.position().mutable()
@@ -237,6 +239,9 @@ object AutoRoutes : Module( // may or may not get you banned
         nodes.forEach { it.update(room) }
         roomNodes = nodes
     }
+
+    private val RouteNode.hasSecretAwait: Boolean
+        get() = this.awaits?.any { it.typeName.lowercase() == "secret" } == true
 
     private fun RouteNode.colour() = if (multicolour) colours[this.typeName]?.value ?: Colour.WHITE else AutoRoutes.colour
     private fun RouteNode.fillColour() = if (multicolour) fillColours[this.typeName]?.value ?: Colour.WHITE else fillColour

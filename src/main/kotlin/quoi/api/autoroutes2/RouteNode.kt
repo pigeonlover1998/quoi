@@ -95,7 +95,7 @@ abstract class RouteNode(
         awaits?.forEach { it.onSecret() }
     }
 
-    fun checkAwaits(player: LocalPlayer): Boolean {
+    open fun checkAwaits(player: LocalPlayer): Boolean {
         return awaits?.all { it.check(player, this) } ?: true
     }
 }

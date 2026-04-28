@@ -42,6 +42,11 @@ class BreakerNode : RouteNode() {
         realBlocks = blocks.map { room.getRealCoords(it) }
     }
 
+    override fun checkAwaits(player: LocalPlayer): Boolean {
+        if (this.pos.distanceToSqr(player.position()) > 0.1) return false
+        return super.checkAwaits(player)
+    }
+
     override fun execute(player: LocalPlayer, pos: MutableVec3): Boolean {
         if (active) return false
         if (blocks.isEmpty()) return true
