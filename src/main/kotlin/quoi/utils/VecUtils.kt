@@ -788,7 +788,7 @@ val blockFlags: IntArray = IntArray(Block.BLOCK_STATE_REGISTRY.size()).apply {
             is SkullBlock, is WallSkullBlock -> true
             is FlowerPotBlock -> true
             is LadderBlock -> true
-            is VineBlock -> true
+//            is VineBlock -> true
             else -> false
         }
 

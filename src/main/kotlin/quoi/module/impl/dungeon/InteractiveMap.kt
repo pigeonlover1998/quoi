@@ -115,6 +115,7 @@ object InteractiveMap : Module(
         "Ice Fill" to BlockPos(15, 69, 7),
         "Quiz" to BlockPos(15, 68, 5),
         "Boulder" to BlockPos(15, 68, -2),
+        "Teleport Maze" to BlockPos(15, 68, -2),
         "Old Trap" to BlockPos(15, 68, -2),
         "New Trap" to BlockPos(15, 68, -2),
         "Cages" to BlockPos(15, 64, 16)
