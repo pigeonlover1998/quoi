@@ -192,6 +192,11 @@ object AutoRoutes : Module( // may or may not get you banned
     fun handleQueue(playerPos: MutableVec3) {
         val node = roomNodes
             .filter { it.inside(playerPos) && !it.triggered }
+            .filter { n ->
+                val c = n.chain ?: return@filter true
+                if (c.index == 0) return@filter true
+                c.name == lastChainName && c.index == lastChainIndex + 1
+            }
             .maxByOrNull { it.priority } ?: run {
 
             activeNode = null
@@ -206,10 +211,10 @@ object AutoRoutes : Module( // may or may not get you banned
             activeNode = node
         }
 
-        val c = node.chain
-        if (c != null && c.index > 0) {
-            if (lastChainName != c.name || lastChainIndex != c.index - 1) return
-        }
+//        val c = node.chain
+//        if (c != null && c.index > 0) {
+//            if (lastChainName != c.name || lastChainIndex != c.index - 1) return
+//        }
 
 
         if (interactDelay > 0) return

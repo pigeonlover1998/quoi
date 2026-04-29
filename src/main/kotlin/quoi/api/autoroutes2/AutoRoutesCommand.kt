@@ -188,13 +188,15 @@ object AutoRoutesCommand {
         }
 
         ar.sub("chain") { name: String? ->
-            if (name == null && currentChain != null) {
-                currentChain = null
-                modMessage("Chaining &cdisabled&r.")
-            } else if (currentChain == null) {
+            if (name != null) {
                 currentChain = name
                 modMessage("Active chain set to &e$name&r!")
-            } else command("route chain")
+            } else if (currentChain != null) {
+                currentChain = null
+                modMessage("Chaining &cdisabled&r.")
+            } else {
+                modMessage("Usage: /chain <name>")
+            }
         }.description("Sets the chain for newly placed rings.")
         .suggests { routeNodes[room.name]?.mapNotNull { it.chain?.name }?.distinct() ?: emptyList<String>() }
 
