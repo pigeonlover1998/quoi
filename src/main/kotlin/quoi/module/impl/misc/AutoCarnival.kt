@@ -55,8 +55,8 @@ object AutoCarnival : Module(
             }
 
         return buildList {
-            addAll(zombies[Items.DIAMOND_HELMET].orEmpty())
             lamp?.let(::add)
+            addAll(zombies[Items.DIAMOND_HELMET].orEmpty())
             addAll(zombies[Items.GOLDEN_HELMET].orEmpty())
             addAll(zombies[Items.IRON_HELMET].orEmpty())
             addAll(zombies[Items.LEATHER_HELMET].orEmpty())
