@@ -275,7 +275,7 @@ object AutoRoutesCommand {
             val maxY = minY + (editing.height ?: 0.1f)
             val yPos = relativePos.y.toDouble().coerceIn(minY, maxY)
 
-            if (relativePos.distToCenterSqr(editing.relative.x, yPos, editing.relative.z) > 30.0)
+            if (relativePos.distToCenterSqr(editing.relative.x, yPos, editing.relative.z) > 36.0)
                 return@on modMessage("&cBlock is too far!")
 
 
@@ -385,7 +385,7 @@ object AutoRoutesCommand {
 
         val providers = mapOf(
             "radius" to { listOf("1", "0.5", "4") },
-            "height" to { listOf("0.1, 1, 4.1") },
+            "height" to { listOf("0.1", "1", "4.1") },
             "await" to {
                 val a = listOf("2", "3", "4")
                 if (type == "etherwarp") a + "raycast" else a

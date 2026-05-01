@@ -1,6 +1,8 @@
 package quoi.api.pathfinding
 
 import net.minecraft.core.BlockPos
+import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonDoor
+import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 
 open class PathNode(
     val pos: BlockPos,
@@ -21,3 +23,15 @@ class EtherPathNode(
     val yaw: Float,
     val pitch: Float
 ) : PathNode(pos, g, h, parent)
+
+class RoomNode(
+    val room: OdonRoom,
+    val doorFromParent: OdonDoor?,
+    val g: Int,
+    val h: Int,
+    val parent: RoomNode?
+) : Comparable<RoomNode> {
+    val f: Int get() = g + h
+
+    override fun compareTo(other: RoomNode): Int = this.f.compareTo(other.f)
+}

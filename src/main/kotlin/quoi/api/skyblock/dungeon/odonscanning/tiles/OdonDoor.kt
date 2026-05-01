@@ -1,15 +1,23 @@
 package quoi.api.skyblock.dungeon.odonscanning.tiles
 
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.AirBlock
 import quoi.api.colour.Colour
 import quoi.api.colour.multiply
 import quoi.module.impl.dungeon.DungeonMap
 import quoi.api.vec.Vec2i
+import quoi.utils.WorldUtils.state
 import quoi.utils.equalsOneOf
 
 data class OdonDoor(val pos: Vec2i, var type: DoorType) {
 
     var state: RoomState = RoomState.UNDISCOVERED
     var locked = type.equalsOneOf(DoorType.WITHER, DoorType.BLOOD)
+
+    val actuallyLocked: Boolean get() {
+        if (type != DoorType.WITHER) return false
+        return BlockPos(pos.x, 69, pos.z).state.block !is AirBlock
+    }
 
     val size: Vec2i get() {
         val xOffset = ((pos.x + 185) shr 4) % 2
@@ -53,11 +61,11 @@ data class OdonDoor(val pos: Vec2i, var type: DoorType) {
             else -> RoomState.DISCOVERED
         }
 
-        when (col) {
-            18 -> type = DoorType.BLOOD
-            119 -> type = DoorType.WITHER
-            30 -> type = DoorType.ENTRANCE
-        }
+//        when (col) {
+//            18 -> type = DoorType.BLOOD
+//            119 -> type = DoorType.WITHER
+//            30 -> type = DoorType.ENTRANCE
+//        }
 
         locked = state == RoomState.UNOPENED && (type == DoorType.WITHER || type == DoorType.BLOOD)
     }

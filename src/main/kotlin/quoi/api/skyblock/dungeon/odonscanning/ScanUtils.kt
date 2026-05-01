@@ -20,7 +20,7 @@ import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.tiles.DoorType
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonDoor
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
-import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomComponent
+import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomTile
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomData
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomDataDeserializer
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
@@ -82,7 +82,7 @@ object ScanUtils {
             scanDungeon()
 
             scannedRooms.filter { it.rotation == Rotations.NONE }.forEach { room -> // suboptimal
-                val comp = room.roomComponents.firstOrNull() ?: return@forEach
+                val comp = room.roomTiles.firstOrNull() ?: return@forEach
                 val level = mc.level ?: return@forEach
 
                 if (level.hasChunk(comp.x shr 4, comp.z shr 4)) {
@@ -228,17 +228,17 @@ object ScanUtils {
         var room = uniqueRooms[roomName]
 
         if (room == null) {
-            room = OdonRoom(data = data, roomComponents = mutableSetOf())
+            room = OdonRoom(data = data, roomTiles = mutableSetOf())
             uniqueRooms[roomName] = room
             scannedRooms.add(room)
         }
 
         if (centre) {
 //            room.roomComponents.add(RoomComponent(x, z, core))
-            val isNEw = room.roomComponents.none { it.x == x && it.z == z }
+            val isNEw = room.roomTiles.none { it.x == x && it.z == z }
             if (isNEw) {
                 room.rotation = Rotations.NONE
-                room.roomComponents.add(RoomComponent(x, z, core))
+                room.roomTiles.add(RoomTile(x, z, core))
             }
         }
 
@@ -275,16 +275,16 @@ object ScanUtils {
 
     fun updateRotation(room: OdonRoom, roomHeight: Int) {
         if (room.data.name == "Fairy") { // Fairy room doesn't have a clay block so we need to set it manually
-            room.clayPos = room.roomComponents.firstOrNull()?.let { BlockPos(it.x - 15, roomHeight, it.z - 15) } ?: return
+            room.clayPos = room.roomTiles.firstOrNull()?.let { BlockPos(it.x - 15, roomHeight, it.z - 15) } ?: return
             room.rotation = Rotations.SOUTH
             return
         }
 
         val level = mc.level ?: return
         room.rotation = Rotations.entries.dropLast(1).find { rotation ->
-            room.roomComponents.any { component ->
+            room.roomTiles.any { component ->
                 BlockPos(component.x + rotation.x, roomHeight, component.z + rotation.z).let { blockPos ->
-                    level.getBlockState(blockPos)?.block == Blocks.BLUE_TERRACOTTA && (room.roomComponents.size == 1 || horizontals.all { facing ->
+                    level.getBlockState(blockPos)?.block == Blocks.BLUE_TERRACOTTA && (room.roomTiles.size == 1 || horizontals.all { facing ->
                         level.getBlockState(
                             blockPos.offset((if (facing.axis == Direction.Axis.X) facing.stepX else 0), 0, (if (facing.axis == Direction.Axis.Z) facing.stepZ else 0))
                         )?.block?.equalsOneOf(Blocks.AIR, Blocks.BLUE_TERRACOTTA) == true

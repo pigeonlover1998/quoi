@@ -43,7 +43,7 @@ class BreakerNode : RouteNode() {
     }
 
     override fun checkAwaits(player: LocalPlayer): Boolean {
-        if (this.pos.distanceToSqr(player.position()) > 0.1) return false
+        if (!inside(player)) return false
         return super.checkAwaits(player)
     }
 

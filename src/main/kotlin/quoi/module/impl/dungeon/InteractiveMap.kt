@@ -19,11 +19,12 @@ import quoi.api.skyblock.dungeon.Dungeon.isDead
 import quoi.api.skyblock.dungeon.odonscanning.MapRenderer
 import quoi.api.skyblock.dungeon.odonscanning.MapRenderer.renderMap
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
-import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomComponent
+import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomTile
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
 import quoi.api.skyblock.invoke
 import quoi.api.vec.MutableVec3
 import quoi.module.Module
+import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.*
 import quoi.utils.ChatUtils.modMessage
@@ -90,11 +91,11 @@ object InteractiveMap : Module(
 //    private val nameScale by slider("Name scale", 0.8f, 0.1f, 3.0f, 0.1f).childOf(::showNames)
 
     private val sett by text("Pathfinder settings")
-    private val yawStep by slider("Yaw step", 22f, 10f, 30f, desc = "Horizontal density of raycasts. Lower values increase precision but reduce performance.").childOf(::sett)
-    private val pitchStep by slider("Pitch step", 22f, 10f, 30f, desc = "Vertical density of raycasts. Lower values increase precision but reduce performance.").childOf(::sett)
-    private val hWeight by slider("Guess weight", 6.7, 1.0, 15.0, 0.1, desc = "Higher values make the search much faster; due to path smoothing, the difference in final path quality is negligible.").childOf(::sett)
-    private val threads by slider("Threads", 4, 1, 16, desc = "Number of CPU threads to use for simultaneous path expansion.").childOf(::sett)
-    private val timeout by slider("Timeout", 1000L, 1000L, 2000L, 50L, unit = "ms", desc = "Maximum time allowed for the pathfinder to search before giving up.").childOf(::sett)
+    private val yawStep by slider("Yaw step", 6f, 2f, 10f, desc = "Horizontal density of raycasts. Lower values increase precision but reduce performance.").json("Yaw step 123").childOf(::sett) // json so it resets configs
+    private val pitchStep by slider("Pitch step", 7f, 2f, 10f, desc = "Vertical density of raycasts. Lower values increase precision but reduce performance.").json("Pitch step 123").childOf(::sett)
+    private val hWeight by slider("Guess weight", 6.7, 1.0, 15.0, 0.1, desc = "Higher values make the search much faster.").json("Guess weight 123").childOf(::sett)
+    private val threads by slider("Threads", 6, 1, 16, desc = "Number of CPU threads to use for simultaneous path expansion.").json("Threads 123").childOf(::sett)
+    private val timeout by slider("Timeout", 670L, 200L, 1000L, 50L, unit = "ms", desc = "Maximum time allowed for the pathfinder to search before giving up.").json("Timeout 123").childOf(::sett)
 
     private var nodes: MutableList<ClearNode>? = null
 
@@ -235,7 +236,7 @@ object InteractiveMap : Module(
         return false
     }
 
-    fun getPath(room: OdonRoom, comp: RoomComponent, button: Int) {
+    fun getPath(room: OdonRoom, comp: RoomTile, button: Int) {
         if (!player.onGround()) return
         if (button != 0 && button != 1) return
         if (currentRoom?.name?.containsOneOf("Maze", "Boulder") == true) return
@@ -278,7 +279,7 @@ object InteractiveMap : Module(
         }
 
         scope.launch {
-            val p = EtherwarpPathfinder.findPath(
+            val p = EtherwarpPathfinder.findDungeonPath(
                 start = start,
                 goal = goal,
                 yawStep = yawStep,
@@ -303,6 +304,9 @@ object InteractiveMap : Module(
 
             position = null
             pending = null
+
+//            val d = DungeonMapPathfinder.findPath(currentRoom!!, room)
+//            modMessage(d)
         }
 
     }

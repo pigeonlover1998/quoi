@@ -123,7 +123,7 @@ object MapRenderer {
                     }
 
                     ScanUtils.scannedRooms.forEach { room ->
-                        renderComponents(new, room)
+                        renderTiles(new, room)
                         renderName(new, room)
                     }
 //                    if (config.icons) renderIcons(new, dynamicW, dynamicH) // todo
@@ -211,8 +211,8 @@ object MapRenderer {
         }
     }
 
-    private fun ElementScope<*>.renderComponents(config: MapConfig, room: OdonRoom) {
-        val components = room.roomComponents
+    private fun ElementScope<*>.renderTiles(config: MapConfig, room: OdonRoom) {
+        val components = room.roomTiles
         if (components.isEmpty()) return
 
         val (scale, radius, _, _, _, _, _, autoClear) = config
@@ -441,8 +441,8 @@ object MapRenderer {
 
                     when (tile) {
                         is OdonRoom -> {
-                            val stateCol = if (tile.roomComponents.size > 1) {
-                                val topLeft = tile.roomComponents.minBy { it.x * 1000 + it.z }
+                            val stateCol = if (tile.roomTiles.size > 1) {
+                                val topLeft = tile.roomTiles.minBy { it.x * 1000 + it.z }
 
                                 val gx = (topLeft.x + 185) / 16
                                 val gz = (topLeft.z + 185) / 16

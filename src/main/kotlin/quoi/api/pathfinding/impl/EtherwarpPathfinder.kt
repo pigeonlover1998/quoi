@@ -14,7 +14,6 @@ import net.minecraft.world.level.block.SlabBlock
 import net.minecraft.world.level.block.WallBlock
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.SlabType
-import quoi.utils.ChatUtils
 import quoi.utils.distanceTo
 import quoi.utils.dot
 import quoi.utils.getEtherwarpDirection
@@ -23,8 +22,12 @@ import quoi.utils.getLook
 import quoi.api.pathfinding.AbstractPathfinder
 import quoi.api.pathfinding.EtherPathNode
 import quoi.api.pathfinding.context.EtherwarpContext
+import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
+import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
+import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Vec3
 import quoi.utils.WorldUtils.etherwarpable
+import quoi.utils.distanceToSqr
 import quoi.utils.rad
 import quoi.utils.sq
 import quoi.utils.traverseVoxels
@@ -32,7 +35,19 @@ import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sqrt
 
-object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>() { // todo improve performance
+/**
+ * TODO for dungeon:
+ *  split the path into individual rooms
+ *  pathfind between the doors of each of those rooms
+ *  connect the paths
+ *  .
+ *  need to make dungeon map pathfinder first and collect all rooms and doors in the path.
+ *  also this would allow to exit early if the room is behind wither door
+ *  .
+ *  this would allow to use higher precision (yaw/pitch steps) without performance loss since the segments are short
+ *  the performance would be significantly better since it voids a lot of unnecessary calculations
+ */
+object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>() {
 
     private var lastDist = -1.0
     private var lastPitchStep = -1.0f
@@ -60,12 +75,116 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>
 
         return if (path != null) {
             val smoothed = smoothPath(path, dist, offset)
-            ChatUtils.modMessage("Found path in ${System.currentTimeMillis() - ctx.startTime}ms (${ctx.processed.get()}). ${path.size} || ${smoothed.size}")
+            modMessage("Found path in ${System.currentTimeMillis() - ctx.startTime}ms (${ctx.processed.get()}). ${path.size} || ${smoothed.size}")
             smoothed
         } else {
-            ChatUtils.modMessage("&cFailed &rafter ${System.currentTimeMillis() - ctx.startTime}ms (${ctx.processed.get()}).")
+            modMessage("&cFailed &rafter ${System.currentTimeMillis() - ctx.startTime}ms (${ctx.processed.get()}).")
             null
         }
+    }
+
+    fun findDungeonPath(
+        start: BlockPos,
+        goal: BlockPos,
+        dist: Double = 61.0,
+        pitchStep: Float = 15f,
+        yawStep: Float = 15f,
+        hWeight: Double = 1.1,
+        threads: Int = 2,
+        timeout: Long = 1000L,
+        offset: Boolean = true
+    ): List<EtherPathNode>? {
+        if (!goal.etherwarpable) return null
+
+        val startTime = System.currentTimeMillis()
+        var processed = 0
+
+        val startRoom = ScanUtils.getRoomFromPos(start.x, start.z)
+        val goalRoom = ScanUtils.getRoomFromPos(goal.x, goal.z)
+
+        if (startRoom == null || goalRoom == null || startRoom == goalRoom) {
+            return findPath(start, goal, dist, pitchStep, yawStep, hWeight, threads, timeout, offset)
+        }
+
+        val roomPath = DungeonMapPathfinder.findPath(startRoom, goalRoom) ?: return null
+
+        val path = mutableListOf<EtherPathNode>()
+
+        var lastNode = EtherPathNode(start, 0.0, 0.0, null, 0f, 0f) // last node in the whole path
+        var startNode = lastNode  // start node in *this* segment
+
+        // start - door 1, door 1 - door 2 .. door N - goal
+        for (i in roomPath.indices) {
+            val step = roomPath[i]
+
+            var target = goal
+            var radius = 0.0
+            var nextRoom: OdonRoom? = null
+
+            if (step.door != null) { // if not last we go to door
+                target = BlockPos(step.door.pos.x, 69, step.door.pos.z)
+                radius = 9.0
+                nextRoom = roomPath[i + 1].room
+            }
+
+            val raycasts = getRaycasts(dist, pitchStep, yawStep)
+            val ctx = EtherwarpContext(target, dist, hWeight, raycasts, timeout, offset, radius, nextRoom)
+
+            startNode.h = startNode.pos.distanceTo(target) / dist
+            ctx.addNode(startNode)
+
+            val segment = find(ctx, threads)
+            processed += ctx.processed.get()
+
+            if (segment == null) {
+                modMessage("&cFailed segment ${i + 1}/${roomPath.size} after ${System.currentTimeMillis() - startTime}ms ($processed).")
+                return null
+            }
+
+            for (j in 1 until segment.size) {
+                val node = segment[j]
+                val connected = EtherPathNode(
+                    pos = node.pos,
+                    g = lastNode.g + node.g,
+                    h = node.h,
+                    parent = if (j == 1) lastNode else path.last(),
+                    yaw = node.yaw,
+                    pitch = node.pitch
+                )
+                path.add(connected)
+            }
+
+            if (path.isNotEmpty()) {
+                lastNode = path.last()
+                startNode = EtherPathNode(lastNode.pos, 0.0, 0.0, null, lastNode.yaw, lastNode.pitch)
+            }
+        }
+
+        if (path.isEmpty()) return null
+
+        path.add(0, EtherPathNode(start, 0.0, 0.0, null, 0f, 0f))
+
+        if (path.size > 1) {
+            path[1].parent = path[0]
+        }
+
+        val smoothed = smoothPath(path, dist, offset)
+        modMessage("Found &epath&r in ${System.currentTimeMillis() - startTime}ms ($processed). ${path.size} || ${smoothed.size}")
+
+        return smoothed
+    }
+
+    override fun isGoal(ctx: EtherwarpContext, current: EtherPathNode): Boolean {
+        if (ctx.radius > 0.0) {
+            if (current.pos.distanceToSqr(ctx.goal) <= ctx.radius) return true
+
+            if (ctx.nextRoom != null) {
+                val currentRoom = ScanUtils.getRoomFromPos(current.pos.x, current.pos.z)
+                if (currentRoom === ctx.nextRoom) return true
+            }
+            return false
+        }
+        return current.pos == ctx.goal
     }
 
     override fun expand(ctx: EtherwarpContext, current: EtherPathNode) {

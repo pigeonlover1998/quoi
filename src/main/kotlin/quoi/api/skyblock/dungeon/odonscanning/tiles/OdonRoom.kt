@@ -24,7 +24,7 @@ data class OdonRoom(
     var rotation: Rotations = Rotations.NONE,
     var data: RoomData,
     var clayPos: BlockPos = BlockPos(0, 0, 0),
-    val roomComponents: MutableSet<RoomComponent>,
+    val roomTiles: MutableSet<RoomTile>,
 ) {
     val name get() = data.name
 
@@ -39,8 +39,8 @@ data class OdonRoom(
     fun getRealYaw(yaw: Float) = wrapDegrees(yaw - rotation.deg)
 
     val textPlacement: Vec2i get() {
-        if (roomComponents.isEmpty()) return Vec2i(0, 0)
-        val placements = roomComponents.map { it.placement }
+        if (roomTiles.isEmpty()) return Vec2i(0, 0)
+        val placements = roomTiles.map { it.placement }
 
         if (placements.size == 3) {
             val horiz = placements.groupBy { it.z }.values.find { it.size == 2 }
@@ -92,7 +92,7 @@ data class OdonRoom(
     }
 }
 
-data class RoomComponent(val x: Int, val z: Int, val core: Int = 0) {
+data class RoomTile(val x: Int, val z: Int, val core: Int = 0) {
     val vec2 = Vec2i(x, z)
     val blockPos = BlockPos(x, 70, z)
 
