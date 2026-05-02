@@ -18,14 +18,17 @@ import quoi.utils.*
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.noControlCodes
+import quoi.utils.StringUtils.toFixed
 import quoi.utils.WorldUtils.state
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 import quoi.utils.skyblock.player.RotationUtils.rotate
 import quoi.utils.skyblock.player.SwapManager
+import kotlin.math.cos
 import kotlin.math.round
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme: tping somewhere in the fucking corner for no reason.
     "Auto Blood Rush",
@@ -34,6 +37,7 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
     tag = Tag.BETA
 ) {
     private val minTicksBeforeDeath by slider("Minimum ticks before death", 30, 15, 40, unit = "t", desc = "Triggers when remaining ticks until death are at least this value. Higher values make the macro slower (in some cases), but more consistent.")
+    private val consistent by switch("I want consistency man.", desc = "Very slow.")
     private val debug by switch("Debug")
 
     private var bloodCoords: Vec3? = null
@@ -87,14 +91,18 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
                     pendingTps.remove(a)
                 }
             }
+
+            tickerThing?.let {
+                if (it.tick()) tickerThing = null
+            }
         }
 
         on<TickEvent.End> {
             if (isDead) return@on
 
-            tickerThing?.let {
-                if (it.tick()) tickerThing = null
-            }
+//            tickerThing?.let {
+//                if (it.tick()) tickerThing = null
+//            }
         }
 
         on<DungeonEvent.Start> {
@@ -147,8 +155,7 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
             tickerThing = ticker {
                 position()
                 roof()
-                delay(5)
-                action {
+                action(1) {
                     if (bloodCoords == null) {
                         debug("no blood")
                         goingMid = true
@@ -267,7 +274,6 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
                 cancel()
             }
             mc.options.keyShift.isDown = false
-            player.rotate(0, 0)
         }
 
         await { runStarted && Dungeon.deathTick >= minTicksBeforeDeath }
@@ -290,9 +296,12 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
 
             position = MutableVec3(px, player.y, pz)
 
-            awaitTp(12)
-            qTp(yaw, -10, 4)
-
+            if (consistent) {
+                repeat(4) { player.useItem(yaw, -10) }
+            } else {
+                awaitTp(12)
+                qTp(yaw, -10, 4)
+            }
             debug("""
                 GOING OUT
                 YAW: $yaw
@@ -300,9 +309,18 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
             """.trimIndent())
         }
 
+        await { return@await if (consistent) doneTeleporting() else true }
+
         action { // down
-            qTp(0, 90, 8)
+            if (consistent) {
+                awaitTp(8)
+                repeat(8) { player.useItem(0, 90) }
+            } else {
+                qTp(0, 90, 8)
+            }
         }
+
+        await { doneTeleporting() }
 
         action { // blood
             val to = bloodCoords ?: cancel()
@@ -310,24 +328,43 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
             val dir = getDirection(from = from, to = to)
             val times = (from.distanceTo2D(to) / 12).roundToInt()
 
-            awaitTp(4 + 8 + times + 8)
+            val moved = times * 12.0
+            val rad = dir.yaw.rad
+            val predX = from.x + (-sin(rad) * moved)
+            val predZ = from.z + (cos(rad) * moved)
 
-            qTp(dir.yaw, 0, times)
+//            awaitTp(4 + 8 + times + 8)
+
+//            qTp(dir.yaw, 0, times)
+            awaitTp(times)
+            player.rotate(dir.yaw, 0)
+            repeat(times) {
+//                player.useItem(dir.yaw, 0)
+                PlayerUtils.interact()
+            }
 
             debug(
                 """
-                GOING TO BLOOD
+                GOING TO BLOOD $bloodCoords
                 FROM: x: ${from.x} z: ${from.z}
+                TO PRED: x: ${predX.toFixed()} z: ${predZ.toFixed()}
                 TIMES: $times
                 DIR: $dir
             """.trimIndent())
         }
 
+        await { return@await if (consistent) doneTeleporting() else true }
+
         action { // up
-            qTp(0, -90, 8)
+            if (consistent) {
+                awaitTp(8)
+                repeat(8) { player.useItem(0, -90) }
+            } else {
+                qTp(0, -90, 8)
+            }
         }
 
-        await { doneTeleporting() }
+        await { pendingTps.isEmpty() }
 
         action {
             SwapManager.swapByName("pearl")
@@ -340,19 +377,21 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
             action { player.useItem(0, -90) }
         }
 
-        await { doneTeleporting() }
+        action { player.useItem(0, 45) }
 
-        await {
-            if (player.y >= 67) {
-                return@await true
-            }
-
-            if (tpsAmount == 0 || doneTeleporting()) {
-                awaitTp(1)
-                player.useItem(0, -90)
-            }
-            false
-        }
+//        await { return@await if (consistent) doneTeleporting() else true }
+//
+//        await {
+//            if (player.y >= 67 || !consistent) {
+//                return@await true
+//            }
+//
+//            if (tpsAmount == 0 || doneTeleporting()) {
+//                awaitTp(1)
+//                player.useItem(0, -90)
+//            }
+//            false
+//        }
 
     }
 
