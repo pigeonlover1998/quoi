@@ -35,7 +35,8 @@ object AutoBloodRush : Module(
     desc = "Automatically blood rushes.",
     area = Island.Dungeon
 ) {
-    private val minTicksBeforeDeath by slider("Minimum ticks before death", 30, 15, 40, unit = "t", desc = "Triggers when remaining ticks until death are at least this value. Higher values make the macro slower (in some cases), but more consistent.")
+    private val minTicksBeforeDeath by slider("Minimum ticks before death", 25, 15, 40, unit = "t", desc = "Triggers when remaining ticks until death are at least this value. Higher values make the macro slower (in some cases), but more consistent.")
+    private val exploreTicksBeforeDeath by slider("Explore ticks before death", 20, 15, 40, unit = "t", desc = "Same as the setting above but for blood finding.")
     private val exploreDelay by slider("Explore delay", 3, 1, 5, unit = "t", desc = "Delay before going to middle to find blood.")
     private val throwExtra by switch("Throw extra pearl", desc = "Throws extra pearl to get in blood.")
     private val debug by switch("Debug")
@@ -265,6 +266,8 @@ object AutoBloodRush : Module(
 
             debug("looking for blood..")
         }
+
+        await { Dungeon.deathTick >= exploreTicksBeforeDeath }
 
         action {
             qTp(0, -90, 6)
