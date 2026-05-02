@@ -37,7 +37,6 @@ object AutoBloodRush : Module(
 ) {
     private val minTicksBeforeDeath by slider("Minimum ticks before death", 25, 15, 40, unit = "t", desc = "Triggers when remaining ticks until death are at least this value. Higher values make the macro slower (in some cases), but more consistent.")
     private val exploreTicksBeforeDeath by slider("Explore ticks before death", 20, 15, 40, unit = "t", desc = "Same as the setting above but for blood finding.")
-    private val throwExtra by switch("Throw extra pearl", desc = "Throws extra pearl to get in blood.")
     private val debug by switch("Debug")
 
     private var bloodCoords: Vec3? = null
@@ -335,7 +334,7 @@ object AutoBloodRush : Module(
             val predX = from.x + (-sin(rad) * moved)
             val predZ = from.z + (cos(rad) * moved)
 
-//            awaitTp(4 + 8 + times + 8)
+            awaitTp(4 + 8 + times + 8 + 2)
 
             qTp(dir.yaw, 0, times)
 
@@ -357,8 +356,6 @@ object AutoBloodRush : Module(
 
         action {
             SwapManager.swapByName("pearl")
-            awaitTp(if (throwExtra) 2 else 3)
-
             debug("PEARLING UP")
         }
 
@@ -366,25 +363,17 @@ object AutoBloodRush : Module(
             action { player.useItem(0, -90) }
         }
 
-        if (throwExtra) {
-            await { doneTeleporting() }
-
-            await {
-                if (player.y >= 67) {
-                    return@await true
-                }
-
-                if (tpsAmount == 0 || doneTeleporting()) {
-                    awaitTp(1)
-                    player.useItem(0, -90)
-                    modMessage(player.position())
-                }
-                false
+        await {
+            if (player.y >= 67) {
+                return@await true
             }
-        } else {
-            repeat(2) {
-                action { player.useItem(0, 45) }
+
+            if (doneTeleporting()) {
+                awaitTp(1)
+                player.useItem(0, -90)
+                modMessage(player.position())
             }
+            false
         }
 
     }
