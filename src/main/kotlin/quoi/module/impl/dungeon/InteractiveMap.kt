@@ -5,12 +5,12 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket
 import net.minecraft.world.entity.player.Input
-import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.Vec3
 import quoi.QuoiMod.scope
 import quoi.api.abobaui.dsl.*
 import quoi.api.colour.*
 import quoi.api.events.*
+import quoi.api.pathfinding.impl.DungeonMapPathfinder
 import quoi.api.pathfinding.impl.EtherwarpPathfinder
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
@@ -18,6 +18,9 @@ import quoi.api.skyblock.dungeon.Dungeon.inClear
 import quoi.api.skyblock.dungeon.Dungeon.isDead
 import quoi.api.skyblock.dungeon.odonscanning.MapRenderer
 import quoi.api.skyblock.dungeon.odonscanning.MapRenderer.renderMap
+import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
+import quoi.api.skyblock.dungeon.odonscanning.tiles.DoorType
+import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonDoor
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomTile
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
@@ -31,7 +34,6 @@ import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.containsOneOf
 import quoi.utils.WorldUtils.etherwarpable
 import quoi.utils.WorldUtils.nearbyBlocks
-import quoi.utils.WorldUtils.state
 import quoi.utils.skyblock.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 import quoi.utils.skyblock.player.SwapManager
@@ -42,7 +44,6 @@ import kotlin.math.ceil
 /**
  * TODO:
  *  room queuing while auto routing
- *  teleport to doors
  *  teleport to minis
  */
 object InteractiveMap : Module(
@@ -54,10 +55,12 @@ object InteractiveMap : Module(
     private val keepChunks by switch("Keep chunks loaded", true, desc = "Keeps the chunks loaded. Good for long distances.")
     private val rightToStart by switch("Right click for start", desc = "Teleports to auto route start node on mouse right click.")
 
+    private val closeOn by segmented("Close on", "Release", listOf("Release", "Repress"))
+
     private val openKey by keybind("Open key")
         .onPress {
             if (!enabled || !inClear || isDead) return@onPress
-            if (mc.screen?.title?.string == "quoi clear map" && closeOn.index == 1) {
+            if (mapOpen && closeOn.index == 1) {
                 mc.setScreen(null)
             } else if (mc.screen == null) {
                 open(map(), background = false)
@@ -65,10 +68,26 @@ object InteractiveMap : Module(
         }
         .onRelease {
             if (!enabled || closeOn.index != 0 || !inClear || isDead) return@onRelease
-            if (mc.screen?.title?.string == "quoi clear map") mc.setScreen(null)
+            if (mapOpen) mc.setScreen(null)
         }
 
-    private val closeOn by segmented("Close on", "Release", listOf("Release", "Repress"))
+    private val startKey by keybind("Start key", desc = "Teleports to start node in current room")
+        .onPress {
+            if (!enabled || !mapOpen || !inClear || isDead) return@onPress
+            val room = currentRoom ?: return@onPress modMessage("Current room is null. This should never happen")
+            getRoomPath(room, room.roomTiles.first(), 1, toStart = true)
+        }
+
+    private val lockedKey by keybind("Locked door key", desc = "Teleports to the closest locked door")
+        .onPress {
+            if (!enabled || !mapOpen || !inClear || isDead) return@onPress
+            val room = currentRoom ?: return@onPress modMessage("Current room is null. This should never happen")
+            val door = ScanUtils.scannedDoors
+                .filter { it.locked && it.type.equalsOneOf(DoorType.WITHER, DoorType.BLOOD) }
+                .minByOrNull { DungeonMapPathfinder.getDistToDoor(room, it, ignoreLocked = true) }
+                ?: return@onPress modMessage("No locked doors found.")
+            getDoorPath(door)
+        }
 
     private val visuals by text("Visuals")
     private val shadow by switch("Shadow", true).childOf(::visuals).asParent()
@@ -140,6 +159,18 @@ object InteractiveMap : Module(
             -1334473473 to BlockPos(15, 68, 18)
         )
     )
+
+    private val canPathfind: Boolean
+        get() {
+            if (!player.onGround()) return false
+            val room = currentRoom ?: return true
+            if (room.name.containsOneOf("Maze", "Boulder")) return false
+            if (room.name.contains("Trap") && room.getRelativeCoords(player.blockPosition()).z >= 0) return false
+            return true
+        }
+
+    private val mapOpen: Boolean
+        get() = mc.screen?.title?.string == "quoi clear map"
     
     init {
         on<PacketEvent.Received> {
@@ -236,41 +267,31 @@ object InteractiveMap : Module(
         return false
     }
 
-    fun getPath(room: OdonRoom, comp: RoomTile, button: Int) {
-        if (!player.onGround()) return
-        if (button != 0 && button != 1) return
-        if (currentRoom?.name?.containsOneOf("Maze", "Boulder") == true) return
-        if (currentRoom?.name?.contains("Trap") == true && currentRoom!!.getRelativeCoords(player.blockPosition()).z >= 0) return
+    fun getRoomPath(room: OdonRoom, tile: RoomTile, button: Int, toStart: Boolean = false) {
+        if (!canPathfind || (button != 0 && button != 1)) return
 
-        var start = BlockPos(player.x, ceil(player.y - 1), player.z)
-        var dir = getEtherwarpDirection(start)
-
-        if (dir == null) {
-            start = start.nearbyBlocks(4f).find { pos ->
-                pos.etherwarpable && getEtherwarpDirection(pos).also { dir = it } != null
-            } ?: return modMessage("Could not find a valid etherwarpable block nearby.")
-        }
+        val (start, dir) = getStart() ?: return
 
         val goal = when(button) {
             0 -> {
-                val overridePos = roomOverrides[room.name] ?: coreOverrides[room.name]?.get(comp.core)
+                val overridePos = roomOverrides[room.name] ?: coreOverrides[room.name]?.get(tile.core)
 
                 if (overridePos != null && room.rotation != Rotations.NONE) {
                     room.getRealCoords(overridePos)
                 } else {
-                    comp.blockPos.nearbyBlocks(25f) { it.etherwarpable && it.state.block != Blocks.REDSTONE_BLOCK }.firstOrNull()
-                        ?: return modMessage("Couldn't find goal position for tile &e${comp.core}&r in ${room.name}")
+                    tile.blockPos.nearbyBlocks(25f) { it.etherwarpable }.firstOrNull()
+                        ?: return modMessage("Couldn't find goal position for tile &e${tile.core}&r in ${room.name}")
                 }
             }
             1 -> {
-                if (!rightToStart) return
+                if (!rightToStart && !toStart) return
                 val rings = AutoRoutes.routeNodes[room.name] ?: return modMessage("No rings found in &e${room.name}")
                 val starts = rings.filter { it.start == true }
 
                 val target = starts.map { room.getRealCoords(BlockPos(it.relative.x, ceil(it.relative.y), it.relative.z).below()) }
                     .filter { it.etherwarpable }
                     .let { pos ->
-                        pos.find { it.distanceToSqr(comp.blockPos) < 225 } ?: pos.firstOrNull()
+                        pos.find { it.distanceToSqr(tile.blockPos) < 225 } ?: pos.firstOrNull()
                     } ?: return modMessage("&cCouldn't find start ring.")
 
                 target
@@ -278,6 +299,37 @@ object InteractiveMap : Module(
             else -> return
         }
 
+        executePath(start, goal, dir)
+    }
+
+    fun getDoorPath(door: OdonDoor) {
+        if (!canPathfind) return
+
+        val (start, dir) = getStart() ?: return
+
+        val goal = DungeonMapPathfinder.getDoorPos(currentRoom!!, door)
+            ?: return modMessage("Could not find door coordinates")
+
+        executePath(start, goal, dir)
+    }
+
+    private fun getStart(): Pair<BlockPos, Direction>? {
+        var start = BlockPos(player.x, ceil(player.y - 1), player.z)
+        var dir = getEtherwarpDirection(start)
+
+        if (dir == null) {
+            start = start.nearbyBlocks(4f).find { pos ->
+                pos.etherwarpable && getEtherwarpDirection(pos).also { dir = it } != null
+            } ?: run {
+                modMessage("Could not find a valid etherwarpable block nearby.")
+                return null
+            }
+        }
+
+        return if (dir != null) start to dir else null
+    }
+
+    private fun executePath(start: BlockPos, goal: BlockPos, dir: Direction) {
         scope.launch {
             val p = EtherwarpPathfinder.findDungeonPath(
                 start = start,
@@ -293,7 +345,7 @@ object InteractiveMap : Module(
 
             val new = mutableListOf<ClearNode>()
 
-            new.add(ClearNode(player.position(), dir!!.yaw, dir.pitch))
+            new.add(ClearNode(player.position(), dir.yaw, dir.pitch))
 
             new.addAll(p.dropLast(1).map { node ->
                 val pos = node.pos.center.addVec(y = 0.5)
@@ -304,11 +356,7 @@ object InteractiveMap : Module(
 
             position = null
             pending = null
-
-//            val d = DungeonMapPathfinder.findPath(currentRoom!!, room)
-//            modMessage(d)
         }
-
     }
 
     private fun map() = aboba("quoi clear map") {

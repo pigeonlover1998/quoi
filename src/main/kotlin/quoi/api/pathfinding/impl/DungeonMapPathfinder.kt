@@ -1,5 +1,6 @@
 package quoi.api.pathfinding.impl
 
+import net.minecraft.core.BlockPos
 import quoi.api.pathfinding.RoomNode
 import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonDoor
@@ -19,7 +20,7 @@ object DungeonMapPathfinder {
         intArrayOf(-1, 0, -2, 0) // w
     )
 
-    fun findPath(start: OdonRoom, goal: OdonRoom): List<RoomPath>? {
+    fun findPath(start: OdonRoom, goal: OdonRoom, ignoreLocked: Boolean = false): List<RoomPath>? {
 
         val openSet = PriorityQueue<RoomNode>()
         val nodeMap = IdentityHashMap<OdonRoom, Int>()
@@ -37,7 +38,7 @@ object DungeonMapPathfinder {
                 return reconstructPath(current)
             }
 
-            current.room.forEachNeighbour { room, door ->
+            current.room.forEachNeighbour(ignoreLocked) { room, door ->
                 val gCost = current.g + 1
                 val neighbourBest = nodeMap[room]
 
@@ -52,7 +53,51 @@ object DungeonMapPathfinder {
         return null
     }
 
-    private inline fun OdonRoom.forEachNeighbour(block: (OdonRoom, OdonDoor) -> Unit) {
+    fun getDistToDoor(start: OdonRoom, door: OdonDoor, ignoreLocked: Boolean = false): Int =
+        stupid(start, door, ignoreLocked)?.third ?: Int.MAX_VALUE
+
+    fun getDoorPos(start: OdonRoom, door: OdonDoor): BlockPos? {
+        val pos = BlockPos(door.pos.x, 68, door.pos.z)
+        if (!door.locked) return pos // no need to offset
+
+        val (i, parent, _) = stupid(start, door, false) ?: return null
+
+        val dx = (parent % 11) - (i % 11) // -1 0 or 1
+        val dz = (parent / 11) - (i / 11)
+
+        return BlockPos(door.pos.x + dx * 2, 68, door.pos.z + dz * 2)
+    }
+
+    // returns
+    // door grid index
+    // parent grid index (room from which you can et to the door)
+    // distance to door (how many rooms/doors away)
+    private fun stupid(start: OdonRoom, door: OdonDoor, inoreLocked: Boolean): Triple<Int, Int, Int>? {
+        val i = ScanUtils.grid.indexOf(door)
+        if (i == -1) return null
+
+        val doorX = i % 11
+        val doorZ = i / 11
+
+        val horizontal = doorX % 2 != 0
+
+        // rooms surrounding the door
+        val i1 = if (horizontal) (doorZ * 11 + (doorX - 1)) else ((doorZ - 1) * 11 + doorX)
+        val i2 = if (horizontal) (doorZ * 11 + (doorX + 1)) else ((doorZ + 1) * 11 + doorX)
+
+        val room1 = ScanUtils.grid.getOrNull(i1) as? OdonRoom
+        val room2 = ScanUtils.grid.getOrNull(i2) as? OdonRoom
+
+        // how many rooms away
+        val dist1 = if (room1 === start) 0 else room1?.let { findPath(start, it, inoreLocked)?.size } ?: Int.MAX_VALUE
+        val dist2 = if (room2 === start) 0 else room2?.let { findPath(start, it, inoreLocked)?.size } ?: Int.MAX_VALUE
+
+        if (dist1 == Int.MAX_VALUE && dist2 == Int.MAX_VALUE) return null
+
+        return if (dist1 <= dist2) Triple(i, i1, dist1) else Triple(i, i2, dist2)
+    }
+
+    private inline fun OdonRoom.forEachNeighbour(ignoreLocked: Boolean, block: (OdonRoom, OdonDoor) -> Unit) {
         val grid = ScanUtils.grid
 
         for (z in 0..10 step 2) {
@@ -71,7 +116,7 @@ object DungeonMapPathfinder {
                             val nextRoomTile = grid[nextRoomZ * 11 + nextRoomX]
 
                             if (door is OdonDoor && nextRoomTile is OdonRoom && nextRoomTile !== this) { // check if it's actually a door and there's a room next to it. jic check if it's not het same room
-                                if (!door.actuallyLocked) { // wither/blood doors is a big no no
+                                if (!door.locked || ignoreLocked) { // wither/blood doors is a big no no
                                     block(nextRoomTile, door)
                                 }
                             }
@@ -81,7 +126,6 @@ object DungeonMapPathfinder {
             }
         }
     }
-
 
     private fun getHeuristic(current: OdonRoom, goal: OdonRoom): Int {
         val from = current.textPlacement

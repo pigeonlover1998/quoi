@@ -12,10 +12,10 @@ import quoi.utils.equalsOneOf
 data class OdonDoor(val pos: Vec2i, var type: DoorType) {
 
     var state: RoomState = RoomState.UNDISCOVERED
-    var locked = type.equalsOneOf(DoorType.WITHER, DoorType.BLOOD)
+    var mapLocked = type.equalsOneOf(DoorType.WITHER, DoorType.BLOOD)
 
-    val actuallyLocked: Boolean get() {
-        if (type != DoorType.WITHER) return false
+    val locked: Boolean get() {
+        if (!type.equalsOneOf(DoorType.WITHER, DoorType.BLOOD)) return false
         return BlockPos(pos.x, 69, pos.z).state.block !is AirBlock
     }
 
@@ -43,7 +43,7 @@ data class OdonDoor(val pos: Vec2i, var type: DoorType) {
     val colour: Colour get() {
         val col = when (type) {
             DoorType.BLOOD  -> DungeonMap.bloodDoor
-            DoorType.WITHER if (locked) -> DungeonMap.witherDoor
+            DoorType.WITHER if (mapLocked) -> DungeonMap.witherDoor
             DoorType.ENTRANCE -> DungeonMap.entranceDoor
             else -> DungeonMap.normalDoor
         }
@@ -67,6 +67,6 @@ data class OdonDoor(val pos: Vec2i, var type: DoorType) {
 //            30 -> type = DoorType.ENTRANCE
 //        }
 
-        locked = state == RoomState.UNOPENED && (type == DoorType.WITHER || type == DoorType.BLOOD)
+        mapLocked = state == RoomState.UNOPENED && (type == DoorType.WITHER || type == DoorType.BLOOD)
     }
 }

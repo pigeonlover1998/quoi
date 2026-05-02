@@ -111,6 +111,16 @@ object MapRenderer {
                         val pos = door.placement
                         val size = door.size
 
+                        val col = Colour.Animated(
+                            from = colour { door.colour.rgb },
+                            to = colour { door.colour.rgb.multiply(1.15f) }
+                        )
+
+                        val outlineCol = Colour.Animated(
+                            from = Colour.TRANSPARENT,
+                            to = Colour.WHITE.withAlpha(180)
+                        )
+
                         block(
                             constrain(
                                 x = (pos.x * newScale).px,
@@ -118,8 +128,19 @@ object MapRenderer {
                                 w = (size.x * newScale).px,
                                 h = (size.z * newScale).px
                             ),
-                            colour = colour { door.colour.rgb }
-                        )
+                            colour = col
+                        ) {
+                            outline(outlineCol, thickness = 2.px)
+
+                            onClick {
+                                InteractiveMap.getDoorPath(door)
+                            }
+
+                            onMouseEnterExit {
+                                col.animate(0.15.seconds, style = Animation.Style.EaseOutQuint)
+                                outlineCol.animate(0.15.seconds, style = Animation.Style.EaseOutQuint)
+                            }
+                        }
                     }
 
                     ScanUtils.scannedRooms.forEach { room ->
@@ -335,7 +356,7 @@ object MapRenderer {
                         outlineCol.animate(0.15.seconds, style = Animation.Style.EaseOutQuint)
                     }
                     onClick(nonSpecific = true) { (button) ->
-                        InteractiveMap.getPath(room, comp, button)
+                        InteractiveMap.getRoomPath(room, comp, button)
                         true
                     }
                 }
