@@ -9,9 +9,10 @@ import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.api.skyblock.dungeon.Dungeon.isDead
-import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
+import quoi.api.skyblock.dungeon.odonscanning.ScanUtils.updateRotation
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
+import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
 import quoi.api.vec.MutableVec3
 import quoi.module.Module
 import quoi.utils.*
@@ -23,24 +24,24 @@ import quoi.utils.WorldUtils.state
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.PlayerUtils.useItem
-import quoi.utils.skyblock.player.RotationUtils.rotate
 import quoi.utils.skyblock.player.SwapManager
 import kotlin.math.cos
 import kotlin.math.round
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
-object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme: tping somewhere in the fucking corner for no reason.
+object AutoBloodRush : Module(
     "Auto Blood Rush",
     desc = "Automatically blood rushes.",
-    area = Island.Dungeon,
-    tag = Tag.BETA
+    area = Island.Dungeon
 ) {
     private val minTicksBeforeDeath by slider("Minimum ticks before death", 30, 15, 40, unit = "t", desc = "Triggers when remaining ticks until death are at least this value. Higher values make the macro slower (in some cases), but more consistent.")
-    private val consistent by switch("I want consistency man.", desc = "Very slow.")
+    private val exploreDelay by slider("Explore delay", 3, 1, 5, unit = "t", desc = "Delay before going to middle to find blood.")
+    private val throwExtra by switch("Throw extra pearl", desc = "Throws extra pearl to get in blood.")
     private val debug by switch("Debug")
 
     private var bloodCoords: Vec3? = null
+    private var bloodRoom: OdonRoom? = null
     private var tickerThing: Ticker? = null
 
     private var tpsReceived = 0
@@ -83,6 +84,14 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
     init {
         on<TickEvent.Start> {
             if (isDead) return@on
+
+            if (bloodRoom?.rotation == Rotations.NONE) {
+                val room = bloodRoom!!
+                room.updateRotation()
+                bloodCoords = room.getRealCoords(Vec3(15.0, 70.0, 15.0))
+                if (room.rotation != Rotations.NONE) debug("Updating blood rotation ${room.rotation}. New pos $bloodCoords")
+            }
+
             if (pendingTps.isNotEmpty()) {
                 pendingTps.toList().forEach { a ->
                     repeat(a.times) {
@@ -146,7 +155,8 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
         on<DungeonEvent.Room.Scan> {
             if (room.data.type == RoomType.BLOOD) {
                 bloodCoords = room.getRealCoords(Vec3(15.0, 70.0, 15.0))
-                debug("Found blood at $bloodCoords")
+                bloodRoom = room
+                debug("Found blood at $bloodCoords ${room.rotation} ${room.clayPos}")
             }
 
             if (currentRoom == null || !firstScan) return@on
@@ -155,8 +165,8 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
             tickerThing = ticker {
                 position()
                 roof()
-                action(1) {
-                    if (bloodCoords == null) {
+                action(exploreDelay) {
+                    if (bloodCoords == null || bloodRoom?.rotation == Rotations.NONE) {
                         debug("no blood")
                         goingMid = true
                         tickerThing = findBlood()
@@ -169,6 +179,7 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
         on<WorldEvent.Change> {
             tickerThing = null
             bloodCoords = null
+            bloodRoom = null
 
             doneTeleporting = false
             tpsReceived = 0
@@ -296,12 +307,8 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
 
             position = MutableVec3(px, player.y, pz)
 
-            if (consistent) {
-                repeat(4) { player.useItem(yaw, -10) }
-            } else {
-                awaitTp(12)
-                qTp(yaw, -10, 4)
-            }
+            awaitTp(12)
+            qTp(yaw, -10, 4)
             debug("""
                 GOING OUT
                 YAW: $yaw
@@ -309,15 +316,8 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
             """.trimIndent())
         }
 
-        await { return@await if (consistent) doneTeleporting() else true }
-
         action { // down
-            if (consistent) {
-                awaitTp(8)
-                repeat(8) { player.useItem(0, 90) }
-            } else {
-                qTp(0, 90, 8)
-            }
+            qTp(0, 90, 8)
         }
 
         await { doneTeleporting() }
@@ -335,13 +335,7 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
 
 //            awaitTp(4 + 8 + times + 8)
 
-//            qTp(dir.yaw, 0, times)
-            awaitTp(times)
-            player.rotate(dir.yaw, 0)
-            repeat(times) {
-//                player.useItem(dir.yaw, 0)
-                PlayerUtils.interact()
-            }
+            qTp(dir.yaw, 0, times)
 
             debug(
                 """
@@ -353,22 +347,15 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
             """.trimIndent())
         }
 
-        await { return@await if (consistent) doneTeleporting() else true }
-
         action { // up
-            if (consistent) {
-                awaitTp(8)
-                repeat(8) { player.useItem(0, -90) }
-            } else {
-                qTp(0, -90, 8)
-            }
+            qTp(0, -90, 8)
         }
 
         await { pendingTps.isEmpty() }
 
         action {
             SwapManager.swapByName("pearl")
-            awaitTp(2)
+            awaitTp(if (throwExtra) 2 else 3)
 
             debug("PEARLING UP")
         }
@@ -377,21 +364,23 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
             action { player.useItem(0, -90) }
         }
 
-        action { player.useItem(0, 45) }
+        if (throwExtra) {
+            await { doneTeleporting() }
 
-//        await { return@await if (consistent) doneTeleporting() else true }
-//
-//        await {
-//            if (player.y >= 67 || !consistent) {
-//                return@await true
-//            }
-//
-//            if (tpsAmount == 0 || doneTeleporting()) {
-//                awaitTp(1)
-//                player.useItem(0, -90)
-//            }
-//            false
-//        }
+            await {
+                if (player.y >= 67) {
+                    return@await true
+                }
+
+                if (tpsAmount == 0 || doneTeleporting()) {
+                    awaitTp(1)
+                    player.useItem(0, -90)
+                }
+                false
+            }
+        } else {
+            action { player.useItem(0, 45) }
+        }
 
     }
 
@@ -423,7 +412,7 @@ object AutoBloodRush : Module( // maybe works on everyone else's machines. fixme
             val nx = gx + offset.first
             val nz = gz + offset.second
 
-            nx !in 0..10 || nz !in 0..10 || ScanUtils.grid[nz * 11 + nx] == null
+            nx !in 0..10 || nz !in 0..10
         }?.value
     }
 

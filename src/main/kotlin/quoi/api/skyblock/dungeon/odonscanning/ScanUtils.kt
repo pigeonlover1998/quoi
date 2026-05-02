@@ -82,17 +82,7 @@ object ScanUtils {
             scanDungeon()
 
             scannedRooms.filter { it.rotation == Rotations.NONE }.forEach { room -> // suboptimal
-                val comp = room.roomTiles.firstOrNull() ?: return@forEach
-                val level = mc.level ?: return@forEach
-
-                if (level.hasChunk(comp.x shr 4, comp.z shr 4)) {
-                    val chunk = level.getChunk(comp.x shr 4, comp.z shr 4)
-                    val height = getTopLayerOfRoom(Vec2i(comp.x, comp.z), chunk)
-
-                    if (height > 0) {
-                        updateRotation(room, height)
-                    }
-                }
+                room.updateRotation()
             }
 
             if (mimicRoom == null && (Dungeon.floor?.floorNumber ?: -1) > 5) {
@@ -294,6 +284,20 @@ object ScanUtils {
         } ?: Rotations.NONE // Rotation isn't found if we can't find the clay block
 
 //        if (room.rotation == Rotations.NONE) modMessage("${room.name} ROT NONE")
+    }
+
+    fun OdonRoom.updateRotation() {
+        val level = mc.level ?: return
+        val comp = this.roomTiles.firstOrNull() ?: return
+
+        if (level.hasChunk(comp.x shr 4, comp.z shr 4)) {
+            val chunk = level.getChunk(comp.x shr 4, comp.z shr 4)
+            val height = getTopLayerOfRoom(Vec2i(comp.x, comp.z), chunk)
+
+            if (height > 0) {
+                updateRotation(this, height)
+            }
+        }
     }
 
     private fun getCoreAtHeight(vec2: Vec2i, roomHeight: Int, chunk: LevelChunk): Int {
