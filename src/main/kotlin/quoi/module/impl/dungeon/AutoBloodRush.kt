@@ -377,11 +377,14 @@ object AutoBloodRush : Module(
                 if (tpsAmount == 0 || doneTeleporting()) {
                     awaitTp(1)
                     player.useItem(0, -90)
+                    modMessage(player.position())
                 }
                 false
             }
         } else {
-            action { player.useItem(0, 45) }
+            repeat(2) {
+                action { player.useItem(0, 45) }
+            }
         }
 
     }
