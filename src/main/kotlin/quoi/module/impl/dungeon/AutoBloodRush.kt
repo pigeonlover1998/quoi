@@ -334,7 +334,7 @@ object AutoBloodRush : Module(
             val predX = from.x + (-sin(rad) * moved)
             val predZ = from.z + (cos(rad) * moved)
 
-            awaitTp(4 + 8 + times + 8 + 2)
+            awaitTp(times + 8 + 2)
 
             qTp(dir.yaw, 0, times)
 
@@ -368,10 +368,12 @@ object AutoBloodRush : Module(
                 return@await true
             }
 
-            if (doneTeleporting()) {
-                awaitTp(1)
-                player.useItem(0, -90)
-                modMessage(player.position())
+            if (doneTeleporting()) return@await false
+
+            if (tpsAmount == 0) {
+                debug("throwing 2 extra pearls")
+                awaitTp(2)
+                repeat(2) { player.useItem(0, -90) }
             }
             false
         }
