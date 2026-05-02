@@ -12,6 +12,7 @@ import quoi.api.events.GameEvent
 import quoi.api.events.core.EventBus
 import quoi.config.Config
 import quoi.module.ModuleManager
+import quoi.module.impl.player.RemoteControl
 import quoi.utils.ui.hud.HudManager
 import quoi.utils.ui.rendering.NVGSpecialRenderer
 import kotlin.coroutines.EmptyCoroutineContext
@@ -30,10 +31,9 @@ object QuoiMod : ClientModInitializer {
             NVGSpecialRenderer(context.vertexConsumers())
         }
 
-        var schizophrenia: EventBus.EventListener? = null
-        schizophrenia = EventBus.on<GameEvent.Load> {
+        EventBus.on<GameEvent.Load> {
             HudManager.init()
-            schizophrenia?.remove()
+            RemoteControl.start()
         }
         QuoiCommand.init()
         Config.load()

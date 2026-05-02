@@ -497,7 +497,7 @@ class TextInput(
         }
 
         @AbobaDSL
-        var <E : TextInput> ElementScope<E>.censors
+        var ElementScope<TextInput>.censors
             get() = element.censors
             set(value) { element.censors = value }
     }

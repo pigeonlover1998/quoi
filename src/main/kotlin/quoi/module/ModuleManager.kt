@@ -67,6 +67,7 @@ object ModuleManager {
             AutoSprint,
             PlayerDisplay,
             Tweaks,
+            RemoteControl,
 
             // RENDER
             NameTags,

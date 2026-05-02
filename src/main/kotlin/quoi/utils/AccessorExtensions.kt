@@ -65,6 +65,12 @@ inline val Inventory.items: List<ItemStack>
 inline val KeyMapping.key: InputConstants.Key
     get() = (this as KeyMappingAccessor).key
 
+inline var KeyMapping.clickCount: Int
+    get() = (this as KeyMappingAccessor).clickCount
+    set(value) {
+        (this as KeyMappingAccessor).clickCount = value
+    }
+
 inline val ImageButton.textures: WidgetSprites
     get() = (this as ImageButtonAccessor).textures
 

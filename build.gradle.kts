@@ -26,6 +26,9 @@ dependencies {
     modImplementation("io.github.classgraph:classgraph:4.8.184")
     include("io.github.classgraph:classgraph:4.8.184")
 
+    modImplementation("dev.kord:kord-core:0.18.1")
+    include("dev.kord:kord-core:0.18.1")
+
     property("minecraft_lwjgl_version").let {
 
         modImplementation("org.lwjgl:lwjgl-nanovg:$it")
