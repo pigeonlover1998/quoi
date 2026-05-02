@@ -3,10 +3,10 @@ package quoi.module.settings.impl
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import quoi.api.abobaui.constraints.impl.size.Copying
-import quoi.api.abobaui.dsl.at
 import quoi.api.abobaui.dsl.px
 import quoi.api.abobaui.dsl.size
 import quoi.api.abobaui.elements.ElementScope
+import quoi.api.abobaui.elements.impl.TextInput.Companion.censors
 import quoi.module.settings.Saving
 import quoi.module.settings.UIComponent
 import quoi.utils.ThemeManager.theme
@@ -34,7 +34,7 @@ class TextInputComponent(
 
     private var suggestions: () -> List<String> = { emptyList() }
 
-    fun censors(): TextInputComponent { // todo
+    fun censors(): TextInputComponent {
         censors = true
         return this
     }
@@ -81,6 +81,6 @@ class TextInputComponent(
                     placeholder = placeholder,
                 )
             }
-        }
+        }.censors = censors
     }
 }

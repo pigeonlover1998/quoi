@@ -61,13 +61,14 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 
     private val texttest by text("&cTest")
 
+    private val censorsInput by textInput("Censors test", "test", placeholder = "amongus").censors()
+
     private val segmented by segmented("Segmented", "1", listOf("1", "2", "3"))
     private val segmented2 by segmented("Segmented enum", TextHud.HudFont.Minecraft)
 
     val auraDebug by switch("Aura debug")
     val uiDebug by switch("UI debug").onValueChanged { old, new -> ClickGui.reopen() }
     val reopen by button("Reopen") { ClickGui.reopen() }
-
 
 
 //    val selectedTheme2 by SelectorSetting("Theme2", "Light", listOf("Light", "Dark", "Custom"))

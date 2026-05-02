@@ -71,6 +71,8 @@ class TextInput(
      */
     private var caretBlinkTime = System.currentTimeMillis()
 
+    private var censors = false
+
     override fun draw() {
         var offset = 0f
         if (ui.eventManager.focused == this) {
@@ -89,10 +91,12 @@ class TextInput(
             }
         }
 
+        val yOff = if (censors) (height * 0.1f) else 0f
+
         when {
             text.isEmpty() -> drawText(placeholder, colour = placeholderColour.rgb)
-            visibleText != null -> drawText(visibleText!!, colour = this@TextInput.colour!!.rgb)
-            else -> drawText(text, x - offset, colour = this@TextInput.colour!!.rgb)
+            visibleText != null -> drawText(visibleText!!, y = y + yOff, colour = this@TextInput.colour!!.rgb)
+            else -> drawText(getMasked(text), x - offset, y + yOff, colour = this@TextInput.colour!!.rgb)
         }
     }
 
@@ -267,8 +271,11 @@ class TextInput(
     }
 
     override fun getTextWidth(): Float {
-        return if (text.isEmpty()) textWidth(placeholder) else super.getTextWidth()
+        return if (text.isEmpty()) textWidth(placeholder) else textWidth(getMasked(text))
     }
+
+    private fun getMasked(string: String): String =
+        if (censors) "•".repeat(string.length) else string
 
     /**
      * Inserts a provided string into [text].
@@ -305,8 +312,9 @@ class TextInput(
         var newCaret = 0
         var currWidth = 0f
 
-        for (index in text.indices) {
-            val charWidth = textWidth(text[index].toString())
+        val masked = getMasked(text)
+        for (index in masked.indices) {
+            val charWidth = textWidth(masked[index].toString())
             if ((currWidth + charWidth / 2) > mx) break
             currWidth += charWidth
             newCaret = index + 1
@@ -330,13 +338,13 @@ class TextInput(
      */
     private fun updateCaretPosition() {
         if (selection != caret) {
-            selectionWidth = textWidth(text.substringSafe(selection, caret))
+            selectionWidth = textWidth(getMasked(text.substringSafe(selection, caret)))
             if (selection <= caret) selectionWidth *= -1
         } else selectionWidth = 0f
 
         if (caret != 0) {
             val previousX = caretX
-            caretX = textWidth(text.substringSafe(0, caret))
+            caretX = textWidth(getMasked(text.substringSafe(0, caret)))
 
             if (!constraints.width.undefined()) {
                 if (previousX < caretX) {
@@ -345,7 +353,7 @@ class TextInput(
                     }
                 } else {
                     if (caretX - textOffset <= 0f) {
-                        textOffset = textWidth(text.substringSafe(0, caret - 1))
+                        textOffset = textWidth(getMasked(text.substringSafe(0, caret - 1)))
                     }
                 }
             }
@@ -428,22 +436,23 @@ class TextInput(
      */
     private fun updateVisibleText() {
         if (text.isNotEmpty() && !constraints.width.undefined()) {
+            val masked = getMasked(text)
             val maxWidth = width - textWidth("....")
             var isLonger = false
             var visibleLength = 0
 
-            for (index in text.indices) {
-                val width = textWidth(text.substring(0, index))
+            for (index in masked.indices) {
+                val width = textWidth(masked.substring(0, index))
                 if (width > maxWidth) {
                     // this doesn't fully prevent awkward placement of the periods (example: "text    ...")
                     // however it should be rare enough that it isn't an issue
-                    if (text[index].isWhitespace()) visibleLength--
+                    if (masked[index].isWhitespace()) visibleLength--
                     isLonger = true
                     break
                 }
                 visibleLength++
             }
-            visibleText = if (isLonger) text.substring(0, visibleLength) + "..." else null
+            visibleText = if (isLonger) masked.substring(0, visibleLength) + "..." else null
 
         } else {
             visibleText = null
@@ -463,9 +472,6 @@ class TextInput(
     }
 
     companion object {
-
-        // this is equivalent to getRGBA(255, 255, 255, 0.5f)
-        private const val SELECTION_COLOR: Int = -2147483393
 
         /**
          * Registers an event listener for [TextChanged].
@@ -489,5 +495,10 @@ class TextInput(
         fun ElementScope<TextInput>.maxWidth(size: Constraint.Size) {
             element.constraints.width = size
         }
+
+        @AbobaDSL
+        var <E : TextInput> ElementScope<E>.censors
+            get() = element.censors
+            set(value) { element.censors = value }
     }
 }
