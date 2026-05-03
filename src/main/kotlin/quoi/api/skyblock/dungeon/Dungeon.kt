@@ -186,6 +186,11 @@ object Dungeon {
                 ).toInt()
             } ?: 0
 
+    inline val warpCooldown: Long
+        get() = (enterTime - System.currentTimeMillis()).coerceAtLeast(0L)
+
+    var enterTime = 0L
+        private set
 
     var dungeonStats = DungeonStats()
         private set
@@ -214,6 +219,7 @@ object Dungeon {
             p3Section = P3Section.Unknown
 
             deathTick = -1
+//            enterTime = 0L
         }
 
 //        on<RoomEnterEvent>(priority = 100) {
@@ -271,6 +277,7 @@ object Dungeon {
                     is ClientboundSystemChatPacket -> {
                         val message = content?.string?.noControlCodes ?: return@on
                         if (expectingBloodRegex.matches(message)) expectingBloodUpdate = true
+                        if (enterRegex.matches(message) && warpCooldown == 0L) enterTime = System.currentTimeMillis() + 30_000L
                         doorOpenRegex.find(message)?.let { dungeonStats.doorOpener = it.groupValues[1] }
                         deathRegex.find(message)?.let { match ->
                             dungeonTeammates.find { teammate ->
@@ -548,6 +555,7 @@ object Dungeon {
     private val REGEX_TERM_COMPLETED = Regex("^(.{1,16}) (activated|completed) a (terminal|lever|device)! \\((\\d)/(\\d)\\)$")
     private val REGEX_GATE_DESTROYED = Regex("^The gate has been destroyed!$")
 
+    private val enterRegex = Regex("^-*\\n\\[[^]]+] (\\w+) entered (?:MM )?\\w+ Catacombs, Floor (\\w+)!\\n-*$")
     private val puzzleRegex = Regex("^ (\\w+(?: \\w+)*|\\?\\?\\?): \\[([✖✔✦])] ?(?:\\((\\w+)\\))?$")
     private val expectingBloodRegex = Regex("^\\[BOSS] The Watcher: You have proven yourself. You may pass.")
     private val doorOpenRegex = Regex("^(?:\\[\\w+] )?(\\w+) opened a (?:WITHER|Blood) door!")
