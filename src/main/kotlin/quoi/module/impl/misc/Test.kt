@@ -307,6 +307,17 @@ object Test : Module("Test", desc = "Dev module for testing.") {
             }
         }
 
+        command.sub("f0click") {
+            scope.launch {
+                ContainerUtils.getContainerItemsClick(
+                    command = "joininstance catacombs_entrance",
+                    container = "Undersized party!",
+                    name = "Undersized party!",
+                    slots = 36,
+                )
+            }
+        }
+
         command.sub("etherpath") {
             val start = player.blockPosition().below()
             val goal = BlockPos(-35, 79, -73)

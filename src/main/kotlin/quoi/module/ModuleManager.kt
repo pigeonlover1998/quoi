@@ -50,6 +50,7 @@ object ModuleManager {
             AutoRoutes,
             BloodCamp,
             WarpCooldown,
+            AutoFragRun,
 
             // MISC
             Test,

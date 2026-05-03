@@ -4,13 +4,13 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import quoi.utils.ChatUtils
 import quoi.utils.WorldUtils.airLike
 import quoi.utils.WorldUtils.collisionShape
 import quoi.utils.WorldUtils.solid
 import quoi.utils.WorldUtils.walkable
 import quoi.utils.distanceTo
 import quoi.api.pathfinding.PathNode
+import quoi.utils.ChatUtils.modMessage
 import java.util.PriorityQueue
 
 object Pathfinder { // todo impl abstract pathfinder
@@ -30,7 +30,8 @@ object Pathfinder { // todo impl abstract pathfinder
         start: BlockPos,
         goal: BlockPos,
         maxNodes: Int = 10_000,
-        hWeight: Double = 1.1
+        hWeight: Double = 1.1,
+        feedback: Boolean = false
     ): List<BlockPos>? {
         val goal = goal.above()
 
@@ -58,7 +59,7 @@ object Pathfinder { // todo impl abstract pathfinder
             }
 
             if (current.pos == goal) {
-                ChatUtils.modMessage("Found path in ${System.currentTimeMillis() - startTime}ms ($processed)")
+                if (feedback) modMessage("Found path in ${System.currentTimeMillis() - startTime}ms ($processed)")
                 return current.path
             }
 
@@ -85,7 +86,7 @@ object Pathfinder { // todo impl abstract pathfinder
             }
         }
 
-        ChatUtils.modMessage("Failed after ${System.currentTimeMillis() - startTime}ms ($processed)")
+        if (feedback) modMessage("Failed after ${System.currentTimeMillis() - startTime}ms ($processed)")
         return null
     }
 

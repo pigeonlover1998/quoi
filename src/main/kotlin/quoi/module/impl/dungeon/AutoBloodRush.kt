@@ -176,21 +176,13 @@ object AutoBloodRush : Module(
         }
 
         on<WorldEvent.Change> {
-            tickerThing = null
-            bloodCoords = null
-            bloodRoom = null
-
-            doneTeleporting = false
-            tpsReceived = 0
-            tpsAmount = 0
-
-            firstScan = true
-            goingMid = false
-            runStarted = false
-            position = null
-
-            pendingTps.clear()
+            reset()
         }
+    }
+
+    override fun onEnable() {
+        reset()
+        super.onEnable()
     }
 
     private fun TickerScope.position() {
@@ -378,6 +370,10 @@ object AutoBloodRush : Module(
             false
         }
 
+        action {
+            if (player.y < 69) player.useItem(0, 45)
+        }
+
     }
 
     private fun doneTeleporting(): Boolean {
@@ -410,6 +406,23 @@ object AutoBloodRush : Module(
 
             nx !in 0..10 || nz !in 0..10
         }?.value
+    }
+
+    fun reset() {
+        tickerThing = null
+        bloodCoords = null
+        bloodRoom = null
+
+        doneTeleporting = false
+        tpsReceived = 0
+        tpsAmount = 0
+
+        firstScan = true
+        goingMid = false
+        runStarted = false
+        position = null
+
+        pendingTps.clear()
     }
 
     private fun debug(text: String) {

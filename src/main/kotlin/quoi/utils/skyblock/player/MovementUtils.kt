@@ -63,6 +63,8 @@ object MovementUtils {
         movementTask = null
     }
 
+    fun moving() = movementTask != null
+
     fun LocalPlayer.fullStop() = movementTask { input ->
         if (!this.isMoving) return@movementTask this.resetInput()
 
@@ -94,12 +96,18 @@ object MovementUtils {
     }
 
     @JvmName("moveTo_")
-    fun LocalPlayer.moveTo(path: List<Vec3>) = movementTask {
-        if (path.isEmpty()) return@movementTask true
+    fun LocalPlayer.moveTo(path: List<Vec3>, onFinish: (() -> Unit)? = null) = movementTask {
+        if (path.isEmpty()) {
+            onFinish?.invoke()
+            return@movementTask true
+        }
         var index = 0
 
         movementTask { input ->
-            if (index >= path.size) return@movementTask true
+            if (index >= path.size) {
+                onFinish?.invoke()
+                return@movementTask true
+            }
 
             val speed = deltaMovement.horizontalDistanceSqr()
             val switchDist = if (index == path.size - 2) 0.3 else (0.5 + speed)
@@ -115,6 +123,7 @@ object MovementUtils {
             val pPos = position().add(slide.x.toDouble(), 0.0, slide.y.toDouble())
             if (isLast && pPos.distanceTo2D(target) < 0.5) {
                 this.resetInput()
+                onFinish?.invoke()
                 return@movementTask true
             }
 
@@ -144,9 +153,9 @@ object MovementUtils {
             false
         }
     }
-    fun LocalPlayer.moveTo(path: List<BlockPos>) = moveTo(path.map { it.center })
-    fun LocalPlayer.moveTo(target: Vec3) = moveTo(listOf(target))
-    fun LocalPlayer.moveTo(target: BlockPos) = moveTo(listOf(target))
+    fun LocalPlayer.moveTo(path: List<BlockPos>, onFinish: (() -> Unit)? = null) = moveTo(path.map { it.center }, onFinish)
+    fun LocalPlayer.moveTo(target: Vec3, onFinish: (() -> Unit)? = null) = moveTo(listOf(target), onFinish)
+    fun LocalPlayer.moveTo(target: BlockPos, onFinish: (() -> Unit)? = null) = moveTo(listOf(target), onFinish)
 
     val LocalPlayer.isMoving get() = deltaMovement.x != 0.0 || deltaMovement.z != 0.0 || input.hasForwardImpulse()
 
