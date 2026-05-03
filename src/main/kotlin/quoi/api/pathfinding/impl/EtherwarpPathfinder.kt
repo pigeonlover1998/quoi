@@ -31,22 +31,11 @@ import quoi.utils.distanceToSqr
 import quoi.utils.rad
 import quoi.utils.sq
 import quoi.utils.traverseVoxels
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sqrt
 
-/**
- * TODO for dungeon:
- *  split the path into individual rooms
- *  pathfind between the doors of each of those rooms
- *  connect the paths
- *  .
- *  need to make dungeon map pathfinder first and collect all rooms and doors in the path.
- *  also this would allow to exit early if the room is behind wither door
- *  .
- *  this would allow to use higher precision (yaw/pitch steps) without performance loss since the segments are short
- *  the performance would be significantly better since it voids a lot of unnecessary calculations
- */
 object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>() {
 
     private var lastDist = -1.0
@@ -122,7 +111,7 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>
             var nextRoom: OdonRoom? = null
 
             if (step.door != null) { // if not last we go to door
-                target = BlockPos(step.door.pos.x, 69, step.door.pos.z)
+                target = BlockPos(step.door.pos.x, 68, step.door.pos.z)
                 radius = 9.0
                 nextRoom = roomPath[i + 1].room
             }
@@ -180,7 +169,7 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>
 
             if (ctx.nextRoom != null) {
                 val currentRoom = ScanUtils.getRoomFromPos(current.pos.x, current.pos.z)
-                if (currentRoom === ctx.nextRoom) return true
+                if (currentRoom === ctx.nextRoom && abs(current.pos.y - ctx.goal.y) <= 3) return true
             }
             return false
         }
