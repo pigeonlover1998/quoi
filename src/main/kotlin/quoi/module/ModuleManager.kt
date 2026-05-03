@@ -48,6 +48,7 @@ object ModuleManager {
             InteractiveMap,
             DungeonMap,
             AutoRoutes,
+            BloodCamp,
             WarpCooldown,
 
             // MISC
