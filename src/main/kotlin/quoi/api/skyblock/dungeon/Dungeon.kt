@@ -212,7 +212,9 @@ object Dungeon {
             leapTeammates = emptyList()
             dungeonTeammates.clear()
             puzzles.clear()
-            floor = if (ClickGui.forceDungeons) ClickGui.dungeonFloor.selected else null
+            floor = if (ClickGui.forceDungeons) ClickGui.dungeonFloor.selected
+                    else if (Location.onZapto) Floor.F7
+                    else null
             isPaul = false
 
             P3Section.resetAll()

@@ -25,6 +25,8 @@ import quoi.module.impl.render.ClickGui
 object Location {
     var onHypixel: Boolean = false
         private set
+    var onZapto: Boolean = false
+        private set
     var inSkyblock: Boolean = false
         private set
     var currentArea: Island = Island.Unknown
@@ -63,7 +65,7 @@ object Location {
                 }
 
                 is ClientboundSetObjectivePacket ->
-                    if (!inSkyblock) inSkyblock = onHypixel && packet.objectiveName == "SBScoreboard" || ClickGui.forceSkyblock
+                    if (!inSkyblock) inSkyblock = onHypixel && packet.objectiveName == "SBScoreboard" || ClickGui.forceSkyblock || onZapto
 
                 is ClientboundSetPlayerTeamPacket -> {
                     val team = packet.parameters?.orElse(null) ?: return@on
@@ -100,7 +102,8 @@ object Location {
                 currentArea = Island.SinglePlayer
                 return@on
             }
-            onHypixel = mc.runCatching { ip.contains("hypixel", true) }.getOrDefault(false)
+            onZapto = mc.runCatching { ip.contains("p3sim", true) }.getOrDefault(false)
+            onHypixel = mc.runCatching { ip.contains("hypixel", true) }.getOrDefault(false) || onZapto
         }
 
         EventBus.on<ServerEvent.Disconnect> {

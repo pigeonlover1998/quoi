@@ -114,6 +114,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
     }.setting()
 
     private val hypixel by switch("Hypixel", true)
+    private val zapto by switch("Zapto", true)
     private val inSB by switch("In skyblock", true)
     private val lobby by switch("Lobby", true)
 //    private val inDung by BooleanSetting("In dungeon", true)
@@ -127,6 +128,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 
     private val debugData = setOf(
         Data("Hypixel", { Location.onHypixel }, { hypixel }),
+        Data("Zapto", { Location.onZapto }, { zapto }),
         Data("Skyblock", { Location.inSkyblock }, { inSB }),
         Data("Lobby", { Location.currentServer ?: "None" }, { lobby }),
 //        Data("Dungeon", { Dungeon.inDungeons }, { inDung }),

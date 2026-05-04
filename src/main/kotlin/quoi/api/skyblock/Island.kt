@@ -30,7 +30,7 @@ enum class Island(val displayName: String, val command: String? = null) {
 
     fun isArea(area: Island): Boolean {
         if (this == SinglePlayer) return true
-        if (area == Dungeon && ClickGui.forceDungeons) return true
+        if (area == Dungeon && (ClickGui.forceDungeons || Location.onZapto)) return true
         return this == area
     }
 

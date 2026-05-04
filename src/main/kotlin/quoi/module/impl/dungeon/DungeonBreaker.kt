@@ -62,7 +62,7 @@ object DungeonBreaker : Module(
     private var editMode = false
     private var lastClickedBlock: BlockPos? = null
     private val recentlyBroken = mutableMapOf<BlockPos, Long>()
-    private val db = command.sub("db").requires("&cDungeon Breaker module is disabled!") { enabled }
+    private val db = command.sub("db").requires("&cDungeon Breaker module is disabled!") { enabled && inBoss && floor?.floorNumber == 7 }
 
     init {
         db.sub("em") {
