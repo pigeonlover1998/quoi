@@ -395,7 +395,7 @@ object AutoBloodRush : Module(
     }
 
     private fun getFreeDirection(entrance: OdonRoom): Float? { // I hate this shit
-        val comp = entrance.roomTiles.firstOrNull() ?: return null
+        val comp = entrance.tiles.firstOrNull() ?: return null
 
         val gx = (round((comp.x - -185) / 32.0).toInt() * 2)
         val gz = (round((comp.z - -185) / 32.0).toInt() * 2)

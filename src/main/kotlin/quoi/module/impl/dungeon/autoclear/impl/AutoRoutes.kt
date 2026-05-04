@@ -1,13 +1,18 @@
-package quoi.module.impl.dungeon
+package quoi.module.impl.dungeon.autoclear.impl
 
 import net.minecraft.world.entity.ambient.Bat
 import quoi.api.autoroutes2.AutoRoutesCommand
 import quoi.api.autoroutes2.RouteNode
-import quoi.api.autoroutes2.RouteRegistry.nodeEntries
+import quoi.api.autoroutes2.RouteRegistry
 import quoi.api.autoroutes2.nodes.BreakerNode
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
-import quoi.api.events.*
+import quoi.api.events.DungeonEvent
+import quoi.api.events.KeyEvent
+import quoi.api.events.MouseEvent
+import quoi.api.events.RenderEvent
+import quoi.api.events.TickEvent
+import quoi.api.events.WorldEvent
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.skyblock.invoke
@@ -19,23 +24,23 @@ import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.UIComponent.Companion.visibleIf
-import quoi.utils.*
-import quoi.utils.EntityUtils.getEntities
+import quoi.utils.Direction
+import quoi.utils.EntityUtils
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.StringUtils.width
+import quoi.utils.equalsOneOf
+import quoi.utils.mutable
 import quoi.utils.render.DrawContextUtils.drawText
+import quoi.utils.scaledHeight
+import quoi.utils.scaledWidth
+import quoi.utils.skyblock.player.EtherwarpManager
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 
-object AutoRoutes : Module( // may or may not get you banned
+object AutoRoutes : Module(
     "Auto Routes",
     area = Island.Dungeon(inClear = true),
     tag = Tag.BETA
 ) {
-    private val a by text("""
-        this module is in beta.
-        report any bugs
-        (not /route convert related)
-    """.trimIndent())
     val zeroTickDb by switch("Zero tick dungeon breaker")
     private val style by selector("Style", "Box", listOf("Box", "Filled box", "Cylinder"))
     private val thickness by slider("Thickness", 4f, 1f, 8f, 0.5f)
@@ -46,14 +51,14 @@ object AutoRoutes : Module( // may or may not get you banned
     private val activeCol by colourPicker("Active colour", Colour.WHITE)
 
     private val colourDropdown by text("Colours").visibleIf { multicolour }
-    private val colours = nodeEntries.associate { (type, node) ->
+    private val colours = RouteRegistry.nodeEntries.associate { (type, node) ->
         val set = colourPicker(type, node().colour).childOf(::colourDropdown)
         this.register(set)
         type to set
     }
 
     private val fillColourDropdown by text("Fill colours").visibleIf { style.selected == "Filled box" && multicolour }
-    private val fillColours = nodeEntries.associate { (type, node) ->
+    private val fillColours = RouteRegistry.nodeEntries.associate { (type, node) ->
         val set = colourPicker(type, node().colour.withAlpha(0.5f), allowAlpha = true).json("$type fill").childOf(::fillColourDropdown)
         this.register(set)
         type to set
@@ -89,14 +94,14 @@ object AutoRoutes : Module( // may or may not get you banned
                 pendingInteract = null
             }
 
-            if (editMode || roomNodes.isEmpty() || InteractiveMap.active) {
+            if (editMode || roomNodes.isEmpty() || EtherwarpManager.active) {
                 position = null
                 active = false
                 return@on
             }
 
             if (activeNode?.hasSecretAwait == true) {
-                getEntities<Bat>(radius = 10.0) { it.maxHealth.equalsOneOf(100f, 200f, 400f, 800f) && it.id !in batIds }
+                EntityUtils.getEntities<Bat>(radius = 10.0) { it.maxHealth.equalsOneOf(100f, 200f, 400f, 800f) && it.id !in batIds }
                     .forEach { bat ->
                         batIds.add(bat.id)
                         activeNode?.onSecret()
@@ -126,11 +131,11 @@ object AutoRoutes : Module( // may or may not get you banned
             if (button != 0 || !state || active) return@on
             val pos = position ?: return@on
 
-            val noders = roomNodes.filter { it.inside(pos) }.sortedByDescending { it.priority }
-            if (noders.isEmpty()) return@on
+            val nodes = roomNodes.filter { it.inside(pos) }.sortedByDescending { it.priority }
+            if (nodes.isEmpty()) return@on
 
-            val next = (noders.indexOf(forcedNode) + 1) % noders.size
-            val node = noders[next]
+            val next = (nodes.indexOf(forcedNode) + 1) % nodes.size
+            val node = nodes[next]
             forcedNode = node
             activeNode = node
 

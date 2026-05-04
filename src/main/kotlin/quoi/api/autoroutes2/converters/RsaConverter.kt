@@ -12,7 +12,7 @@ import quoi.api.autoroutes2.nodes.BreakerNode
 import quoi.api.autoroutes2.nodes.EtherwarpNode
 import quoi.api.autoroutes2.nodes.UseItemNode
 import quoi.config.ConfigSystem.gson
-import quoi.module.impl.dungeon.AutoRoutes
+import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes
 import quoi.utils.addVec
 import quoi.utils.toDirection
 import java.io.File

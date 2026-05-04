@@ -302,7 +302,7 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>
     }
 
     private fun smoothPath(path: List<EtherPathNode>, dist: Double, offset: Boolean): List<EtherPathNode> {
-        if (path.size <= 2) return path
+        if (path.size < 2) return path
 
         val smoothed = mutableListOf<EtherPathNode>()
         var i = 0
@@ -317,7 +317,7 @@ object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>
             var yaw = path[next].yaw
             var pitch = path[next].pitch
 
-            for (j in path.size - 1 downTo i + 2) {
+            for (j in path.size - 1 downTo i + 1) {
                 val dir = getEtherwarpDirection(from, path[j].pos, dist)
                 if (dir != null) {
                     next = j

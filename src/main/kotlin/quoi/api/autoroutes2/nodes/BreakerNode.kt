@@ -10,7 +10,7 @@ import quoi.api.colour.withAlpha
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.vec.MutableVec3
 import quoi.config.TypeName
-import quoi.module.impl.dungeon.AutoRoutes
+import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.WorldUtils.state
 import quoi.utils.aabb

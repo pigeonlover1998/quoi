@@ -13,7 +13,7 @@ import quoi.api.autoroutes2.nodes.EtherwarpNode
 import quoi.api.autoroutes2.nodes.RotateNode
 import quoi.api.autoroutes2.nodes.UseItemNode
 import quoi.config.ConfigSystem.gson
-import quoi.module.impl.dungeon.AutoRoutes
+import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes
 import java.io.File
 
 object LegacyConverter {

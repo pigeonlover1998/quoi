@@ -68,6 +68,7 @@ fun Vec3.aabb(radius: Double = 0.0) = AABB(
     z + radius
 )
 inline val Vec3.blockPos: BlockPos get() = BlockPos.containing(this)
+inline val Vec3.floorPos: BlockPos get() = BlockPos(x, ceil(y - 1.0), z)
 
 inline val BlockPos.aabb: AABB get() = AABB(this)
 inline val BlockPos.vec3: Vec3 get() = Vec3(x.toDouble(), y.toDouble(), z.toDouble())

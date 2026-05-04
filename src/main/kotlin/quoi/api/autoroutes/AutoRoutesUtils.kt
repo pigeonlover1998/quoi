@@ -25,6 +25,7 @@ import quoi.utils.WorldUtils.state
 import quoi.utils.component1
 import quoi.utils.component2
 import quoi.utils.component3
+import quoi.utils.player
 import quoi.utils.rayCast
 import quoi.utils.rayCastVec
 import kotlin.math.floor

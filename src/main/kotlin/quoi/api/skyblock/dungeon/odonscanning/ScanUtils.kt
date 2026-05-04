@@ -218,17 +218,17 @@ object ScanUtils {
         var room = uniqueRooms[roomName]
 
         if (room == null) {
-            room = OdonRoom(data = data, roomTiles = mutableSetOf())
+            room = OdonRoom(data = data, tiles = mutableSetOf())
             uniqueRooms[roomName] = room
             scannedRooms.add(room)
         }
 
         if (centre) {
 //            room.roomComponents.add(RoomComponent(x, z, core))
-            val isNEw = room.roomTiles.none { it.x == x && it.z == z }
+            val isNEw = room.tiles.none { it.x == x && it.z == z }
             if (isNEw) {
                 room.rotation = Rotations.NONE
-                room.roomTiles.add(RoomTile(x, z, core))
+                room.tiles.add(RoomTile(x, z, core))
             }
         }
 
@@ -265,16 +265,16 @@ object ScanUtils {
 
     fun updateRotation(room: OdonRoom, roomHeight: Int) {
         if (room.data.name == "Fairy") { // Fairy room doesn't have a clay block so we need to set it manually
-            room.clayPos = room.roomTiles.firstOrNull()?.let { BlockPos(it.x - 15, roomHeight, it.z - 15) } ?: return
+            room.clayPos = room.tiles.firstOrNull()?.let { BlockPos(it.x - 15, roomHeight, it.z - 15) } ?: return
             room.rotation = Rotations.SOUTH
             return
         }
 
         val level = mc.level ?: return
         room.rotation = Rotations.entries.dropLast(1).find { rotation ->
-            room.roomTiles.any { component ->
+            room.tiles.any { component ->
                 BlockPos(component.x + rotation.x, roomHeight, component.z + rotation.z).let { blockPos ->
-                    level.getBlockState(blockPos)?.block == Blocks.BLUE_TERRACOTTA && (room.roomTiles.size == 1 || horizontals.all { facing ->
+                    level.getBlockState(blockPos)?.block == Blocks.BLUE_TERRACOTTA && (room.tiles.size == 1 || horizontals.all { facing ->
                         level.getBlockState(
                             blockPos.offset((if (facing.axis == Direction.Axis.X) facing.stepX else 0), 0, (if (facing.axis == Direction.Axis.Z) facing.stepZ else 0))
                         )?.block?.equalsOneOf(Blocks.AIR, Blocks.BLUE_TERRACOTTA) == true
@@ -288,7 +288,7 @@ object ScanUtils {
 
     fun OdonRoom.updateRotation() {
         val level = mc.level ?: return
-        val comp = this.roomTiles.firstOrNull() ?: return
+        val comp = this.tiles.firstOrNull() ?: return
 
         if (level.hasChunk(comp.x shr 4, comp.z shr 4)) {
             val chunk = level.getChunk(comp.x shr 4, comp.z shr 4)

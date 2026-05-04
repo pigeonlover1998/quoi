@@ -51,8 +51,8 @@ abstract class Module(
         private set
 
     protected inline val mc get() = QuoiMod.mc
-    inline val level get() = requireNotNull(QuoiMod.mc.level) { "tried to access level before world was loaded" } // should never be null in tick events
-    inline val player get() = requireNotNull(QuoiMod.mc.player) { "tried to access player before it was loaded" } // should never be null in tick events
+    protected inline val level get() = requireNotNull(QuoiMod.mc.level) { "tried to access level before world was loaded" } // should never be null in tick events
+    protected inline val player get() = requireNotNull(QuoiMod.mc.player) { "tried to access player before it was loaded" } // should never be null in tick events
 
     protected inline val command get() = QuoiCommand.command
 

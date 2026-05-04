@@ -26,11 +26,11 @@ import quoi.api.skyblock.dungeon.Dungeon.inClear
 import quoi.api.skyblock.dungeon.Dungeon.isProtectedBlock
 import quoi.config.configPath
 import quoi.config.typeName
-import quoi.module.impl.dungeon.AutoRoutes
-import quoi.module.impl.dungeon.AutoRoutes.breakerRing
-import quoi.module.impl.dungeon.AutoRoutes.currentChain
-import quoi.module.impl.dungeon.AutoRoutes.editMode
-import quoi.module.impl.dungeon.AutoRoutes.routeNodes
+import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes
+import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes.breakerRing
+import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes.currentChain
+import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes.editMode
+import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes.routeNodes
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.command
 import quoi.utils.ChatUtils.modMessage

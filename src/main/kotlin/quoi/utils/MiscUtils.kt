@@ -1,9 +1,6 @@
 package quoi.utils
 
 import quoi.QuoiMod.mc
-import quoi.mixins.accessors.KeyMappingAccessor
-import com.mojang.blaze3d.platform.InputConstants
-import net.minecraft.client.KeyMapping
 import kotlin.reflect.KClass
 
 inline val sf get() = mc.window.guiScale
@@ -12,6 +9,9 @@ inline val height get() = mc.window.height
 
 inline val scaledWidth get() = width / sf
 inline val scaledHeight get() = height / sf
+
+inline val level get() = requireNotNull(mc.level) { "tried to access level before world was loaded" }
+inline val player get() = requireNotNull(mc.player) { "tried to access player before it was loaded" }
 
 fun Any?.equalsOneOf(vararg options: Any?): Boolean {
     return options.any { this == it }

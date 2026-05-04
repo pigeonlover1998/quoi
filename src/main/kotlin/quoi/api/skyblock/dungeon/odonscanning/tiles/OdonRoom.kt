@@ -10,6 +10,8 @@ import net.minecraft.world.phys.Vec3
 import quoi.api.colour.Colour
 import quoi.api.colour.mix
 import quoi.api.colour.multiply
+import quoi.api.events.DungeonEvent
+import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
 import quoi.api.vec.MutableVec3
 import quoi.module.impl.dungeon.DungeonMap
@@ -24,7 +26,7 @@ data class OdonRoom(
     var rotation: Rotations = Rotations.NONE,
     var data: RoomData,
     var clayPos: BlockPos = BlockPos(0, 0, 0),
-    val roomTiles: MutableSet<RoomTile>,
+    val tiles: MutableSet<RoomTile>,
 ) {
     val name get() = data.name
 
@@ -39,8 +41,8 @@ data class OdonRoom(
     fun getRealYaw(yaw: Float) = wrapDegrees(yaw - rotation.deg)
 
     val textPlacement: Vec2i get() {
-        if (roomTiles.isEmpty()) return Vec2i(0, 0)
-        val placements = roomTiles.map { it.placement }
+        if (tiles.isEmpty()) return Vec2i(0, 0)
+        val placements = tiles.map { it.placement }
 
         if (placements.size == 3) {
             val horiz = placements.groupBy { it.z }.values.find { it.size == 2 }
@@ -87,6 +89,7 @@ data class OdonRoom(
         }
 
         if (data.state != new) {
+            DungeonEvent.Room.State(this, data.state, new, this == Dungeon.currentRoom).post()
             data.state = new
         }
     }

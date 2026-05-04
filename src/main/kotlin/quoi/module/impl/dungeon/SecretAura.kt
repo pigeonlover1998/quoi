@@ -32,6 +32,7 @@ import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.utils.*
 import quoi.utils.EntityUtils.getEntities
 import quoi.utils.WorldUtils.state
+import quoi.utils.skyblock.player.EtherwarpManager
 import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.SwapManager
 import quoi.utils.skyblock.player.SwapResult
@@ -105,7 +106,7 @@ object SecretAura : Module(
         }
 
         on<TickEvent.End> {
-            if (InteractiveMap.active) return@on
+            if (EtherwarpManager.active) return@on
             if (!inSkyblock ||
                 (mc.screen != null && !inContainer) ||
                 (dungeonsOnly && !inDungeons) ||

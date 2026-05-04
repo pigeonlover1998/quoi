@@ -70,13 +70,13 @@ object QuoiCommand {
             "currentroom" {
                 currentRoom?.let { room ->
                     val player = mc.player!!
-                    val currentComp = room.roomTiles.minByOrNull { comp ->
+                    val currentComp = room.tiles.minByOrNull { comp ->
                         val dx = player.x - comp.x
                         val dz = player.z - comp.z
                         dx * dx + dz * dz
                     }
 
-                    val componentsString = room.roomTiles.mapIndexed { index, comp ->
+                    val componentsString = room.tiles.mapIndexed { index, comp ->
                         val curr = if (comp == currentComp) "&a->&f" else "   "
                         "$curr &7$index: ${comp.vec2} &7| &f${comp.core}"
                     }.joinToString("\n")

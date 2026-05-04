@@ -7,6 +7,7 @@ import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.level.block.state.BlockState
 import quoi.api.skyblock.dungeon.P3Section
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
+import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomState
 
 abstract class DungeonEvent {
     class Start : Event()
@@ -20,6 +21,7 @@ abstract class DungeonEvent {
     abstract class Room {
         class Enter(val room: OdonRoom?) : Event()
         class Scan(val room: OdonRoom) : Event()
+        class State(val room: OdonRoom, val old: RoomState, val new: RoomState, val current: Boolean) : Event()
     }
 
     class SectionComplete(val section: P3Section) : Event() {

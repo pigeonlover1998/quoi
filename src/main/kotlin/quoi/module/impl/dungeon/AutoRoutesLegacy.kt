@@ -39,6 +39,7 @@ import quoi.utils.render.*
 import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.scaledHeight
 import quoi.utils.scaledWidth
+import quoi.utils.skyblock.player.EtherwarpManager
 import quoi.utils.skyblock.player.RotationUtils.pitch
 import quoi.utils.skyblock.player.RotationUtils.yaw
 import kotlin.coroutines.cancellation.CancellationException
@@ -105,7 +106,7 @@ object AutoRoutesLegacy : Module(
     init {
         registerCommands()
         on<TickEvent.End> {
-            if (InteractiveMap.active) return@on
+            if (EtherwarpManager.active) return@on
             val room = currentRoom ?: return@on
             val rings = routes[room.data.name] ?: return@on
             currentRings.clear()

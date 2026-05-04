@@ -46,7 +46,6 @@ import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.StringUtils.percentColour
 import quoi.utils.StringUtils.toFixed
-import quoi.utils.StringUtils.width
 import quoi.utils.ThemeManager.theme
 import quoi.utils.WorldUtils.day
 import quoi.utils.ui.elements.themedInput
@@ -82,6 +81,14 @@ object ClickGui : Module(
     val prefixText by textInput("Prefix", "quoi!").childOf(::prefixDropdown)
     val prefixColour by colourPicker("Colour", Colour.GREEN).json("Prefix colour").childOf(::prefixDropdown)
     val bracketsColour by colourPicker("Brackets", Colour.WHITE).json("Brackets colour").childOf(::prefixDropdown)
+
+    val pathSett by text("Pathfinder settings")
+    val yawStep by slider("Yaw step", 6f, 2f, 10f, desc = "Horizontal density of raycasts. Lower values increase precision but reduce performance.").childOf(::pathSett)
+    val pitchStep by slider("Pitch step", 7f, 2f, 10f, desc = "Vertical density of raycasts. Lower values increase precision but reduce performance.").childOf(::pathSett)
+    val hWeight by slider("Guess weight", 6.7, 1.0, 15.0, 0.1, desc = "Higher values make the search much faster.").childOf(::pathSett)
+    val threads by slider("Threads", 6, 1, 16, desc = "Number of CPU threads to use for simultaneous path expansion.").childOf(::pathSett)
+    val timeout by slider("Timeout", 670L, 200L, 1000L, 50L, unit = "ms", desc = "Maximum time allowed for the pathfinder to search before giving up.").childOf(::pathSett)
+
 
     private val fpsHud by textHud("Fps display") {
         textPair(

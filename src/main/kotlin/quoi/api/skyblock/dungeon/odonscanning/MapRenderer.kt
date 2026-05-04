@@ -39,10 +39,11 @@ import quoi.api.skyblock.dungeon.Dungeon.floor
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonDoor
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
-import quoi.module.impl.dungeon.InteractiveMap
+import quoi.module.impl.dungeon.autoclear.impl.InteractiveMap
 import quoi.module.impl.dungeon.DungeonMap
 import quoi.utils.StringUtils.width
 import quoi.api.vec.Vec2i
+import quoi.module.impl.dungeon.autoclear.AutoClearUtils
 import quoi.utils.equalsOneOf
 import quoi.utils.rad
 import quoi.utils.render.DrawContextUtils.drawImage
@@ -133,7 +134,7 @@ object MapRenderer {
                             outline(outlineCol, thickness = 2.px)
 
                             onClick {
-                                InteractiveMap.getDoorPath(door)
+                                AutoClearUtils.pathToDoor(door)
                             }
 
                             onMouseEnterExit {
@@ -233,7 +234,7 @@ object MapRenderer {
     }
 
     private fun ElementScope<*>.renderTiles(config: MapConfig, room: OdonRoom) {
-        val components = room.roomTiles
+        val components = room.tiles
         if (components.isEmpty()) return
 
         val (scale, radius, _, _, _, _, _, autoClear) = config
@@ -356,7 +357,7 @@ object MapRenderer {
                         outlineCol.animate(0.15.seconds, style = Animation.Style.EaseOutQuint)
                     }
                     onClick(nonSpecific = true) { (button) ->
-                        InteractiveMap.getRoomPath(room, comp, button)
+                        AutoClearUtils.pathToRoom(room, comp, button)
                         true
                     }
                 }
@@ -462,8 +463,8 @@ object MapRenderer {
 
                     when (tile) {
                         is OdonRoom -> {
-                            val stateCol = if (tile.roomTiles.size > 1) {
-                                val topLeft = tile.roomTiles.minBy { it.x * 1000 + it.z }
+                            val stateCol = if (tile.tiles.size > 1) {
+                                val topLeft = tile.tiles.minBy { it.x * 1000 + it.z }
 
                                 val gx = (topLeft.x + 185) / 16
                                 val gz = (topLeft.z + 185) / 16
