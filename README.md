@@ -9,6 +9,8 @@
 
 - **Auto Align**
   - Automatically completes arrows align device.
+- **Auto Blood Rush**
+  - Automatically teleports you to the blood room before the dungeon starts.
 - **Auto Close Chest**
   - Automatically closes secret chests.
 - **Auto Leap**
