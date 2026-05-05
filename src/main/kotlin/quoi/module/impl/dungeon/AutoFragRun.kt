@@ -80,7 +80,7 @@ object AutoFragRun : Module(
             if (!BLOOD_START_REGEX.matches(noCodes)) return@on
             if (!fragRunEnv || requeue || currentRoom?.data?.type != RoomType.BLOOD) return@on
             status = FragStatus.IDLE_BLOOD
-            scheduleTask(45, server = true) {
+            scheduleTask(60, server = true) {
                 if (player.y != 69.0) return@scheduleTask requeue("Stuck after br", true)
                 val goal = currentRoom!!.getRealCoords(waitSpot)
 
@@ -132,7 +132,7 @@ object AutoFragRun : Module(
                 if (giant != null) return@scheduleTask
                 val headItem = entity.getItemBySlot(EquipmentSlot.HEAD)
                 val type = when (headItem.item) {
-                    Items.AIR -> GiantType.BIGFOOT
+                    Items.AIR, Items.TNT -> GiantType.BIGFOOT
                     Items.DIAMOND_HELMET -> GiantType.DIAMOND
                     Items.LEATHER_HELMET -> if (headItem.get(DataComponents.DYED_COLOR)?.rgb == 16716947) GiantType.PINK else GiantType.LASER
                     else -> GiantType.UNKNOWN
