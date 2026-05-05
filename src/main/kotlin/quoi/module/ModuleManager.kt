@@ -7,6 +7,7 @@ import quoi.api.events.core.EventBus
 import quoi.api.input.CatKeys
 import quoi.module.impl.dungeon.*
 import quoi.module.impl.dungeon.autoclear.impl.*
+import quoi.module.impl.dungeon.autop3.AutoP3
 import quoi.module.impl.dungeon.puzzlesolvers.PuzzleSolvers
 import quoi.module.impl.mining.*
 import quoi.module.impl.misc.*
@@ -52,6 +53,8 @@ object ModuleManager {
             BloodCamp,
             WarpCooldown,
             AutoFragRun,
+            AutoP3,
+            LavaBounce,
 
             // MISC
             Test,
