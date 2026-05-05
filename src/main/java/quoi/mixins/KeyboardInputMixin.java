@@ -23,6 +23,6 @@ public class KeyboardInputMixin {
     private void onTick(KeyboardInput instance, Input input, Operation<Void> original) {
         KeyEvent.Input event = new KeyEvent.Input(input, new MutableInput(input));
         event.post();
-        instance.keyPresses = event.getInput().toInput();
+        original.call(instance, event.getInput().toInput());
     }
 }
