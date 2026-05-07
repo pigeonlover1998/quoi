@@ -10,4 +10,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface MultiPlayerGameModeAccessor {
     @Invoker("startPrediction")
     void invokeStartPrediction(ClientLevel level, PredictiveAction action);
+    
+    @Invoker("ensureHasSentCarriedItem")
+    void invokeEnsureHasSentCarriedItem();
 }

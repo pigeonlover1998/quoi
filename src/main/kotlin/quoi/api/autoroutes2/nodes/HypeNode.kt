@@ -1,35 +1,31 @@
 package quoi.api.autoroutes2.nodes
 
 import net.minecraft.client.player.LocalPlayer
+import net.minecraft.world.entity.ambient.Bat
+import net.minecraft.world.phys.AABB
 import quoi.QuoiMod.mc
 import quoi.api.autoroutes2.RouteNode
 import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.vec.MutableVec3
 import quoi.config.TypeName
-import quoi.utils.ChatUtils.modMessage
 import quoi.utils.equalsOneOf
-import quoi.utils.skyblock.ItemUtils.registryPath
-import quoi.utils.skyblock.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.PacketOrderManager
-import quoi.utils.skyblock.player.RotationUtils.pitch
-import quoi.utils.skyblock.player.RotationUtils.yaw
 import quoi.utils.skyblock.player.SwapManager
 
-@TypeName("use_item")
-class UseItemNode : RouteNode() {
+@TypeName("hype")
+class HypeNode : RouteNode() {
     var yaw = 0f
-    var pitch = 0f
-    var item = ""
+    var pitch = 90f
 
     @Transient
-    var realYaw = 0f
+    private var realYaw = 0f
 
     override val colour: Colour
-        get() = Colour.BROWN
+        get() = Colour.PURPLE
 
     override val priority: Int
-        get() = 50
+        get() = 16
 
     override fun update(room: OdonRoom) {
         super.update(room)
@@ -37,17 +33,11 @@ class UseItemNode : RouteNode() {
     }
 
     override fun execute(player: LocalPlayer, pos: MutableVec3): Boolean {
-        val slot = (0..8).find {
-            val stack = player.inventory.getItem(it)
-            item.equalsOneOf(stack.skyblockId, stack.registryPath)
+        if (!SwapManager.reserveSwapById("NECRON_BLADE", "SCYLLA", "HYPERION", "VALKYRIE", "ASTRAEA", "SPIRIT_SCEPTRE")) {
+            return false
         }
 
-        if (slot == null) {
-            modMessage("&cItem &e$item&c not found!")
-            return true
-        }
-
-        if (!SwapManager.reserveSwap(slot)) return false
+        if (!hasBatNear(player)) return false
 
         val isDesynced = SwapManager.isDesynced()
 
@@ -59,8 +49,9 @@ class UseItemNode : RouteNode() {
                 gameMode.invokeEnsureHasSentCarriedItem()
             }
             
-            val currentSlot = SwapManager.getNextUpdateIndex()
-            if (currentSlot != slot) return@register
+            if (!SwapManager.checkServerItem("NECRON_BLADE", "SCYLLA", "HYPERION", "VALKYRIE", "ASTRAEA", "SPIRIT_SCEPTRE")) {
+                return@register
+            }
 
             gameMode.invokeStartPrediction(level) { sequence ->
                 net.minecraft.network.protocol.game.ServerboundUseItemPacket(
@@ -72,16 +63,21 @@ class UseItemNode : RouteNode() {
             }
         }
 
-        return true
+        return false
+    }
+
+    private fun hasBatNear(player: LocalPlayer): Boolean {
+        val level = mc.level ?: return false
+        val playerPos = player.position()
+        val aabb = AABB(playerPos, playerPos).inflate(10.0)
+        return level.getEntitiesOfClass(Bat::class.java, aabb).any { bat ->
+            bat.distanceToSqr(playerPos) < 100 && bat.maxHealth.equalsOneOf(100f, 200f, 400f, 800f)
+        }
     }
 
     override fun create(player: LocalPlayer, room: OdonRoom): RouteNode? {
-        val stack = player.mainHandItem
-        if (stack.isEmpty) return null
-
-        yaw = room.getRelativeYaw(player.yaw)
-        pitch = player.pitch
-        item = stack.skyblockId ?: stack.registryPath
+        yaw = room.getRelativeYaw(player.yRot)
+        pitch = 90f
         return this
     }
 }

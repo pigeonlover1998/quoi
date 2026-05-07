@@ -208,19 +208,21 @@ object SecretAura : Module(
             when (swapOn.selected) {
                 "Skulls" -> {
                     if (blockCandidate.block is SkullBlock) {
-                        if (handleSwap() == SwapResult.SUCCESS) return@on
+                        if (handleSwap() == SwapResult.TOO_FAST) return@on
                     }
                 }
                 "All" -> {
-                    if (handleSwap() == SwapResult.SUCCESS) return@on
+                    if (handleSwap() == SwapResult.TOO_FAST) return@on
                 }
             }
 
             clickedBlocks[blockCandidate.pos.asLong()] = System.currentTimeMillis() + 500
 
             lastClickedPos = blockCandidate.pos
-            AuraManager.interactBlock(blockCandidate.pos)
-            if (swing && !player.isShiftKeyDown) player.swing(InteractionHand.MAIN_HAND)
+            quoi.utils.skyblock.player.PacketOrderManager.register(quoi.utils.skyblock.player.PacketOrderManager.State.ITEM_USE) {
+                AuraManager.interactBlock(blockCandidate.pos)
+                if (swing && !player.isShiftKeyDown) player.swing(InteractionHand.MAIN_HAND)
+            }
         }
 
         on<PacketEvent.Received> {

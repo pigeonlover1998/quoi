@@ -5,6 +5,7 @@ import quoi.api.autoroutes2.awaits.SecretAwait
 import quoi.api.autoroutes2.nodes.BoomNode
 import quoi.api.autoroutes2.nodes.BreakerNode
 import quoi.api.autoroutes2.nodes.EtherwarpNode
+import quoi.api.autoroutes2.nodes.HypeNode
 import quoi.api.autoroutes2.nodes.RotateNode
 import quoi.api.autoroutes2.nodes.UseItemNode
 import quoi.config.TypeName
@@ -18,7 +19,8 @@ object RouteRegistry {
         BoomNode::class,
         BreakerNode::class,
         UseItemNode::class,
-        EtherwarpNode::class
+        EtherwarpNode::class,
+        HypeNode::class
     )
 
     val awaitTypes = listOf(

@@ -2,6 +2,7 @@ package quoi.mixins;
 
 import quoi.api.events.ChatEvent;
 import quoi.module.impl.player.Tweaks;
+import quoi.utils.skyblock.player.SwapManager;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -17,6 +18,11 @@ import static quoi.module.impl.render.RenderOptimiser.should;
 
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
+
+    @Inject(method = "handleLogin", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;<init>(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/multiplayer/ClientPacketListener;)V"))
+    public void onHandleLogin(CallbackInfo ci) {
+        SwapManager.INSTANCE.onHandleLogin();
+    }
 
     @Inject(
             method = "sendChat(Ljava/lang/String;)V",

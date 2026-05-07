@@ -224,7 +224,7 @@ object AutoRoutes : Module(
 
         if (interactDelay > 0) return
 
-        if (!active && !node.checkAwaits(player)) return
+        if (!node.checkAwaits(player)) return
 
         if (node.execute(player, playerPos)) {
             node.triggered = true

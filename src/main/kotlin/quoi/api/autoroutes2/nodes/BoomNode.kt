@@ -1,19 +1,18 @@
 package quoi.api.autoroutes2.nodes
 
 import net.minecraft.client.player.LocalPlayer
-import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.Vec3
+import quoi.QuoiMod.mc
 import quoi.api.autoroutes2.RouteNode
 import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.vec.MutableVec3
 import quoi.config.TypeName
 import quoi.utils.addVec
-import quoi.utils.equalsOneOf
 import quoi.utils.eyePosition
 import quoi.utils.getEtherPos
 import quoi.utils.getEyeHeight
-import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.player.PacketOrderManager
 import quoi.utils.skyblock.player.RotationUtils.pitch
 import quoi.utils.skyblock.player.RotationUtils.yaw
 import quoi.utils.skyblock.player.SwapManager
@@ -54,16 +53,32 @@ class BoomNode : RouteNode() {
 
     override fun execute(player: LocalPlayer, pos: MutableVec3): Boolean {
         if (this.pos.distanceToSqr(player.position()) > 0.1) return false
-        val block = if (::realTarget.isInitialized) { // rsa convert compat
+        
+        val block = if (::realTarget.isInitialized) {
             traverseVoxels(this.pos, realTarget, true).pos
         } else {
             pos.immutable().addVec(y = getEyeHeight(true)).getEtherPos(realYaw, pitch, 6.0).pos
         } ?: return true
 
-        if (!player.mainHandItem.skyblockId.equalsOneOf("INFINITE_SUPERBOOM_TNT", "SUPERBOOM_TNT")) {
-            return !SwapManager.swapById("INFINITE_SUPERBOOM_TNT", "SUPERBOOM_TNT").success
+        if (!SwapManager.reserveSwapById("INFINITE_SUPERBOOM_TNT", "SUPERBOOM_TNT")) return false
+
+        val isDesynced = SwapManager.isDesynced()
+        
+        PacketOrderManager.register(PacketOrderManager.State.ITEM_USE) {
+            val level = mc.level ?: return@register
+            val gameMode = mc.gameMode as? quoi.mixins.accessors.MultiPlayerGameModeAccessor ?: return@register
+            
+            if (isDesynced) {
+                gameMode.invokeEnsureHasSentCarriedItem()
+            }
+            
+            if (!SwapManager.checkServerItem("INFINITE_SUPERBOOM_TNT", "SUPERBOOM_TNT")) {
+                return@register
+            }
+            
+            AuraManager.interactBlock(block)
         }
-        AuraManager.interactBlock(block)
+        
         return true
     }
 
