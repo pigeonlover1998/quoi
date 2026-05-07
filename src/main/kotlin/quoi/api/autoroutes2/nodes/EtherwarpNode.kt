@@ -17,6 +17,7 @@ import quoi.utils.getLook
 import quoi.utils.rayCastVec
 import quoi.utils.render.drawLine
 import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.player.PacketOrderManager
 import quoi.utils.skyblock.player.SwapManager
 import quoi.utils.traverseVoxels
 
@@ -53,12 +54,9 @@ class EtherwarpNode : RouteNode() {
     }
 
     override fun execute(player: LocalPlayer, pos: MutableVec3): Boolean {
-//        if (player.mainHandItem.skyblockId != "ASPECT_OF_THE_VOID") {
-//            return !SwapManager.swapById("ASPECT_OF_THE_VOID").success
-//        }
         if (!player.lastSentInput.shift) return false
 
-        val actualTarget = if (realYaw != null) { // legacy convert compat
+        val actualTarget = if (realYaw != null) {
             val from = this.pos.addVec(y = getEyeHeight(false))
             val to = getLook(realYaw!!, pitch!!).scale(61.0)
             rayCastVec(from, to) ?: from.add(to)
@@ -69,15 +67,27 @@ class EtherwarpNode : RouteNode() {
         val to = actualTarget.add(direction.scale(0.001))
 
         val ether = traverseVoxels(from, to, true)
-        if (!ether.succeeded || ether.pos == null) return false//true
+        if (!ether.succeeded || ether.pos == null) return false
 
-        if (player.mainHandItem.skyblockId != "ASPECT_OF_THE_VOID") {
-            return !SwapManager.swapById("ASPECT_OF_THE_VOID").success
-        }
+        if (!SwapManager.reserveSwapById("ASPECT_OF_THE_VOID")) return false
 
+        val isDesynced = SwapManager.isDesynced()
         val dir = getDirection(from, actualTarget)
 
-        AutoRoutes.queueInteract(dir)
+        PacketOrderManager.register(PacketOrderManager.State.ITEM_USE) {
+            val level = mc.level ?: return@register
+            val gameMode = mc.gameMode as? quoi.mixins.accessors.MultiPlayerGameModeAccessor ?: return@register
+            
+            if (isDesynced) {
+                gameMode.invokeEnsureHasSentCarriedItem()
+            }
+            
+            if (!SwapManager.checkServerItem("ASPECT_OF_THE_VOID")) {
+                return@register
+            }
+
+            AutoRoutes.queueInteract(dir)
+        }
 
         pos.x = ether.pos.x + 0.5
         pos.y = ether.pos.y + 1.05

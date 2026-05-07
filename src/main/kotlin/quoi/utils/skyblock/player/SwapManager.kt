@@ -16,8 +16,13 @@ import quoi.utils.skyblock.ItemUtils.skyblockId
 
 @Init
 object SwapManager {
-    private var lastKnownServerSlot: Int = -1
+    private var lastKnownServerSlot: Int = 0
+    private var lastSentServerSlot: Int = 0
     private var hasSwappedThisTick: Boolean = false
+    private var requireSwap: Int = -1
+    
+    private var swapRequestTick: Int = 0
+    private var currentTick: Int = 0
 
     init {
 //        command.sub("testzerotick") {
@@ -65,16 +70,25 @@ object SwapManager {
 //            }
 //        }
 
-        on<TickEvent.Start> (Priority.HIGHEST) { hasSwappedThisTick = false }
+        on<TickEvent.Start> (Priority.HIGHEST) { 
+            currentTick++
+            hasSwappedThisTick = false
+            requireSwap = -1
+            swapRequestTick = 0
+        }
 
         on<WorldEvent.Change> {
-            lastKnownServerSlot = -1
+            lastKnownServerSlot = 0
+            lastSentServerSlot = 0
             hasSwappedThisTick = false
+            requireSwap = -1
+            swapRequestTick = 0
+            currentTick = 0
         }
 
         on<PacketEvent.Sent> (Priority.HIGHEST) {
             if (packet !is ServerboundSetCarriedItemPacket) return@on
-            if (packet.slot == lastKnownServerSlot) {
+            if (packet.slot == lastSentServerSlot) {
                 cancel()
                 return@on
             }
@@ -87,9 +101,106 @@ object SwapManager {
                 return@on
             }
 
+            val ticksSinceRequest = if (swapRequestTick > 0) currentTick - swapRequestTick else 0
+            println("[SwapManager] Swap packet sent after $ticksSinceRequest ticks (slot ${packet.slot}, requested slot: $requireSwap)")
+
             lastKnownServerSlot = packet.slot
+            lastSentServerSlot = packet.slot
             hasSwappedThisTick = true
         }
+    }
+
+    fun onHandleLogin() {
+        lastKnownServerSlot = 0
+        lastSentServerSlot = 0
+        hasSwappedThisTick = false
+        requireSwap = -1
+        swapRequestTick = 0
+        currentTick = 0
+    }
+
+    fun onEnsureHasSentCarriedItem(managerServerSlot: Int): Boolean {
+        val player = mc.player ?: return false
+        var i = player.inventory.selectedSlot
+        if (!hasSwappedThisTick && requireSwap > -1 && i != requireSwap) {
+            if (requireSwap == managerServerSlot) return false
+            player.inventory.selectedSlot = requireSwap
+            i = requireSwap
+        }
+
+        if (i != managerServerSlot && !hasSwappedThisTick) {
+            lastKnownServerSlot = i
+            return true
+        }
+        return false
+    }
+
+    fun getNextUpdateIndex(): Int {
+        if (hasSwappedThisTick) return lastKnownServerSlot
+        if (requireSwap > -1) return requireSwap
+        return mc.player?.inventory?.selectedSlot ?: 0
+    }
+
+    fun canSwap(): Boolean {
+        return !hasSwappedThisTick && requireSwap < 0
+    }
+
+    fun isDesynced(): Boolean {
+        return getNextUpdateIndex() != lastKnownServerSlot
+    }
+
+    private fun reserveSwap0(slot: Int): Boolean {
+        if (slot !in 0..8) return false
+        if (!canSwap()) return slot == getNextUpdateIndex()
+        if (swapRequestTick == 0) {
+            swapRequestTick = currentTick
+            println("[SwapManager] Swap requested at tick $currentTick (slot $slot)")
+        }
+        requireSwap = slot
+        return true
+    }
+
+    fun reserveSwap(slot: Int): Boolean {
+        if (!reserveSwap0(slot)) return false
+        swapToSlot(slot)
+        return true
+    }
+
+    fun reserveSwapById(vararg skyblockIds: String): Boolean {
+        val p = mc.player ?: return false
+
+        if (!canSwap()) {
+            val stack = p.inventory.getItem(getNextUpdateIndex())
+            val id = stack.skyblockId
+            return id != null && skyblockIds.any { it.equals(id, true) }
+        }
+
+        for (i in 0..8) {
+            val stack = p.inventory.getItem(i)
+            if (stack.isEmpty) continue
+            val id = stack.skyblockId
+            if (id != null && skyblockIds.any { it.equals(id, true) }) {
+                if (!reserveSwap0(i)) return false
+                swapToSlot(i)
+                return true
+            }
+        }
+        return false
+    }
+
+    fun checkServerItem(vararg skyblockIds: String): Boolean {
+        val p = mc.player ?: return false
+        if (lastKnownServerSlot !in 0..8) return false
+        val stack = p.inventory.getItem(lastKnownServerSlot)
+        val id = stack.skyblockId
+        return id != null && skyblockIds.any { it.equals(id, true) }
+    }
+
+    fun checkClientItem(vararg skyblockIds: String): Boolean {
+        val p = mc.player ?: return false
+        val stack = p.inventory.getItem(p.inventory.selectedSlot)
+        val id = stack.skyblockId
+        return id != null && skyblockIds.any { it.equals(id, true) }
     }
 
     fun swapToSlot(slot: Int) = when {
@@ -98,9 +209,7 @@ object SwapManager {
         mc.player!!.inventory.selectedSlot == slot -> SwapResult.ALREADY_SELECTED
         hasSwappedThisTick -> SwapResult.TOO_FAST
         else -> {
-//            modMessage("swapping to $slot")
             mc.player!!.inventory.selectedSlot = slot
-            mc.connection?.send(ServerboundSetCarriedItemPacket(slot))
             SwapResult.SUCCESS
         }
     }
@@ -125,6 +234,35 @@ object SwapManager {
 
         modMessage("Could not find ${items.joinToString(", ")}")
         return SwapResult.NOT_FOUND
+    }
+    
+    fun sendC07(pos: net.minecraft.core.BlockPos, action: net.minecraft.network.protocol.game.ServerboundPlayerActionPacket.Action, face: net.minecraft.core.Direction, swing: Boolean, syncSlot: Boolean): Boolean {
+        val player = mc.player ?: return false
+        val gameMode = mc.gameMode ?: return false
+        val level = mc.level ?: return false
+        
+        if (player.gameMode() == net.minecraft.world.level.GameType.SPECTATOR) return false
+        
+        if (syncSlot) {
+            val slot = player.inventory.selectedSlot
+            if (hasSwappedThisTick) return false
+        }
+        
+        if (action == net.minecraft.network.protocol.game.ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK) {
+            mc.connection?.send(net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(
+                net.minecraft.network.protocol.game.ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,
+                pos,
+                net.minecraft.core.Direction.DOWN,
+                0
+            ))
+        } else {
+            (gameMode as quoi.mixins.accessors.MultiPlayerGameModeAccessor).invokeStartPrediction(level) { sequence ->
+                net.minecraft.network.protocol.game.ServerboundPlayerActionPacket(action, pos, face, sequence)
+            }
+        }
+        
+        if (swing) player.swing(net.minecraft.world.InteractionHand.MAIN_HAND)
+        return true
     }
 }
 
