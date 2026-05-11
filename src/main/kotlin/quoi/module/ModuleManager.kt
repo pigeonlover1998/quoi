@@ -27,7 +27,6 @@ object ModuleManager {
             AutoLeap,
             AutoCloseChest,
             FullBlockHitboxes,
-            CancelInteract,
             SecretTriggerBot,
             InvincibilityTimer,
             SimonSays,

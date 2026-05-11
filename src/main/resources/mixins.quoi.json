@@ -38,7 +38,6 @@
     "LeverBlockMixin",
     "LightTextureMixin",
     "LivingEntityRendererMixin",
-    "MinecraftMixin",
     "MouseHandlerMixin",
     "MultiPlayerGameModeMixin",
     "NameTagFeatureRendererMixin",
