@@ -21,11 +21,11 @@ import quoi.utils.WorldUtils.nearbyBlocks
 import quoi.utils.addVec
 import quoi.utils.eyePosition
 import quoi.utils.floorPos
-import quoi.utils.getEtherPos
-import quoi.utils.getEtherwarpDirection
 import quoi.utils.getEyeHeight
 import quoi.utils.player
-import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.item.TeleportUtils.getEtherPos
+import quoi.utils.skyblock.item.TeleportUtils.getEtherwarpDirection
+import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 import quoi.utils.sq

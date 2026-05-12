@@ -5,22 +5,20 @@ import net.minecraft.core.BlockPos
 import net.minecraft.util.Mth.wrapDegrees
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.ClipContext
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.block.*
-import net.minecraft.world.level.block.piston.PistonHeadBlock
-import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
-import net.minecraft.core.Direction as McDirection
 import quoi.QuoiMod.mc
 import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
 import quoi.api.vec.MutableVec3
 import quoi.utils.WorldUtils.shape
+import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels
 import kotlin.math.*
+
+// todo cleanup
 
 /**
  * modified OdinFabric (BSD 3-Clause)
@@ -275,24 +273,6 @@ fun getDirection(from: Vec3, to: Vec3): Direction {
 
 fun getDirection(to: Vec3) = getDirection(mc.player!!.eyePosition(), to)
 
-/**
- * Returns a triple of distance, yaw, pitch to rotate to the given position with etherwarp physics, or null if etherwarp is not possible.
- *
- * @param to The position to rotate to.
- * @return A triple of distance, yaw, pitch to rotate to the given position with etherwarp physics, or null if etherwarp is not possible
- * @see getDirection
- * @author Aton
- */
-fun getEtherwarpDirection(from: Vec3, to: BlockPos, dist: Double = 61.0): Direction? {
-    if (from.distanceToSqr(to.vec3) > (dist + 2) * (dist + 2)) return null
-
-    val visibleVec = getVisiblePoint(from, to) ?: return null
-
-    return getDirection(from, visibleVec)
-}
-
-fun getEtherwarpDirection(to: BlockPos, dist: Double = 61.0) = getEtherwarpDirection(mc.player!!.eyePosition(true), to, dist)
-
 fun getArrowDirection(from: Vec3, to: Vec3, isTerminator: Boolean = false): Direction {
 
     var yaw = atan2(to.z - from.z, to.x - from.x).deg - 90.0f
@@ -485,11 +465,6 @@ fun getVisiblePoint(from: Vec3, to: BlockPos): Vec3? {
 
 fun getVisiblePoint(to: BlockPos) = getVisiblePoint(mc.player!!.eyePosition(), to)
 
-fun Vec3.getEtherPos(yaw: Float, pitch: Float, distance: Double = 61.0): EtherPos {
-    val to = getLook(wrapDegrees(yaw), wrapDegrees(pitch)).scale(distance).add(this)
-    return traverseVoxels(this, to, true)
-}
-
 fun rayCast(
     x: Double, y: Double, z: Double,
     dx: Double, dy: Double, dz: Double,
@@ -616,187 +591,4 @@ private fun Vec3.intermediateWithZValue(goal: Vec3, z: Double): Vec3? {
 
 fun dot(x0: Double, y0: Double, z0: Double, x1: Double, y1: Double, z1: Double): Double {
     return (x0 * x1) + (y0 * y1) + (z0 * z1)
-}
-
-
-/**
- * modified OdinFabric (BSD 3-Clause)
- * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/com/odtheking/odin/features/impl/render/Etherwarp.kt
- */
-
-data class EtherPos(val succeeded: Boolean, val pos: BlockPos?, val state: BlockState?) {
-    val vec3: Vec3 by lazy { Vec3(pos ?: BlockPos.ZERO)  }
-
-    companion object {
-        val NONE = EtherPos(false, null, null)
-    }
-}
-
-/**
- * Traverses voxels from start to end and returns the first non-air block it hits.
- * @author unclambomb6
- */
-fun traverseVoxels(x0: Double, y0: Double, z0: Double, x1: Double, y1: Double, z1: Double, etherwarp: Boolean): EtherPos {
-    var x = floor(x0)
-    var y = floor(y0)
-    var z = floor(z0)
-
-    val endX = floor(x1)
-    val endY = floor(y1)
-    val endZ = floor(z1)
-
-    val dirX = x1 - x0
-    val dirY = y1 - y0
-    val dirZ = z1 - z0
-
-    val stepX = sign(dirX).toInt()
-    val stepY = sign(dirY).toInt()
-    val stepZ = sign(dirZ).toInt()
-
-    val invDirX = if (dirX != 0.0) 1.0 / dirX else Double.MAX_VALUE
-    val invDirY = if (dirY != 0.0) 1.0 / dirY else Double.MAX_VALUE
-    val invDirZ = if (dirZ != 0.0) 1.0 / dirZ else Double.MAX_VALUE
-
-    val tDeltaX = abs(invDirX * stepX)
-    val tDeltaY = abs(invDirY * stepY)
-    val tDeltaZ = abs(invDirZ * stepZ)
-
-    var tMaxX = abs((x + max(stepX, 0) - x0) * invDirX)
-    var tMaxY = abs((y + max(stepY, 0) - y0) * invDirY)
-    var tMaxZ = abs((z + max(stepZ, 0) - z0) * invDirZ)
-
-    val level = mc.level ?: return EtherPos.NONE
-
-    val mut = BlockPos.MutableBlockPos()
-
-    var lastChunkX = Int.MIN_VALUE
-    var lastChunkZ = Int.MIN_VALUE
-    var chunk: LevelChunk? = null
-
-    repeat(1000) {
-        mut.set(x, y, z)
-
-        val cx = x.toInt() shr 4
-        val cz = z.toInt() shr 4
-
-        if (cx != lastChunkX || cz != lastChunkZ) {
-            chunk = level.getChunk(cx, cz)
-            lastChunkX = cx
-            lastChunkZ = cz
-        }
-
-        val state = chunk?.getBlockState(mut) ?: return EtherPos.NONE
-        val id = Block.getId(state)
-
-        val isPassable = (blockFlags[id] and PASSABLE) != 0
-        val isSolid = !isPassable
-
-        if ((etherwarp && isSolid) || (!etherwarp && id != 0)) {
-            val hitPos = mut.immutable()
-
-            if (!etherwarp && isPassable) return EtherPos(false, hitPos, state)
-
-            val collisionTop = state.getCollisionShape(level, hitPos).max(McDirection.Axis.Y)
-            val clearanceBaseY = hitPos.y + max(1.0, ceil(collisionTop))
-
-            mut.set(x, clearanceBaseY, z)
-
-            val feetFlags = blockFlags[Block.getId(level.getBlockState(mut))]
-            if ((feetFlags and PASSABLE) == 0 || (feetFlags and BLOCKS_FEET) != 0)
-                return EtherPos(false, hitPos, state)
-
-            mut.set(x, clearanceBaseY + 1, z)
-
-            val headFlags = blockFlags[Block.getId(level.getBlockState(mut))]
-            if ((headFlags and PASSABLE) == 0 || (headFlags and BLOCKS_FEET) != 0)
-                return EtherPos(false, hitPos, state)
-
-            return EtherPos(true, hitPos, state)
-        }
-
-        if (x == endX && y == endY && z == endZ) return EtherPos.NONE
-
-        when {
-            tMaxX <= tMaxY && tMaxX <= tMaxZ -> {
-                tMaxX += tDeltaX
-                x += stepX
-            }
-            tMaxY <= tMaxZ -> {
-                tMaxY += tDeltaY
-                y += stepY
-            }
-            else -> {
-                tMaxZ += tDeltaZ
-                z += stepZ
-            }
-        }
-    }
-
-    return EtherPos.NONE
-}
-
-fun traverseVoxels(from: Vec3, to: Vec3, etherwarp: Boolean): EtherPos {
-    val (x0, y0, z0) = from
-    val (x1, y1, z1) = to
-    return traverseVoxels(x0, y0, z0, x1, y1, z1, etherwarp)
-}
-
-const val PASSABLE = 1        // ray passes through // todo move
-const val BLOCKS_FEET = 2     // cannot stand inside
-
-val blockFlags: IntArray = IntArray(Block.BLOCK_STATE_REGISTRY.size()).apply {
-    Block.BLOCK_STATE_REGISTRY.forEach { state ->
-        val block = state.block
-        val id = Block.getId(state)
-
-        val passable = when (block) {
-            is AirBlock -> true
-
-            is FlowerBlock, is TallGrassBlock, is BushBlock, is TallFlowerBlock, is ShortDryGrassBlock -> true
-            is TorchBlock, is RedstoneTorchBlock -> true
-            is TripWireBlock, is TripWireHookBlock -> true
-            is RailBlock -> true
-            is FireBlock -> true
-            is VineBlock -> true
-            is LiquidBlock -> true
-            is SaplingBlock -> true
-            is CropBlock, is StemBlock -> true
-            is SeagrassBlock, is TallSeagrassBlock -> true
-            is SugarCaneBlock -> true
-            is MushroomBlock -> true
-            is NetherWartBlock -> true
-            is RedStoneWireBlock, is ComparatorBlock, is RepeaterBlock -> true
-            is SmallDripleafBlock, is BigDripleafStemBlock -> true
-            is DoublePlantBlock -> true
-            is LeverBlock -> true
-            is SnowLayerBlock -> true
-            is BubbleColumnBlock -> true
-            is GrowingPlantBlock -> true
-            is PistonHeadBlock -> true
-            is DryVegetationBlock -> true
-            is ButtonBlock -> true
-            is LanternBlock -> true
-            is SkullBlock, is WallSkullBlock -> true
-            is LadderBlock -> true
-            is FlowerPotBlock -> true
-            is WebBlock -> true
-            is NetherPortalBlock -> true
-
-            else -> false
-        }
-
-        val blocksFeet = when (block) {
-            is SkullBlock, is WallSkullBlock -> true
-            is FlowerPotBlock -> true
-            is LadderBlock -> true
-//            is VineBlock -> true
-            else -> false
-        }
-
-        var flags = 0
-        if (passable) flags = flags or PASSABLE
-        if (blocksFeet) flags = flags or BLOCKS_FEET
-
-        this[id] = flags
-    }
 }

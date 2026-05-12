@@ -30,7 +30,7 @@ import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawWireFrameBox
 import quoi.utils.scaledHeight
 import quoi.utils.scaledWidth
-import quoi.utils.skyblock.ItemUtils.getBreakerCharges
+import quoi.utils.skyblock.item.ItemUtils.getBreakerCharges
 import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.SwapManager

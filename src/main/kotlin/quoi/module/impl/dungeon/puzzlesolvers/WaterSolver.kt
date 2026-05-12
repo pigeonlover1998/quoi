@@ -19,7 +19,7 @@ import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.toFixed
 import quoi.utils.Ticker
 import quoi.utils.WorldUtils.state
-import quoi.utils.getEtherwarpDirection
+import quoi.utils.skyblock.item.TeleportUtils.getEtherwarpDirection
 import quoi.utils.render.drawLine
 import quoi.utils.render.drawText
 import quoi.utils.skyblock.player.interact.AuraManager

@@ -1,6 +1,6 @@
-package quoi.utils.skyblock
+package quoi.utils.skyblock.item
 
-import kotlinx.serialization.json.Json.Default.parseToJsonElement
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import net.minecraft.client.player.LocalPlayer
@@ -25,7 +25,7 @@ object ItemUtils {
 
     inline val ItemStack?.petHeldItem: String? // no good
         get() = this?.extraAttributes?.getString("petInfo")?.orElse(null)?.let {
-            parseToJsonElement(it).jsonObject["heldItem"]?.jsonPrimitive?.content
+            Json.parseToJsonElement(it).jsonObject["heldItem"]?.jsonPrimitive?.content
         }
 
     inline val ItemStack?.lore: List<String>?

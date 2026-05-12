@@ -13,7 +13,7 @@ import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.impl.ListSetting
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.formattedString
-import quoi.utils.skyblock.ItemUtils.skyblockUuid
+import quoi.utils.skyblock.item.ItemUtils.skyblockUuid
 import quoi.utils.skyblock.player.PlayerUtils.isLookingAtBreakable
 import quoi.utils.skyblock.player.PlayerUtils.leftClick
 import quoi.utils.skyblock.player.PlayerUtils.rightClick

@@ -48,7 +48,7 @@ import quoi.utils.equalsOneOf
 import quoi.utils.rad
 import quoi.utils.render.DrawContextUtils.drawImage
 import quoi.utils.render.DrawContextUtils.rect
-import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.ui.rendering.Font
 import quoi.utils.ui.rendering.NVGRenderer
 import quoi.utils.ui.rendering.NVGRenderer.defaultFont

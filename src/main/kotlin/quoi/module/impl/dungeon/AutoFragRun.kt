@@ -37,7 +37,7 @@ import quoi.utils.isPathClear
 import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.scaledHeight
 import quoi.utils.scaledWidth
-import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.ContainerUtils
 import quoi.utils.skyblock.player.MovementUtils.cancelMovementTask
 import quoi.utils.skyblock.player.MovementUtils.moveTo

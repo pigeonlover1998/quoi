@@ -11,8 +11,8 @@ import quoi.api.events.core.EventBus.on
 import quoi.api.events.core.Priority
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.noControlCodes
-import quoi.utils.skyblock.ItemUtils.loreString
-import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.item.ItemUtils.loreString
+import quoi.utils.skyblock.item.ItemUtils.skyblockId
 
 @Init
 object SwapManager {

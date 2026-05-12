@@ -7,7 +7,7 @@ import quoi.api.autoroutes2.nodes.EtherwarpNode
 import quoi.config.TypeName
 import quoi.utils.addVec
 import quoi.utils.getEyeHeight
-import quoi.utils.traverseVoxels
+import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels
 
 @TypeName("raycast")
 class RaycastAwait : RouteAwait() {

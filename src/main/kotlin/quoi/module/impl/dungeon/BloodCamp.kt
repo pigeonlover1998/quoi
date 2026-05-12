@@ -23,7 +23,7 @@ import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.StringUtils.toFixed
 import quoi.utils.render.drawText
 import quoi.utils.render.drawWireFrameBox
-import quoi.utils.skyblock.ItemUtils.texture
+import quoi.utils.skyblock.item.ItemUtils.texture
 import java.util.concurrent.ConcurrentHashMap
 
 // based on https://github.com/soshimee/soshimeeaddons/blob/main/features/bloodHelper/index.js

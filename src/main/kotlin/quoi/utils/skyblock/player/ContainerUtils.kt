@@ -20,8 +20,8 @@ import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.items
-import quoi.utils.skyblock.ItemUtils.loreString
-import quoi.utils.skyblock.ItemUtils.skyblockUuid
+import quoi.utils.skyblock.item.ItemUtils.loreString
+import quoi.utils.skyblock.item.ItemUtils.skyblockUuid
 import quoi.utils.skyblock.player.ContainerUtils.closeContainer
 import quoi.utils.skyblock.player.ContainerUtils.getContainerItems
 import quoi.utils.skyblock.player.ContainerUtils.getContainerItemsClose

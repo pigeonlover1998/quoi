@@ -7,7 +7,7 @@ import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.impl.KeybindComponent
 import quoi.utils.ChatUtils.modMessage
-import quoi.utils.skyblock.ItemUtils.loreString
+import quoi.utils.skyblock.item.ItemUtils.loreString
 import quoi.utils.skyblock.player.ContainerUtils.clickSlot
 
 /**

@@ -25,7 +25,7 @@ import quoi.utils.StringUtils.width
 import quoi.utils.render.DrawContextUtils.drawEntity
 import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.render.DrawContextUtils.rect
-import quoi.utils.skyblock.ItemUtils.loreString
+import quoi.utils.skyblock.item.ItemUtils.loreString
 import quoi.utils.ui.cursor
 import quoi.utils.ui.delegateClick
 import quoi.utils.ui.inHudEditor

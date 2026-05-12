@@ -24,6 +24,15 @@ class EtherPathNode(
     val pitch: Float
 ) : PathNode(pos, g, h, parent)
 
+class TransmissionPathNode(
+    pos: BlockPos,
+    g: Double,
+    h: Double,
+    parent: PathNode?,
+    val yaw: Float,
+    val pitch: Float
+) : PathNode(pos, g, h, parent)
+
 class RoomNode(
     val room: OdonRoom,
     val doorFromParent: OdonDoor?,

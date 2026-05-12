@@ -12,8 +12,8 @@ import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.wait
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.WorldUtils.state
-import quoi.utils.skyblock.ItemUtils.lore
-import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.item.ItemUtils.lore
+import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.SwapManager

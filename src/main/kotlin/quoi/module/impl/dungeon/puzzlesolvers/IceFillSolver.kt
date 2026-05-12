@@ -18,7 +18,8 @@ import quoi.utils.*
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.WorldUtils.state
 import quoi.utils.render.drawLine
-import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.item.TeleportUtils.getEtherwarpDirection
+import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.MovementUtils.isMoving
 import quoi.utils.skyblock.player.PlayerUtils.useItem

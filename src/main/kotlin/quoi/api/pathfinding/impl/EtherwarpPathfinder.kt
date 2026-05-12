@@ -16,7 +16,6 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.SlabType
 import quoi.utils.distanceTo
 import quoi.utils.dot
-import quoi.utils.getEtherwarpDirection
 import quoi.utils.getEyeHeight
 import quoi.utils.getLook
 import quoi.api.pathfinding.AbstractPathfinder
@@ -29,14 +28,15 @@ import quoi.utils.Vec3
 import quoi.utils.WorldUtils.etherwarpable
 import quoi.utils.distanceToSqr
 import quoi.utils.rad
+import quoi.utils.skyblock.item.TeleportUtils.getEtherwarpDirection
+import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels
 import quoi.utils.sq
-import quoi.utils.traverseVoxels
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sqrt
 
-object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>() {
+object EtherwarpPathfinder : AbstractPathfinder<EtherPathNode, EtherwarpContext>() { // todo cleanup
 
     private var lastDist = -1.0
     private var lastPitchStep = -1.0f

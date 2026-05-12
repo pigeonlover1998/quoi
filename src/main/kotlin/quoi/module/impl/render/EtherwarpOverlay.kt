@@ -12,9 +12,9 @@ import quoi.utils.aabb
 import quoi.utils.eyeHeight
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawWireFrameBox
-import quoi.utils.skyblock.ItemUtils.extraAttributes
-import quoi.utils.skyblock.ItemUtils.skyblockId
-import quoi.utils.traverseVoxels
+import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels
+import quoi.utils.skyblock.item.ItemUtils.extraAttributes
+import quoi.utils.skyblock.item.ItemUtils.skyblockId
 
 object EtherwarpOverlay : Module (
     "Etherwarp Overlay",

@@ -16,9 +16,9 @@ import quoi.utils.getEyeHeight
 import quoi.utils.getLook
 import quoi.utils.rayCastVec
 import quoi.utils.render.drawLine
-import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels
+import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.SwapManager
-import quoi.utils.traverseVoxels
 
 @TypeName("etherwarp")
 class EtherwarpNode : RouteNode() {

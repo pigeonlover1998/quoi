@@ -17,6 +17,7 @@ import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.WorldUtils.state
 import quoi.utils.render.drawLine
 import quoi.utils.render.drawWireFrameBox
+import quoi.utils.skyblock.item.TeleportUtils.getEtherwarpDirection
 import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 import quoi.utils.skyblock.player.SwapManager

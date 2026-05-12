@@ -21,7 +21,8 @@ import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.WorldUtils.state
 import quoi.utils.render.drawLine
 import quoi.utils.render.drawStyledBox
-import quoi.utils.skyblock.ItemUtils.isShortbow
+import quoi.utils.skyblock.item.TeleportUtils.getEtherwarpDirection
+import quoi.utils.skyblock.item.ItemUtils.isShortbow
 import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 import quoi.utils.skyblock.player.SwapManager

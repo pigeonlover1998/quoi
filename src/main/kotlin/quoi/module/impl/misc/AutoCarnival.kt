@@ -11,7 +11,7 @@ import quoi.api.events.TickEvent
 import quoi.module.Module
 import quoi.utils.EntityUtils.getEntities
 import quoi.utils.getDirection
-import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 
 object AutoCarnival : Module(

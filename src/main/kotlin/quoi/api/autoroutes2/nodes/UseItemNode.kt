@@ -10,8 +10,8 @@ import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Direction
 import quoi.utils.equalsOneOf
-import quoi.utils.skyblock.ItemUtils.registryPath
-import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.item.ItemUtils.registryPath
+import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.RotationUtils.pitch
 import quoi.utils.skyblock.player.RotationUtils.yaw
 import quoi.utils.skyblock.player.SwapManager

@@ -14,7 +14,7 @@ import quoi.api.events.GuiEvent
 import quoi.api.events.PacketEvent
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.Module
-import quoi.utils.skyblock.ItemUtils.texture
+import quoi.utils.skyblock.item.ItemUtils.texture
 import quoi.utils.textures
 
 object RenderOptimiser : Module(

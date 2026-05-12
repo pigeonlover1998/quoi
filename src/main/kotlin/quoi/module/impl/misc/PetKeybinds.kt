@@ -20,10 +20,10 @@ import quoi.utils.ChatUtils.button
 import quoi.utils.ChatUtils.literal
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.noControlCodes
-import quoi.utils.skyblock.ItemUtils.loreString
-import quoi.utils.skyblock.ItemUtils.petHeldItem
-import quoi.utils.skyblock.ItemUtils.skyblockId
-import quoi.utils.skyblock.ItemUtils.skyblockUuid
+import quoi.utils.skyblock.item.ItemUtils.loreString
+import quoi.utils.skyblock.item.ItemUtils.petHeldItem
+import quoi.utils.skyblock.item.ItemUtils.skyblockId
+import quoi.utils.skyblock.item.ItemUtils.skyblockUuid
 import quoi.utils.skyblock.player.ContainerUtils
 import quoi.utils.skyblock.player.ContainerUtils.clickSlot
 import quoi.utils.skyblock.player.ContainerUtils.getContainerItemsClose

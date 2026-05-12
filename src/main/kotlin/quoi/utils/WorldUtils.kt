@@ -13,6 +13,9 @@ import net.minecraft.world.level.chunk.status.ChunkStatus
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 import net.minecraft.world.phys.shapes.VoxelShape
+import quoi.utils.skyblock.item.TeleportUtils.BLOCKS_FEET
+import quoi.utils.skyblock.item.TeleportUtils.PASSABLE
+import quoi.utils.skyblock.item.TeleportUtils.blockFlags
 import net.minecraft.core.Direction as McDirection
 import kotlin.math.ceil
 import kotlin.math.floor

@@ -1,7 +1,6 @@
 package quoi.api.autoroutes2.nodes
 
 import net.minecraft.client.player.LocalPlayer
-import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.Vec3
 import quoi.api.autoroutes2.RouteNode
 import quoi.api.colour.Colour
@@ -11,14 +10,14 @@ import quoi.config.TypeName
 import quoi.utils.addVec
 import quoi.utils.equalsOneOf
 import quoi.utils.eyePosition
-import quoi.utils.getEtherPos
 import quoi.utils.getEyeHeight
-import quoi.utils.skyblock.ItemUtils.skyblockId
+import quoi.utils.skyblock.item.TeleportUtils.getEtherPos
+import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels
+import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.RotationUtils.pitch
 import quoi.utils.skyblock.player.RotationUtils.yaw
 import quoi.utils.skyblock.player.SwapManager
 import quoi.utils.skyblock.player.interact.AuraManager
-import quoi.utils.traverseVoxels
 
 @TypeName("boom")
 class BoomNode : RouteNode() {

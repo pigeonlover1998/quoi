@@ -1,7 +1,6 @@
 package quoi.module.impl.misc
 
 import kotlinx.coroutines.launch
-import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.BlockHitResult
@@ -17,8 +16,6 @@ import quoi.api.events.RenderEvent
 import quoi.api.events.TickEvent
 import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.Dungeon
-import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
-import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
 import quoi.module.Module
 import quoi.module.impl.render.ClickGui
 import quoi.utils.*
@@ -29,19 +26,16 @@ import quoi.utils.StringUtils.formatTime
 import quoi.utils.StringUtils.toFixed
 import quoi.utils.WorldUtils.nearbyBlocks
 import quoi.utils.WorldUtils.state
-import quoi.utils.WorldUtils.worldToMap
-import quoi.api.pathfinding.impl.EtherwarpPathfinder
 import quoi.api.pathfinding.impl.Pathfinder
-import quoi.utils.render.DrawContextUtils.rect
+import quoi.api.pathfinding.impl.TransmissionPathfinder
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawLine
+import quoi.utils.skyblock.item.TeleportUtils.getEtherPos
 import quoi.utils.skyblock.player.interact.AuraAction
 import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.ContainerUtils
 import quoi.utils.skyblock.player.LeapManager
 import quoi.utils.skyblock.player.MovementUtils.moveTo
-import quoi.utils.skyblock.player.RotationUtils.pitch
-import quoi.utils.skyblock.player.RotationUtils.yaw
 import quoi.utils.ui.hud.impl.TextHud
 import quoi.utils.ui.textPair
 
@@ -341,6 +335,35 @@ object Test : Module("Test", desc = "Dev module for testing.") {
             modMessage(player.eyePosition(true).addVec(y = 0.05).getEtherPos(y, p))
         }
 
+        command.sub("transpath") {
+            val start = player.blockPosition()
+            val goal = BlockPos(-35, 79, -73)
+
+            scope.launch {
+                val p = TransmissionPathfinder.findPath(
+                    start = start,
+                    goal = goal,
+                    pitchStep = 10f,
+                    yawStep = 10f,
+                    hWeight = 5.0,
+                    threads = 16
+                ) ?: return@launch modMessage("no trans path")
+
+                etherPath = p.map { it.pos }
+
+                var curr = start.center.addVec(y = -0.5 + getEyeHeight(false))
+
+                etherPoints = p.map { node ->
+                    val look = getLook(node.yaw, node.pitch)
+                    val target = curr.add(look.scale(12.0))
+                    val seg = curr to target
+                    curr = node.pos.center.addVec(y = -0.5 + getEyeHeight(false))
+
+                    seg
+                }.drop(1)
+            }
+        }
+
         on<RenderEvent.World> {
             if (drawPoints != null && path != null) {
                 val points = drawPoints!!
@@ -355,10 +378,15 @@ object Test : Module("Test", desc = "Dev module for testing.") {
             if (etherPoints != null && etherPath != null) {
                 val points = etherPoints!!
                 val path = etherPath!!
+                val eye = getEyeHeight(false).toDouble()
                 path.forEach { pos ->
-                    ctx.drawFilledBox(pos.aabb, colour = Colour.ORANGE.withAlpha(100), depth = true)
+                    ctx.drawFilledBox(pos.aabb.deflate(0.4, 0.0, 0.4).setMaxY(pos.y + eye), colour = Colour.ORANGE.withAlpha(100), depth = true)
+                    ctx.drawFilledBox(pos.aabb.setMaxY(pos.y + 0.1), colour = Colour.GREEN.withAlpha(100), depth = true)
                 }
-                ctx.drawLine(points, colour = Colour.WHITE, depth = true)
+//                ctx.drawLine(points, colour = Colour.WHITE, depth = true)
+                points.forEach { (vec3, vec31) ->
+                    ctx.drawLine(listOf(vec3, vec31), colour = Colour.WHITE, depth = true)
+                }
             }
         }
 
@@ -370,5 +398,5 @@ object Test : Module("Test", desc = "Dev module for testing.") {
     private var drawPoints: List<Vec3>? = null
 
     private var etherPath: List<BlockPos>? = null
-    private var etherPoints: List<Vec3>? = null
+    private var etherPoints: List<Pair<Vec3, Vec3>>? = null
 }
