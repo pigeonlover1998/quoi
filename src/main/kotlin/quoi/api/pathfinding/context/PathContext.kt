@@ -49,7 +49,7 @@ open class PathContext<N : PathNode>(
     }
 
     @Synchronized
-    fun addNode(node: N) {
+    open fun addNode(node: N) {
         if (solved) return
 
         val posLong = node.pos.asLong()

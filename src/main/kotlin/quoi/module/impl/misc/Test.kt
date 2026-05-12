@@ -28,6 +28,7 @@ import quoi.utils.WorldUtils.nearbyBlocks
 import quoi.utils.WorldUtils.state
 import quoi.api.pathfinding.impl.Pathfinder
 import quoi.api.pathfinding.impl.TransmissionPathfinder
+import quoi.module.impl.dungeon.DungeonESP.starredMobs
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawLine
 import quoi.utils.skyblock.item.TeleportUtils.getEtherPos
@@ -338,13 +339,16 @@ object Test : Module("Test", desc = "Dev module for testing.") {
         }
 
         command.sub("transpath") {
+            val room = Dungeon.currentRoom ?: return@sub modMessage("room is null")
             val start = player.blockPosition()
             val goal = BlockPos(-35, 79, -73)
 
+            modMessage(room.starredMobs)
+
             scope.launch {
-                val p = TransmissionPathfinder.findPath(
+                val p = TransmissionPathfinder.findClearPath(
                     start = start,
-                    goal = goal,
+                    mobs = room.starredMobs,
                     pitchStep = 10f,
                     yawStep = 10f,
                     hWeight = 5.0,
@@ -357,13 +361,17 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 
                 etherPoints = p.map { node ->
                     val look = getLook(node.yaw, node.pitch)
-                    val target = curr.add(look.scale(12.0))
+                    val target = curr.add(look.scale(10.0))
                     val seg = curr to target
                     curr = node.pos.center.addVec(y = -0.5 + getEyeHeight(false))
 
                     seg
                 }.drop(1)
             }
+        }
+
+        command.sub("spawnstarred") {
+            ChatUtils.command("/summon zombie ~ ~ ~ {NoAI:1b, PersistenceRequired:1b, Passengers:[{id:\"minecraft:armor_stand\", Marker:1b, CustomNameVisible:1b, CustomName:'✯ \\u00A7c❤', NoGravity:1b}]}")
         }
 
         on<RenderEvent.World> {

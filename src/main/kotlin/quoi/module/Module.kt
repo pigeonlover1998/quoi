@@ -38,7 +38,7 @@ abstract class Module(
         tag: Tag = Tag.NONE
     ) : this(name, IslandArea.Base(area), subarea, key, desc, toggled, tag)
 
-    private var isRegistered = false
+    var isRegistered = false
 
     val events = mutableListOf<EventBus.EventListener>()
 
@@ -58,6 +58,10 @@ abstract class Module(
 
     @Transient
     val alwaysActive = this::class.java.isAnnotationPresent(AlwaysActive::class.java)
+
+    init {
+        if (alwaysActive) onToggle(true)
+    }
 
     val settings: ArrayList<Setting<*>> = ArrayList()
 
@@ -108,7 +112,7 @@ abstract class Module(
     }
 
     fun onToggle(state: Boolean) {
-        val shouldBeRegistered = state // && inEnvironment()
+        val shouldBeRegistered = state || alwaysActive
 
         if (shouldBeRegistered && !isRegistered) {
             events.forEach { it.add() }
@@ -130,13 +134,19 @@ abstract class Module(
     fun inEnvironment(): Boolean = area?.inArea() ?: true && inSubarea()
 
     protected inline fun <reified T : Event> on(priority: Int = 0, noinline cb: T.() -> Unit) {
-        events.add(EventBus.on<T>(priority, {
+        val listener = EventBus.on<T>(priority, {
             val event = this
             when (event) {
                 is UnfilteredEvent -> if (inArea() && inSubarea()) cb()
                 else -> if (inEnvironment()) cb()
             }
-        }, false))
+        }, false)
+
+        events.add(listener)
+        if (alwaysActive || enabled) {
+            listener.add()
+            isRegistered = true
+        }
     }
 
     @JvmName("onPacket")
@@ -144,9 +154,15 @@ abstract class Module(
         priority: Int = 0,
         noinline cb: PacketScope<E, P>.() -> Unit
     ) where E : Event, E : PacketEvent {
-        events.add(EventBus.on<E, P>(priority, {
+        val listener = EventBus.on<E, P>(priority, {
             if (inEnvironment()) cb()
-        }, false))
+        }, false)
+
+        events.add(listener)
+        if (alwaysActive || enabled) {
+            listener.add()
+            isRegistered = true
+        }
     }
 
     enum class Tag(val desc: String = "") {

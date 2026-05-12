@@ -20,3 +20,11 @@ fun Any?.equalsOneOf(vararg options: Any?): Boolean {
 fun Any?.isOneOf(vararg types: KClass<*>): Boolean {
     return types.any { it.isInstance(this) }
 }
+
+inline fun <K, V> MutableMap<K, V>.removeIf(predicate: (K, V) -> Boolean) {
+    val iterator = this.entries.iterator()
+    while (iterator.hasNext()) {
+        val entry = iterator.next()
+        if (predicate(entry.key, entry.value)) iterator.remove()
+    }
+}

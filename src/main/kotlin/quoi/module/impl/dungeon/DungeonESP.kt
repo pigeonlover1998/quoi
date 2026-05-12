@@ -7,6 +7,7 @@ import net.minecraft.world.entity.boss.wither.WitherBoss
 import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.world.entity.monster.EnderMan
 import net.minecraft.world.entity.player.Player
+import quoi.annotations.AlwaysActive
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
 import quoi.api.events.EntityEvent
@@ -16,6 +17,9 @@ import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Dungeon.floor
 import quoi.api.skyblock.dungeon.Dungeon.inBoss
+import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
+import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
+import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomState
 import quoi.api.skyblock.invoke
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
@@ -27,8 +31,10 @@ import quoi.utils.EntityUtils.interpolatedBox
 import quoi.utils.Scheduler.scheduleLoop
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.equalsOneOf
+import quoi.utils.removeIf
 import quoi.utils.render.drawStyledBox
 
+@AlwaysActive
 object DungeonESP : Module(
     "Dungeon ESP",
     desc = "Highlights various dungeon entities.",
@@ -60,11 +66,11 @@ object DungeonESP : Module(
     private val thicknessBoss by slider("Thickness", 4, 1, 8, 1).json("Thickness boss").childOf(::styleBoss)
     private val sizeOffsetBoss by slider("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").json("Size offset boss").childOf(::styleBoss).visibleIf { style.selected.equalsOneOf("Box", "Filled box") }
 
-    private var currentEntities = mutableSetOf<EspMob>()
+    private var currentEntities = mutableMapOf<Int, EspMob>()
 
     init {
-        scheduleLoop(10) {
-            if (!enabled || !starEsp || !Dungeon.inClear || style.selected == "Glow") return@scheduleLoop // todo do something about this..
+        scheduleLoop(10) { // maybe move to dungeon utils
+            if (/*!enabled || !starEsp || */!Dungeon.inClear/* || style.selected == "Glow"*/) return@scheduleLoop
             updateEntities()
         }
 
@@ -73,14 +79,19 @@ object DungeonESP : Module(
         }
 
         on<RenderEvent.World> {
-            if (starEsp) currentEntities.removeIf { (entity, colour, fillColour) ->
+            currentEntities.removeIf { _, mob ->
+                val entity = mob.entity
+
                 if (entity.isDeadOrDying || entity.isRemoved) return@removeIf true
-                val aabb = entity.interpolatedBox.inflate(sizeOffset, 0.0, sizeOffset)
-                ctx.drawStyledBox(style.selected, aabb, colour, fillColour, thickness.toFloat(), depth)
+
+                if (enabled && starEsp && style.selected != "Glow") {
+                    val aabb = entity.interpolatedBox.inflate(sizeOffset, 0.0, sizeOffset)
+                    ctx.drawStyledBox(style.selected, aabb, mob.colour, mob.fillColour, thickness.toFloat(), depth)
+                }
                 false
             }
 
-            if (bossEsp && inBoss && floor?.floorNumber == 7) getEntities<WitherBoss>()
+            if (enabled && bossEsp && inBoss && floor?.floorNumber == 7) getEntities<WitherBoss>()
                 .filter { it.isWitherBoss }
                 .forEach { entity ->
                     val aabb = entity.interpolatedBox.inflate(sizeOffsetBoss, 0.0, sizeOffsetBoss)
@@ -89,10 +100,11 @@ object DungeonESP : Module(
         }
 
         on<EntityEvent.ForceGlow> {
+            if (!enabled) return@on
             getTeammateColour(entity)?.let { glowColour = it }
 
             if (starEsp) {
-                if (!starEsp|| style.selected != "Glow") return@on
+                if (style.selected != "Glow") return@on
                 if (depth && !player.hasLineOfSight(entity)) return@on
 
                 getColour(entity)?.let {
@@ -100,7 +112,9 @@ object DungeonESP : Module(
                     return@on
                 }
 
-                if (currentEntities.any { it.entity == entity }) glowColour = colourStar
+                currentEntities[entity.id]?.let {
+                    glowColour = it.colour
+                }
             }
 
             if (bossEsp && inBoss && floor?.floorNumber == 7) {
@@ -119,7 +133,7 @@ object DungeonESP : Module(
         val realId = stand.id - offset
 
         stand.level().getEntity(realId)?.takeIf { it is LivingEntity && it !is ArmorStand }?.let {
-            currentEntities.add(EspMob(it as LivingEntity, colourStar, colourStarFill))
+            addMob(it as LivingEntity, colourStar, colourStarFill)
             return
         }
 
@@ -127,7 +141,7 @@ object DungeonESP : Module(
         stand.level().getEntities(stand, stand.boundingBox.move(0.0, -1.0, 0.0)) {
             it !is ArmorStand && it is LivingEntity && it != player
         }.firstOrNull()?.let {
-            currentEntities.add(EspMob(it as LivingEntity, colourStar, colourStarFill))
+            addMob(it as LivingEntity, colourStar, colourStarFill)
         }
     }
 
@@ -148,7 +162,8 @@ object DungeonESP : Module(
             null
         }
         is Player -> with(entity.name.string) {
-            if (contains("Shadow Assassin")) colourSA to colourSAFill
+            if (!contains("✯")) null
+            else if (contains("Shadow Assassin")) colourSA to colourSAFill
             else if (equalsOneOf("Diamond Guy", "Lost Adventurer")) colourStar to colourStarFill
             else null
         }
@@ -157,11 +172,16 @@ object DungeonESP : Module(
 
     private fun updateEntities() {
         getEntities<LivingEntity>().forEach { entity ->
-            if (currentEntities.any { it.entity == entity }) return@forEach
+            if (currentEntities.containsKey(entity.id)) return@forEach
             getColour(entity)?.let { (colour, fillColour) ->
-                currentEntities.add(EspMob(entity, colour, fillColour))
+                addMob(entity, colour, fillColour)
             }
         }
+    }
+
+    private fun addMob(entity: LivingEntity, col: Colour, fill: Colour) {
+        val room = ScanUtils.getRoomFromPos(entity.x, entity.z)
+        currentEntities[entity.id] = EspMob(entity, col, fill, room)
     }
 
     private fun getTeammateColour(entity: Entity): Colour? {
@@ -169,7 +189,16 @@ object DungeonESP : Module(
         return Dungeon.dungeonTeammates.find { it.name == entity.name?.string }?.clazz?.colour
     }
 
-    private data class EspMob(val entity: LivingEntity, val colour: Colour, val fillColour: Colour)
+    val OdonRoom.starredMobs: List<LivingEntity> get() {
+        if (this.data.state == RoomState.GREEN) return emptyList()
+        val res = ArrayList<LivingEntity>()
+        for (mob in currentEntities.values) {
+            if (mob.room == this && mob.entity !is Bat) res.add(mob.entity)
+        }
+        return res
+    }
+
+    private data class EspMob(val entity: LivingEntity, val colour: Colour, val fillColour: Colour, val room: OdonRoom?)
 
     private val Entity.isWitherBoss get() = this is WitherBoss && !this.isInvisible && this.invulnerableTicks != 800
 }

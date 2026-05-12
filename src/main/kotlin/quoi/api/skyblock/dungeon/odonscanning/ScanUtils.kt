@@ -256,9 +256,9 @@ object ScanUtils {
         mimicRoom = getRoomFromPos(chest.x, chest.z)
     }
 
-    fun getRoomFromPos(x: Int, z: Int): OdonRoom? {
-        val gx = (round((x - START) / 32.0).toInt() * 2).coerceIn(0, 10)
-        val gz = (round((z - START) / 32.0).toInt() * 2).coerceIn(0, 10)
+    fun getRoomFromPos(x: Number, z: Number): OdonRoom? {
+        val gx = (round((x.toInt() - START) / 32.0).toInt() * 2).coerceIn(0, 10)
+        val gz = (round((z.toInt() - START) / 32.0).toInt() * 2).coerceIn(0, 10)
 
         return grid[gz * 11 + gx] as? OdonRoom
     }
