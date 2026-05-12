@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.state.BlockState
 import quoi.QuoiMod.mc
 import quoi.annotations.Internal
 import quoi.utils.WorldUtils.state
-import quoi.utils.eyePosition
+import quoi.utils.skyblock.player.PlayerUtils.eyePosition
 import quoi.utils.getHitResult
 import quoi.utils.startPrediction
 import kotlin.math.ceil

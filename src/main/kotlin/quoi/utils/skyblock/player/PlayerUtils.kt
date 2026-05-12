@@ -12,7 +12,9 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
+import net.minecraft.world.phys.Vec3
 import quoi.QuoiMod.mc
+import quoi.api.skyblock.Location
 import quoi.module.settings.Setting.Companion.gson
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.literal
@@ -58,6 +60,16 @@ object PlayerUtils {
         else gameMode.useItemOn(player, hand, hitResult)
         if (swing) player.swing(hand)
     }
+
+    fun getEyeHeight(sneak: Boolean = false): Float {
+        val s = if (Location.onModernIsland) 1.27f else 1.54f
+        return if (sneak) s else 1.62f
+    }
+
+    fun LocalPlayer.eyeHeight(forceSneak: Boolean = false): Float =
+        getEyeHeight(isCrouching || forceSneak)
+
+    fun LocalPlayer.eyePosition(forceSneak: Boolean = false) = Vec3(x, y + eyeHeight(forceSneak), z)
 
     fun LocalPlayer.useItem(yaw: Number = this.yaw, pitch: Number = this.pitch) = mc.gameMode?.startPrediction { sequence ->
         ServerboundUseItemPacket(

@@ -9,8 +9,8 @@ import quoi.api.vec.MutableVec3
 import quoi.config.TypeName
 import quoi.utils.addVec
 import quoi.utils.equalsOneOf
-import quoi.utils.eyePosition
-import quoi.utils.getEyeHeight
+import quoi.utils.skyblock.player.PlayerUtils.eyePosition
+import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
 import quoi.utils.skyblock.item.TeleportUtils.getEtherPos
 import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels
 import quoi.utils.skyblock.item.ItemUtils.skyblockId

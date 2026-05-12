@@ -12,7 +12,7 @@ import quoi.config.TypeName
 import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes
 import quoi.utils.addVec
 import quoi.utils.getDirection
-import quoi.utils.getEyeHeight
+import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
 import quoi.utils.getLook
 import quoi.utils.rayCastVec
 import quoi.utils.render.drawLine

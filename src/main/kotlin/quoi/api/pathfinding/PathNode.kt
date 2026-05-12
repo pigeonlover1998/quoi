@@ -15,16 +15,7 @@ open class PathNode(
     override fun compareTo(other: PathNode): Int = this.f.compareTo(other.f)
 }
 
-class EtherPathNode(
-    pos: BlockPos,
-    g: Double,
-    h: Double,
-    parent: PathNode?,
-    val yaw: Float,
-    val pitch: Float
-) : PathNode(pos, g, h, parent)
-
-class TransmissionPathNode(
+class TeleportPathNode(
     pos: BlockPos,
     g: Double,
     h: Double,

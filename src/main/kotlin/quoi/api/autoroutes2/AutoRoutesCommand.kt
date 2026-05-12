@@ -32,12 +32,11 @@ import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes.currentChain
 import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes.editMode
 import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes.routeNodes
 import quoi.utils.ChatUtils
-import quoi.utils.ChatUtils.command
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.component1
 import quoi.utils.component2
 import quoi.utils.component3
-import quoi.utils.getEyeHeight
+import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
 import java.io.File
 import kotlin.math.floor
 

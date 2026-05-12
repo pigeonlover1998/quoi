@@ -24,7 +24,7 @@ import quoi.utils.Scheduler.scheduleLoop
 import quoi.utils.StringUtils.width
 import quoi.utils.WorldUtils.state
 import quoi.utils.aabb
-import quoi.utils.eyePosition
+import quoi.utils.skyblock.player.PlayerUtils.eyePosition
 import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawWireFrameBox

@@ -1,6 +1,5 @@
 package quoi.utils
 
-import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.util.Mth.wrapDegrees
 import net.minecraft.world.entity.Entity
@@ -11,11 +10,11 @@ import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 import quoi.QuoiMod.mc
-import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
 import quoi.api.vec.MutableVec3
 import quoi.utils.WorldUtils.shape
 import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels
+import quoi.utils.skyblock.player.PlayerUtils.eyePosition
 import kotlin.math.*
 
 // todo cleanup
@@ -29,16 +28,6 @@ import kotlin.math.*
 data class Direction(val yaw: Float, val pitch: Float, val distance: Double = 0.0) {
     fun getLook() = getLook(yaw, pitch)
 }
-
-fun getEyeHeight(sneak: Boolean = false): Float {
-    val s = if (Location.onModernIsland) 1.27f else 1.54f
-    return if (sneak) s else 1.62f
-}
-
-fun LocalPlayer.eyeHeight(forceSneak: Boolean = false): Float =
-    getEyeHeight(isCrouching || forceSneak)
-
-fun LocalPlayer.eyePosition(forceSneak: Boolean = false) = Vec3(x, y + eyeHeight(forceSneak), z)
 
 operator fun Vec3.component1(): Double = x
 operator fun Vec3.component2(): Double = y
@@ -234,8 +223,6 @@ fun BlockPos.distanceToSqr(to: BlockPos): Double {
 }
 
 fun BlockPos.getHitResult(force: Boolean = false): BlockHitResult? {
-    val player = mc.player ?: return null
-
     var shape = this.shape
     if (shape.isEmpty && force) shape = Shapes.block()
     if (shape.isEmpty) return null
@@ -271,7 +258,7 @@ fun getDirection(from: Vec3, to: Vec3): Direction {
     return Direction(wrapDegrees(yaw), wrapDegrees(pitch), dist)
 }
 
-fun getDirection(to: Vec3) = getDirection(mc.player!!.eyePosition(), to)
+fun getDirection(to: Vec3) = getDirection(player.eyePosition(), to)
 
 fun getArrowDirection(from: Vec3, to: Vec3, isTerminator: Boolean = false): Direction {
 
@@ -320,7 +307,6 @@ fun getArrowDirection(from: Vec3, to: Vec3, isTerminator: Boolean = false): Dire
 }
 
 fun getArrowDirection(to: Vec3, isTerminator: Boolean = false): Direction {
-    val player = mc.player ?: return Direction(0f, 0f)
     return getArrowDirection(player.eyePosition(), to, isTerminator)
 }
 
@@ -383,7 +369,7 @@ fun getArrowDirection(from: Vec3, to: BlockPos, isTerminator: Boolean = false): 
     return null
 }
 
-fun getArrowDirection(to: BlockPos, isTerminator: Boolean = false) = getArrowDirection(mc.player!!.eyePosition(), to, isTerminator)
+fun getArrowDirection(to: BlockPos, isTerminator: Boolean = false) = getArrowDirection(player.eyePosition(), to, isTerminator)
 
 fun getArrowOrigin(from: Vec3, yaw: Float, isTerminator: Boolean): Vec3 {
     return if (isTerminator) {
@@ -406,7 +392,7 @@ fun isPathClear(from: Vec3, target: Vec3): Boolean {
             target,
             ClipContext.Block.COLLIDER,
             ClipContext.Fluid.NONE,
-            mc.player as Entity
+            player as Entity
         )
     )
     return result.type == HitResult.Type.MISS
@@ -463,7 +449,7 @@ fun getVisiblePoint(from: Vec3, to: BlockPos): Vec3? {
     return null
 }
 
-fun getVisiblePoint(to: BlockPos) = getVisiblePoint(mc.player!!.eyePosition(), to)
+fun getVisiblePoint(to: BlockPos) = getVisiblePoint(player.eyePosition(), to)
 
 fun rayCast(
     x: Double, y: Double, z: Double,
@@ -477,11 +463,10 @@ fun rayCast(vec3: Vec3, vec31: Vec3, etherwarp: Boolean = true) =
     rayCast(vec3.x, vec3.y, vec3.z, vec31.x, vec31.y, vec31.z, etherwarp)
 
 fun rayCast(
-    lookVec: Vec3 = mc.player!!.getViewVector(mc.deltaTracker.getGameTimeDeltaPartialTick(false)),
+    lookVec: Vec3 = player.getViewVector(mc.deltaTracker.getGameTimeDeltaPartialTick(false)),
     distance: Double = 61.0,
     etherwarp: Boolean = true
 ): BlockPos? {
-    val player = mc.player ?: return null
     val origin = Vec3(
         player.x,
         player.eyePosition(etherwarp).y,
@@ -526,12 +511,10 @@ fun rayCastVec(vec3: Vec3, vec31: Vec3, etherwarp: Boolean = true): Vec3? =
     rayCastVec(vec3.x, vec3.y, vec3.z, vec31.x, vec31.y, vec31.z, etherwarp)
 
 fun rayCastVec(
-    lookVec: Vec3 = mc.player!!.getViewVector(mc.deltaTracker.getGameTimeDeltaPartialTick(false)),
+    lookVec: Vec3 = player.getViewVector(mc.deltaTracker.getGameTimeDeltaPartialTick(false)),
     distance: Double = 61.0,
     etherwarp: Boolean = true
 ): Vec3? {
-    val player = mc.player ?: return null
-
     val origin = Vec3(
         player.x,
         player.eyePosition(etherwarp).y,

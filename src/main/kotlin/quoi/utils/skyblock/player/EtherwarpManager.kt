@@ -19,9 +19,9 @@ import quoi.utils.Direction
 import quoi.utils.WorldUtils.etherwarpable
 import quoi.utils.WorldUtils.nearbyBlocks
 import quoi.utils.addVec
-import quoi.utils.eyePosition
+import quoi.utils.skyblock.player.PlayerUtils.eyePosition
 import quoi.utils.floorPos
-import quoi.utils.getEyeHeight
+import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
 import quoi.utils.player
 import quoi.utils.skyblock.item.TeleportUtils.getEtherPos
 import quoi.utils.skyblock.item.TeleportUtils.getEtherwarpDirection

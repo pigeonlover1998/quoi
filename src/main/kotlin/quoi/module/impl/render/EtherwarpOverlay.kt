@@ -9,7 +9,7 @@ import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.aabb
-import quoi.utils.eyeHeight
+import quoi.utils.skyblock.player.PlayerUtils.eyeHeight
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawWireFrameBox
 import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels

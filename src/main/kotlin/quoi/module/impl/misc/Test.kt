@@ -36,6 +36,8 @@ import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.ContainerUtils
 import quoi.utils.skyblock.player.LeapManager
 import quoi.utils.skyblock.player.MovementUtils.moveTo
+import quoi.utils.skyblock.player.PlayerUtils.eyePosition
+import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
 import quoi.utils.ui.hud.impl.TextHud
 import quoi.utils.ui.textPair
 

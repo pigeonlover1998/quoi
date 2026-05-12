@@ -4,7 +4,7 @@ import net.minecraft.network.protocol.game.ServerboundInteractPacket
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
 import quoi.QuoiMod.mc
-import quoi.utils.eyePosition
+import quoi.utils.skyblock.player.PlayerUtils.eyePosition
 import quoi.utils.skyblock.player.interact.AuraManager.debugBox
 
 class EntityInteract(private val entity: Entity, private val action: AuraAction) {

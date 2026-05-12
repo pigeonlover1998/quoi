@@ -3,6 +3,7 @@ package quoi.utils.skyblock.item
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.core.BlockPos
 import net.minecraft.util.Mth
+import net.minecraft.util.Mth.wrapDegrees
 import net.minecraft.world.level.block.AirBlock
 import net.minecraft.world.level.block.BigDripleafStemBlock
 import net.minecraft.world.level.block.Block
@@ -56,7 +57,7 @@ import quoi.utils.Direction
 import quoi.utils.component1
 import quoi.utils.component2
 import quoi.utils.component3
-import quoi.utils.eyePosition
+import quoi.utils.skyblock.player.PlayerUtils.eyePosition
 import quoi.utils.getDirection
 import quoi.utils.getLook
 import quoi.utils.getVisiblePoint
@@ -71,7 +72,7 @@ import kotlin.math.sign
 // todo cleanup
 object TeleportUtils {
     fun Vec3.getEtherPos(yaw: Float, pitch: Float, distance: Double = 61.0): EtherPos {
-        val to = getLook(Mth.wrapDegrees(yaw), Mth.wrapDegrees(pitch)).scale(distance).add(this)
+        val to = getLook(wrapDegrees(yaw), wrapDegrees(pitch)).scale(distance).add(this)
         return traverseVoxels(this, to, true)
     }
 
@@ -93,6 +94,12 @@ object TeleportUtils {
 
     fun getEtherwarpDirection(to: BlockPos, dist: Double = 61.0) = getEtherwarpDirection(mc.player!!.eyePosition(true), to, dist)
 
+    /**
+     * based on noammaddons' InstantTransmissionHelper which is based on rsm's EtherUtils which is based on soshimee's zph algorithm
+     * https://github.com/Noamm9/NoammAddons/blob/master/src/main/kotlin/com/github/noamm9/utils/items/InstantTransmissionHelper.kt#L99
+     * https://github.com/rs-mod/rsm/blob/69e992bebc2840d1f49166685e393ec53a8e0312/src/main/java/com/ricedotwho/rsm/utils/EtherUtils.java#L438
+     * https://discord.com/channels/1180667916560109588/1232500078585974874 // discord.gg/sby
+     */
     fun predictTransmission(x0: Double, y0: Double, z0: Double, dx: Double, dy: Double, dz: Double, distance: Double): TeleportPos {
         var x = floor(x0)
         var y = floor(y0)
@@ -197,55 +204,6 @@ object TeleportUtils {
         }
 
         return TeleportPos.NONE
-    }
-
-    private fun checkBlockCollision(
-        level: ClientLevel,
-        mut: BlockPos.MutableBlockPos,
-        state: BlockState,
-        x0: Double, y0: Double, z0: Double,
-        invRayX: Double, invRayY: Double, invRayZ: Double
-    ): Boolean {
-        // known passable
-        if (PASSABLE_BLOCKS.contains(state.block)) return false
-
-        // emty shape
-        val shape = state.getCollisionShape(level, mut)
-        if (shape.isEmpty) return false
-
-        val bounds = shape.bounds()
-        val isFullBlock = (bounds.maxX - bounds.minX >= 1.0) &&
-                (bounds.maxY - bounds.minY >= 1.0) &&
-                (bounds.maxZ - bounds.minZ >= 1.0)
-
-        // full block
-        if (isFullBlock) return true
-
-        // partial block. check if ray intersects bb
-        val minX = mut.x + bounds.minX
-        val minY = mut.y + bounds.minY
-        val minZ = mut.z + bounds.minZ
-        val maxX = mut.x + bounds.maxX
-        val maxY = mut.y + bounds.maxY
-        val maxZ = mut.z + bounds.maxZ
-
-        val t1X = (minX - x0) * invRayX
-        val t2X = (maxX - x0) * invRayX
-        var tMin = min(t1X, t2X)
-        var tMax = max(t1X, t2X)
-
-        val t1Y = (minY - y0) * invRayY
-        val t2Y = (maxY - y0) * invRayY
-        tMin = max(tMin, min(t1Y, t2Y))
-        tMax = min(tMax, max(t1Y, t2Y))
-
-        val t1Z = (minZ - z0) * invRayZ
-        val t2Z = (maxZ - z0) * invRayZ
-        tMin = max(tMin, min(t1Z, t2Z))
-        tMax = min(tMax, max(t1Z, t2Z))
-
-        // tru if ray passes through bb
-        return tMax >= max(0.0, tMin) && tMin <= 1.0
     }
 
     /**
@@ -364,6 +322,56 @@ object TeleportUtils {
             val NONE = TeleportPos(false, null, null)
         }
     }
+
+    private fun checkBlockCollision(
+        level: ClientLevel,
+        mut: BlockPos.MutableBlockPos,
+        state: BlockState,
+        x0: Double, y0: Double, z0: Double,
+        invRayX: Double, invRayY: Double, invRayZ: Double
+    ): Boolean {
+        // known passable
+        if (PASSABLE_BLOCKS.contains(state.block)) return false
+
+        // emty shape
+        val shape = state.getCollisionShape(level, mut)
+        if (shape.isEmpty) return false
+
+        val bounds = shape.bounds()
+        val isFullBlock = (bounds.maxX - bounds.minX >= 1.0) &&
+                (bounds.maxY - bounds.minY >= 1.0) &&
+                (bounds.maxZ - bounds.minZ >= 1.0)
+
+        // full block
+        if (isFullBlock) return true
+
+        // partial block. check if ray intersects bb
+        val minX = mut.x + bounds.minX
+        val minY = mut.y + bounds.minY
+        val minZ = mut.z + bounds.minZ
+        val maxX = mut.x + bounds.maxX
+        val maxY = mut.y + bounds.maxY
+        val maxZ = mut.z + bounds.maxZ
+
+        val t1X = (minX - x0) * invRayX
+        val t2X = (maxX - x0) * invRayX
+        var tMin = min(t1X, t2X)
+        var tMax = max(t1X, t2X)
+
+        val t1Y = (minY - y0) * invRayY
+        val t2Y = (maxY - y0) * invRayY
+        tMin = max(tMin, min(t1Y, t2Y))
+        tMax = min(tMax, max(t1Y, t2Y))
+
+        val t1Z = (minZ - z0) * invRayZ
+        val t2Z = (maxZ - z0) * invRayZ
+        tMin = max(tMin, min(t1Z, t2Z))
+        tMax = min(tMax, max(t1Z, t2Z))
+
+        // tru if ray passes through bb
+        return tMax >= max(0.0, tMin) && tMin <= 1.0
+    }
+
 
     /**
      * modified OdinFabric (BSD 3-Clause)
