@@ -41,7 +41,6 @@ object ModuleManager {
             AutoGFS,
             Splits,
             Secrets,
-            AutoRoutesLegacy,
             SecretAura,
             PuzzleSolvers,
             InteractiveMap,

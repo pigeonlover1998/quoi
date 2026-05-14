@@ -11,9 +11,9 @@ import quoi.api.skyblock.dungeon.odonscanning.MapRenderer
 import quoi.api.skyblock.dungeon.odonscanning.MapRenderer.renderMap
 import quoi.api.skyblock.invoke
 import quoi.module.Module
-import quoi.module.impl.dungeon.autoclear.AutoClearUtils.getLockedDoor
-import quoi.module.impl.dungeon.autoclear.AutoClearUtils.pathToDoor
-import quoi.module.impl.dungeon.autoclear.AutoClearUtils.pathToRoom
+import quoi.module.impl.dungeon.autoclear.getLockedDoor
+import quoi.module.impl.dungeon.autoclear.pathToDoor
+import quoi.module.impl.dungeon.autoclear.pathToRoom
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.ui.hud.impl.TextHud

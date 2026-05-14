@@ -1,10 +1,10 @@
 package quoi.module.impl.dungeon.autoclear.impl
 
 import net.minecraft.world.entity.ambient.Bat
-import quoi.api.autoroutes2.AutoRoutesCommand
-import quoi.api.autoroutes2.RouteNode
-import quoi.api.autoroutes2.RouteRegistry
-import quoi.api.autoroutes2.nodes.BreakerNode
+import quoi.api.autoroutes.AutoRoutesCommand
+import quoi.api.autoroutes.RouteNode
+import quoi.api.autoroutes.RouteRegistry
+import quoi.api.autoroutes.nodes.BreakerNode
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
 import quoi.api.events.DungeonEvent
@@ -17,14 +17,15 @@ import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.skyblock.invoke
 import quoi.api.vec.MutableVec3
+import quoi.api.world.Direction
 import quoi.config.ConfigMap
 import quoi.config.configMap
 import quoi.config.typeName
 import quoi.module.Module
+import quoi.module.impl.dungeon.autoclear.executor.ClearExecutor
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.UIComponent.Companion.visibleIf
-import quoi.utils.Direction
 import quoi.utils.EntityUtils
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.StringUtils.width
@@ -33,7 +34,6 @@ import quoi.utils.mutable
 import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.scaledHeight
 import quoi.utils.scaledWidth
-import quoi.utils.skyblock.player.EtherwarpManager
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 
 object AutoRoutes : Module(
@@ -94,7 +94,7 @@ object AutoRoutes : Module(
                 pendingInteract = null
             }
 
-            if (editMode || roomNodes.isEmpty() || EtherwarpManager.active) {
+            if (editMode || roomNodes.isEmpty() || ClearExecutor.active) {
                 position = null
                 active = false
                 return@on

@@ -29,8 +29,12 @@ import quoi.utils.WorldUtils.state
 import quoi.api.pathfinding.impl.Pathfinder
 import quoi.api.pathfinding.impl.TransmissionPathfinder
 import quoi.module.impl.dungeon.DungeonESP.starredMobs
+import quoi.module.impl.dungeon.autoclear.MobCluster
+import quoi.module.impl.dungeon.autoclear.MobClusterer
+import quoi.module.impl.dungeon.autoclear.executor.ClearExecutor
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawLine
+import quoi.utils.skyblock.item.TeleportUtils
 import quoi.utils.skyblock.item.TeleportUtils.getEtherPos
 import quoi.utils.skyblock.player.interact.AuraAction
 import quoi.utils.skyblock.player.interact.AuraManager
@@ -39,6 +43,8 @@ import quoi.utils.skyblock.player.LeapManager
 import quoi.utils.skyblock.player.MovementUtils.moveTo
 import quoi.utils.skyblock.player.PlayerUtils.eyePosition
 import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
+import quoi.utils.skyblock.player.RotationUtils.pitch
+import quoi.utils.skyblock.player.RotationUtils.yaw
 import quoi.utils.ui.hud.impl.TextHud
 import quoi.utils.ui.textPair
 
@@ -333,45 +339,52 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 ////                etherPath = p
 ////                etherPoints = etherPath!!.map { Vec3(it.x + 0.5, it.y + 1.0, it.z + 0.5) }
 //            }
-            val y = 23.094011f
-            val p = 30f
-            modMessage(player.eyePosition(true).addVec(y = 0.05).getEtherPos(y, p))
+//            val y = 23.094011f
+//            val p = 30f
+//            modMessage(player.eyePosition(true).addVec(y = 0.05).getEtherPos(y, p))
+            modMessage(TeleportUtils.predictTransmission(player.position(), player.yaw, player.pitch))
         }
 
         command.sub("transpath") {
-            val room = Dungeon.currentRoom ?: return@sub modMessage("room is null")
-            val start = player.blockPosition()
-            val goal = BlockPos(-35, 79, -73)
-
-            modMessage(room.starredMobs)
-
-            scope.launch {
-                val p = TransmissionPathfinder.findClearPath(
-                    start = start,
-                    mobs = room.starredMobs,
-                    pitchStep = 10f,
-                    yawStep = 10f,
-                    hWeight = 5.0,
-                    threads = 16
-                ) ?: return@launch modMessage("no trans path")
-
-                etherPath = p.map { it.pos }
-
-                var curr = start.center.addVec(y = -0.5 + getEyeHeight(false))
-
-                etherPoints = p.map { node ->
-                    val look = getLook(node.yaw, node.pitch)
-                    val target = curr.add(look.scale(10.0))
-                    val seg = curr to target
-                    curr = node.pos.center.addVec(y = -0.5 + getEyeHeight(false))
-
-                    seg
-                }.drop(1)
-            }
+//            val room = Dungeon.currentRoom ?: return@sub modMessage("room is null")
+//            val start = player.position()
+            val goal = BlockPos(-26, 69, -136)
+//
+//            modMessage(room.starredMobs)
+//
+//            scope.launch {
+//                val p = TransmissionPathfinder.findClearPath(
+//                    start = start,
+//                    mobs = room.starredMobs,
+//                    pitchStep = 10f,
+//                    yawStep = 10f,
+//                    hWeight = 5.0,
+//                    threads = 16
+//                ) ?: return@launch modMessage("no trans path")
+//
+//                etherPath = p.map { it.pos }
+//
+//                var curr = start.addVec(y = getEyeHeight(false))
+//
+//                etherPoints = p.map { node ->
+//                    val look = getLook(node.yaw, node.pitch)
+//                    val target = curr.add(look.scale(10.0))
+//                    val seg = curr to target
+//                    curr = node.pos.center.addVec(y = -0.5 + getEyeHeight(false))
+//
+//                    seg
+//                }.drop(1)
+//            }
+            ClearExecutor.testPath(to = goal)
         }
 
         command.sub("spawnstarred") {
             ChatUtils.command("/summon zombie ~ ~ ~ {NoAI:1b, PersistenceRequired:1b, Passengers:[{id:\"minecraft:armor_stand\", Marker:1b, CustomNameVisible:1b, CustomName:'✯ \\u00A7c❤', NoGravity:1b}]}")
+        }
+
+        command.sub("findclusters") {
+            val room = Dungeon.currentRoom ?: return@sub modMessage("room i snull")
+            clusters = MobClusterer.getOrderedClusters(player.position(), room.starredMobs)
         }
 
         on<RenderEvent.World> {
@@ -398,6 +411,17 @@ object Test : Module("Test", desc = "Dev module for testing.") {
                     ctx.drawLine(listOf(vec3, vec31), colour = Colour.WHITE, depth = true)
                 }
             }
+
+            if (clusters != null) {
+                val clusters = clusters!!
+
+                clusters.forEach { (seed, mobs) ->
+                    ctx.drawFilledBox(seed.aabb, colour = Colour.WHITE, depth = true)
+                    mobs.forEach {
+                        ctx.drawFilledBox(it.position().aabb(0.5), colour = Colour.PINK.withAlpha(100), depth = true)
+                    }
+                }
+            }
         }
 
         command.register()
@@ -409,4 +433,6 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 
     private var etherPath: List<BlockPos>? = null
     private var etherPoints: List<Pair<Vec3, Vec3>>? = null
+
+    private var clusters: List<MobCluster>? = null
 }

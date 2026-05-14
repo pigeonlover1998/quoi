@@ -10,18 +10,24 @@ import kotlin.math.sqrt
 
 abstract class AbstractTeleportPathfinder<T : TeleportContext> : AbstractPathfinder<TeleportPathNode, T>() {
 
-    abstract fun getEyeY(ctx: T, pos: BlockPos): Double
+    abstract fun getEyeY(ctx: T, node: TeleportPathNode): Double
+
+    open fun getNodeY(ctx: T, hit: BlockPos): Double = hit.y.toDouble()
 
     abstract fun getHit(ctx: T, eyeX: Double, eyeY: Double, eyeZ: Double, dx: Double, dy: Double, dz: Double): BlockPos?
 
     override fun expand(ctx: T, current: TeleportPathNode) {
-        val eyeX = current.pos.x + 0.5
-        val eyeY = getEyeY(ctx, current.pos)
-        val eyeZ = current.pos.z + 0.5
+        val eyeX = current.x
+        val eyeY = getEyeY(ctx, current)
+        val eyeZ = current.z
 
-        val vx = ctx.goal.x - current.pos.x
-        val vy = ctx.goal.y - current.pos.y
-        val vz = ctx.goal.z - current.pos.z.toDouble()
+        val goalX = ctx.goal.x + 0.5
+        val goalY = ctx.goal.y.toDouble()
+        val goalZ = ctx.goal.z + 0.5
+
+        val vx = goalX - current.x
+        val vy = goalY - current.y
+        val vz = goalZ - current.z
         val dist = sqrt(vx.sq + vy.sq + vz.sq)
         val invDist = if (dist > 0) 1.0 / dist else 0.0
 
@@ -73,7 +79,12 @@ abstract class AbstractTeleportPathfinder<T : TeleportContext> : AbstractPathfin
             if (result != null) {
                 if (hitCache.add(result.asLong())) {
                     val hCost = (result.distanceTo(ctx.goal) / ctx.dist) * ctx.hWeight
-                    val node = TeleportPathNode(result, current.g + 1.0, hCost, current, ctx.raycasts.yaws[i], ctx.raycasts.pitches[i])
+
+                    val nx = result.x + 0.5
+                    val ny = getNodeY(ctx, result)
+                    val nz = result.z + 0.5
+
+                    val node = TeleportPathNode(nx, ny, nz, result, current.g + 1.0, hCost, current, ctx.raycasts.yaws[i], ctx.raycasts.pitches[i])
                     ctx.addNode(node)
                 }
             }

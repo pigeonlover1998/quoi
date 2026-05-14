@@ -9,7 +9,7 @@ import quoi.api.events.MouseEvent
 import quoi.api.events.RenderEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.EventBus.on
-import quoi.utils.Direction
+import quoi.api.world.Direction
 
 @Init
 object RotationUtils {

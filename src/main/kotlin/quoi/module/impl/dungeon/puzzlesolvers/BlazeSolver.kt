@@ -12,6 +12,7 @@ import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Puzzle
 import quoi.api.skyblock.dungeon.PuzzleStatus
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
+import quoi.api.world.Direction
 import quoi.utils.*
 import quoi.utils.EntityUtils.renderPos
 import quoi.utils.Scheduler.scheduleTask
@@ -147,7 +148,7 @@ object BlazeSolver { // todo maybe improve terminator shit some day
         if (!player.mainHandItem.isShortbow) return
         if (currentTime - lastShotTime < shootCd) return
 
-        val finalTarget = player.eyePosition.add(hitDir.getLook().scale(10.0))
+        val finalTarget = player.eyePosition.add(hitDir.look().scale(10.0))
         val dir = getDirection(player.eyePosition, finalTarget)
         player.useItem(dir)
 

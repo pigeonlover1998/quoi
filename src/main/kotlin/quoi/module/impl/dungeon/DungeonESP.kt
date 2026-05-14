@@ -162,8 +162,8 @@ object DungeonESP : Module(
             null
         }
         is Player -> with(entity.name.string) {
-            if (!contains("✯")) null
-            else if (contains("Shadow Assassin")) colourSA to colourSAFill
+//            if (!contains("✯")) null
+            /*else*/ if (contains("Shadow Assassin")) colourSA to colourSAFill
             else if (equalsOneOf("Diamond Guy", "Lost Adventurer")) colourStar to colourStarFill
             else null
         }

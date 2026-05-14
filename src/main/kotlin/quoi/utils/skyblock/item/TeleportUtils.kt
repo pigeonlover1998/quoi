@@ -2,7 +2,6 @@ package quoi.utils.skyblock.item
 
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.core.BlockPos
-import net.minecraft.util.Mth
 import net.minecraft.util.Mth.wrapDegrees
 import net.minecraft.world.level.block.AirBlock
 import net.minecraft.world.level.block.BigDripleafStemBlock
@@ -51,9 +50,11 @@ import net.minecraft.world.level.block.piston.PistonHeadBlock
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.phys.Vec3
+import net.minecraft.core.Direction as McDirection
 import quoi.QuoiMod.mc
+import quoi.api.world.Direction
+import quoi.api.world.RaycastResult
 import quoi.utils.BlockPos
-import quoi.utils.Direction
 import quoi.utils.component1
 import quoi.utils.component2
 import quoi.utils.component3
@@ -71,7 +72,13 @@ import kotlin.math.sign
 
 // todo cleanup
 object TeleportUtils {
-    fun Vec3.getEtherPos(yaw: Float, pitch: Float, distance: Double = 61.0): EtherPos {
+
+    fun Vec3.getTeleportPos(yaw: Float, pitch: Float, distance: Double = 12.0): RaycastResult {
+        val (dx, dy, dz) = getLook(wrapDegrees(yaw), wrapDegrees(pitch))
+        return predictTransmission(x, y, z, dx, dy, dz, distance)
+    }
+
+    fun Vec3.getEtherPos(yaw: Float, pitch: Float, distance: Double = 61.0): RaycastResult {
         val to = getLook(wrapDegrees(yaw), wrapDegrees(pitch)).scale(distance).add(this)
         return traverseVoxels(this, to, true)
     }
@@ -100,7 +107,7 @@ object TeleportUtils {
      * https://github.com/rs-mod/rsm/blob/69e992bebc2840d1f49166685e393ec53a8e0312/src/main/java/com/ricedotwho/rsm/utils/EtherUtils.java#L438
      * https://discord.com/channels/1180667916560109588/1232500078585974874 // discord.gg/sby
      */
-    fun predictTransmission(x0: Double, y0: Double, z0: Double, dx: Double, dy: Double, dz: Double, distance: Double): TeleportPos {
+    fun predictTransmission(x0: Double, y0: Double, z0: Double, dx: Double, dy: Double, dz: Double, distance: Double): RaycastResult {
         var x = floor(x0)
         var y = floor(y0)
         var z = floor(z0)
@@ -141,7 +148,7 @@ object TeleportUtils {
         var tMaxY = abs((y + max(stepY, 0) - y0) * invDirY)
         var tMaxZ = abs((z + max(stepZ, 0) - z0) * invDirZ)
 
-        val level = mc.level ?: return TeleportPos.NONE
+        val level = mc.level ?: return RaycastResult.NONE
 
         val mut = BlockPos.MutableBlockPos()
 
@@ -167,19 +174,19 @@ object TeleportUtils {
                 lastChunkZ = cz
             }
 
-            val stateFeet = chunk?.getBlockState(mut) ?: return TeleportPos.NONE
+            val stateFeet = chunk?.getBlockState(mut) ?: return RaycastResult.NONE
             val hitFeet = checkBlockCollision(level, mut, stateFeet, x0, y0, z0, invRayX, invRayY, invRayZ)
 
             mut.set(x, y + 1.0, z)
-            val stateHead = chunk.getBlockState(mut) ?: return TeleportPos.NONE
+            val stateHead = chunk.getBlockState(mut) ?: return RaycastResult.NONE
             val hitHead = checkBlockCollision(level, mut, stateHead, x0, y0, z0, invRayX, invRayY, invRayZ)
 
             if (hitFeet || hitHead) { // if hit block go back
-                return if (stepCount == 0) TeleportPos(false, mut.immutable(), if (hitFeet) stateFeet else stateHead)
-                else TeleportPos(true, BlockPos(lastX, lastY, lastZ), lastState)
+                return if (stepCount == 0) RaycastResult(false, mut.immutable(), if (hitFeet) stateFeet else stateHead)
+                else RaycastResult(true, BlockPos(lastX, lastY, lastZ), lastState)
             }
 
-            if (x == endX && y == endY && z == endZ) return TeleportPos(true, BlockPos(x, y, z), stateFeet)
+            if (x == endX && y == endY && z == endZ) return RaycastResult(true, BlockPos(x, y, z), stateFeet)
 
             lastX = x
             lastY = y
@@ -203,14 +210,26 @@ object TeleportUtils {
             }
         }
 
-        return TeleportPos.NONE
+        return RaycastResult.NONE
+    }
+
+    fun predictTransmission(from: Vec3, yaw: Float, pitch: Float, distance: Double = 12.0): RaycastResult {
+        val (x0, y0, z0) = from
+        val (dx, dy, dz) = getLook(yaw, pitch)
+        return predictTransmission(x0, y0, z0, dx, dy, dz, distance)
+    }
+
+    fun predictTransmission(from: Vec3, to: Vec3, distance: Double = 12.0): RaycastResult {
+        val (x0, y0, z0) = from
+        val (dx, dy, dz) = getDirection(from, to).look()
+        return predictTransmission(x0, y0, z0, dx, dy, dz, distance)
     }
 
     /**
      * Traverses voxels from start to end and returns the first non-air block it hits.
      * @author unclambomb6
      */
-    fun traverseVoxels(x0: Double, y0: Double, z0: Double, x1: Double, y1: Double, z1: Double, etherwarp: Boolean): EtherPos {
+    fun traverseVoxels(x0: Double, y0: Double, z0: Double, x1: Double, y1: Double, z1: Double, etherwarp: Boolean): RaycastResult {
         var x = floor(x0)
         var y = floor(y0)
         var z = floor(z0)
@@ -239,7 +258,7 @@ object TeleportUtils {
         var tMaxY = abs((y + max(stepY, 0) - y0) * invDirY)
         var tMaxZ = abs((z + max(stepZ, 0) - z0) * invDirZ)
 
-        val level = mc.level ?: return EtherPos.NONE
+        val level = mc.level ?: return RaycastResult.NONE
 
         val mut = BlockPos.MutableBlockPos()
 
@@ -259,7 +278,7 @@ object TeleportUtils {
                 lastChunkZ = cz
             }
 
-            val state = chunk?.getBlockState(mut) ?: return EtherPos.NONE
+            val state = chunk?.getBlockState(mut) ?: return RaycastResult.NONE
             val id = Block.getId(state)
 
             val isPassable = (blockFlags[id] and PASSABLE) != 0
@@ -268,27 +287,27 @@ object TeleportUtils {
             if ((etherwarp && isSolid) || (!etherwarp && id != 0)) {
                 val hitPos = mut.immutable()
 
-                if (!etherwarp && isPassable) return EtherPos(false, hitPos, state)
+                if (!etherwarp && isPassable) return RaycastResult(false, hitPos, state)
 
-                val collisionTop = state.getCollisionShape(level, hitPos).max(net.minecraft.core.Direction.Axis.Y)
+                val collisionTop = state.getCollisionShape(level, hitPos).max(McDirection.Axis.Y)
                 val clearanceBaseY = hitPos.y + max(1.0, ceil(collisionTop))
 
                 mut.set(x, clearanceBaseY, z)
 
-                val feetFlags = blockFlags[Block.getId(level.getBlockState(mut))]
+                val feetFlags = blockFlags[Block.getId(chunk.getBlockState(mut))]
                 if ((feetFlags and PASSABLE) == 0 || (feetFlags and BLOCKS_FEET) != 0)
-                    return EtherPos(false, hitPos, state)
+                    return RaycastResult(false, hitPos, state)
 
                 mut.set(x, clearanceBaseY + 1, z)
 
-                val headFlags = blockFlags[Block.getId(level.getBlockState(mut))]
+                val headFlags = blockFlags[Block.getId(chunk.getBlockState(mut))]
                 if ((headFlags and PASSABLE) == 0 || (headFlags and BLOCKS_FEET) != 0)
-                    return EtherPos(false, hitPos, state)
+                    return RaycastResult(false, hitPos, state)
 
-                return EtherPos(true, hitPos, state)
+                return RaycastResult(true, hitPos, state)
             }
 
-            if (x == endX && y == endY && z == endZ) return EtherPos.NONE
+            if (x == endX && y == endY && z == endZ) return RaycastResult.NONE
 
             when {
                 tMaxX <= tMaxY && tMaxX <= tMaxZ -> {
@@ -306,21 +325,13 @@ object TeleportUtils {
             }
         }
 
-        return EtherPos.NONE
+        return RaycastResult.NONE
     }
 
-    fun traverseVoxels(from: Vec3, to: Vec3, etherwarp: Boolean): EtherPos {
+    fun traverseVoxels(from: Vec3, to: Vec3, etherwarp: Boolean): RaycastResult {
         val (x0, y0, z0) = from
         val (x1, y1, z1) = to
         return traverseVoxels(x0, y0, z0, x1, y1, z1, etherwarp)
-    }
-
-    data class TeleportPos(val succeeded: Boolean, val pos: BlockPos?, val state: BlockState?) {
-        val vec3: Vec3 by lazy { Vec3(pos ?: BlockPos.ZERO) }
-
-        companion object {
-            val NONE = TeleportPos(false, null, null)
-        }
     }
 
     private fun checkBlockCollision(
@@ -372,20 +383,7 @@ object TeleportUtils {
         return tMax >= max(0.0, tMin) && tMin <= 1.0
     }
 
-
-    /**
-     * modified OdinFabric (BSD 3-Clause)
-     * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/com/odtheking/odin/features/impl/render/Etherwarp.kt
-     */
-    data class EtherPos(val succeeded: Boolean, val pos: BlockPos?, val state: BlockState?) {
-        val vec3: Vec3 by lazy { Vec3(pos ?: BlockPos.ZERO) }
-
-        companion object {
-            val NONE = EtherPos(false, null, null)
-        }
-    }
-
-    const val PASSABLE = 1        // ray passes through // todo move
+    const val PASSABLE = 1        // ray passes through
     const val BLOCKS_FEET = 2     // cannot stand inside
 
     val blockFlags: IntArray = IntArray(Block.BLOCK_STATE_REGISTRY.size()).apply {

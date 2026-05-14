@@ -1,7 +1,5 @@
 package quoi.config
 
-import quoi.api.autoroutes.actions.RingAction
-import quoi.api.autoroutes.arguments.RingArgument
 import quoi.api.customtriggers.actions.TriggerAction
 import quoi.api.customtriggers.conditions.TriggerCondition
 import com.google.gson.*
@@ -12,9 +10,9 @@ import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.Vec3
-import quoi.api.autoroutes2.RouteAwait
-import quoi.api.autoroutes2.RouteRegistry
-import quoi.api.autoroutes2.RouteNode
+import quoi.api.autoroutes.RouteAwait
+import quoi.api.autoroutes.RouteRegistry
+import quoi.api.autoroutes.RouteNode
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.modMessage
 import java.io.File
@@ -33,8 +31,6 @@ object ConfigSystem {
         .registerTypeAdapter(BlockPos::class.java, BlockPosAdapter())
         .registerTypeAdapterFactory(typeAdapter<TriggerAction>())
         .registerTypeAdapterFactory(typeAdapter<TriggerCondition>())
-        .registerTypeAdapterFactory(typeAdapter<RingAction>())
-        .registerTypeAdapterFactory(typeAdapter<RingArgument>())
         .registerTypeAdapterFactory(routeNodeAdapter<RouteNode>(RouteRegistry._nodeTypes))
         .registerTypeAdapterFactory(routeNodeAdapter<RouteAwait>(RouteRegistry.awaitTypes))
         .setPrettyPrinting()

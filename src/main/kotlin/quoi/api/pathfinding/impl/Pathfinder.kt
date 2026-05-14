@@ -13,7 +13,7 @@ import quoi.api.pathfinding.PathNode
 import quoi.utils.ChatUtils.modMessage
 import java.util.PriorityQueue
 
-object Pathfinder { // todo impl abstract pathfinder
+object Pathfinder { // todo recode
 
     private val directions = arrayOf(
         intArrayOf(1, 0, 0), // n
@@ -42,7 +42,7 @@ object Pathfinder { // todo impl abstract pathfinder
         val nodeMap = Long2ObjectOpenHashMap<PathNode>()
         val penaltyCache = Long2ObjectOpenHashMap<Double>()
 
-        val startNode = PathNode(start, 0.0, start.distanceTo(goal), null)
+        val startNode = PathNode(0.0, 0.0, 0.0, start, 0.0, start.distanceTo(goal), null)
         openSet.add(startNode)
         nodeMap[start.asLong()] = startNode
 
@@ -78,7 +78,7 @@ object Pathfinder { // todo impl abstract pathfinder
 
                     if (neighbourNode == null || gCost < neighbourNode.g) {
                         val hCost = neighbour.distanceTo(goal) * hWeight
-                        val node = PathNode(neighbour, gCost, hCost, current)
+                        val node = PathNode(0.0, 0.0, 0.0, neighbour, gCost, hCost, current)
                         openSet.add(node)
                         nodeMap[neighbourLong] = node
                     }

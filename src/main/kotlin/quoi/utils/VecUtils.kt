@@ -12,6 +12,8 @@ import net.minecraft.world.phys.shapes.Shapes
 import quoi.QuoiMod.mc
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
 import quoi.api.vec.MutableVec3
+import quoi.api.world.Direction
+import quoi.api.world.RaycastResult
 import quoi.utils.WorldUtils.shape
 import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels
 import quoi.utils.skyblock.player.PlayerUtils.eyePosition
@@ -24,10 +26,6 @@ import kotlin.math.*
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/me/odinmain/utils/VecUtils.kt
  */
-
-data class Direction(val yaw: Float, val pitch: Float, val distance: Double = 0.0) {
-    fun getLook() = getLook(yaw, pitch)
-}
 
 operator fun Vec3.component1(): Double = x
 operator fun Vec3.component2(): Double = y
@@ -184,17 +182,6 @@ fun Vec3.rotateToNorth(rotation: Rotations): Vec3 {
 
     return Vec3(rotatedBlock.x + rx + 0.5, rotatedBlock.y + (y - iy), rotatedBlock.z + rz + 0.5)
 }
-
-/**
- * Multiplies every coordinate of a Vec3 by the given factor.
- * @param factor The factor to multiply by
- * @return The multiplied Vec3
- */
-fun Vec3.multiply(factor: Number): Vec3 =
-    Vec3(this.x * factor.toDouble(), this.y * factor.toDouble(), this.z * factor.toDouble())
-
-fun Vec3.multiply(x: Double = 1.0, y: Double = 1.0, z: Double = 1.0): Vec3 =
-    Vec3(this.x * x, this.y * y, this.z * z)
 
 fun Vec3.equal(other: Vec3): Boolean =
     this.x == other.x && this.y == other.y && this.z == other.z
@@ -441,7 +428,7 @@ fun getVisiblePoint(from: Vec3, to: BlockPos): Vec3? {
     )
 
     for (targetVec in targets) {
-        val hitPos = rayCast(from, targetVec.subtract(from))
+        val hitPos = rayCast(from, targetVec.subtract(from)).pos
         if (hitPos == to) {
             return targetVec
         }
@@ -455,8 +442,8 @@ fun rayCast(
     x: Double, y: Double, z: Double,
     dx: Double, dy: Double, dz: Double,
     etherwarp: Boolean = true,
-): BlockPos? {
-    return traverseVoxels(x, y, z, x + dx, y + dy, z + dz, etherwarp).pos
+): RaycastResult {
+    return traverseVoxels(x, y, z, x + dx, y + dy, z + dz, etherwarp)
 }
 
 fun rayCast(vec3: Vec3, vec31: Vec3, etherwarp: Boolean = true) =
@@ -466,7 +453,7 @@ fun rayCast(
     lookVec: Vec3 = player.getViewVector(mc.deltaTracker.getGameTimeDeltaPartialTick(false)),
     distance: Double = 61.0,
     etherwarp: Boolean = true
-): BlockPos? {
+): RaycastResult {
     val origin = Vec3(
         player.x,
         player.eyePosition(etherwarp).y,
@@ -481,40 +468,36 @@ fun rayCastVec(
     x: Double, y: Double, z: Double,
     dx: Double, dy: Double, dz: Double,
     etherwarp: Boolean = true
-): Vec3? {
-    val w = mc.level ?: return null
-
+): RaycastResult {
     val startVec = Vec3(x, y, z)
     val endVec = Vec3(x + dx, y + dy, z + dz)
 
     val result = traverseVoxels(startVec, endVec, etherwarp)
 
-    val bp = result.pos ?: return null
-    val bs = result.state ?: return null
+    val bp = result.pos ?: return RaycastResult.NONE
+    val bs = result.state ?: return RaycastResult.NONE
 
-    val shape = bs.getShape(w, bp)
+    val res = RaycastResult(true, bp, bs)
+
+    val shape = bs.getShape(level, bp)
     val hitResult = shape.clip(startVec, endVec, bp)
 
-    if (hitResult != null) {
-        return hitResult.location
+    res.vec = when {
+        hitResult != null -> hitResult.location
+        else -> bp.aabb.clip(startVec, endVec).orElse(startVec)
     }
 
-    val fallbackHit = bp.aabb.clip(startVec, endVec)
-    if (fallbackHit.isPresent) {
-        return fallbackHit.get()
-    }
-
-    return startVec
+    return res
 }
 
-fun rayCastVec(vec3: Vec3, vec31: Vec3, etherwarp: Boolean = true): Vec3? =
+fun rayCastVec(vec3: Vec3, vec31: Vec3, etherwarp: Boolean = true): RaycastResult =
     rayCastVec(vec3.x, vec3.y, vec3.z, vec31.x, vec31.y, vec31.z, etherwarp)
 
 fun rayCastVec(
     lookVec: Vec3 = player.getViewVector(mc.deltaTracker.getGameTimeDeltaPartialTick(false)),
     distance: Double = 61.0,
     etherwarp: Boolean = true
-): Vec3? {
+): RaycastResult {
     val origin = Vec3(
         player.x,
         player.eyePosition(etherwarp).y,

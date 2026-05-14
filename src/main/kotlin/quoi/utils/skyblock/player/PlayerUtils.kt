@@ -15,10 +15,10 @@ import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import quoi.QuoiMod.mc
 import quoi.api.skyblock.Location
+import quoi.api.world.Direction
 import quoi.module.settings.Setting.Companion.gson
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.literal
-import quoi.utils.Direction
 import quoi.utils.SoundUtils
 import quoi.utils.key
 import quoi.utils.skyblock.item.ItemUtils.getBreakerCharges

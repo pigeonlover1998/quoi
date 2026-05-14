@@ -43,7 +43,8 @@ import quoi.module.impl.dungeon.autoclear.impl.InteractiveMap
 import quoi.module.impl.dungeon.DungeonMap
 import quoi.utils.StringUtils.width
 import quoi.api.vec.Vec2i
-import quoi.module.impl.dungeon.autoclear.AutoClearUtils
+import quoi.module.impl.dungeon.autoclear.pathToDoor
+import quoi.module.impl.dungeon.autoclear.pathToRoom
 import quoi.utils.equalsOneOf
 import quoi.utils.rad
 import quoi.utils.render.DrawContextUtils.drawImage
@@ -134,7 +135,7 @@ object MapRenderer {
                             outline(outlineCol, thickness = 2.px)
 
                             onClick {
-                                AutoClearUtils.pathToDoor(door)
+                                pathToDoor(door)
                             }
 
                             onMouseEnterExit {
@@ -357,7 +358,7 @@ object MapRenderer {
                         outlineCol.animate(0.15.seconds, style = Animation.Style.EaseOutQuint)
                     }
                     onClick(nonSpecific = true) { (button) ->
-                        AutoClearUtils.pathToRoom(room, comp, button)
+                        pathToRoom(room, comp, button)
                         true
                     }
                 }

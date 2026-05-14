@@ -21,6 +21,9 @@ class TransmissionContext(
 
         if (!node.pos.below().etherwarpable) {
             val airNode = TeleportPathNode(
+                node.x,
+                node.y,
+                node.z,
                 node.pos,
                 node.g + 50.0,
                 node.h,
