@@ -23,9 +23,10 @@ import quoi.utils.skyblock.player.PlayerUtils.useItem
 object ClearExecutor {
     private var nodes: MutableList<ClearNode>? = null
 
-    private var delay = 0
-    private var postDelay = 0
-    private var executeDelay = 0
+    private var syncDelay = 0
+    private var compDelay = 0
+    private var globalDelay = 0
+    private var hypeDelay = 0
 
     var active = false
         private set
@@ -36,37 +37,21 @@ object ClearExecutor {
 
     init {
         on<PacketEvent.Received> {
-            if (packet is ClientboundPlayerPositionPacket) if (delay == 1) delay = 2
+            if (packet is ClientboundPlayerPositionPacket) if (syncDelay == 1) syncDelay = 2
         }
 
         on<TickEvent.Server> {
-            if (delay < 2) return@on
-            if (delay++ > 9) delay = 0
+            if (syncDelay < 2) return@on
+            if (syncDelay++ > 9) syncDelay = 0
         }
 
         on<TickEvent.Start> {
-            pendingInteract?.let {
-                player.useItem(it.yaw, it.pitch)
-                pendingInteract = null
-            }
+            doInteract()
+            updateDelays()
 
-            if (postDelay > 0) {
-                if (--postDelay == 0) active = false
-            }
+            if (!canNext()) return@on
 
-            if (executeDelay > 0) {
-                if (--executeDelay > 0) return@on
-            }
-
-            if (delay != 0) return@on
-
-            if (postDelay == 0) active = false
-
-            if (nodes.isNullOrEmpty()) return@on
-
-            if (position == null) {
-                position = MutableVec3(player.position())
-            }
+            if (position == null) position = MutableVec3(player.position())
 
             handleQueue(position!!, nodes!!)
         }
@@ -78,43 +63,23 @@ object ClearExecutor {
 
         on<KeyEvent.Input> {
             if (!active) return@on
-            if (activeNode == null) return@on
-            input.shift = activeNode is ClearEtherNode
+            val curr = activeNode is ClearEtherNode
+            val next = nodes?.firstOrNull() is ClearEtherNode
+
+//            println(curr || next)
+
+            if (curr || next) input.shift = true
         }
 
         on<WorldEvent.Change> {
             nodes = null
-            delay = 0
-            postDelay = 0
-            executeDelay = 0
+            syncDelay = 0
+            compDelay = 0
+            globalDelay = 0
+            hypeDelay = 0
             position = null
             active = false
             activeNode = null
-        }
-    }
-
-    private fun handleQueue(playerPos: MutableVec3, clearNodes: MutableList<ClearNode>) {
-        val node = clearNodes.filter { it.inside(playerPos) }.maxByOrNull { it.priority } ?: run {
-            activeNode = null
-            position = null
-            return
-        }
-
-        active = true
-        activeNode = node
-
-        if (node.execute(playerPos)) {
-            clearNodes.remove(node)
-
-            if (node is ClearHypeNode) {
-                executeDelay = 3
-            }
-
-            if (clearNodes.isEmpty()) {
-                cancel()
-                activeNode = null
-                delay = 1
-            }
         }
     }
 
@@ -123,38 +88,83 @@ object ClearExecutor {
 
         scope.launch {
             val p = EtherwarpPathfinder.findDungeonPath(
-                start = player.position(),
-                goal = to,
+                from = player.position(),
+                to = to,
                 config = config,
             ) ?: return@launch
 
-            nodes = p.map { it.toEther() }.toMutableList()
-            position = null
-            pendingInteract = null
+            clearPath(p.map { it.toEther() })
         }
     }
 
     fun testPath(to: BlockPos, config: PathConfig = PathConfig()) {
-//        if (player.at(to)) return modMessage("Already there")
-//
-//        scope.launch {
-//            val p = TransmissionPathfinder.findPath(
-//                start = player.position(),
-//                goal = to,
-//                config = config,
-//                dist = 12.0,
-//                ground = true,
-//            ) ?: return@launch
-//
-//            nodes = p.map { it.toAotv() }.toMutableList()
-//            position = null
-//            pendingInteract = null
-//        }
+
+    }
+
+    fun clearPath(path: List<ClearNode>) {
+        nodes = path.toMutableList()
+        position = null
+        pendingInteract = null
+    }
+
+    fun queueInteract(yaw: Float, pitch: Float) {
+        pendingInteract = Direction(yaw, pitch)
     }
 
     fun cancel() {
         nodes = null
         position = null
-        postDelay = 2
+        compDelay = 2
+    }
+
+    private fun handleQueue(playerPos: MutableVec3, clearNodes: MutableList<ClearNode>) {
+        val node = clearNodes.filter { it.inside(playerPos) }.maxByOrNull { it.priority } ?: run {
+            position = null
+            return
+        }
+
+        active = true
+        activeNode = node
+
+        if (node is ClearHypeNode && hypeDelay > 0) return
+
+        if (node.execute(playerPos)) {
+            clearNodes.remove(node)
+
+            if (node is ClearHypeNode) {
+                hypeDelay = 3
+            }
+
+            if (clearNodes.isEmpty()) {
+                cancel()
+                syncDelay = 1
+            }
+        }
+    }
+
+    private fun doInteract() {
+        pendingInteract?.let {
+            player.useItem(it.yaw, it.pitch)
+            pendingInteract = null
+        }
+    }
+
+    private fun updateDelays() {
+        if (compDelay > 0 && --compDelay == 0) {
+            active = false
+            activeNode = null
+        }
+        if (globalDelay > 0) globalDelay--
+        if (hypeDelay > 0) hypeDelay--
+    }
+
+    private fun canNext(): Boolean {
+        if (syncDelay != 0) return false
+        if (globalDelay > 0) return false
+        if (nodes.isNullOrEmpty()) return false
+
+        if (compDelay == 0) active = false
+
+        return true
     }
 }

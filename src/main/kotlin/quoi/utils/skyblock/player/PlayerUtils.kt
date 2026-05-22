@@ -20,6 +20,7 @@ import quoi.module.settings.Setting.Companion.gson
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.literal
 import quoi.utils.SoundUtils
+import quoi.utils.floorPos
 import quoi.utils.key
 import quoi.utils.skyblock.item.ItemUtils.getBreakerCharges
 import quoi.utils.skyblock.item.ItemUtils.skyblockId
@@ -100,7 +101,7 @@ object PlayerUtils {
         return !state.isAir && state.fluidState.isEmpty
     }
 
-    fun LocalPlayer.at(pos: BlockPos) = this.blockPosition().above(-1) == pos
+    fun LocalPlayer.at(pos: BlockPos) = this.position().floorPos == pos
 
     fun getItemsAmount(itemId: String): Int {
         val player = mc.player ?: return 0

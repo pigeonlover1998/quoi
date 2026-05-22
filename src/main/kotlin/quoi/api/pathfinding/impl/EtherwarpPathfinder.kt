@@ -13,12 +13,12 @@ import quoi.api.pathfinding.util.Raycasts
 import quoi.api.pathfinding.util.generateRaycasts
 import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
+import quoi.api.world.Direction
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.WorldUtils.etherwarpable
 import quoi.utils.blockPos
 import quoi.utils.distanceTo
 import quoi.utils.distanceToSqr
-import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
 import quoi.utils.skyblock.item.TeleportUtils.getEtherwarpDirection
 import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels
 import kotlin.math.abs
@@ -31,64 +31,65 @@ object EtherwarpPathfinder : AbstractTeleportPathfinder<EtherwarpContext>() {
     private var cachedRaycasts: Raycasts? = null
 
     fun findPath(
-        start: Vec3,
-        goal: BlockPos,
+        from: Vec3,
+        to: BlockPos,
         config: PathConfig = PathConfig(),
         dist: Double = 60.0,
         offset: Boolean = true,
         withLast: Boolean = false
     ): List<TeleportPathNode>? {
-        if (!goal.etherwarpable) return null
+        if (!to.etherwarpable) return null
         val raycasts = getRaycasts(dist, config.pitchStep, config.yawStep)
-        val ctx = EtherwarpContext(goal, dist, config.hWeight, raycasts, config.timeout, offset)
-        val startPos = start.blockPos
+        val ctx = EtherwarpContext(to, dist, config.hWeight, raycasts, config.timeout, offset)
+        val startPos = from.blockPos
 
-        ctx.addNode(TeleportPathNode(start.x, start.y, start.z, startPos, 0.0, startPos.distanceTo(goal) / dist, null, 0f, 0f))
+        ctx.addNode(TeleportPathNode(from.x, from.y, from.z, startPos, 0.0, startPos.distanceTo(to) / dist, null, 0f, 0f))
 
         val path = find(ctx, config.threads)
 
         return if (path != null) {
-            val smoothed = smoothPath(path/*.shiftAndTrim()*/, dist, withLast)
-            modMessage("Found path in ${System.currentTimeMillis() - ctx.startTime}ms (${ctx.processed.get()}). ${path.size - 1} || ${smoothed.size}")
+            val smoothed = smoothPath(path, dist, withLast)
+            val size = if (withLast) path.size else path.size - 1
+            if (config.feedback) modMessage("Found path in ${System.currentTimeMillis() - ctx.startTime}ms (${ctx.processed.get()}). $size || ${smoothed.size}")
             smoothed
         } else {
-            modMessage("&cFailed &rafter ${System.currentTimeMillis() - ctx.startTime}ms (${ctx.processed.get()}).")
+            if (config.feedback) modMessage("&cFailed &rafter ${System.currentTimeMillis() - ctx.startTime}ms (${ctx.processed.get()}).")
             null
         }
     }
 
     fun findDungeonPath(
-        start: Vec3,
-        goal: BlockPos,
+        from: Vec3,
+        to: BlockPos,
         config: PathConfig = PathConfig(),
         dist: Double = 60.0,
         offset: Boolean = true
     ): List<TeleportPathNode>? {
-        if (!goal.etherwarpable) return null
+        if (!to.etherwarpable) return null
 
         val startTime = System.currentTimeMillis()
         var processed = 0
 
-        val startPos = start.blockPos
-        val startRoom = ScanUtils.getRoomFromPos(start.x, start.z)
-        val goalRoom = ScanUtils.getRoomFromPos(goal.x, goal.z)
+        val startPos = from.blockPos
+        val startRoom = ScanUtils.getRoomFromPos(from.x, from.z)
+        val goalRoom = ScanUtils.getRoomFromPos(to.x, to.z)
 
         if (startRoom == null || goalRoom == null || startRoom == goalRoom) {
-            return findPath(start, goal, config, dist, offset)
+            return findPath(from, to, config, dist, offset)
         }
 
         val roomPath = DungeonMapPathfinder.findPath(startRoom, goalRoom) ?: return null
 
         val path = mutableListOf<TeleportPathNode>()
 
-        var lastNode = TeleportPathNode(start.x, start.y, start.z, startPos, 0.0, 0.0, null, 0f, 0f) // last node in the whole path
+        var lastNode = TeleportPathNode(from.x, from.y, from.z, startPos, 0.0, 0.0, null, 0f, 0f) // last node in the whole path
         var startNode = lastNode  // start node in *this* segment
 
         // start - door 1, door 1 - door 2 .. door N - goal
         for (i in roomPath.indices) {
             val step = roomPath[i]
 
-            var target = goal
+            var target = to
             var radius = 0.0
             var nextRoom: OdonRoom? = null
 
@@ -108,7 +109,7 @@ object EtherwarpPathfinder : AbstractTeleportPathfinder<EtherwarpContext>() {
             processed += ctx.processed.get()
 
             if (segment == null) {
-                modMessage("&cFailed segment ${i + 1}/${roomPath.size} after ${System.currentTimeMillis() - startTime}ms ($processed).")
+                if (config.feedback) modMessage("&cFailed segment ${i + 1}/${roomPath.size} after ${System.currentTimeMillis() - startTime}ms ($processed).")
                 return null
             }
 
@@ -136,14 +137,14 @@ object EtherwarpPathfinder : AbstractTeleportPathfinder<EtherwarpContext>() {
 
         if (path.isEmpty()) return null
 
-        path.add(0, TeleportPathNode(start.x, start.y, start.z, startPos, 0.0, 0.0, null, 0f, 0f))
+        path.add(0, TeleportPathNode(from.x, from.y, from.z, startPos, 0.0, 0.0, null, 0f, 0f))
 
         if (path.size > 1) {
             path[1].parent = path[0]
         }
 
         val smoothed = smoothPath(path, dist)
-        modMessage("Found &epath&r in ${System.currentTimeMillis() - startTime}ms ($processed). ${path.size} || ${smoothed.size}")
+        if (config.feedback) modMessage("Found &epath&r in ${System.currentTimeMillis() - startTime}ms ($processed). ${path.size} || ${smoothed.size}")
 
         return smoothed
     }
@@ -161,11 +162,13 @@ object EtherwarpPathfinder : AbstractTeleportPathfinder<EtherwarpContext>() {
         return current.pos == ctx.goal
     }
 
-    override fun getEyeY(ctx: EtherwarpContext, node: TeleportPathNode): Double =
-        node.y + getEyeHeight(true)
+    override fun getSneak(): Boolean = true
 
     override fun getNodeY(ctx: EtherwarpContext, hit: BlockPos): Double =
         hit.y + (if (ctx.offset) 1.05 else 1.0)
+
+    override fun getDirection(from: Vec3, to: BlockPos, dist: Double): Direction? =
+        getEtherwarpDirection(from, to, dist)
 
     override fun getHit(ctx: EtherwarpContext, eyeX: Double, eyeY: Double, eyeZ: Double, dx: Double, dy: Double, dz: Double): BlockPos? {
         val result = traverseVoxels(
@@ -192,44 +195,6 @@ object EtherwarpPathfinder : AbstractTeleportPathfinder<EtherwarpContext>() {
         cachedRaycasts = raycasts
 
         return raycasts
-    }
-
-    private fun smoothPath(path: List<TeleportPathNode>, dist: Double, withLast: Boolean = false): List<TeleportPathNode> {
-        if (path.size < 2) return path
-
-        val smoothed = mutableListOf<TeleportPathNode>()
-        var i = 0
-
-        while (i < path.size - 1) {
-            var next = i + 1
-
-            val current = path[i]
-
-            val from = Vec3(current.x, current.y + getEyeHeight(true), current.z)
-
-            var yaw = path[next].yaw
-            var pitch = path[next].pitch
-
-            for (j in path.size - 1 downTo i + 1) {
-                val dir = getEtherwarpDirection(from, path[j].pos, dist)
-                if (dir != null) {
-                    next = j
-                    yaw = dir.yaw
-                    pitch = dir.pitch
-                    break
-                }
-            }
-
-            smoothed.add(TeleportPathNode(current.x, current.y, current.z, current.pos, current.g, current.h, current.parent, yaw, pitch))
-
-            i = next
-        }
-
-        if (withLast && path.isNotEmpty()) {
-            smoothed.add(path.last())
-        }
-
-        return smoothed
     }
 
     inline val BlockState?.blackListed: Boolean

@@ -2,23 +2,28 @@ package quoi.api.pathfinding
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.Vec3
 import quoi.api.pathfinding.context.TeleportContext
+import quoi.api.world.Direction
 import quoi.utils.distanceTo
 import quoi.utils.dot
+import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
 import quoi.utils.sq
 import kotlin.math.sqrt
 
 abstract class AbstractTeleportPathfinder<T : TeleportContext> : AbstractPathfinder<TeleportPathNode, T>() {
 
-    abstract fun getEyeY(ctx: T, node: TeleportPathNode): Double
+    open fun getSneak(): Boolean = false
 
     open fun getNodeY(ctx: T, hit: BlockPos): Double = hit.y.toDouble()
 
     abstract fun getHit(ctx: T, eyeX: Double, eyeY: Double, eyeZ: Double, dx: Double, dy: Double, dz: Double): BlockPos?
 
+    abstract fun getDirection(from: Vec3, to: BlockPos, dist: Double): Direction?
+
     override fun expand(ctx: T, current: TeleportPathNode) {
         val eyeX = current.x
-        val eyeY = getEyeY(ctx, current)
+        val eyeY = current.y + getEyeHeight(getSneak())
         val eyeZ = current.z
 
         val goalX = ctx.goal.x + 0.5
@@ -89,5 +94,43 @@ abstract class AbstractTeleportPathfinder<T : TeleportContext> : AbstractPathfin
                 }
             }
         }
+    }
+
+    fun smoothPath(path: List<TeleportPathNode>, dist: Double, withLast: Boolean = false): List<TeleportPathNode> {
+        if (path.size < 2) return path
+
+        val smoothed = mutableListOf<TeleportPathNode>()
+        var i = 0
+
+        while (i < path.size - 1) {
+            var next = i + 1
+
+            val current = path[i]
+
+            val from = Vec3(current.x, current.y + getEyeHeight(true), current.z)
+
+            var yaw = path[next].yaw
+            var pitch = path[next].pitch
+
+            for (j in path.size - 1 downTo i + 1) {
+                val dir = getDirection(from, path[j].pos, dist)
+                if (dir != null) {
+                    next = j
+                    yaw = dir.yaw
+                    pitch = dir.pitch
+                    break
+                }
+            }
+
+            smoothed.add(TeleportPathNode(current.x, current.y, current.z, current.pos, current.g, current.h, current.parent, yaw, pitch))
+
+            i = next
+        }
+
+        if (withLast && path.isNotEmpty()) {
+            smoothed.add(path.last())
+        }
+
+        return smoothed
     }
 }

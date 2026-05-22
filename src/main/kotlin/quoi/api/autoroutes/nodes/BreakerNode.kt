@@ -23,7 +23,7 @@ import quoi.utils.skyblock.player.interact.AuraManager
 
 @TypeName("dungeon_breaker")
 class BreakerNode : RouteNode() {
-    var blocks= emptyList<BlockPos>()
+    var blocks = emptyList<BlockPos>()
 
     @Transient
     private var active = false

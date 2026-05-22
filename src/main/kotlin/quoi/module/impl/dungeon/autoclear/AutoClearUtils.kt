@@ -1,9 +1,13 @@
 package quoi.module.impl.dungeon.autoclear
 
 import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.Vec3
 import quoi.api.colour.Colour
+import quoi.api.pathfinding.PathConfig
 import quoi.api.pathfinding.TeleportPathNode
 import quoi.api.pathfinding.impl.DungeonMapPathfinder
+import quoi.api.pathfinding.impl.EtherwarpPathfinder
+import quoi.api.pathfinding.impl.TransmissionPathfinder
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
 import quoi.api.skyblock.dungeon.odonscanning.tiles.DoorType
@@ -11,7 +15,9 @@ import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonDoor
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomTile
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
+import quoi.module.impl.dungeon.DungeonESP.starredMobs
 import quoi.module.impl.dungeon.autoclear.executor.ClearExecutor
+import quoi.module.impl.dungeon.autoclear.executor.ClearNode
 import quoi.module.impl.dungeon.autoclear.executor.nodes.ClearAotvNode
 import quoi.module.impl.dungeon.autoclear.executor.nodes.ClearEtherNode
 import quoi.module.impl.dungeon.autoclear.executor.nodes.ClearHypeNode
@@ -28,6 +34,7 @@ import quoi.utils.getLook
 import quoi.utils.player
 import quoi.utils.rayCastVec
 import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
+import quoi.utils.vec3
 import kotlin.collections.filter
 
 const val HYPE_AOE = 6.0
@@ -120,7 +127,7 @@ fun pathToRoom(room: OdonRoom, tile: RoomTile = room.tiles.first(), type: Int) {
                 room.getRealCoords(overridePos)
             } else {
                 tile.blockPos.nearbyBlocks(25f) { it.etherwarpable }.firstOrNull()
-                    ?: return modMessage("Couldn't find goal position for tile &e${tile.core}&r in ${room.name}")
+                    ?: return modMessage("Couldn't find goal position for tile &e${tile.core}&r in &e${room.name}")
             }
         }
         1 -> {
@@ -142,6 +149,70 @@ fun pathToRoom(room: OdonRoom, tile: RoomTile = room.tiles.first(), type: Int) {
 
     ClearExecutor.etherPath(to = goal)
 }
+
+/**
+ * TODO:
+ *  test on server
+ *  update every 10 ticks or sm
+ */
+fun pathToMobs(from: Vec3, room: OdonRoom) {
+    val mobs = room.starredMobs
+    if (mobs.isEmpty()) return modMessage("No mobs in &e${room.name}&c.")
+
+    val startTime = System.currentTimeMillis()
+    val clusters = MobClusterer.getOrderedClusters(from, mobs)
+    if (clusters.isEmpty()) return modMessage("Couldn't get clusters.")
+
+    val config = PathConfig(feedback = false)
+    val nodes = mutableListOf<ClearNode>()
+    var currPos = from
+
+    for (cluster in clusters) {
+        val to = cluster.pos
+        val toVec = to.vec3
+        val nWord = to.center.addVec(y = 0.5)
+        val dist = currPos.distanceTo(toVec)
+
+        val segment = when {
+            dist > 36.0 -> EtherwarpPathfinder.findPath(currPos, to, config, withLast = true)
+            else -> TransmissionPathfinder.findPath(currPos, to, config, dist = if (dist > 10.0) 12.0 else 10.0)
+        }
+
+        if (segment.isNullOrEmpty()) return modMessage("&cFailed &rafter ${System.currentTimeMillis() - startTime}ms.")
+
+
+        val last = segment.last()
+        val body = segment.dropLast(1)
+
+        when {
+            dist > 36.0 -> {
+                nodes.addAll(body.map { it.toEther() })
+                nodes.add(last.toRotHype())
+            }
+
+            dist > 10.0 -> {
+                nodes.addAll(body.map { it.toAotv() })
+
+                if (last.vec.distanceTo(toVec) > 10.0) {
+                    nodes.add(last.toAotv())
+                    nodes.add(last.toRotHype(to, nWord.x, nWord.y, nWord.z))
+                } else {
+                    nodes.add(last.toHype())
+                }
+            }
+
+            else -> nodes.addAll(segment.map { it.toHype() })
+        }
+
+        currPos = nWord
+    }
+
+    modMessage("Found path in ${System.currentTimeMillis() - startTime}ms. ${nodes.size}")
+    ClearExecutor.clearPath(nodes)
+}
+
+private fun TeleportPathNode.toRotHype(pos: BlockPos = this.pos, x: Double = this.x, y: Double = this.y, z: Double = this.z) =
+    TeleportPathNode(x, y, z, pos, g, h, parent, 0f, 90f).toHype()
 
 fun TeleportPathNode.toEther(): ClearEtherNode {
     val from = vec.addVec(y = getEyeHeight(true))

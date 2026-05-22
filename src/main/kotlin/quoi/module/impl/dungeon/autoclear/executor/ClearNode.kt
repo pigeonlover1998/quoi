@@ -54,7 +54,6 @@ abstract class ClearNode(
         block: (Vec3) -> RaycastResult
     ): Boolean {
         if (player.lastSentInput.shift != sneak) return false
-//        return false
 
         if (!player.mainHandItem.skyblockId.equalsOneOf(*items)) {
             if (!SwapManager.swapById(*items).success) return cancel()
@@ -64,12 +63,8 @@ abstract class ClearNode(
         val res = block(from)
 
         if (!res.succeeded || res.pos == null) {
-//            val next = nodes?.getOrNull((nodes?.indexOf(this) ?: -1) + 1)
-//            nodes = null
-//            position = null
-//            postDelay = 2
             modMessage("""
-
+                    &cFailed
                     &eFrom&7:&f $from
                     &eTo&7:&r $.{next?.pos}
                     &eYaw&7:&r $yaw
@@ -78,6 +73,8 @@ abstract class ClearNode(
                 """.trimIndent(), prefix = "[&cAutoClear&r]")
             return cancel()
         }
+
+        ClearExecutor.queueInteract(yaw, pitch)
 
         playerPos.x = res.pos.x + 0.5
         playerPos.y = res.pos.y + yOff

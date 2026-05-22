@@ -32,6 +32,7 @@ import quoi.module.impl.dungeon.DungeonESP.starredMobs
 import quoi.module.impl.dungeon.autoclear.MobCluster
 import quoi.module.impl.dungeon.autoclear.MobClusterer
 import quoi.module.impl.dungeon.autoclear.executor.ClearExecutor
+import quoi.module.impl.dungeon.autoclear.pathToMobs
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawLine
 import quoi.utils.skyblock.item.TeleportUtils
@@ -375,7 +376,9 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 //                    seg
 //                }.drop(1)
 //            }
-            ClearExecutor.testPath(to = goal)
+            val room = Dungeon.currentRoom ?: return@sub modMessage("room is null")
+//            ClearExecutor.testPath(to = goal)
+            pathToMobs(player.position(), room)
         }
 
         command.sub("spawnstarred") {
@@ -416,9 +419,9 @@ object Test : Module("Test", desc = "Dev module for testing.") {
                 val clusters = clusters!!
 
                 clusters.forEach { (seed, mobs) ->
-                    ctx.drawFilledBox(seed.aabb, colour = Colour.WHITE, depth = true)
+                    ctx.drawFilledBox(seed.aabb.inflate(0.099), colour = Colour.WHITE.withAlpha(150), depth = true)
                     mobs.forEach {
-                        ctx.drawFilledBox(it.position().aabb(0.5), colour = Colour.PINK.withAlpha(100), depth = true)
+                        ctx.drawFilledBox(it.position().aabb(0.5).setMinY(seed.y + 1.0), colour = Colour.PINK.withAlpha(100), depth = true)
                     }
                 }
             }

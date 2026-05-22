@@ -7,5 +7,6 @@ data class PathConfig(
     val pitchStep: Float = ClickGui.pitchStep,
     val hWeight: Double = ClickGui.hWeight,
     val threads: Int = ClickGui.threads,
-    val timeout: Long = ClickGui.timeout
+    val timeout: Long = ClickGui.timeout,
+    val feedback: Boolean = true
 )

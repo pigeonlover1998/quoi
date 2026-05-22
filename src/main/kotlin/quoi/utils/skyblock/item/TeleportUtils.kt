@@ -62,6 +62,7 @@ import quoi.utils.skyblock.player.PlayerUtils.eyePosition
 import quoi.utils.getDirection
 import quoi.utils.getLook
 import quoi.utils.getVisiblePoint
+import quoi.utils.player
 import quoi.utils.vec3
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -99,7 +100,20 @@ object TeleportUtils {
         return getDirection(from, visibleVec)
     }
 
-    fun getEtherwarpDirection(to: BlockPos, dist: Double = 61.0) = getEtherwarpDirection(mc.player!!.eyePosition(true), to, dist)
+    fun getEtherwarpDirection(to: BlockPos, dist: Double = 61.0) = getEtherwarpDirection(player.eyePosition(true), to, dist)
+
+    fun getTransmissionDirection(from: Vec3, to: BlockPos, dist: Double = 12.0): Direction? {
+        if (from.distanceToSqr(to.vec3) > (dist + 2) * (dist + 2)) return null
+
+        val visibleVec = getVisiblePoint(from, to) { vec ->
+            val n = vec.normalize()
+            predictTransmission(from.x, from.y, from.z, n.x, n.y, n.z, dist).pos
+        } ?: return null
+
+        return getDirection(from, visibleVec)
+    }
+
+    fun getTransmissionDirection(to: BlockPos, dist: Double = 12.0) = getTransmissionDirection(player.eyePosition(false), to, dist)
 
     /**
      * based on noammaddons' InstantTransmissionHelper which is based on rsm's EtherUtils which is based on soshimee's zph algorithm
