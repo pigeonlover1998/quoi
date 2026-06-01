@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.BubbleColumnBlock
 import net.minecraft.world.level.block.BushBlock
 import net.minecraft.world.level.block.ButtonBlock
+import net.minecraft.world.level.block.CandleBlock
 import net.minecraft.world.level.block.ComparatorBlock
 import net.minecraft.world.level.block.CropBlock
 import net.minecraft.world.level.block.DoublePlantBlock
@@ -437,7 +438,7 @@ object TeleportUtils {
                 is FlowerPotBlock -> true
                 is WebBlock -> true
                 is NetherPortalBlock -> true
-
+                is CandleBlock -> true
                 else -> false
             }
 
@@ -471,7 +472,7 @@ object TeleportUtils {
         Blocks.CORNFLOWER, Blocks.LILY_OF_THE_VALLEY, Blocks.WITHER_ROSE, Blocks.SUNFLOWER,
         Blocks.TORCH, Blocks.WALL_TORCH, Blocks.REDSTONE_WIRE, Blocks.REDSTONE_TORCH, Blocks.REDSTONE_WALL_TORCH,
         Blocks.SNOW, Blocks.VINE, Blocks.BROWN_MUSHROOM, Blocks.RED_MUSHROOM,
-        Blocks.SUGAR_CANE, Blocks.KELP, Blocks.LILY_PAD, Blocks.CARROTS, Blocks.POTATOES, Blocks.WHEAT,
-        Blocks.BEETROOTS, Blocks.SWEET_BERRY_BUSH, Blocks.DEAD_BUSH
+        Blocks.SUGAR_CANE, Blocks.KELP, /*Blocks.LILY_PAD,*/ Blocks.CARROTS, Blocks.POTATOES, Blocks.WHEAT,
+        Blocks.BEETROOTS, Blocks.SWEET_BERRY_BUSH, Blocks.DEAD_BUSH, Blocks.CANDLE
     )
 }
