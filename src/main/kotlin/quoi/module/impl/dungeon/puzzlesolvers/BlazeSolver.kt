@@ -67,10 +67,10 @@ object BlazeSolver { // todo maybe improve terminator shit some day
         if (!this?.name.equalsOneOf("Lower Blaze", "Higher Blaze") ) return@with reset()
     }
 
-    fun onRenderWorld(ctx: WorldRenderContext, blazeLineNext: Boolean, blazeLineAmount: Int, blazeStyle: String, blazeFirstColour: Colour, blazeSecondColour: Colour, blazeAllColour: Colour, blazeAnnounce: Boolean, blazeLineWidth: Float, autoReposition: Boolean) {
+    fun onRenderWorld(ctx: WorldRenderContext, blazeLineNext: Boolean, blazeLineAmount: Int, blazeStyle: String, blazeFirstColour: Colour, blazeSecondColour: Colour, blazeAllColour: Colour, blazeAnnounce: Boolean, blazeLineWidth: Float, auto: Boolean, autoReposition: Boolean) {
         if (!Dungeon.currentRoom?.name.equalsOneOf("Lower Blaze", "Higher Blaze") || blazes.isEmpty()) return
 
-        if (autoReposition) {
+        if (auto && autoReposition) {
             val spots = if (Dungeon.currentRoom?.name == "Higher Blaze") higherSpots else lowerSpots
             spots.forEach { spot ->
                 ctx.drawFilledBox(Dungeon.currentRoom!!.getRealCoords(spot).aabb, colour = Colour.CYAN, depth = true)
@@ -82,7 +82,7 @@ object BlazeSolver { // todo maybe improve terminator shit some day
         if (blazes.isEmpty() && lastBlazeCount == 1) {
             Dungeon.puzzles.find { it == Puzzle.BLAZE }?.status = PuzzleStatus.Completed
             if (blazeAnnounce) ChatUtils.command("pc Blaze done!")
-            if (autoReposition) mc.options.keyShift.isDown = false
+            if (auto && autoReposition) mc.options.keyShift.isDown = false
             lastBlazeCount = 0
             return
         }
