@@ -1,6 +1,6 @@
 package quoi.module.impl.misc.riftsolvers
 
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.world.phys.Vec3
 import quoi.QuoiMod.mc
@@ -36,7 +36,7 @@ object TubulatorSolver {
 
     fun onScreen() = if (isActive) reset() else null
 
-    fun onRenderWorld(ctx: WorldRenderContext) {
+    fun onRenderWorld(ctx: LevelRenderContext) {
         ctx.drawFilledBox(points[0].addVec(y = -1.0).aabb, Colour.GREEN, depth = true)
     }
 

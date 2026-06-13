@@ -1,18 +1,16 @@
 package quoi.utils.ui.rendering
 
-import quoi.QuoiMod.mc
-import com.mojang.blaze3d.opengl.GlConst
-import com.mojang.blaze3d.opengl.GlDevice
 import com.mojang.blaze3d.opengl.GlStateManager
-import com.mojang.blaze3d.opengl.GlTexture
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.navigation.ScreenRectangle
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer
-import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState
 import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState
 import org.joml.Matrix3x2f
+import org.lwjgl.opengl.GL33C
+import java.util.OptionalInt
 
 /**
  * from OdinFabric (BSD 3-Clause)
@@ -22,20 +20,24 @@ import org.joml.Matrix3x2f
 class NVGSpecialRenderer(vertexConsumers: MultiBufferSource.BufferSource)
     : PictureInPictureRenderer<NVGSpecialRenderer.NVGRenderState>(vertexConsumers) {
 
+    private var stencilRenderBuffer = 0
+    private var stencilWidth = 0
+    private var stencilHeight = 0
+
     override fun renderToTexture(state: NVGRenderState, poseStack: PoseStack) {
-        val colorTex = RenderSystem.outputColorTextureOverride
+        val colorView = RenderSystem.outputColorTextureOverride ?: return
+        val width = colorView.getWidth(0)
+        val height = colorView.getHeight(0)
 
-        val bufferManager = (RenderSystem.getDevice() as? GlDevice)?.directStateAccess() ?: return
-        val glDepthTex = (RenderSystem.outputDepthTextureOverride?.texture() as? GlTexture) ?: return
-
-        (colorTex?.texture() as? GlTexture)?.getFbo(bufferManager, glDepthTex)?.apply {
-            GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, this)
-            GlStateManager._viewport(0, 0, colorTex.getWidth(0), colorTex.getHeight(0))
-        }
-
-        NVGRenderer.beginFrame(mc.window.width.toFloat(), mc.window.height.toFloat())
-        state.renderContent()
-        NVGRenderer.endFrame()
+        RenderSystem.getDevice().createCommandEncoder()
+            .createRenderPass({ "quoi_nvg_renderer" }, colorView, OptionalInt.empty())
+            .use {
+                attachStencilBuffer(width, height)
+                GL33C.glBindSampler(0, 0)
+                NVGRenderer.beginFrame(width.toFloat(), height.toFloat())
+                state.renderContent()
+                NVGRenderer.endFrame()
+            }
 
         GlStateManager._disableDepthTest()
         GlStateManager._disableCull()
@@ -47,12 +49,39 @@ class NVGSpecialRenderer(vertexConsumers: MultiBufferSource.BufferSource)
     override fun getRenderStateClass(): Class<NVGRenderState> = NVGRenderState::class.java
     override fun getTextureLabel(): String = "nvg_renderer"
 
+    override fun close() {
+        super.close()
+        if (stencilRenderBuffer != 0) {
+            GL33C.glDeleteRenderbuffers(stencilRenderBuffer)
+            stencilRenderBuffer = 0
+        }
+    }
+
+    private fun attachStencilBuffer(width: Int, height: Int) {
+        if (stencilRenderBuffer == 0) {
+            stencilRenderBuffer = GL33C.glGenRenderbuffers()
+        }
+
+        GL33C.glBindRenderbuffer(GL33C.GL_RENDERBUFFER, stencilRenderBuffer)
+        if (stencilWidth != width || stencilHeight != height) {
+            GL33C.glRenderbufferStorage(GL33C.GL_RENDERBUFFER, GL33C.GL_STENCIL_INDEX8, width, height)
+            stencilWidth = width
+            stencilHeight = height
+        }
+        GL33C.glFramebufferRenderbuffer(
+            GL33C.GL_FRAMEBUFFER,
+            GL33C.GL_STENCIL_ATTACHMENT,
+            GL33C.GL_RENDERBUFFER,
+            stencilRenderBuffer
+        )
+        GL33C.glClear(GL33C.GL_STENCIL_BUFFER_BIT)
+    }
+
     data class NVGRenderState(
         private val x: Int,
         private val y: Int,
         private val width: Int,
         private val height: Int,
-        private val poseMatrix: Matrix3x2f,
         private val scissor: ScreenRectangle?,
         private val bounds: ScreenRectangle?,
         val renderContent: () -> Unit
@@ -68,18 +97,8 @@ class NVGSpecialRenderer(vertexConsumers: MultiBufferSource.BufferSource)
     }
 
     companion object {
-        /**
-         * Draw NVG content as a special GUI element.
-         *
-         * @param context The GuiGraphics to draw to
-         * @param x The x position
-         * @param y The y position
-         * @param width The width of the rendering area
-         * @param height The height of the rendering area
-         * @param renderContent A lambda that draws the NVG content
-         */
         fun draw(
-            context: GuiGraphics,
+            context: GuiGraphicsExtractor,
             x: Int,
             y: Int,
             width: Int,
@@ -92,15 +111,15 @@ class NVGSpecialRenderer(vertexConsumers: MultiBufferSource.BufferSource)
 
             val state = NVGRenderState(
                 x, y, width, height,
-                pose, scissor, bounds,
+                scissor, bounds,
                 renderContent
             )
-            context.guiRenderState.submitPicturesInPictureState(state)
+            context.guiRenderState.addPicturesInPictureState(state)
         }
 
-        private fun createBounds(x0: Int, y0: Int, x1: Int, y1: Int, pose: Matrix3x2f, scissorArea: ScreenRectangle?): ScreenRectangle? {
-            val screenRect = ScreenRectangle(x0, y0, x1 - x0, y1 - y0).transformMaxBounds(pose)
-            return if (scissorArea != null) scissorArea.intersection(screenRect) else screenRect
-        }
+        private fun createBounds(x0: Int, y0: Int, x1: Int, y1: Int, pose: Matrix3x2f, scissorArea: ScreenRectangle?): ScreenRectangle? =
+            ScreenRectangle(x0, y0, x1 - x0, y1 - y0)
+                .transformMaxBounds(pose)
+                .let { if (scissorArea != null) scissorArea.intersection(it) else it }
     }
 }

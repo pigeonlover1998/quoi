@@ -74,10 +74,10 @@ object HudManager { // todo add hud grouping
 
     fun init() {
         stupid = true
-        if (mc.font == null) {
-            scheduleTask { init() }
-            return
-        }
+//        if (mc.font == null) {
+//            scheduleTask { init() }
+//            return
+//        }
         if (!mc.isSameThread) {
             mc.execute { init() }
             return

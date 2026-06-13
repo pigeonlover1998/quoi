@@ -1,9 +1,9 @@
 package quoi.api.events
 
 import quoi.api.events.core.CancellableEvent
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
-import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.ContainerInput
 
 abstract class GuiEvent {
     class Open(val screen: Screen) : CancellableEvent() {
@@ -19,18 +19,18 @@ abstract class GuiEvent {
     }
     class Char(val screen: Screen, val char: kotlin.Char) : CancellableEvent()
 
-    class Draw(val screen: Screen, val ctx: GuiGraphics, val mx: Int, val my: Int) : CancellableEvent() {
-        class Post(val screen: Screen, val ctx: GuiGraphics, val mx: Int, val my: Int) : CancellableEvent()
+    class Draw(val screen: Screen, val ctx: GuiGraphicsExtractor, val mx: Int, val my: Int) : CancellableEvent() {
+        class Post(val screen: Screen, val ctx: GuiGraphicsExtractor, val mx: Int, val my: Int) : CancellableEvent()
     }
 
-    class DrawBackground(val screen: Screen, val ctx: GuiGraphics, val mx: Int, val my: Int) : CancellableEvent() {
-        class Post(val screen: Screen, val ctx: GuiGraphics, val mx: Int, val my: Int) : CancellableEvent()
+    class DrawBackground(val screen: Screen, val ctx: GuiGraphicsExtractor, val mx: Int, val my: Int) : CancellableEvent() {
+        class Post(val screen: Screen, val ctx: GuiGraphicsExtractor, val mx: Int, val my: Int) : CancellableEvent()
     }
 
     abstract class Slot {
-        class Click(val screen: Screen, val slot: net.minecraft.world.inventory.Slot, val slotId: Int, val button: Int, val actionType: ClickType) : CancellableEvent()
-        class Draw(val screen: Screen, val ctx: GuiGraphics, val slot: net.minecraft.world.inventory.Slot) : CancellableEvent()
+        class Click(val screen: Screen, val slot: net.minecraft.world.inventory.Slot, val slotId: Int, val button: Int, val actionType: ContainerInput) : CancellableEvent()
+        class Draw(val screen: Screen, val ctx: GuiGraphicsExtractor, val slot: net.minecraft.world.inventory.Slot) : CancellableEvent()
     }
 
-    class DrawTooltip(val screen: Screen, val ctx: GuiGraphics, val mouseX: Int, val mouseY: Int) : CancellableEvent()
+    class DrawTooltip(val screen: Screen, val ctx: GuiGraphicsExtractor, val mouseX: Int, val mouseY: Int) : CancellableEvent()
 }

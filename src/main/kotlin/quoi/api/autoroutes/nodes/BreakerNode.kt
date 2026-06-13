@@ -1,6 +1,6 @@
 package quoi.api.autoroutes.nodes
 
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import quoi.QuoiMod.mc
@@ -86,7 +86,7 @@ class BreakerNode : RouteNode() {
         }
     }
 
-    override fun render(ctx: WorldRenderContext, style: String, colour: Colour, fillColour: Colour, activeColour: Colour, thickness: Float) {
+    override fun render(ctx: LevelRenderContext, style: String, colour: Colour, fillColour: Colour, activeColour: Colour, thickness: Float) {
         super.render(ctx, style, colour, fillColour, activeColour, thickness)
         if (!inside(mc.player!!) && AutoRoutes.breakerRing == null) return
         for (pos in realBlocks) {

@@ -1,6 +1,6 @@
 package quoi.module.impl.misc.riftsolvers
 
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.client.player.LocalPlayer
 import quoi.QuoiMod.mc
 import quoi.api.colour.Colour
@@ -44,7 +44,7 @@ object LavaMazeSolver {
         mc.player?.resetInput()
     } else null
 
-    fun onRenderWorld(ctx: WorldRenderContext) {
+    fun onRenderWorld(ctx: LevelRenderContext) {
         if (!isActive) ctx.drawFilledBox(points[0].aabb, Colour.GREEN, depth = true)
     }
 

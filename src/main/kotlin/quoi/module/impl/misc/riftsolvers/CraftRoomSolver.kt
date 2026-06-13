@@ -1,13 +1,13 @@
 package quoi.module.impl.misc.riftsolvers
 
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
-import net.minecraft.client.gui.GuiGraphics
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.monster.CaveSpider
+import net.minecraft.world.entity.monster.spider.CaveSpider
 import net.minecraft.world.entity.monster.Slime
-import net.minecraft.world.entity.monster.Zombie
+import net.minecraft.world.entity.monster.zombie.Zombie
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.phys.AABB
@@ -31,7 +31,7 @@ object CraftRoomSolver {
         -117.0, 58.0, -106.0
     )
 
-    fun onRenderWorld(ctx: WorldRenderContext, player: LocalPlayer) {
+    fun onRenderWorld(ctx: LevelRenderContext, player: LocalPlayer) {
         if (player.z > -100.0 || player.z < -140.0) return
 
         ctx.drawWireFrameBox(BlockPos(-113, 52, -115).aabb, Colour.BROWN, depth = true)
@@ -52,7 +52,7 @@ object CraftRoomSolver {
         }
     }
 
-    fun onContainer(ctx: GuiGraphics, player: LocalPlayer) {
+    fun onContainer(ctx: GuiGraphicsExtractor, player: LocalPlayer) {
 //        if (mc.screen?.title?.string != "Craft Item") return
         if (player.z > -100.0 || player.z < -140.0) return
 
@@ -97,7 +97,7 @@ object CraftRoomSolver {
         ctx.drawRecipe(x + 94,  y, hammerRecipe)
     }
 
-    private fun GuiGraphics.drawRecipe(x: Int, y: Int, recipe: Array<ItemStack?>) {
+    private fun GuiGraphicsExtractor.drawRecipe(x: Int, y: Int, recipe: Array<ItemStack?>) {
         val padding = 4
         val size = 18 * 3
 
@@ -111,8 +111,8 @@ object CraftRoomSolver {
 
                 rect(x, y, 16, 16, Colour.WHITE.withAlpha(0.1f).rgb)
 
-                renderItem(item, x, y)
-                renderItemDecorations(mc.font, item, x, y)
+                item(item, x, y)
+                itemDecorations(mc.font, item, x, y)
             }
         }
     }

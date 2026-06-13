@@ -139,19 +139,20 @@ object ArrowAlign : Module(
                 repeat(clicksNeeded) {
                     frame.rotation = (frame.rotation + 1) % 8
                     mc.connection?.send(
-                        ServerboundInteractPacket.createInteractionPacket(
-                            frame.entity,
-                            player.isShiftKeyDown,
+                        ServerboundInteractPacket(
+                            frame.entity.id,
                             InteractionHand.MAIN_HAND,
-                            Vec3(0.03125, 0.0, 0.0)
+                            Vec3(0.03125, 0.0, 0.0),
+                            player.isShiftKeyDown,
                         )
                     )
 
                     mc.connection?.send(
-                        ServerboundInteractPacket.createInteractionPacket(
-                            frame.entity,
+                        ServerboundInteractPacket(
+                            frame.entity.id,
+                            InteractionHand.MAIN_HAND,
+                            Vec3(0.03125, 0.0, 0.0),
                             player.isShiftKeyDown,
-                            InteractionHand.MAIN_HAND
                         )
                     )
                 }

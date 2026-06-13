@@ -1,17 +1,14 @@
 package quoi.utils
 
 import quoi.QuoiMod.mc
-import quoi.mixininterfaces.IChatComponent
-import quoi.mixininterfaces.IGuiMessage
-import quoi.mixins.accessors.ChatComponentAccessor
 import quoi.module.impl.render.ClickGui.bracketsColour
 import quoi.module.impl.render.ClickGui.prefixColour
 import quoi.module.impl.render.ClickGui.prefixText
 import quoi.utils.StringUtils.noControlCodes
-import com.mojang.authlib.GameProfile
 import net.fabricmc.fabric.impl.command.client.ClientCommandInternals
-import net.minecraft.client.GuiMessage
-import net.minecraft.client.GuiMessageTag
+import net.minecraft.client.multiplayer.chat.GuiMessage
+import net.minecraft.client.multiplayer.chat.GuiMessageSource
+import net.minecraft.client.multiplayer.chat.GuiMessageTag
 import net.minecraft.network.chat.*
 
 object ChatUtils {
@@ -68,7 +65,7 @@ object ChatUtils {
             editedLine = true
             messageList.remove()
 
-            val line = GuiMessage(msg.addedTime, replaceWith, null, indicator)
+            val line = GuiMessage(msg.addedTime, replaceWith, null, GuiMessageSource.SYSTEM_CLIENT, indicator)
             line.id = msg.id
             messageList.add(line)
         }
@@ -122,7 +119,7 @@ object ChatUtils {
         }.also { chatStyle?.let(it::setStyle) }
 
         mc.execute {
-            id?.let { chatGui.add(text, it) } ?: chatGui.addMessage(text)
+            id?.let { chatGui.add(text, it) } ?: chatGui.addClientSystemMessage(text)
         }
     }
 }

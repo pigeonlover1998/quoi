@@ -1,6 +1,6 @@
 package quoi.module.impl.dungeon.autoclear.executor
 
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.world.phys.Vec3
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
@@ -34,7 +34,7 @@ abstract class ClearNode(
         return playerPos.distanceToSqr(pos) <= 0.1
     }
 
-    open fun render(ctx: WorldRenderContext) {
+    open fun render(ctx: LevelRenderContext) {
         val eye = getEyeHeight(this is ClearEtherNode).toDouble()
         ctx.drawFilledBox(pos.aabb(0.1).setMinY(pos.y + 0.1).setMaxY(pos.y + eye), colour = colour.withAlpha(100), depth = true)
         ctx.drawFilledBox(pos.aabb(0.5).setMaxY(pos.y + 0.1).setMinY(pos.y), colour = Colour.GREEN.withAlpha(100), depth = true)

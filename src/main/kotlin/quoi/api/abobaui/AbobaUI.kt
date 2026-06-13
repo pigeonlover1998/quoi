@@ -10,14 +10,14 @@ import quoi.api.abobaui.events.EventManager
 import quoi.api.abobaui.events.Lifetime
 import quoi.api.abobaui.operations.Operation
 import quoi.utils.ui.rendering.NVGRenderer
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 // heavily inspired by stivais' auroraui. I'm too stupid for this
 class AbobaUI(val title: String) {
 
     val main = Group(Constraints(0.px, 0.px, 0.px, 0.px)).also { it.ui = this }
 
-    lateinit var ctx: GuiGraphics
+    lateinit var ctx: GuiGraphicsExtractor
 
     val eventManager = EventManager(this)
 
@@ -38,7 +38,7 @@ class AbobaUI(val title: String) {
     inline var clipboard: String?
         get() = mc.keyboardHandler.clipboard
         set(value) {
-            mc.keyboardHandler.clipboard = value
+            mc.keyboardHandler.clipboard = value ?: ""
         }
 
     private var operations = arrayListOf<Operation>()
@@ -108,7 +108,7 @@ class AbobaUI(val title: String) {
             _ui = ui
         }
 
-        var ctx: GuiGraphics
+        var ctx: GuiGraphicsExtractor
             get() = ui.ctx
             set(value) { ui.ctx = value }
 

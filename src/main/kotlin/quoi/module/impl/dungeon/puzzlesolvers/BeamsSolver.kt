@@ -2,7 +2,7 @@ package quoi.module.impl.dungeon.puzzlesolvers
 
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.game.ClientboundSoundPacket
@@ -83,7 +83,7 @@ object BeamsSolver {
         }
     }
 
-    fun onRenderWorld(ctx: WorldRenderContext, style: String, beamsTracer: Boolean, beamsAlpha: Float) {
+    fun onRenderWorld(ctx: LevelRenderContext, style: String, beamsTracer: Boolean, beamsAlpha: Float) {
         if (Dungeon.currentRoom?.name != "Creeper Beams" || currentLanternPairs.isEmpty()) return
 
         currentLanternPairs.entries.forEach { positions ->

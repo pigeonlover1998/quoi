@@ -1,6 +1,6 @@
 package quoi.module.impl.dungeon.puzzlesolvers
 
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -142,7 +142,7 @@ object IcePathSolver { // todo add pre fire maybe
         }
     }
 
-    fun onRenderWorld(ctx: WorldRenderContext, colour: Colour) {
+    fun onRenderWorld(ctx: LevelRenderContext, colour: Colour) {
         if (Dungeon.currentRoom?.name != "Ice Path" || silverfishPath.isEmpty()) return
 
         val points = silverfishPath.map { it.addVec(0.5, 1.0, 0.5) }

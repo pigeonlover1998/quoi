@@ -1,9 +1,9 @@
 package quoi.module.impl.misc
 
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundSoundPacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.util.FormattedCharSequence
 import quoi.api.events.GuiEvent
@@ -53,14 +53,14 @@ object CatMode : Module(
         }
 
         on<PacketEvent.Received, ClientboundSoundPacket> {
-            if (!meowSound || packet.sound == SoundEvents.CAT_AMBIENT) return@on
+            if (!meowSound || packet.sound == SoundEvents.CAT_AMBIENT_BABY) return@on
 
             cancel()
             mc.level?.playLocalSound(
                 packet.x,
                 packet.y,
                 packet.z,
-                SoundEvents.CAT_AMBIENT,
+                SoundEvents.CAT_AMBIENT_BABY.value(),
                 packet.source,
                 packet.volume,
                 packet.pitch,
@@ -103,7 +103,7 @@ object CatMode : Module(
         Cut,
         Toast;
 
-        val path = ResourceLocation.parse("quoi:ui/fallingkittens/${name.lowercase()}.png")
+        val path = Identifier.parse("quoi:ui/fallingkittens/${name.lowercase()}.png")
     }
 
     private enum class CatModel(p: String) {
@@ -119,17 +119,17 @@ object CatMode : Module(
         Tabby("tabby"),
         White("white");
 
-        val path = ResourceLocation.withDefaultNamespace("textures/entity/cat/$p.png")
+        val path = Identifier.withDefaultNamespace("textures/entity/cat/$p.png")
     }
 
     private class FallingCatsRenderer {
         private val kittens = List(150) { Kitten() }
 
         fun draw(
-            ctx: GuiGraphics,
+            ctx: GuiGraphicsExtractor,
             width: Int,
             height: Int,
-            texture: ResourceLocation,
+            texture: Identifier,
             size: Int,
             speedMultiplier: Float,
         ) {
@@ -175,8 +175,8 @@ object CatMode : Module(
         }
 
         fun draw(
-            ctx: GuiGraphics,
-            texture: ResourceLocation,
+            ctx: GuiGraphicsExtractor,
+            texture: Identifier,
             size: Int,
         ) {
             val offset = size / 2f

@@ -1,7 +1,7 @@
 package quoi.mixins;
 
 import quoi.api.events.GuiEvent;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -39,38 +39,38 @@ public class ScreenMixin {
     }
 
     @Inject(
-            method = "renderWithTooltipAndSubtitles",
+            method = "extractRenderStateWithTooltipAndSubtitles",
             at = @At("HEAD"),
             cancellable = true
     )
-    protected void quoi$onRender(GuiGraphics context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
+    protected void quoi$onRender(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
         if (new GuiEvent.Draw((Screen) (Object) this, context, mouseX, mouseY).post()) ci.cancel();
     }
 
     @Inject(
-            method = "renderWithTooltipAndSubtitles",
+            method = "extractRenderStateWithTooltipAndSubtitles",
             at = @At("TAIL"),
             cancellable = true
     )
-    protected void quoi$onRenderPost(GuiGraphics context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
+    protected void quoi$onRenderPost(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
         if (new GuiEvent.Draw.Post((Screen) (Object) this, context, mouseX, mouseY).post()) ci.cancel();
     }
 
     @Inject(
-            method = "renderBackground",
+            method = "extractBackground",
             at = @At("HEAD"),
             cancellable = true
     )
-    protected void quoi$onRenderBackground(GuiGraphics context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
+    protected void quoi$onRenderBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
         if (new GuiEvent.DrawBackground((Screen) (Object) this, context, mouseX, mouseY).post()) ci.cancel();
     }
 
     @Inject(
-            method = "renderBackground",
+            method = "extractBackground",
             at = @At("TAIL"),
             cancellable = true
     )
-    protected void quoi$onRenderBackgroundPost(GuiGraphics context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
+    protected void quoi$onRenderBackgroundPost(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
         if (new GuiEvent.DrawBackground.Post((Screen) (Object) this, context, mouseX, mouseY).post()) ci.cancel();
     }
 }

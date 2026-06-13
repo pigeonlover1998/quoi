@@ -1,6 +1,6 @@
 package quoi.utils.ui.hud
 
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import quoi.api.colour.Colour
 import quoi.module.Module
 import quoi.module.settings.UIComponent
@@ -17,7 +17,7 @@ import quoi.utils.ui.inHudEditor
 interface HudDSL {
     fun <T : Hud> T.setting(desc: String = "") = HudComponent(name, this, desc)
 
-    fun <T : Hud> T.withTransform(ctx: GuiGraphics, block: GuiGraphics.() -> Unit) {
+    fun <T : Hud> T.withTransform(ctx: GuiGraphicsExtractor, block: GuiGraphicsExtractor.() -> Unit) {
         if (inHudEditor) return
         ctx.withMatrix(
             x = x.value / 100f * scaledWidth,

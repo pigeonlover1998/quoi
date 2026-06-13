@@ -2,7 +2,7 @@ package quoi
 
 import kotlinx.coroutines.CoroutineScope
 import net.fabricmc.api.ClientModInitializer
-import net.fabricmc.fabric.api.client.rendering.v1.SpecialGuiElementRegistry
+import net.fabricmc.fabric.api.client.rendering.v1.PictureInPictureRendererRegistry
 import net.minecraft.client.Minecraft
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -27,8 +27,8 @@ object QuoiMod : ClientModInitializer {
     override fun onInitializeClient() {
         ModuleManager.initialise()
         AnnotationLoader.load()
-        SpecialGuiElementRegistry.register { context ->
-            NVGSpecialRenderer(context.vertexConsumers())
+        PictureInPictureRendererRegistry.register { context ->
+            NVGSpecialRenderer(context.bufferSource())
         }
 
         EventBus.on<GameEvent.Load> {

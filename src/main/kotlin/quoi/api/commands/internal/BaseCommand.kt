@@ -2,7 +2,7 @@ package quoi.api.commands.internal
 
 
 import quoi.utils.ChatUtils.modMessage
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 
 class BaseCommand(

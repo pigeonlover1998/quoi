@@ -1,44 +1,31 @@
 package quoi.api.events.core
 
-import quoi.QuoiMod.mc
-import quoi.api.events.ChatEvent
-import quoi.api.events.DungeonEvent
-import quoi.api.events.GameEvent
-import quoi.api.events.GuiEvent
-import quoi.api.events.PacketEvent
-import quoi.api.events.RenderEvent
-import quoi.api.events.ServerEvent
-import quoi.api.events.TickEvent
-import quoi.api.events.WorldEvent
-import quoi.api.skyblock.dungeon.Dungeon
-import quoi.api.skyblock.dungeon.Dungeon.dungeonItemDrops
-import quoi.utils.StringUtils.containsOneOf
-import quoi.utils.equalsOneOf
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLevelEvents
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientWorldEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents
 import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientboundPingPacket
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
-import net.minecraft.network.protocol.game.ClientboundSoundPacket
-import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
-import net.minecraft.network.protocol.game.ClientboundTakeItemEntityPacket
-import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.network.protocol.game.*
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.item.ItemEntity
 import quoi.QuoiMod
-import quoi.utils.ui.rendering.NVGSpecialRenderer
+import quoi.QuoiMod.mc
+import quoi.api.events.*
+import quoi.api.skyblock.dungeon.Dungeon
+import quoi.api.skyblock.dungeon.Dungeon.dungeonItemDrops
+import quoi.utils.StringUtils.containsOneOf
+import quoi.utils.equalsOneOf
 import java.util.concurrent.ConcurrentHashMap
 
 // modified zen, their repo is taken down.
@@ -67,12 +54,12 @@ object EventBus { // todo cleanup
         }
         ClientTickEvents.END_CLIENT_TICK.register { if (mc.level != null && mc.player != null) TickEvent.End().post() }
 
-        WorldRenderEvents.END_MAIN.register { if (mc.level != null && mc.player != null) RenderEvent.World(it).post() }
+        LevelRenderEvents.END_MAIN.register { if (mc.level != null && mc.player != null) RenderEvent.World(it).post() }
 
         ClientLifecycleEvents.CLIENT_STARTED.register { GameEvent.Load().post() }
         ClientLifecycleEvents.CLIENT_STOPPING.register { GameEvent.Unload().post() }
 
-        ClientWorldEvents.AFTER_CLIENT_WORLD_CHANGE.register { _, _ ->
+        ClientLevelEvents.AFTER_CLIENT_LEVEL_CHANGE.register { _, _ ->
             WorldEvent.Change().post()
             totalTicks = 0
             tabLoaded = false
@@ -105,7 +92,7 @@ object EventBus { // todo cleanup
             }
         }
 
-        HudElementRegistry.attachElementBefore(VanillaHudElements.SLEEP, ResourceLocation.fromNamespaceAndPath(QuoiMod.MOD_ID, "quoi_hud")) { ctx, a ->
+        HudElementRegistry.attachElementBefore(VanillaHudElements.SLEEP, Identifier.fromNamespaceAndPath(QuoiMod.MOD_ID, "quoi_hud")) { ctx, a ->
             if (mc.options.hideGui || mc.level == null || mc.player == null) return@attachElementBefore
             post(RenderEvent.Overlay(ctx, a))
         }

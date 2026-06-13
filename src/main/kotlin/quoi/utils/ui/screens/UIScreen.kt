@@ -7,7 +7,7 @@ import quoi.api.input.CatKeys
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.sf
 import quoi.utils.ui.rendering.NVGSpecialRenderer
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.input.CharacterEvent
 import net.minecraft.client.input.KeyEvent
@@ -20,14 +20,14 @@ class UIScreen(val instance: AbobaUI.Instance, val background: Boolean = true ) 
         instance.init(width * sf, height * sf)
     }
 
-    override fun render(ctx: GuiGraphics, mouseX: Int, mouseY: Int, deltaTicks: Float) {
+    override fun extractRenderState(ctx: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, deltaTicks: Float) {
         instance.ctx = ctx
         instance.eventManager.onMouseMove(mouseX * sf.toFloat(), mouseY * sf.toFloat())
         NVGSpecialRenderer.draw(ctx, 0, 0, ctx.guiWidth(), ctx.guiHeight()) {
             instance.render(true)
         }
         instance.render(false)
-        super.render(ctx, mouseX, mouseY, deltaTicks)
+        super.extractRenderState(ctx, mouseX, mouseY, deltaTicks)
     }
 
     override fun mouseClicked(mouseButtonEvent: MouseButtonEvent, doubled: Boolean) =
@@ -70,8 +70,8 @@ class UIScreen(val instance: AbobaUI.Instance, val background: Boolean = true ) 
 
     override fun isPauseScreen() = false
 
-    override fun renderBackground(guiGraphics: GuiGraphics, mouseY: Int, j: Int, deltaTicks: Float) {
-        if (background) super.renderBackground(guiGraphics, mouseY, j, deltaTicks)
+    override fun extractBackground(guiGraphics: GuiGraphicsExtractor, mouseY: Int, j: Int, deltaTicks: Float) {
+        if (background) super.extractBackground(guiGraphics, mouseY, j, deltaTicks)
     }
 
     companion object {

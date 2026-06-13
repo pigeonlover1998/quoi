@@ -6,8 +6,8 @@ import quoi.utils.ChatUtils.modMessage
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import net.minecraft.commands.SharedSuggestionProvider
 import java.lang.reflect.Type
@@ -77,7 +77,7 @@ class SubCommand(
         if (parser.arguments.isEmpty()) return
 
         val argumentNodes = parser.arguments.map { arg ->
-            ClientCommandManager.argument(arg.name, TypeParser.getBrigadierType(arg.type)).apply {
+            ClientCommands.argument(arg.name, TypeParser.getBrigadierType(arg.type)).apply {
                 applySuggestions(this, arg.type)
             }
         }

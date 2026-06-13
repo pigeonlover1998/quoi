@@ -2,7 +2,7 @@ package quoi.module.impl.dungeon.puzzlesolvers
 
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.decoration.ArmorStand
@@ -78,7 +78,7 @@ object QuizSolver {
         triviaOptions[2].blockPos = getRealCoords(BlockPos(10, 70, 6))
     }
 
-    fun onRenderWorld(ctx: WorldRenderContext, colour: Colour, depth: Boolean) {
+    fun onRenderWorld(ctx: LevelRenderContext, colour: Colour, depth: Boolean) {
         if (triviaAnswers == null || triviaOptions.isEmpty()) return
         triviaOptions.forEach { answer ->
             if (!answer.isCorrect) return@forEach

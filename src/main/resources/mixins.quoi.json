@@ -17,7 +17,6 @@
     "ButtonBlockMixin",
     "CameraMixin",
     "ChatComponentMixin",
-    "ChatListenerMixin",
     "ChatScreenMixin",
     "ChestBlockMixin",
     "ClientLevelMixin",
@@ -47,10 +46,12 @@
     "SkullBlockMixin",
     "WallSkullBlockMixin",
     "accessors.ChatComponentAccessor",
+    "accessors.ImageButtonAccessor",
     "accessors.InventoryAccessor",
     "accessors.KeyMappingAccessor",
     "accessors.LocalPlayerAccessor",
     "accessors.MultiPlayerGameModeAccessor",
-    "accessors.ImageButtonAccessor"
+    "accessors.RenderSetupAccessor",
+    "accessors.RenderTypeAccessor"
   ]
 }

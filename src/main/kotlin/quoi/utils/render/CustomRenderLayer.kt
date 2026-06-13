@@ -1,47 +1,42 @@
 package quoi.utils.render
 
-import net.minecraft.client.renderer.RenderType
+import com.mojang.blaze3d.pipeline.RenderPipeline
+import net.minecraft.client.renderer.rendertype.LayeringTransform
+import net.minecraft.client.renderer.rendertype.RenderSetup
+import net.minecraft.client.renderer.rendertype.RenderType
+import quoi.mixins.accessors.RenderSetupAccessor
+import quoi.mixins.accessors.RenderTypeAccessor
 
 /**
- * from OdinFabric (BSD 3-Clause)
- * copyright (c) 2025-2026 odtheking
- * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/render/CustomRenderLayer.kt
+ * 1.21.11 hides the RenderType factory, so use mixin invokers to keep custom
+ * no-depth pipelines working instead of falling back to vanilla depth-tested
+ * layers like linesTranslucent/debugQuads.
+ *
+ * from jcnlk's quoi
+ * original: https://github.com/jcnlk/quoi/blob/26.1.x/src/main/kotlin/quoi/utils/render/CustomRenderLayer.kt
  */
 object CustomRenderLayer {
+    private fun create(
+        name: String,
+        pipeline: RenderPipeline,
+        configure: RenderSetup.RenderSetupBuilder.() -> Unit = {}
+    ): RenderType {
+        val setup = RenderSetupAccessor.invokeBuilder(pipeline)
+            .bufferSize(RenderType.TRANSIENT_BUFFER_SIZE)
+            .apply(configure)
+            .createRenderSetup()
+        return RenderTypeAccessor.invokeCreate(name, setup)
+    }
 
-    val LINE_LIST: RenderType.CompositeRenderType = RenderType.create(
-        "line-list",
-        RenderType.TRANSIENT_BUFFER_SIZE,
-        CustomRenderPipelines.LINE_LIST,
-        RenderType.CompositeState.builder()
-            .setLayeringState(RenderType.VIEW_OFFSET_Z_LAYERING)
-            .createCompositeState(false)
-    )
-
-    val LINE_LIST_ESP: RenderType.CompositeRenderType = RenderType.create(
-        "line-list-esp",
-        RenderType.TRANSIENT_BUFFER_SIZE,
-        CustomRenderPipelines.LINE_LIST_ESP,
-        RenderType.CompositeState.builder().createCompositeState(false)
-    )
-
-    val TRIANGLE_STRIP: RenderType.CompositeRenderType = RenderType.create(
-        "triangle_strip",
-        RenderType.TRANSIENT_BUFFER_SIZE,
-        false,
-        true,
-        CustomRenderPipelines.TRIANGLE_STRIP,
-        RenderType.CompositeState.builder()
-            .setLayeringState(RenderType.VIEW_OFFSET_Z_LAYERING)
-            .createCompositeState(false)
-    )
-
-    val TRIANGLE_STRIP_ESP: RenderType.CompositeRenderType = RenderType.create(
-        "triangle_strip_esp",
-        RenderType.TRANSIENT_BUFFER_SIZE,
-        false,
-        true,
-        CustomRenderPipelines.TRIANGLE_STRIP_ESP,
-        RenderType.CompositeState.builder().createCompositeState(false)
-    )
+    val LINE_LIST: RenderType = create("quoi_lines", CustomRenderPipelines.LINE_LIST) {
+        setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+    }
+    val LINE_LIST_ESP: RenderType = create("quoi_lines_esp", CustomRenderPipelines.LINE_LIST_ESP)
+    val TRIANGLE_STRIP: RenderType = create("quoi_debug_quads", CustomRenderPipelines.TRIANGLE_STRIP) {
+        setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+        sortOnUpload()
+    }
+    val TRIANGLE_STRIP_ESP: RenderType = create("quoi_debug_quads_esp", CustomRenderPipelines.TRIANGLE_STRIP_ESP) {
+        sortOnUpload()
+    }
 }

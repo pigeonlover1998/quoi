@@ -1,7 +1,7 @@
 package quoi.utils
 
 import com.mojang.blaze3d.platform.InputConstants
-import net.minecraft.client.GuiMessage
+import net.minecraft.client.multiplayer.chat.GuiMessage
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.gui.components.ChatComponent
 import net.minecraft.client.gui.components.ImageButton
@@ -9,6 +9,7 @@ import net.minecraft.client.gui.components.WidgetSprites
 import net.minecraft.client.multiplayer.MultiPlayerGameMode
 import net.minecraft.client.multiplayer.prediction.PredictiveAction
 import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.ChatVisiblity
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.item.ItemStack
 import quoi.QuoiMod.mc
@@ -19,6 +20,7 @@ import quoi.mixins.accessors.InventoryAccessor
 import quoi.mixins.accessors.KeyMappingAccessor
 import quoi.mixins.accessors.MultiPlayerGameModeAccessor
 import quoi.mixins.accessors.ImageButtonAccessor
+import kotlin.math.floor
 
 fun MultiPlayerGameMode.startPrediction(action: PredictiveAction) {
     val level = mc.level ?: return
@@ -32,13 +34,23 @@ inline val ChatComponent.visibleMessages: List<GuiMessage.Line>
     get() = (this as ChatComponentAccessor).visibleMessages
 
 fun ChatComponent.toChatLineMX(x: Double): Double =
-    (this as ChatComponentAccessor).toChatLineMX(x)
+    x / (this as ChatComponentAccessor).`quoi$getChatScale`() - 4.0
 
 fun ChatComponent.toChatLineMY(y: Double): Double =
-    (this as ChatComponentAccessor).toChatLineMY(y)
+    (mc.window.guiScaledHeight - y - 40.0) /
+            ((this as ChatComponentAccessor).`quoi$getChatScale`() * (this as ChatComponentAccessor).`quoi$getChatLineHeight`())
 
 fun ChatComponent.getMessageLineIdx(chatLineX: Double, chatLineY: Double): Int =
-    (this as ChatComponentAccessor).getMessageLineIdx(chatLineX, chatLineY)
+    with(this as ChatComponentAccessor) {
+        if (!this@getMessageLineIdx.isChatFocused || mc.options.chatVisibility().get() == ChatVisiblity.HIDDEN) return -1
+        if (chatLineX < -4.0 || chatLineX > floor(`quoi$getChatWidth`().toDouble() / `quoi$getChatScale`())) return -1
+
+        val lineCount = minOf(this@getMessageLineIdx.linesPerPage, visibleMessages.size)
+        if (chatLineY < 0.0 || chatLineY >= lineCount) return -1
+
+        val idx = floor(chatLineY + scrolledLines.toDouble()).toInt()
+        idx.takeIf { it in visibleMessages.indices } ?: -1
+    }
 
 fun ChatComponent.refreshTrimmedMessages() =
     (this as ChatComponentAccessor).invokeRefreshTrimmedMessages()

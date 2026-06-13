@@ -1,6 +1,6 @@
 package quoi.api.autoroutes.nodes
 
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.world.phys.Vec3
 import quoi.QuoiMod.mc
@@ -94,7 +94,7 @@ class EtherwarpNode : RouteNode() {
         return this
     }
 
-    override fun render(ctx: WorldRenderContext, style: String, colour: Colour, fillColour: Colour, activeColour: Colour, thickness: Float) {
+    override fun render(ctx: LevelRenderContext, style: String, colour: Colour, fillColour: Colour, activeColour: Colour, thickness: Float) {
         super.render(ctx, style, colour, fillColour, activeColour, thickness)
         val col = if (this.chain != null) Colour.GREEN else Colour.WHITE
         val final = if (yaw != null) Colour.ORANGE else col

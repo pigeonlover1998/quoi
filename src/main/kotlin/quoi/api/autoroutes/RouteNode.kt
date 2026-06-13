@@ -1,6 +1,6 @@
 package quoi.api.autoroutes
 
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
@@ -66,7 +66,7 @@ abstract class RouteNode(
         awaits?.forEach { it.reset() }
     }
 
-    open fun render(ctx: WorldRenderContext, style: String, colour: Colour, fillColour: Colour, activeColour: Colour, thickness: Float) {
+    open fun render(ctx: LevelRenderContext, style: String, colour: Colour, fillColour: Colour, activeColour: Colour, thickness: Float) {
         val start = start ?: false
         val depth = !start
         when (style) {

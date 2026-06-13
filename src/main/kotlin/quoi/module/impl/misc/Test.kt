@@ -172,6 +172,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
         }
 
         on<DungeonEvent.Room.Scan> {
+            if (!collectData) return@on
             if (room.data.type == RoomType.NORMAL && !mobData.containsKey(room.name)) {
                 modMessage("!!! SCAN &e${room.name} !!!")
                 PlayerUtils.setTitle("SCAN &e${room.name}", playSound = true)

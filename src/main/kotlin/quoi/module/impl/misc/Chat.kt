@@ -126,7 +126,7 @@ object Chat : Module(
             val dy = chatGui.toChatLineMY(my)
             val idx = chatGui.getMessageLineIdx(dx, dy)
             if (idx !in chatGui.visibleMessages.indices) return@on
-            if (idx == 0 && dy !in 0.0..1.0 || dx >= chatGui.width.plus(10)) return@on
+            if (idx == 0 && dy !in 0.0..1.0 || dx >= ChatComponent.getWidth(mc.options.chatWidth().get()).plus(10)) return@on
 
             val fullText = chatGui.getFullText(idx)?.string ?: return@on
             val finalText = if (isCodeBtn) fullText else fullText.noControlCodes

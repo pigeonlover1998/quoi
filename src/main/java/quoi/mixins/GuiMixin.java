@@ -7,7 +7,7 @@ import quoi.module.impl.player.PlayerDisplay.HudType;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.scores.*;
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 public class GuiMixin {
 
     @Redirect(
-            method = "renderPlayerHealth",
+            method = "extractPlayerHealth",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/player/Player;getAbsorptionAmount()F"
@@ -40,55 +40,55 @@ public class GuiMixin {
         return instance.getAbsorptionAmount();
     }
 
-    @Inject(
-            method = "render",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/Gui;renderSleepOverlay(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"
-            )
-    )
-    private void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-//        new RenderEvent.Overlay(guiGraphics, deltaTracker).post();
-    }
+//    @Inject(
+//            method = "render",
+//            at = @At(
+//                    value = "INVOKE",
+//                    target = "Lnet/minecraft/client/gui/Gui;renderSleepOverlay(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"
+//            )
+//    )
+//    private void render(GuiGraphicsExtractor GuiGraphicsExtractor, DeltaTracker deltaTracker, CallbackInfo ci) {
+////        new RenderEvent.Overlay(GuiGraphicsExtractor, deltaTracker).post();
+//    }
 
     @Inject(
-            method = "renderArmor",
+            method = "extractArmor",
             at = @At("HEAD"),
             cancellable = true
     )
-    private static void cancelArmorBar(GuiGraphics context, Player player, int i, int j, int k, int x, CallbackInfo ci) {
+    private static void cancelArmorBar(GuiGraphicsExtractor context, Player player, int i, int j, int k, int x, CallbackInfo ci) {
         if (PlayerDisplay.shouldCancelHud(HudType.ARMOUR)) ci.cancel();
     }
 
     @Inject(
-            method = "renderHearts",
+            method = "extractHearts",
             at = @At("HEAD"),
             cancellable = true
     )
-    private void cancelHealthBar(GuiGraphics context, Player player, int x, int y, int lines, int regeneratingHeartIndex, float maxHealth, int lastHealth, int health, int absorption, boolean blinking, CallbackInfo ci) {
+    private void cancelHealthBar(GuiGraphicsExtractor context, Player player, int x, int y, int lines, int regeneratingHeartIndex, float maxHealth, int lastHealth, int health, int absorption, boolean blinking, CallbackInfo ci) {
         if (PlayerDisplay.shouldCancelHud(HudType.HEALTH)) ci.cancel();
     }
 
     @Inject(
-            method = "renderFood",
+            method = "extractFood",
             at = @At("HEAD"),
             cancellable = true
     )
-    private void cancelFoodBar(GuiGraphics context, Player player, int top, int right, CallbackInfo ci) {
+    private void cancelFoodBar(GuiGraphicsExtractor context, Player player, int top, int right, CallbackInfo ci) {
         if (PlayerDisplay.shouldCancelHud(HudType.FOOD)) ci.cancel();
     }
 
     @Inject(
-            method = "renderVehicleHealth",
+            method = "extractVehicleHealth",
             at = @At("HEAD"),
             cancellable = true
     )
-    private void cancelMountHealth(GuiGraphics guiGraphics, CallbackInfo ci) {
+    private void cancelMountHealth(GuiGraphicsExtractor GuiGraphicsExtractor, CallbackInfo ci) {
         if (PlayerDisplay.shouldCancelHud(HudType.MOUNT_HEALTH)) ci.cancel();
     }
 
     @ModifyExpressionValue(
-            method = "renderPlayerHealth",
+            method = "extractPlayerHealth",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/player/Player;hasEffect(Lnet/minecraft/core/Holder;)Z"

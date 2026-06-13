@@ -1,6 +1,6 @@
 package quoi.utils.ui.screens
 
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import quoi.api.abobaui.AbobaUI
 import quoi.api.events.GuiEvent
 import quoi.api.events.PacketEvent
@@ -19,7 +19,7 @@ class UIContainer(ui: AbobaUI.Instance, val cancelling: Boolean = true) : UIHand
 
     constructor(ui: AbobaUI, cancelling: Boolean = true) : this(AbobaUI.Instance(ui), cancelling)
 
-    private fun render(ctx: GuiGraphics, cancel: () -> Unit) {
+    private fun render(ctx: GuiGraphicsExtractor, cancel: () -> Unit) {
         resize(width, height)
 
         ui.ctx = ctx

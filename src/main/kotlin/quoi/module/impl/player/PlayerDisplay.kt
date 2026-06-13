@@ -163,7 +163,7 @@ object PlayerDisplay : Module(
                 override fun drawCtx() {
                     withScale {
                         ctx.pose().scale(2f, 2f)
-                        ctx.renderItem(ItemStack(Blocks.CHEST), 0, 0)
+                        ctx.item(ItemStack(Blocks.CHEST), 0, 0)
                     }
                 }
             }.add()
@@ -225,7 +225,7 @@ object PlayerDisplay : Module(
         }
     }
 
-    /*private fun GuiGraphics.drawBar(width: Int, colour: Colour) {
+    /*private fun GuiGraphicsExtractor.drawBar(width: Int, colour: Colour) {
         val bW = BAR_WIDTH * 2
         val bH = BAR_HEIGHT * 2
         fill(0, 0, bW, bH, Colour.RGB(35, 35, 35).rgb)

@@ -7,7 +7,7 @@ import quoi.api.events.core.EventBus
 import quoi.utils.Scheduler.scheduleLoop
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
-import net.minecraft.Util
+import net.minecraft.util.Util
 import net.minecraft.network.protocol.ping.ClientboundPongResponsePacket
 import net.minecraft.network.protocol.ping.ServerboundPingRequestPacket
 import quoi.annotations.Init

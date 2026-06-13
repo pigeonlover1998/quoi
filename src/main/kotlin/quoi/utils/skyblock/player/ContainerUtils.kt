@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.network.HashedStack
 import net.minecraft.network.protocol.game.*
-import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.ItemStack
 import quoi.QuoiMod.mc
 import quoi.annotations.Init
@@ -219,21 +219,21 @@ object ContainerUtils {
         if (containerId == -1) return
 
         val clickType = when {
-            button == 2 -> ClickType.CLONE
-            shift -> ClickType.QUICK_MOVE
-            else -> ClickType.PICKUP
+            button == 2 -> ContainerInput.CLONE
+            shift -> ContainerInput.QUICK_MOVE
+            else -> ContainerInput.PICKUP
         }
 
-        mc.gameMode?.handleInventoryMouseClick(containerId, slot, button, clickType, this)
+        mc.gameMode?.handleContainerInput(containerId, slot, button, clickType, this)
     }
 
     fun click(slot: Int, button: Int = 0, shift: Boolean = false): Boolean {
         if (containerId == -1) return false
 
-        val clickType = when {
-            button == 2 -> ClickType.CLONE
-            shift -> ClickType.QUICK_MOVE
-            else -> ClickType.PICKUP
+        val ContainerInput = when {
+            button == 2 -> ContainerInput.CLONE
+            shift -> ContainerInput.QUICK_MOVE
+            else -> ContainerInput.PICKUP
         }
 
         scheduleTask {
@@ -243,7 +243,7 @@ object ContainerUtils {
                     lastStateId,
                     slot.toShort(),
                     button.toByte(),
-                    clickType,
+                    ContainerInput,
                     Int2ObjectMaps.emptyMap(),
                     HashedStack.EMPTY
                 )

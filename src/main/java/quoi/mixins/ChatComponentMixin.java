@@ -18,8 +18,9 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
-import net.minecraft.client.GuiMessage;
-import net.minecraft.client.GuiMessageTag;
+import net.minecraft.client.multiplayer.chat.GuiMessage;
+import net.minecraft.client.multiplayer.chat.GuiMessageSource;
+import net.minecraft.client.multiplayer.chat.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.Screen;
@@ -36,9 +37,7 @@ public abstract class ChatComponentMixin implements IChatComponent {
     private List<GuiMessage> allMessages;
 
     @Shadow
-    public abstract void addMessage(Component message, @Nullable MessageSignature signatureData, @Nullable GuiMessageTag indicator);
-    @Shadow
-    public abstract void addMessage(Component message);
+    public abstract void addClientSystemMessage(Component message);
 
     @Unique
     private int nextId;
@@ -52,7 +51,7 @@ public abstract class ChatComponentMixin implements IChatComponent {
         }
 
         nextId = id;
-        addMessage(message);
+        addClientSystemMessage(message);
         nextId = 0;
     }
 
@@ -60,9 +59,9 @@ public abstract class ChatComponentMixin implements IChatComponent {
             method = "addMessageToDisplayQueue",
             at = @At(
                     value = "INVOKE",
-                    target = "Ljava/util/List;add(ILjava/lang/Object;)V"
+                    target = "Ljava/util/List;addFirst(Ljava/lang/Object;)V"
             ),
-            index = 1
+            index = 0
     )
     private Object onAddVisibleLine(Object line) {
         if (nextId != 0) {
@@ -72,7 +71,7 @@ public abstract class ChatComponentMixin implements IChatComponent {
     }
 
     @Inject(
-            method = "addMessageToQueue(Lnet/minecraft/client/GuiMessage;)V",
+            method = "addMessageToQueue",
             at = @At("TAIL")
     )
     private void onAddMessageAfterNewLine(GuiMessage message, CallbackInfo ci) {
@@ -82,25 +81,25 @@ public abstract class ChatComponentMixin implements IChatComponent {
     }
 
     @Inject(
-            method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V",
+            method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/multiplayer/chat/GuiMessageSource;Lnet/minecraft/client/multiplayer/chat/GuiMessageTag;)V",
             at = @At("HEAD"),
             cancellable = true
     )
-    private void onAddMessage(Component message, MessageSignature signatureData, GuiMessageTag indicator, CallbackInfo ci) {
+    private void onAddMessage(Component message, MessageSignature signatureData, GuiMessageSource source, GuiMessageTag indicator, CallbackInfo ci) {
         if (new ChatEvent.Receive(message.getString(), message, nextId).post()) ci.cancel();
     }
 
     @Inject(
-            method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V",
+            method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/multiplayer/chat/GuiMessageSource;Lnet/minecraft/client/multiplayer/chat/GuiMessageTag;)V",
             at = @At("TAIL"),
             cancellable = true
     )
-    private void onAddMessagePost(Component message, MessageSignature signatureData, GuiMessageTag indicator, CallbackInfo ci) {
+    private void onAddMessagePost(Component message, MessageSignature signatureData, GuiMessageSource source, GuiMessageTag indicator, CallbackInfo ci) {
         if (new ChatEvent.Receive.Post(message.getString(), message, nextId).post()) ci.cancel();
     }
 
     @Inject(
-            method = "addMessage(Lnet/minecraft/network/chat/Component;)V",
+            method = "addClientSystemMessage(Lnet/minecraft/network/chat/Component;)V",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -115,9 +114,10 @@ public abstract class ChatComponentMixin implements IChatComponent {
     }
 
     @ModifyVariable(
-            method = "render",
+            method = "extractRenderState",
             at = @At("HEAD"),
-            argsOnly = true
+            argsOnly = true,
+            ordinal = 0
     )
     private boolean renderFocused(boolean focused) {
         return focused || Chat.INSTANCE.isDown();

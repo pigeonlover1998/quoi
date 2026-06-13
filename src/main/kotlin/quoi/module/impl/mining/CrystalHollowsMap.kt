@@ -1,7 +1,7 @@
 package quoi.module.impl.mining
 
-import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.resources.Identifier
 import quoi.QuoiMod.MOD_ID
 import quoi.api.abobaui.dsl.px
 import quoi.api.abobaui.dsl.size
@@ -64,9 +64,9 @@ object CrystalHollowsMap : Module(
     const val Z_MAX = 823
     const val MAP_SIZE = 621
 
-    private val GREEN_MARKER = ResourceLocation.fromNamespaceAndPath(MOD_ID, "green_marker.png")
-    private val WHITE_MARKER = ResourceLocation.fromNamespaceAndPath(MOD_ID, "white_marker.png")
-    private val MAP_IMAGE = ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/images/crystalhollowsmap.png")
+    private val GREEN_MARKER = Identifier.fromNamespaceAndPath(MOD_ID, "green_marker.png")
+    private val WHITE_MARKER = Identifier.fromNamespaceAndPath(MOD_ID, "white_marker.png")
+    private val MAP_IMAGE = Identifier.fromNamespaceAndPath(MOD_ID, "ui/images/crystalhollowsmap.png")
 
     private val Number.mapX get() = worldToMap(this, X_MIN, X_MAX, 0, MAP_SIZE).toFloat()
     private val Number.mapZ get() = worldToMap(this, Z_MIN, Z_MAX, 0, MAP_SIZE).toFloat()
@@ -112,7 +112,7 @@ object CrystalHollowsMap : Module(
         }
     }
 
-    private fun GuiGraphics.renderMap() {
+    private fun GuiGraphicsExtractor.renderMap() {
 
         drawImage(MAP_IMAGE, 0, 0, MAP_SIZE, MAP_SIZE)
 
@@ -146,7 +146,7 @@ object CrystalHollowsMap : Module(
         if (drawPlayers) drawPlayers()
     }
 
-    private fun GuiGraphics.drawPlayers() {
+    private fun GuiGraphicsExtractor.drawPlayers() {
         val l = playerEntities.map { it.uuid }
         mapPlayers.values.sortedBy { it.name == player.name.string }.forEach { p ->
             val inRange = l.contains(p.uuid)
@@ -169,7 +169,7 @@ object CrystalHollowsMap : Module(
         }
     }
 
-    private fun GuiGraphics.drawName(name: String, x: Double, z: Double) {
+    private fun GuiGraphicsExtractor.drawName(name: String, x: Double, z: Double) {
         if (!drawNames) return
         withMatrix(x.mapX, z.mapZ, textScale) {
             pose().translate(0f, 10f)

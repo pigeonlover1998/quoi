@@ -1,6 +1,6 @@
 package quoi.module.impl.misc.riftsolvers
 
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.game.ClientboundSoundPacket
@@ -153,7 +153,7 @@ object RedGreenSolver {
 
     fun onScreen() = if (isActive) reset() else null
 
-    fun onRenderWorld(ctx: WorldRenderContext) {
+    fun onRenderWorld(ctx: LevelRenderContext) {
         if (!isActive) {
             rooms.forEach { room ->
                 ctx.drawFilledBox(room.start.aabb, Colour.GREEN, depth = true)

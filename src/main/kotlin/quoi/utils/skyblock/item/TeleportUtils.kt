@@ -193,7 +193,7 @@ object TeleportUtils {
             val hitFeet = checkBlockCollision(level, mut, stateFeet, x0, y0, z0, invRayX, invRayY, invRayZ)
 
             mut.set(x, y + 1.0, z)
-            val stateHead = chunk.getBlockState(mut) ?: return RaycastResult.NONE
+            val stateHead = chunk.getBlockState(mut)
             val hitHead = checkBlockCollision(level, mut, stateHead, x0, y0, z0, invRayX, invRayY, invRayZ)
 
             if (hitFeet || hitHead) { // if hit block go back

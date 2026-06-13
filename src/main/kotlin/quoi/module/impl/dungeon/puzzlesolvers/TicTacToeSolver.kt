@@ -1,6 +1,6 @@
 package quoi.module.impl.dungeon.puzzlesolvers
 
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
@@ -42,7 +42,7 @@ object TicTacToeSolver {
         if (room?.name == "Tic Tac Toe") reset()
     }
 
-    fun onRenderWorld(ctx: WorldRenderContext, colour: Colour, pColour: Colour, prediction: Boolean) {
+    fun onRenderWorld(ctx: LevelRenderContext, colour: Colour, pColour: Colour, prediction: Boolean) {
         if (Dungeon.currentRoom?.name != "Tic Tac Toe") return
         bestMove?.let {
             ctx.drawWireFrameBox(it.aabb, colour, depth = true)

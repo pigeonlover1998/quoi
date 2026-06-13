@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import java.util.List;
-import net.minecraft.client.GuiMessage;
+import net.minecraft.client.multiplayer.chat.GuiMessage;
 import net.minecraft.client.gui.components.ChatComponent;
 
 @Mixin(ChatComponent.class)
@@ -16,14 +16,14 @@ public interface ChatComponentAccessor {
     @Accessor("trimmedMessages")
     List<GuiMessage.Line> getVisibleMessages();
 
-    @Invoker("screenToChatX")
-    double toChatLineMX(double x);
+    @Invoker("getWidth")
+    int quoi$getChatWidth();
 
-    @Invoker("screenToChatY")
-    double toChatLineMY(double y);
+    @Invoker("getScale")
+    double quoi$getChatScale();
 
-    @Invoker("getMessageLineIndexAt")
-    int getMessageLineIdx(double chatLineX, double chatLineY);
+    @Invoker("getLineHeight")
+    int quoi$getChatLineHeight();
 
     @Invoker
     void invokeRefreshTrimmedMessages();

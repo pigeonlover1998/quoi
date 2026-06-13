@@ -1,6 +1,6 @@
 package quoi.module.impl.dungeon.puzzlesolvers
 
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.sounds.SoundEvents
@@ -49,7 +49,7 @@ object WeirdosSolver {
         } else wrongPositions.add(pos)
     }
 
-    fun onRenderWorld(ctx: WorldRenderContext, colour: Colour, wrongColour: Colour, style: String) {
+    fun onRenderWorld(ctx: LevelRenderContext, colour: Colour, wrongColour: Colour, style: String) {
         if (Dungeon.currentRoom?.name != "Three Weirdos") return
         correctPos?.let { ctx.drawStyledBox(style, AABB(it), colour) }
         wrongPositions.forEach {

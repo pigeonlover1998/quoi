@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("fabric-loom")
+    id("net.fabricmc.fabric-loom")
     kotlin("jvm")
     `maven-publish`
 }
@@ -15,27 +15,26 @@ repositories {
 
 dependencies {
     minecraft("com.mojang:minecraft:${property("minecraft_version")}")
-//    mappings("net.fabricmc:yarn:${property("yarn_mappings")}:v2")
-    mappings(loom.officialMojangMappings())
 
-    modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
-    modImplementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}")
-    modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
+    implementation("net.fabricmc:fabric-loader:${property("loader_version")}")
+    implementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
+    implementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}")
+    runtimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
+    runtimeOnly("org.apache.httpcomponents:httpclient:4.5.14")
 
-    modImplementation("io.github.classgraph:classgraph:4.8.184")
+    implementation("io.github.classgraph:classgraph:4.8.184")
     include("io.github.classgraph:classgraph:4.8.184")
 
-    modImplementation("dev.kord:kord-core:0.18.1")
+    implementation("dev.kord:kord-core:0.18.1")
     include("dev.kord:kord-core:0.18.1")
 
     property("minecraft_lwjgl_version").let {
 
-        modImplementation("org.lwjgl:lwjgl-nanovg:$it")
+        implementation("org.lwjgl:lwjgl-nanovg:$it")
         include("org.lwjgl:lwjgl-nanovg:$it")
 
         listOf("windows", "linux", "macos", "macos-arm64").forEach { v ->
-            modImplementation("org.lwjgl:lwjgl-nanovg:$it:natives-$v")
+            implementation("org.lwjgl:lwjgl-nanovg:$it:natives-$v")
             include("org.lwjgl:lwjgl-nanovg:$it:natives-$v")
         }
     }
@@ -74,14 +73,14 @@ tasks {
 
     compileKotlin {
         compilerOptions {
-            jvmTarget = JvmTarget.JVM_21
+            jvmTarget = JvmTarget.JVM_25
             freeCompilerArgs.add("-Xlambdas=class")
         }
     }
 
     compileJava {
-        sourceCompatibility = "21"
-        targetCompatibility = "21"
+        sourceCompatibility = "25"
+        targetCompatibility = "25"
         options.encoding = "UTF-8"
         options.compilerArgs.addAll(listOf("-Xlint:deprecation", "-Xlint:unchecked"))
     }

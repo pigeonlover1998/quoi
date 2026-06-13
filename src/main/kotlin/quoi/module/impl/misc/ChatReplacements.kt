@@ -17,7 +17,6 @@ object ChatReplacements : Module("Chat Replacements", desc = "temp") { // THIS I
     private val hideDiscordWarnings by switch("Hide discord warnings", desc = "Hides Discord warning messages.")
     private val hideMicrosoftWarnings by switch("Hide microsoft warnings", desc = "Hides Microsoft account warnings.")
 
-    private val hideActionbar by switch("Hide actionbar", desc = "Hides ALL actionbar messages/contents.")
     private val hideScoreboardShit by switch("Hide scoreboard shit", desc = "Hides the Server ID and www.hypixel.net")
     private val hideEmptyChats by switch("Hide empty chat messages", desc = "Hides chat messages with no text.")
 
@@ -52,9 +51,6 @@ object ChatReplacements : Module("Chat Replacements", desc = "temp") { // THIS I
             say(words.joinToString(" "))
         }
     }
-
-    @JvmStatic
-    val shouldHideActionBar get() = this.enabled && hideActionbar
 
     data class Replacement(val pattern: Regex, val replacement: String)
 

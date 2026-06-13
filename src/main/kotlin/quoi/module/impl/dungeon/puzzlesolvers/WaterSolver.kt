@@ -2,7 +2,7 @@ package quoi.module.impl.dungeon.puzzlesolvers
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket
@@ -98,7 +98,7 @@ object WaterSolver {
         if (room?.name == "Water Board") reset()
     }
 
-    fun onRenderWorld(ctx: WorldRenderContext, showTracer: Boolean, tracerFirst: Colour, tracerSecond: Colour) {
+    fun onRenderWorld(ctx: LevelRenderContext, showTracer: Boolean, tracerFirst: Colour, tracerSecond: Colour) {
         if (patternIdentifier == -1 || solutions.isEmpty() || Dungeon.currentRoom?.name != "Water Board") return
 
         val solutionList = solutions

@@ -5,15 +5,15 @@ import quoi.api.colour.Colour
 import quoi.utils.ChatUtils.literal
 import quoi.utils.rad
 import quoi.utils.ui.data.Gradient
-import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.gui.components.PlayerFaceRenderer
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.client.gui.components.PlayerFaceExtractor
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.state.EntityRenderState
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState
 import net.minecraft.client.resources.DefaultPlayerSkin
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.FormattedCharSequence
 import net.minecraft.util.Mth.wrapDegrees
 import net.minecraft.world.entity.LivingEntity
@@ -30,7 +30,7 @@ object DrawContextUtils {
     private val textureCache = mutableMapOf<UUID, PlayerSkin>()
     private var lastCacheClear = System.currentTimeMillis()
 
-    fun GuiGraphics.withMatrix(x: Number? = null, y: Number? = null, scale: Number? = null, block: () -> Unit) {
+    fun GuiGraphicsExtractor.withMatrix(x: Number? = null, y: Number? = null, scale: Number? = null, block: () -> Unit) {
         require((x == null && y == null) || (x != null && y != null)) {
             "x and y must either both be null or both be not null"
         }
@@ -44,7 +44,7 @@ object DrawContextUtils {
         pose().popMatrix()
     }
 
-    fun GuiGraphics.gradientRect(
+    fun GuiGraphicsExtractor.gradientRect(
         x: Int,
         y: Int,
         width: Int,
@@ -66,20 +66,20 @@ object DrawContextUtils {
         }
     }
 
-    fun GuiGraphics.rect(x: Number, y: Number, width: Int, height: Int, colour: Int) {
+    fun GuiGraphicsExtractor.rect(x: Number, y: Number, width: Int, height: Int, colour: Int) {
         withMatrix(x, y) {
             fill(0, 0, width, height, colour)
         }
     }
 
-    fun GuiGraphics.hollowRect(x: Int, y: Int, width: Int, height: Int, thickness: Int, colour: Int) {
+    fun GuiGraphicsExtractor.hollowRect(x: Int, y: Int, width: Int, height: Int, thickness: Int, colour: Int) {
         fill(x, y, x + width, y + thickness, colour)
         fill(x, y + height - thickness, x + width, y + height, colour)
         fill(x, y + thickness, x + thickness, y + height - thickness, colour)
         fill(x + width - thickness, y + thickness, x + width, y + height - thickness, colour)
     }
 
-    fun GuiGraphics.dashedRect(
+    fun GuiGraphicsExtractor.dashedRect(
         x: Int,
         y: Int,
         width: Int,
@@ -95,7 +95,7 @@ object DrawContextUtils {
         drawDashedLine(x + width, y, x + width, y + height, color, lineWidth, dashLength, gapLength)
     }
 
-    fun GuiGraphics.drawLine(
+    fun GuiGraphicsExtractor.drawLine(
         x1: Float,
         y1: Float,
         x2: Float,
@@ -120,7 +120,7 @@ object DrawContextUtils {
         }
     }
 
-    fun GuiGraphics.drawDashedLine(
+    fun GuiGraphicsExtractor.drawDashedLine(
         x1: Int,
         y1: Int,
         x2: Int,
@@ -151,28 +151,28 @@ object DrawContextUtils {
         }
     }
 
-    fun GuiGraphics.pushScissor(x: Int, y: Int, width: Int, height: Int) {
+    fun GuiGraphicsExtractor.pushScissor(x: Int, y: Int, width: Int, height: Int) {
         enableScissor(x, y, x + width, y + height)
     }
 
-    fun GuiGraphics.drawText(text: Component, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true) {
+    fun GuiGraphicsExtractor.drawText(text: Component, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true) {
         withMatrix(x, y) {
             if (scale != 1f) pose().scale(scale, scale)
-            drawString(mc.font, text, 0, 0, colour, shadow)
+            text(mc.font, text, 0, 0, colour, shadow)
         }
     }
 
-    fun GuiGraphics.drawText(text: String, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true)
+    fun GuiGraphicsExtractor.drawText(text: String, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true)
         = drawText(literal(text), x, y, colour, scale, shadow)
 
-    fun GuiGraphics.drawText(text: FormattedCharSequence, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true) {
+    fun GuiGraphicsExtractor.drawText(text: FormattedCharSequence, x: Number, y: Number, colour: Int = Colour.WHITE.rgb, scale: Float = 1f, shadow: Boolean = true) {
         withMatrix(x, y) {
             if (scale != 1f) pose().scale(scale, scale)
-            drawString(mc.font, text, 0, 0, colour, shadow)
+            text(mc.font, text, 0, 0, colour, shadow)
         }
     }
 
-    fun GuiGraphics.drawPlayerHead(uuid: UUID, x: Int, y: Int, size: Int) {
+    fun GuiGraphicsExtractor.drawPlayerHead(uuid: UUID, x: Int, y: Int, size: Int) {
         val now = System.currentTimeMillis()
         if (now - lastCacheClear > 300000L) {
             textureCache.clear()
@@ -191,16 +191,16 @@ object DrawContextUtils {
         }
         withMatrix {
             pose().rotate(180f.rad)
-            PlayerFaceRenderer.draw(this, textures, x, y, size)
+            PlayerFaceExtractor.extractRenderState(this, textures, x, y, size)
         }
     }
 
-    fun GuiGraphics.drawImage(image: ResourceLocation, x: Int, y: Int, width: Int, height: Int) {
+    fun GuiGraphicsExtractor.drawImage(image: Identifier, x: Int, y: Int, width: Int, height: Int) {
 //        blitSprite(RenderPipelines.GUI_TEXTURED, image, x, y, width, height)
         blit(RenderPipelines.GUI_TEXTURED, image, x, y, 0f, 0f, width, height, width, height)
     }
 
-    fun GuiGraphics.drawEntity(
+    fun GuiGraphicsExtractor.drawEntity(
         entity: LivingEntity,
         x: Int,
         y: Int,
@@ -258,7 +258,7 @@ object DrawContextUtils {
         val w = x + width * s
         val h = y + height * s
 
-        this.submitEntityRenderState(
+        this.entity(
             state,
             scale * (this.pose().m00 * 2),
             Vector3f(-(width / (scale * 4f)), -(height / (scale * (2.6f * scale - 50f))), 0f),

@@ -12,7 +12,7 @@ import dev.kord.rest.builder.message.addFile
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.minecraft.Util
+import net.minecraft.util.Util
 import net.minecraft.client.Screenshot
 import net.minecraft.client.gui.screens.ConnectScreen
 import net.minecraft.client.gui.screens.TitleScreen

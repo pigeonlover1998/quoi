@@ -1,6 +1,6 @@
 package quoi.module.impl.misc.riftsolvers
 
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.world.phys.Vec3
 import quoi.QuoiMod.mc
@@ -45,7 +45,7 @@ object ParkourSolver { // super schizo but works so I don't care
 
     fun onScreen() = if (isActive) reset() else null
 
-    fun onRenderWorld(ctx: WorldRenderContext) {
+    fun onRenderWorld(ctx: LevelRenderContext) {
         if (!isActive) ctx.drawFilledBox(points[0].aabb.expandTowards(-1.0, 0.0, -1.0).move(0.0, -1.0, 0.0), Colour.GREEN, depth = true)
     }
 

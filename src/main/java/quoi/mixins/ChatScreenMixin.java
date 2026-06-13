@@ -1,6 +1,7 @@
 package quoi.mixins;
 
 
+import net.minecraft.client.multiplayer.chat.GuiMessageSource;
 import quoi.api.input.CatKeyboard;
 import quoi.api.input.CatKeys;
 import quoi.mixininterfaces.ISearchMode;
@@ -19,7 +20,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import net.minecraft.client.GuiMessage;
+import net.minecraft.client.multiplayer.chat.GuiMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.EditBox;
@@ -114,7 +115,7 @@ public class ChatScreenMixin extends Screen implements ISearchMode {
             messageBackup.clear();
 
             for (Component queuedMessage : queuedMessages) {
-                chatHud.addMessage(queuedMessage);
+                chatHud.addClientSystemMessage(queuedMessage);
             }
             queuedMessages.clear();
 
@@ -150,7 +151,7 @@ public class ChatScreenMixin extends Screen implements ISearchMode {
 
             messages.addAll(filteredResults);
         }
-        messages.addFirst(new GuiMessage(mc.gui.getGuiTicks(), Component.literal("§e§lSEARCH ON"), null, null));
+        messages.addFirst(new GuiMessage(mc.gui.getGuiTicks(), Component.literal("§e§lSEARCH ON"), null, GuiMessageSource.SYSTEM_CLIENT, null));
         chatHud.rescaleChat();
     }
 

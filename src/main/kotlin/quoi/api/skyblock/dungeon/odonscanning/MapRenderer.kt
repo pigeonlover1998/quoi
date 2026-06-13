@@ -1,8 +1,8 @@
 package quoi.api.skyblock.dungeon.odonscanning
 
-import net.minecraft.client.gui.components.PlayerFaceRenderer
+import net.minecraft.client.gui.components.PlayerFaceExtractor
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.level.saveddata.maps.MapDecorationTypes
 import quoi.QuoiMod.MOD_ID
 import quoi.QuoiMod.mc
@@ -10,18 +10,7 @@ import quoi.api.abobaui.constraints.Constraint
 import quoi.api.abobaui.constraints.impl.positions.Centre
 import quoi.api.abobaui.constraints.impl.size.Bounding
 import quoi.api.abobaui.constraints.impl.size.Copying
-import quoi.api.abobaui.dsl.at
-import quoi.api.abobaui.dsl.constrain
-import quoi.api.abobaui.dsl.minus
-import quoi.api.abobaui.dsl.onClick
-import quoi.api.abobaui.dsl.onMouseEnterExit
-import quoi.api.abobaui.dsl.percent
-import quoi.api.abobaui.dsl.plus
-import quoi.api.abobaui.dsl.px
-import quoi.api.abobaui.dsl.radius
-import quoi.api.abobaui.dsl.seconds
-import quoi.api.abobaui.dsl.size
-import quoi.api.abobaui.dsl.withScale
+import quoi.api.abobaui.dsl.*
 import quoi.api.abobaui.elements.Element
 import quoi.api.abobaui.elements.ElementScope
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
@@ -29,22 +18,18 @@ import quoi.api.abobaui.elements.impl.Text.Companion.shadow
 import quoi.api.abobaui.elements.impl.Text.Companion.textSupplied
 import quoi.api.abobaui.elements.impl.refreshableGroup
 import quoi.api.animations.Animation
-import quoi.api.colour.Colour
-import quoi.api.colour.colour
-import quoi.api.colour.mix
-import quoi.api.colour.multiply
-import quoi.api.colour.withAlpha
+import quoi.api.colour.*
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Dungeon.floor
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonDoor
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
-import quoi.module.impl.dungeon.autoclear.impl.InteractiveMap
-import quoi.module.impl.dungeon.DungeonMap
-import quoi.utils.StringUtils.width
 import quoi.api.vec.Vec2i
+import quoi.module.impl.dungeon.DungeonMap
+import quoi.module.impl.dungeon.autoclear.impl.InteractiveMap
 import quoi.module.impl.dungeon.autoclear.pathToDoor
 import quoi.module.impl.dungeon.autoclear.pathToRoom
+import quoi.utils.StringUtils.width
 import quoi.utils.equalsOneOf
 import quoi.utils.rad
 import quoi.utils.render.DrawContextUtils.drawImage
@@ -67,8 +52,8 @@ object MapRenderer {
     var refreshShit = 0
         private set
 
-    private val WHITE_MARKER = ResourceLocation.fromNamespaceAndPath(MOD_ID, "white_marker.png")
-    private val GREEN_MARKER = ResourceLocation.fromNamespaceAndPath(MOD_ID, "green_marker.png")
+    private val WHITE_MARKER = Identifier.fromNamespaceAndPath(MOD_ID, "white_marker.png")
+    private val GREEN_MARKER = Identifier.fromNamespaceAndPath(MOD_ID, "green_marker.png")
 
     fun refresh() {
         refreshShit++
@@ -213,7 +198,7 @@ object MapRenderer {
                                     if (border) {
                                         ctx.rect(w - t / 2, h - t / 2, w + t.toInt(), h + t.toInt(), col.rgb)
                                     }
-                                    PlayerFaceRenderer.draw(ctx, it, w, h, w)
+                                    PlayerFaceExtractor.extractRenderState(ctx, it, w, h, w)
                                 } ?: ctx.drawImage(WHITE_MARKER, 0, 0, w, h)
                                 else -> ctx.drawImage(WHITE_MARKER, 0, 0, w, h)
                             }
