@@ -54,6 +54,7 @@ object DungeonBreaker : Module(
 
     private val zeroPingDungeonBreaker by switch("Zero ping", desc = "Insta-mine blocks.")
     private val onlyWhenFatigue by switch("Fatigue only", desc = "Only insta-mine blocks when mining fatigue is applied.").childOf(::zeroPingDungeonBreaker)
+    private val disableInInventory by switch("Disable in inventory", desc = "Prevents dungeon breaker from working while inside of an inventory.")
 
     private val autoDb by switch("Auto dungeon breaker", desc = "Automatically mines preset route when in boss. /db help")
     private val zeroTickDb by switch("Zero tick").childOf(::autoDb)
@@ -77,6 +78,7 @@ object DungeonBreaker : Module(
 
         on<PacketEvent.Sent, ServerboundPlayerActionPacket> {
             if (!zeroPingDungeonBreaker) return@on
+            if (disableInInventory && mc.screen != null) return@on
             if (editMode) return@on
             if (onlyWhenFatigue && !player.hasEffect(MobEffects.MINING_FATIGUE)) return@on
             if (packet.action != ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) return@on
@@ -141,6 +143,7 @@ object DungeonBreaker : Module(
         on<TickEvent.Start> {
             lastClickedBlock = null
             if (!autoDb || editMode || !inBoss || floor?.floorNumber != 7) return@on
+            if (disableInInventory && mc.screen != null) return@on
             if (dbBlocks.isEmpty()) return@on
 
             val blocks = dbBlocks.filter { pos ->
