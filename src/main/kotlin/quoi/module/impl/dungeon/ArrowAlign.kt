@@ -116,11 +116,17 @@ object ArrowAlign : Module(
 
         if (!auto) return
 
-        val closest = (0 until 25).minByOrNull { i ->
-            val f = currentFrames[i] ?: return@minByOrNull Double.MAX_VALUE
-            val t = solution[i] ?: return@minByOrNull Double.MAX_VALUE
-            if ((t - f.rotation + 8) % 8 <= 0) Double.MAX_VALUE else player.distanceToSqr(f.entity)
-        }
+        val skippedFrame = if (!inP3) {
+            (0 until 25).filter { i ->
+                val frame = currentFrames[i] ?: return@filter false
+                val target = solution[i] ?: return@filter false
+                (target - frame.rotation + 8) % 8 > 0 && frame.entity.distanceToSqr(player) <= range * range
+            }.maxByOrNull { i ->
+                val z = i / 5
+                val y = i % 5
+                z * 5 - y
+            }
+        } else null
 
         for (i in 0 until 25) {
             val frame = currentFrames[i] ?: continue
@@ -130,7 +136,7 @@ object ArrowAlign : Module(
             if (clicksNeeded <= 0) continue
             if (frame.entity.distanceToSqr(player) > range * range) continue
 
-            if (!inP3 && i == closest) {
+            if (i == skippedFrame) {
                 clicksNeeded--
             }
 
