@@ -22,7 +22,6 @@ object RenderOptimiser : Module(
     desc = "Various render optimisation features."
 ) {
     @JvmStatic val disableTextShadow by switch("Disable text shadow", desc = "Disables text shadows in hud elements.")
-    @JvmStatic val containerTextShadow by switch("Container text shadow", desc = "Renders text in containers with shadow.")
     @JvmStatic val disableFog by switch("Disable fog", desc = "Disables fog rendering.")
 
     private val hideFallingBlocks by switch("Hide falling blocks", desc = "Disables falling blocks rendering.")

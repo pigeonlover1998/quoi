@@ -19,6 +19,6 @@ public class LightTextureMixin {
             )
     )
     private float getAmbientLight(float original) {
-        return should(RenderOptimiser.getFullBright()) ? 1.0f : original;
+        return should(RenderOptimiser.getFullBright()) ? 15.0f : original;
     }
 }
