@@ -42,13 +42,13 @@ object WardrobeKeybinds : Module(
     }
 
     private fun onClick(screen: AbstractContainerScreen<*>, keyCode: Int): Boolean {
-        val (current, total) = wardrobeRegex.find(screen.title?.string ?: "")?.destructured?.let {
+        val (current, total) = wardrobeRegex.find(screen.title.string)?.destructured?.let {
             (it.component1().toIntOrNull() ?: 1) to (it.component2().toIntOrNull() ?: 1)
         } ?: return false
 
         val equippedIndex =
             screen.menu.slots.subList(36, 45)
-                .indexOfFirst { it.item?.loreString?.contains("equipped", ignoreCase = true) == true }
+                .indexOfFirst { it.item.loreString?.contains("equipped", ignoreCase = true) == true }
                 .takeIf { it != -1 }
                 ?.plus(36)
 

@@ -76,7 +76,7 @@ object LeapMenu : Module(
 
         on<GuiEvent.Open.Post> {
             val chest = (screen as? AbstractContainerScreen<*>) ?: return@on
-            if (chest.title?.string?.equalsOneOf("Spirit Leap", "Teleport to Player") == false) return@on
+            if (!chest.title.string.equalsOneOf("Spirit Leap", "Teleport to Player")) return@on
             UIContainer(menu(leapTeammates, chest)).open()
         }
     }
@@ -158,7 +158,7 @@ object LeapMenu : Module(
 
     private fun leapTo(name: String, colour: Colour, screenHandler: AbstractContainerScreen<*>) {
         val slot = screenHandler.menu.slots.subList(11, 16).firstOrNull {
-            it.item?.hoverName?.string?.substringAfter(' ').equals(name.noControlCodes, ignoreCase = true)
+            it.item.hoverName.string.substringAfter(' ').equals(name.noControlCodes, ignoreCase = true)
         }?.index ?: return
         mc.player?.clickSlot(slot, screenHandler.menu.containerId)
         modMessage(literal("Leaping to ").append(literal(name).withColor(colour.rgb)).append(literal(".")))

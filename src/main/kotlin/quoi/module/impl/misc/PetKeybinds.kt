@@ -168,7 +168,7 @@ object PetKeybinds : Module(
         get() = this.noControlCodes.replace(Regex("""⭐?\s*\[Lvl \d+] """), "").trim('[', ']')
 
     private fun onClick(screen: AbstractContainerScreen<*>, keyCode: Int): Boolean {
-        val (current, total) = petsRegex.find(screen.title?.string ?: "")?.destructured?.let {
+        val (current, total) = petsRegex.find(screen.title.string)?.destructured?.let {
             (it.component1().toIntOrNull() ?: 1) to (it.component2().toIntOrNull() ?: 1)
         } ?: return false
         var slot = when (keyCode) {
@@ -182,7 +182,7 @@ object PetKeybinds : Module(
 
             unequipKeybind.key ->
                 screen.menu.slots.subList(10, 43)
-                    .indexOfFirst { it.item?.loreString?.contains("Click to despawn!") == true }
+                    .indexOfFirst { it.item.loreString?.contains("Click to despawn!") == true }
                     .takeIf { it != -1 }?.plus(10) ?: return false.also { modMessage("§cCouldn't find equipped pet") }
 
             else -> {
@@ -194,7 +194,7 @@ object PetKeybinds : Module(
             }
         }
 
-        if (screen.menu.slots[slot].item?.loreString?.contains("Click to despawn!") == true && unequipKeybind.key != keyCode) {
+        if (screen.menu.slots[slot].item.loreString?.contains("Click to despawn!") == true && unequipKeybind.key != keyCode) {
 //            modMessage("§cThat pet is already equipped!")
             if (closeIfAlreadyEquipped) slot = 49
             else if (noUnequip) return false

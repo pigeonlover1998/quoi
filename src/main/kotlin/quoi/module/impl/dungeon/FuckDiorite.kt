@@ -9,6 +9,7 @@ import quoi.api.skyblock.dungeon.M7Phases
 import quoi.api.skyblock.invoke
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.visibleIf
+import quoi.utils.WorldUtils.state
 import quoi.utils.equalsOneOf
 
 // Kyleen
@@ -90,9 +91,7 @@ object FuckDiorite : Module(
     private fun replaceDiorite() {
         for ((index, coordinateSet) in coordinates.withIndex()) {
             for (pos in coordinateSet) {
-                val state = level.getBlockState(pos) ?: return
-
-                if (state.block.equalsOneOf(Blocks.DIORITE, Blocks.POLISHED_DIORITE)) {
+                if (pos.state.block.equalsOneOf(Blocks.DIORITE, Blocks.POLISHED_DIORITE)) {
                     setGlass(pos, index)
                 }
             }

@@ -92,7 +92,7 @@ object Secrets : Module(
         on<RenderEvent.Entity> {
             if (!itemHighlight) return@on
             val itemEntity = entity as? ItemEntity ?: return@on
-            if (itemEntity.item?.hoverName?.string?.containsOneOf(dungeonItemDrops, true) == true) {
+            if (itemEntity.item.hoverName.string.containsOneOf(dungeonItemDrops, true)) {
                 itemEntities.addIfAbsent(itemEntity)
                 cancel()
             }

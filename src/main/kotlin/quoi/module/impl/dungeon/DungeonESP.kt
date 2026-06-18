@@ -189,7 +189,7 @@ object DungeonESP : Module(
 
     private fun getTeammateColour(entity: Entity): Colour? {
         if (!teammateClassGlow || !Dungeon.inDungeons || entity !is Player) return null
-        return Dungeon.dungeonTeammates.find { it.name == entity.name?.string }?.clazz?.colour
+        return Dungeon.dungeonTeammates.find { it.name == entity.name.string }?.clazz?.colour
     }
 
     val OdonRoom.starredMobs: List<LivingEntity> get() {
