@@ -225,5 +225,6 @@ object ThemeManager {
         val pickerImage get() = "picker.svg".image()
         val refreshImage get() = "refresh.svg".image()
         val bugImage get() = "bug.svg".image()
+        val forkImage get() = "fork.svg".image()
     }
 }

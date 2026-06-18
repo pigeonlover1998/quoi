@@ -16,7 +16,8 @@ import quoi.utils.skyblock.player.MovementUtils.stop
 // Kyleen
 object AutoMask : Module( // todo remove in the future
     "Auto Mask",
-    desc = "Automatically swaps to invincibility mask."
+    desc = "Automatically swaps to invincibility mask.",
+    tag = Tag.FORK
 ) {
 
     private val dungeonsOnly by switch("Dungeons only")

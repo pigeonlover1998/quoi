@@ -1,5 +1,7 @@
 package quoi.api.commands
 
+import net.minecraft.network.chat.ClickEvent
+import net.minecraft.network.chat.Style
 import quoi.QuoiMod.mc
 import quoi.api.commands.internal.BaseCommand
 import quoi.api.commands.internal.GreedyString
@@ -34,6 +36,7 @@ import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.addVec
 import quoi.utils.skyblock.player.RotationUtils.rotate
+import java.net.URI
 import kotlin.collections.sortedBy
 
 object QuoiCommand {
@@ -167,6 +170,13 @@ object QuoiCommand {
             }.suggests { ModuleManager.modules.map { it.name } }.description("Toggles specified module.")
 
             "hud" { open(HudManager.editor()) }.description("Opens Hud editor.")
+
+            "fork" {
+                modMessage(
+                    "Since the main project is inactive and has several issues, I highly recommend switching to jcnlk’s fork: https://github.com/jcnlk/quoi",
+                    chatStyle = Style.EMPTY.withClickEvent(ClickEvent.OpenUrl(URI("https://github.com/jcnlk/quoi")))
+                )
+            }.description("Fork info.")
         }
 
         command.sub("findlobby") { area: String, criteria: String, value: String ->

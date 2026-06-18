@@ -168,7 +168,8 @@ abstract class Module(
     enum class Tag(val desc: String = "") {
         NONE,
         LEGACY("A rewrite is currently planned. This module is no longer updated."),
-        BETA("This feature is in beta. Issues may occur; no need to report bugs.")
+        BETA("This feature is in beta. Issues may occur; no need to report bugs."),
+        FORK("No longer maintained. Use jcnlk's fork for the latest updates and bug fixes: /quoi fork")
     }
 
     private companion object {
