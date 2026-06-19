@@ -7,7 +7,7 @@ import quoi.api.colour.Colour
 import quoi.api.events.ChatEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
-import quoi.api.events.core.EventBus.on
+import quoi.api.events.core.on
 import quoi.api.skyblock.dungeon.Dungeon.getMageCooldownMultiplier
 import quoi.module.impl.dungeon.InvincibilityTimer.cataLevel
 import quoi.module.impl.dungeon.InvincibilityTimer.mageReduction

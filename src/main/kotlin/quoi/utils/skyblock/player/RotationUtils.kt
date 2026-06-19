@@ -8,7 +8,7 @@ import quoi.api.animations.Animation
 import quoi.api.events.MouseEvent
 import quoi.api.events.RenderEvent
 import quoi.api.events.WorldEvent
-import quoi.api.events.core.EventBus.on
+import quoi.api.events.core.on
 import quoi.api.world.Direction
 
 @Init

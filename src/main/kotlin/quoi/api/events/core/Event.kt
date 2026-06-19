@@ -1,9 +1,18 @@
 package quoi.api.events.core
 
-open class Event { // todo recode.
+// todo clean up all events and usages some day.
+abstract class Event {
+
+    var subscription: Subscription<*>? = null
+
+    var completed: Boolean = false
+
+    fun unsubscribe() {
+        subscription?.let { EventManager.unregister(it) }
+    }
+
     open fun post(): Boolean {
-        EventBus.post(this)
-        return false
+        return EventManager.post(this)
     }
 }
 

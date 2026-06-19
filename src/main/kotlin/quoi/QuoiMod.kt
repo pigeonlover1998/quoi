@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger
 import quoi.annotations.AnnotationLoader
 import quoi.api.commands.QuoiCommand
 import quoi.api.events.GameEvent
-import quoi.api.events.core.EventBus
+import quoi.api.events.core.on
 import quoi.config.Config
 import quoi.module.ModuleManager
 import quoi.module.impl.player.RemoteControl
@@ -31,7 +31,7 @@ object QuoiMod : ClientModInitializer {
             NVGSpecialRenderer(context.bufferSource())
         }
 
-        EventBus.on<GameEvent.Load> {
+        on<GameEvent.Load> {
             HudManager.init()
             RemoteControl.start()
         }

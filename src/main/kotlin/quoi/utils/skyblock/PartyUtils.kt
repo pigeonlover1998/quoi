@@ -3,7 +3,7 @@ package quoi.utils.skyblock
 import quoi.QuoiMod.mc
 import quoi.annotations.Init
 import quoi.api.events.ChatEvent
-import quoi.api.events.core.EventBus.on
+import quoi.api.events.core.on
 
 /**
  * from OdinFabric (BSD 3-Clause)

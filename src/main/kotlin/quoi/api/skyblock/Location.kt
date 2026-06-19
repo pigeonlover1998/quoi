@@ -2,7 +2,6 @@ package quoi.api.skyblock
 
 import quoi.QuoiMod.mc
 import quoi.api.events.AreaEvent
-import quoi.api.events.core.EventBus
 import quoi.api.events.PacketEvent
 import quoi.api.events.ServerEvent
 import quoi.api.events.WorldEvent
@@ -14,6 +13,7 @@ import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
 import quoi.annotations.Init
+import quoi.api.events.core.on
 import quoi.module.impl.render.ClickGui
 
 /**
@@ -45,14 +45,14 @@ object Location {
     private val serverIdRegex = Regex("\\d\\d/\\d\\d/\\d\\d (\\w{0,6}) *")
 
     init {
-        EventBus.on<PacketEvent.Received> {
+        on<PacketEvent.Received> {
             when (packet) {
                 is ClientboundPlayerInfoUpdatePacket -> {
                     if (!currentArea.isArea(Island.Unknown) || packet.actions()
                             .none { it.equalsOneOf(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME,) }
                     ) return@on
-                    val area = packet.entries()?.find {
-                        it?.displayName?.string?.startsWithOneOf(
+                    val area = packet.entries().find {
+                        it.displayName?.string?.startsWithOneOf(
                             "Area: ",
                             "Dungeon: "
                         ) == true
@@ -68,8 +68,8 @@ object Location {
                     if (!inSkyblock) inSkyblock = onHypixel && packet.objectiveName == "SBScoreboard" || ClickGui.forceSkyblock || onZapto
 
                 is ClientboundSetPlayerTeamPacket -> {
-                    val team = packet.parameters?.orElse(null) ?: return@on
-                    val text = team.playerPrefix?.string?.noControlCodes?.plus(team.playerSuffix?.string?.noControlCodes) ?: return@on
+                    val team = packet.parameters.orElse(null) ?: return@on
+                    val text = team.playerPrefix.string.noControlCodes + team.playerSuffix.string.noControlCodes
 
                     if (packet.name.matches(teamRegex) && text.matches(subAreaRegex) && text.lowercase() != subarea) {
                         subarea = text.lowercase()
@@ -86,7 +86,7 @@ object Location {
             }
         }
 
-        EventBus.on<WorldEvent.Change>(Priority.LOW) {
+        on<WorldEvent.Change>(Priority.LOW) {
             currentArea = Island.Unknown
             inSkyblock = ClickGui.forceSkyblock
             AreaEvent.Main(currentArea).post()
@@ -97,7 +97,7 @@ object Location {
             }
         }
 
-        EventBus.on<ServerEvent.Connect> {
+        on<ServerEvent.Connect> {
             if (mc.isSingleplayer) {
                 currentArea = Island.SinglePlayer
                 return@on
@@ -106,7 +106,7 @@ object Location {
             onHypixel = mc.runCatching { ip.contains("hypixel", true) }.getOrDefault(false) || onZapto
         }
 
-        EventBus.on<ServerEvent.Disconnect> {
+        on<ServerEvent.Disconnect> {
             currentArea = Island.Unknown
             subarea = null
             inSkyblock = false

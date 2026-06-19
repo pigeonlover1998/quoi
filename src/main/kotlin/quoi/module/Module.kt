@@ -4,7 +4,7 @@ import quoi.QuoiMod
 import quoi.api.commands.QuoiCommand
 import quoi.api.events.PacketEvent
 import quoi.api.events.core.Event
-import quoi.api.events.core.EventBus
+import quoi.api.events.core.EventManager
 import quoi.api.events.core.PacketScope
 import quoi.api.events.core.UnfilteredEvent
 import quoi.api.input.CatKeys
@@ -16,6 +16,7 @@ import quoi.module.settings.impl.Keybinding
 import quoi.utils.ChatUtils.modMessage
 import net.minecraft.network.protocol.Packet
 import quoi.annotations.AlwaysActive
+import quoi.api.events.core.Subscription
 import quoi.module.settings.SettingsDSL
 import quoi.utils.ui.hud.HudDSL
 
@@ -40,7 +41,7 @@ abstract class Module(
 
     var isRegistered = false
 
-    val events = mutableListOf<EventBus.EventListener>()
+    protected val subscriptions = mutableListOf<Subscription<*>>()
 
     @Transient
     val category: Category = getCategory(this::class.java) ?: Category.RENDER
@@ -115,10 +116,10 @@ abstract class Module(
         val shouldBeRegistered = state || alwaysActive
 
         if (shouldBeRegistered && !isRegistered) {
-            events.forEach { it.add() }
+            subscriptions.toList().forEach { EventManager.register(it) }
             isRegistered = true
         } else if (!shouldBeRegistered && isRegistered) {
-            events.forEach { it.remove() }
+            subscriptions.toList().forEach { EventManager.unregister(it) }
             isRegistered = false
         }
     }
@@ -131,38 +132,56 @@ abstract class Module(
         return Location.subarea?.contains(subarea, true) == true
     }
 
-    fun inEnvironment(): Boolean = area?.inArea() ?: true && inSubarea()
+    fun inEnvironment(): Boolean = (area?.inArea() ?: true) && inSubarea()
 
-    protected inline fun <reified T : Event> on(priority: Int = 0, noinline cb: T.() -> Unit) {
-        val listener = EventBus.on<T>(priority, {
+    protected inline fun <reified T : Event> on(priority: Int = 0, noinline cb: T.() -> Unit): Subscription<T> {
+        val sub = Subscription<T>(T::class.java, priority) {
             val event = this
             when (event) {
                 is UnfilteredEvent -> if (inArea() && inSubarea()) cb()
                 else -> if (inEnvironment()) cb()
             }
-        }, false)
-
-        events.add(listener)
+        }
+        subscriptions.add(sub)
         if (alwaysActive || enabled) {
-            listener.add()
+            EventManager.register(sub)
             isRegistered = true
         }
+        return sub
     }
 
     @JvmName("onPacket")
     protected inline fun <reified E, reified P : Packet<*>> on(
         priority: Int = 0,
         noinline cb: PacketScope<E, P>.() -> Unit
-    ) where E : Event, E : PacketEvent {
-        val listener = EventBus.on<E, P>(priority, {
-            if (inEnvironment()) cb()
-        }, false)
-
-        events.add(listener)
+    ): Subscription<E> where E : Event, E : PacketEvent {
+        val sub = Subscription<E>(E::class.java, priority) {
+            if (!inEnvironment()) return@Subscription
+            if (packet !is P) return@Subscription
+            cb(PacketScope(this, packet as P))
+        }
+        subscriptions.add(sub)
         if (alwaysActive || enabled) {
-            listener.add()
+            EventManager.register(sub)
             isRegistered = true
         }
+        return sub
+    }
+
+    protected inline fun <reified T : Event> until(priority: Int = 0, noinline cb: T.() -> Boolean): Subscription<T> {
+        lateinit var sub: Subscription<T>
+        sub = on<T>(priority) {
+            if (cb()) {
+                EventManager.unregister(sub)
+                subscriptions.remove(sub)
+            }
+        }
+        return sub
+    }
+
+    protected inline fun <reified T : Event> once(priority: Int = 0, noinline cb: T.() -> Unit) = until<T>(priority) {
+        cb()
+        true
     }
 
     enum class Tag(val desc: String = "") {

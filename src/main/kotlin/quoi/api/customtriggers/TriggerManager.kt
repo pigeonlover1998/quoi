@@ -10,12 +10,12 @@ import quoi.api.events.ChatEvent
 import quoi.api.events.KeyEvent
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
-import quoi.api.events.core.EventBus.on
 import quoi.config.ConfigMap
 import quoi.config.configMap
 import quoi.config.typedEntries
 import net.minecraft.network.protocol.game.ClientboundSoundPacket
 import net.minecraft.world.phys.AABB
+import quoi.api.events.core.on
 import java.util.UUID
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.getValue

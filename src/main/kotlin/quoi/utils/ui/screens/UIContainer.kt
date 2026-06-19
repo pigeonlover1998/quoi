@@ -4,7 +4,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor
 import quoi.api.abobaui.AbobaUI
 import quoi.api.events.GuiEvent
 import quoi.api.events.PacketEvent
-import quoi.api.events.core.EventBus.on
+import quoi.api.events.core.on
 import quoi.api.input.CatKeyboard.Modifier.isCtrlDown
 import quoi.api.input.CatKeys
 import quoi.utils.equalsOneOf
@@ -35,16 +35,16 @@ class UIContainer(ui: AbobaUI.Instance, val cancelling: Boolean = true) : UIHand
     override val events = listOf(
 
         if (cancelling)
-            on<GuiEvent.Draw> { render(ctx, ::cancel) }
+            on<GuiEvent.Draw>(register = false) { render(ctx, ::cancel) }
         else
-            on<GuiEvent.DrawTooltip> { render(ctx, ::cancel) },
+            on<GuiEvent.DrawTooltip>(register = false) { render(ctx, ::cancel) },
 
-        on<GuiEvent.Click> {
+        on<GuiEvent.Click>(register = false) {
             if (state) mouseClick(button) else mouseRelease(button)
             if (cancelling) cancel()
         },
 
-        on<GuiEvent.Key.Press> {
+        on<GuiEvent.Key.Press>(register = false) {
             keyTyped(key)
 
             val ctrlHotkeys = setOf(
@@ -61,19 +61,19 @@ class UIContainer(ui: AbobaUI.Instance, val cancelling: Boolean = true) : UIHand
             if (!key.equalsOneOf(CatKeys.KEY_E, CatKeys.KEY_ESCAPE) && cancelling) cancel()
         },
 
-        on<GuiEvent.Char> {
+        on<GuiEvent.Char>(register = false) {
             charTyped(char)
         },
 
-        on<GuiEvent.Close> {
+        on<GuiEvent.Close>(register = false) {
             close()
         },
 
-        on<PacketEvent.Received> {
+        on<PacketEvent.Received>(register = false) {
             if (packet is ClientboundContainerClosePacket) close()
         },
 
-        on<GuiEvent.DrawBackground> {
+        on<GuiEvent.DrawBackground>(register = false) {
             if (cancelling) cancel()
         }
     )

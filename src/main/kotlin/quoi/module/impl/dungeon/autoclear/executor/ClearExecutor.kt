@@ -6,7 +6,7 @@ import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket
 import quoi.QuoiMod.scope
 import quoi.annotations.Init
 import quoi.api.events.*
-import quoi.api.events.core.EventBus.on
+import quoi.api.events.core.on
 import quoi.api.pathfinding.PathConfig
 import quoi.api.pathfinding.impl.EtherwarpPathfinder
 import quoi.api.vec.MutableVec3

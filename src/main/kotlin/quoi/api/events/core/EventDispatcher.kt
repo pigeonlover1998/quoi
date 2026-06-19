@@ -26,12 +26,8 @@ import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Dungeon.dungeonItemDrops
 import quoi.utils.StringUtils.containsOneOf
 import quoi.utils.equalsOneOf
-import java.util.concurrent.ConcurrentHashMap
 
-// modified zen, their repo is taken down.
-object EventBus { // todo cleanup
-    val events = ConcurrentHashMap<Class<*>, MutableSet<PrioritisedCallback<*>>>()
-    data class PrioritisedCallback<T>(val priority: Int, val callback: T.() -> Unit)
+object EventDispatcher {
     var totalTicks = 0
         private set
 
@@ -82,19 +78,19 @@ object EventBus { // todo cleanup
             ScreenMouseEvents.allowMouseClick(screen).register { _, click ->
                 val event = GuiEvent.Click(screen, click.x, click.y, click.button(), true)
                 event.post()
-                !event.isCancelled()
+                !event.cancelled
             }
 
             ScreenMouseEvents.allowMouseRelease(screen).register { _, click ->
                 val event = GuiEvent.Click(screen, click.x, click.y, click.button(), false)
                 event.post()
-                !event.isCancelled()
+                !event.cancelled
             }
         }
 
         HudElementRegistry.attachElementBefore(VanillaHudElements.SLEEP, Identifier.fromNamespaceAndPath(QuoiMod.MOD_ID, "quoi_hud")) { ctx, a ->
             if (mc.options.hideGui || mc.level == null || mc.player == null) return@attachElementBefore
-            post(RenderEvent.Overlay(ctx, a))
+            RenderEvent.Overlay(ctx, a).post()
         }
     }
 
@@ -151,66 +147,5 @@ object EventBus { // todo cleanup
             }
             else -> false
         }
-    }
-
-//    inline fun <reified T : Any> on(noinline callback: (T) -> Unit): EventListener = on(0, callback, true)
-    inline fun <reified T : Event> on(priority: Int = 0, noinline callback: T.() -> Unit): EventListener = on(priority, callback, true)
-
-    inline fun <reified T : Event> on(priority: Int = 0, noinline callback: T.() -> Unit, add: Boolean = true): EventListener {
-        val eventClass = T::class.java
-        val handlers = events.getOrPut(eventClass) { ConcurrentHashMap.newKeySet() }
-        val prioritisedCallback = PrioritisedCallback(priority, callback)
-        if (add) handlers.add(prioritisedCallback)
-        return EventListenerImpl(prioritisedCallback, handlers)
-    }
-
-    @JvmName("onPacket")
-    inline fun <reified E, reified P : Packet<*>> on(
-        priority: Int = 0,
-        noinline callback: PacketScope<E, P>.() -> Unit,
-        add: Boolean = true
-    ): EventListener where E : Event, E : PacketEvent {
-        return on<E>(priority, {
-            if (packet is P) callback(PacketScope(this, packet as P))
-        }, add)
-    }
-
-    fun <T : Event> post(event: T): Boolean {
-        val handlers = events[event::class.java] ?: return false
-        if (handlers.isEmpty()) return false
-
-        val sortedHandlers = handlers.sortedByDescending { it.priority }
-
-        for (handler in sortedHandlers) {
-            if (event is CancellableEvent && event.isCancelled()) {
-                return true
-            }
-            try {
-                @Suppress("UNCHECKED_CAST")
-                (handler.callback as (T) -> Unit)(event)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-        return if (event is CancellableEvent) event.isCancelled() else false
-    }
-
-    interface EventListener {
-        fun remove(): Boolean?
-        fun add(): Boolean
-    }
-
-    class EventListenerImpl(
-        private val callback: PrioritisedCallback<*>,
-        private val handlers: MutableSet<PrioritisedCallback<*>>
-    ) : EventListener {
-        override fun remove(): Boolean = handlers.remove(callback)
-        override fun add(): Boolean = handlers.add(callback)
-    }
-}
-
-class PacketScope<E : PacketEvent, P : Packet<*>>(val event: E, val packet: P) { // idkman
-    fun cancel() {
-        if (event is CancellableEvent) event.cancel()
     }
 }

@@ -2,8 +2,8 @@ package quoi.utils
 
 import quoi.QuoiMod.mc
 import quoi.api.events.TickEvent
-import quoi.api.events.core.EventBus
 import kotlinx.coroutines.CompletableDeferred
+import quoi.api.events.core.on
 
 object Scheduler {
     private val clientTasks = mutableListOf<Task>()
@@ -21,11 +21,11 @@ object Scheduler {
     }
 
     init {
-        EventBus.on<TickEvent.End> {
+        on<TickEvent.End> {
             tick(clientTasks, server = false)
         }
 
-        EventBus.on<TickEvent.Server> {
+        on<TickEvent.Server> {
             tick(serverTasks, server = true)
         }
     }

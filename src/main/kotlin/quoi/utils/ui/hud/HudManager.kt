@@ -22,7 +22,6 @@ import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
 import quoi.api.events.GuiEvent
 import quoi.api.events.WorldEvent
-import quoi.api.events.core.EventBus
 import quoi.api.input.CatKeys
 import quoi.config.Config
 import quoi.module.settings.UIComponent
@@ -36,6 +35,7 @@ import quoi.utils.ui.rendering.NVGRenderer
 import quoi.utils.ui.screens.UIContainer
 import quoi.utils.ui.screens.UIOverlay
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import quoi.api.events.core.on
 import quoi.module.impl.misc.Test
 import quoi.module.impl.render.ClickGui.clickGui
 import quoi.utils.ui.screens.UIScreen.Companion.open
@@ -54,7 +54,7 @@ object HudManager { // todo add hud grouping
     private const val SNAP_THRESHOLD = 5f
 
     init {
-        EventBus.on<GuiEvent.Open.Post> {
+        on<GuiEvent.Open.Post> {
             if (screen !is AbstractContainerScreen<*>) return@on
 
             UIContainer(aloba {
@@ -67,7 +67,7 @@ object HudManager { // todo add hud grouping
             }, cancelling = false).apply { open() }
         }
 
-        EventBus.on<WorldEvent.Load.Start> { // fixes visibleIf {} shit. todo find an actual fix
+        on<WorldEvent.Load.Start> { // fixes visibleIf {} shit. todo find an actual fix
             reinit()
         }
     }

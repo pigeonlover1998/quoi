@@ -5,7 +5,6 @@ import net.minecraft.network.chat.Style
 import quoi.QuoiMod.mc
 import quoi.api.commands.internal.BaseCommand
 import quoi.api.commands.internal.GreedyString
-import quoi.api.events.core.EventBus
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.Location
 import quoi.api.skyblock.Location.currentArea
@@ -13,8 +12,6 @@ import quoi.api.skyblock.Location.currentServer
 import quoi.api.skyblock.Location.inSkyblock
 import quoi.api.skyblock.Location.subarea
 import quoi.api.skyblock.dungeon.Dungeon
-//import quoi.api.skyblock.dungeon.Dungeon.uniqueRooms
-//import quoi.api.skyblock.dungeon.map.utils.ScanUtils.currentRoom
 import quoi.module.ModuleManager
 import quoi.module.impl.misc.Chat
 import quoi.module.impl.render.ClickGui.clickGui
@@ -32,6 +29,9 @@ import quoi.utils.ui.screens.UIScreen.Companion.open
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
+import quoi.api.events.TickEvent
+import quoi.api.events.core.EventDispatcher
+import quoi.api.events.core.until
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.addVec
@@ -66,7 +66,7 @@ object QuoiCommand {
             }
 
             "simulate" { message: GreedyString ->
-                EventBus.onPacketReceived(ClientboundSystemChatPacket(literal(message.string), false))
+                EventDispatcher.onPacketReceived(ClientboundSystemChatPacket(literal(message.string), false))
                 modMessage("simulated: ${message.string}")
             }
 
@@ -173,7 +173,7 @@ object QuoiCommand {
 
             "fork" {
                 modMessage(
-                    "Since the main project is inactive and has several issues, I highly recommend switching to jcnlk’s fork: https://github.com/jcnlk/quoi",
+                    "Since the main project is inactive and has several issues, I highly recommend switching to jcnlk’s fork: &b&nhttps://github.com/jcnlk/quoi",
                     chatStyle = Style.EMPTY.withClickEvent(ClickEvent.OpenUrl(URI("https://github.com/jcnlk/quoi")))
                 )
             }.description("Fork info.")
@@ -226,14 +226,14 @@ object QuoiCommand {
             modMessage("Starting. Move your camera to cancel")
 
             var ticker = antiAfkTicker(delay)
-            scheduleLoop {
+            until<TickEvent.End> {
                 if (mc.player!!.yHeadRot != headRot) {
                     modMessage("Cancelling, you moved your camera!")
-                    it.cancel()
-                    return@scheduleLoop
+                    true
+                } else {
+                    if (ticker.tick()) ticker = antiAfkTicker(delay)
+                    false
                 }
-
-                if (ticker.tick()) ticker = antiAfkTicker(delay)
             }
         }.description("Prevents afk kick.").suggests("delay", "40")
     }

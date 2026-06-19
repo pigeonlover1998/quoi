@@ -1,6 +1,6 @@
 package quoi.mixins;
 
-import quoi.api.events.core.EventBus;
+import quoi.api.events.core.EventDispatcher;
 import quoi.api.events.PacketEvent;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,7 +19,7 @@ public abstract class ConnectionMixin {
             cancellable = true
     )
     private void quoi$receivePacket(ChannelHandlerContext context, Packet<?> packet, CallbackInfo ci) {
-        if (EventBus.onPacketReceived(packet)) ci.cancel();
+        if (EventDispatcher.onPacketReceived(packet)) ci.cancel();
     }
 
     @Inject(
@@ -37,6 +37,6 @@ public abstract class ConnectionMixin {
             cancellable = true
     )
     private void quoi$sendImmediately(Packet<?> packet, ChannelFutureListener channelFutureListener, boolean flush, CallbackInfo ci) {
-        if (EventBus.onPacketSent(packet)) ci.cancel();
+        if (EventDispatcher.onPacketSent(packet)) ci.cancel();
     }
 }

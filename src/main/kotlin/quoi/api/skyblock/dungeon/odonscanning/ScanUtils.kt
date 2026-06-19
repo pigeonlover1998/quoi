@@ -13,7 +13,7 @@ import quoi.api.events.DungeonEvent
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
-import quoi.api.events.core.EventBus.on
+import quoi.api.events.core.on
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.Dungeon
@@ -274,10 +274,10 @@ object ScanUtils {
         room.rotation = Rotations.entries.dropLast(1).find { rotation ->
             room.tiles.any { component ->
                 BlockPos(component.x + rotation.x, roomHeight, component.z + rotation.z).let { blockPos ->
-                    level.getBlockState(blockPos)?.block == Blocks.BLUE_TERRACOTTA && (room.tiles.size == 1 || horizontals.all { facing ->
+                    blockPos.state.block == Blocks.BLUE_TERRACOTTA && (room.tiles.size == 1 || horizontals.all { facing ->
                         level.getBlockState(
                             blockPos.offset((if (facing.axis == Direction.Axis.X) facing.stepX else 0), 0, (if (facing.axis == Direction.Axis.Z) facing.stepZ else 0))
-                        )?.block?.equalsOneOf(Blocks.AIR, Blocks.BLUE_TERRACOTTA) == true
+                        ).block.equalsOneOf(Blocks.AIR, Blocks.BLUE_TERRACOTTA)
                     }).also { isCorrectClay -> if (isCorrectClay) room.clayPos = blockPos }
                 }
             }
@@ -308,7 +308,7 @@ object ScanUtils {
 
         for (y in clampedHeight downTo 12) {
             mutableBlockPos.set(vec2.x, y, vec2.z)
-            val block = chunk.getBlockState(mutableBlockPos)?.block
+            val block = chunk.getBlockState(mutableBlockPos).block
             if (block == Blocks.AIR && bedrock >= 2 && y < 69) {
                 sb.append(CharArray(y - 11) { '0' })
                 break

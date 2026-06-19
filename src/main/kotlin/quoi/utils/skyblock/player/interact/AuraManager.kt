@@ -13,7 +13,7 @@ import quoi.api.colour.Colour
 import quoi.api.colour.lerpColour
 import quoi.api.colour.withAlpha
 import quoi.api.events.*
-import quoi.api.events.core.EventBus.on
+import quoi.api.events.core.on
 import quoi.module.impl.misc.Test
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.WorldUtils.shape

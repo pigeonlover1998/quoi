@@ -2,11 +2,12 @@ package quoi.config
 
 import quoi.QuoiMod.logger
 import quoi.QuoiMod.mc
-import quoi.api.events.core.EventBus
+import quoi.api.events.core.EventManager
 import quoi.api.events.GameEvent
 import quoi.module.ModuleManager
 import quoi.module.settings.Saving
 import com.google.gson.*
+import quoi.api.events.core.once
 import java.io.File
 
 /**
@@ -29,7 +30,7 @@ object Config {
     }
 
     init {
-        EventBus.on<GameEvent.Unload> { save() }
+        once<GameEvent.Unload> { save() }
     }
 
     fun load() {

@@ -10,10 +10,10 @@ import quoi.QuoiMod.mc
 import quoi.annotations.Init
 import quoi.api.events.PacketEvent
 import quoi.api.events.WorldEvent
-import quoi.api.events.core.EventBus
-import quoi.api.events.core.EventBus.on
+import quoi.api.events.core.EventManager
+import quoi.api.events.core.on
 import quoi.api.events.core.Priority
-import quoi.mixins.accessors.InventoryAccessor
+import quoi.api.events.core.until
 import quoi.module.impl.misc.PetKeybinds
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.modMessage
@@ -168,36 +168,34 @@ object ContainerUtils {
 
         ChatUtils.command(command)
 
-        var openWindowListener: EventBus.EventListener? = null
-        var setSlotListener: EventBus.EventListener? = null
-
-        openWindowListener = on<PacketEvent.Received> (Priority.LOWEST) {
-            if (packet !is ClientboundOpenScreenPacket) return@on
-            if (packet.title.string != containerName) return@on
+        val openSub = until<PacketEvent.Received> (Priority.LOWEST) {
+            if (packet !is ClientboundOpenScreenPacket) return@until false
+            if (packet.title.string != containerName) return@until false
             windowId = packet.containerId
             cancel()
-            openWindowListener?.remove()
+            true
         }
 
-        setSlotListener = on<PacketEvent.Received> (Priority.LOWEST) {
-            if (packet !is ClientboundContainerSetSlotPacket) return@on
-            if (packet.containerId != windowId) return@on
+        val setSlotSub = until<PacketEvent.Received> (Priority.LOWEST) {
+            if (packet !is ClientboundContainerSetSlotPacket) return@until false
+            if (packet.containerId != windowId) return@until false
             val slot = packet.slot
-            if (slot !in 0..<slots) return@on
+            if (slot !in 0..<slots) return@until false
             items[slot] = if (packet.item.isEmpty) null else packet.item
 
             if (slot == slots - 1) {
                 complete = true
-                setSlotListener?.remove()
-
                 cont.resume(items)
+                true
+            } else {
+                false
             }
         }
 
         scheduleTask(timeout) {
             if (!complete) {
-                openWindowListener.remove()
-                setSlotListener.remove()
+                openSub.unregister()
+                setSlotSub.unregister()
                 modMessage("&cError: fetching items. timed out")
                 cont.resume(emptyList())
             }

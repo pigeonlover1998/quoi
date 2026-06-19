@@ -9,9 +9,8 @@ import quoi.QuoiMod.mc
 import quoi.annotations.Init
 import quoi.api.events.KeyEvent
 import quoi.api.events.WorldEvent
-import quoi.api.events.core.EventBus.on
+import quoi.api.events.core.on
 import quoi.api.input.MutableInput
-import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.WorldUtils.airLike
 import quoi.utils.distanceTo2D

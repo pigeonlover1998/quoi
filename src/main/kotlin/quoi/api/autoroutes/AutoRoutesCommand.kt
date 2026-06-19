@@ -19,8 +19,11 @@ import quoi.api.commands.internal.SubCommand
 import quoi.api.commands.parsers.arg
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
-import quoi.api.events.core.EventBus
-import quoi.api.events.core.EventBus.on
+import quoi.api.events.core.Event
+import quoi.api.events.core.EventManager
+import quoi.api.events.core.on
+import quoi.api.events.core.Subscription
+import quoi.api.events.core.on
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.api.skyblock.dungeon.Dungeon.inClear
 import quoi.api.skyblock.dungeon.Dungeon.isProtectedBlock
@@ -49,8 +52,8 @@ object AutoRoutesCommand {
 
     private val removedNodes = mutableListOf<List<RemovedNode>>()
 
-    private var interactListener: EventBus.EventListener? = null
-    private var tickListener: EventBus.EventListener? = null
+    private var interactListener: Subscription<*>? = null
+    private var tickListener: Subscription<*>? = null
     private var lastClickedBlock: BlockPos? = null
 
     fun register() {
@@ -240,9 +243,9 @@ object AutoRoutesCommand {
     }
 
     private fun unsubscribeDBEditor() {
-        interactListener?.remove()
+        interactListener?.unregister()
         interactListener = null
-        tickListener?.remove()
+        tickListener?.unregister()
         tickListener = null
         breakerRing = null
         lastClickedBlock = null

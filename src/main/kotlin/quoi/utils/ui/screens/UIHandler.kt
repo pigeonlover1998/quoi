@@ -2,22 +2,23 @@ package quoi.utils.ui.screens
 
 import quoi.QuoiMod.mc
 import quoi.api.abobaui.AbobaUI
-import quoi.api.events.core.EventBus
+import quoi.api.events.core.EventManager
+import quoi.api.events.core.Subscription
 
 abstract class UIHandler(val ui: AbobaUI.Instance) {
     protected var prevWidth = 0
     protected var prevHeight = 0
 
-    abstract val events: List<EventBus.EventListener>
+    abstract val events: List<Subscription<*>>
 
     open fun open() {
         ui.init(mc.window.width, mc.window.height)
-        events.forEach { it.add() }
+        events.forEach { EventManager.register(it) }
     }
 
     open fun close() {
         ui.close()
-        events.forEach { it.remove() }
+        events.forEach { it.unregister() }
     }
 
     protected fun resize(currentWidth: Int, currentHeight: Int) {

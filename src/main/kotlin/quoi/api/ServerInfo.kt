@@ -3,7 +3,6 @@ package quoi.api
 import quoi.QuoiMod.mc
 import quoi.api.events.PacketEvent
 import quoi.api.events.WorldEvent
-import quoi.api.events.core.EventBus
 import quoi.utils.Scheduler.scheduleLoop
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
@@ -11,6 +10,7 @@ import net.minecraft.util.Util
 import net.minecraft.network.protocol.ping.ClientboundPongResponsePacket
 import net.minecraft.network.protocol.ping.ServerboundPingRequestPacket
 import quoi.annotations.Init
+import quoi.api.events.core.on
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ConcurrentSkipListSet
 
@@ -70,7 +70,7 @@ object ServerInfo {
             maxTps = tpsValues.maxOrNull() ?: 20f
         }
 
-        EventBus.on<WorldEvent.Change> {
+        on<WorldEvent.Change> {
             tickTimes.clear()
             lastTickTime = System.currentTimeMillis()
         }
@@ -78,11 +78,11 @@ object ServerInfo {
         //
         // PING
         //
-        EventBus.on<PacketEvent.Sent> {
+        on<PacketEvent.Sent> {
             if (packet is ServerboundPingRequestPacket) lastBeat = System.currentTimeMillis()
         }
 
-        EventBus.on<PacketEvent.Received> {
+        on<PacketEvent.Received> {
             if (packet is ClientboundPongResponsePacket) {
                 val t = System.currentTimeMillis()
                 val a = (System.nanoTime() - packet.time) * 1e-6

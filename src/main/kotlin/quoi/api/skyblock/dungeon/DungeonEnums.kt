@@ -4,7 +4,7 @@ import quoi.api.colour.Colour
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.PlayerSkin
 import quoi.api.events.DungeonEvent
-import quoi.api.events.core.EventBus
+import quoi.api.events.core.EventDispatcher
 import quoi.api.skyblock.dungeon.odonscanning.MapRenderer.mapSize
 import quoi.utils.EntityUtils.playerEntities
 import quoi.api.vec.Vec2i
@@ -261,7 +261,7 @@ enum class P3Section(val number: Int, val reqTerminals: Int) {
 
         return if (current == total && gate && total > 0) {
             endTime = System.currentTimeMillis()
-            endTicks = EventBus.totalTicks
+            endTicks = EventDispatcher.totalTicks
 
             val next = entries.getOrNull(ordinal + 1) ?: Unknown
             if (next != Unknown) next.start()
@@ -278,12 +278,12 @@ enum class P3Section(val number: Int, val reqTerminals: Int) {
     fun getDurationTicks(): Long {
         if (startTicks == 0) return 0L
         if (endTicks != 0) return (endTicks - startTicks).toLong()
-        return (EventBus.totalTicks - startTicks).toLong()
+        return (EventDispatcher.totalTicks - startTicks).toLong()
     }
 
     fun start() {
         startTime = System.currentTimeMillis()
-        startTicks = EventBus.totalTicks
+        startTicks = EventDispatcher.totalTicks
     }
 
     fun reset() {

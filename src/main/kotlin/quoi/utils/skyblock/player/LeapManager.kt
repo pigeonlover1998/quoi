@@ -7,7 +7,7 @@ import quoi.annotations.Init
 import quoi.api.events.ChatEvent
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
-import quoi.api.events.core.EventBus.on
+import quoi.api.events.core.on
 import quoi.api.events.core.Priority
 import quoi.api.skyblock.dungeon.Dungeon.dungeonTeammatesNoSelf
 import quoi.api.skyblock.dungeon.Dungeon.getMageCooldownMultiplier

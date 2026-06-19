@@ -138,6 +138,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
         }
 
         command.sub("mineblock") { custom: Boolean? ->
+//            EventListenerTests.runAll()
             mc.hitResult?.let {
                 if (it !is BlockHitResult) return@let
                 AuraManager.breakBlock(it.blockPos, custom = custom ?: false)
