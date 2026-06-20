@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Style
 import quoi.api.events.ChatEvent
 import quoi.api.events.GuiEvent
 import quoi.api.events.core.Priority
+import quoi.api.events.core.on
 import quoi.api.input.CatKeyboard
 import quoi.api.input.CatKeyboard.Modifier.isShiftDown
 import quoi.api.input.CatKeys

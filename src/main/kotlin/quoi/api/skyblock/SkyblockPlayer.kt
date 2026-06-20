@@ -7,6 +7,7 @@ import quoi.api.colour.Colour
 import quoi.api.events.ChatEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.api.skyblock.dungeon.Dungeon.getMageCooldownMultiplier
 import quoi.module.impl.dungeon.InvincibilityTimer.cataLevel
@@ -19,7 +20,7 @@ import quoi.utils.StringUtils.noControlCodes
 import kotlin.math.floor
 
 @Init
-object SkyblockPlayer {
+object SkyblockPlayer : EventListener {
     inline val health: Int
         get() = mc.player?.let { (maxHealth * it.health / it.maxHealth).toInt() } ?: 0
     var maxHealth: Int = 0

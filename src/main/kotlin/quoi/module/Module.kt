@@ -16,6 +16,7 @@ import quoi.module.settings.impl.Keybinding
 import quoi.utils.ChatUtils.modMessage
 import net.minecraft.network.protocol.Packet
 import quoi.annotations.AlwaysActive
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.Subscription
 import quoi.module.settings.SettingsDSL
 import quoi.utils.ui.hud.HudDSL
@@ -28,7 +29,7 @@ abstract class Module(
     @Transient val desc: String = "",
     toggled: Boolean = false,
     val tag: Tag = Tag.NONE
-) : SettingsDSL(), HudDSL {
+) : SettingsDSL(), HudDSL, EventListener {
     constructor(
         name: String,
         area: Island,
@@ -39,14 +40,18 @@ abstract class Module(
         tag: Tag = Tag.NONE
     ) : this(name, IslandArea.Base(area), subarea, key, desc, toggled, tag)
 
-    var isRegistered = false
+    override val running: Boolean
+        get() = enabled || alwaysActive
 
-    protected val subscriptions = mutableListOf<Subscription<*>>()
+    override fun shouldHandle(event: Event): Boolean = when (event) {
+        is UnfilteredEvent -> inArea() && inSubarea()
+        else -> inEnvironment()
+    }
 
     @Transient
     val category: Category = getCategory(this::class.java) ?: Category.RENDER
 
-    val keybinding: Keybinding = this@Module.key.let { Keybinding(it).apply { onPress = ::onKeybind } }  // todo on press/release/hold
+    val keybinding: Keybinding = Keybinding(key).apply { onPress = ::onKeybind }  // todo on press/release/hold
 
     var enabled: Boolean = toggled
         private set
@@ -61,18 +66,14 @@ abstract class Module(
     val alwaysActive = this::class.java.isAnnotationPresent(AlwaysActive::class.java)
 
     init {
-        if (alwaysActive) onToggle(true)
+        if (alwaysActive) onEnable()
     }
 
     val settings: ArrayList<Setting<*>> = ArrayList()
 
-    open fun onEnable() {
-        if (!alwaysActive) onToggle(true)
-    }
+    open fun onEnable() {}
 
-    open fun onDisable() {
-        if (!alwaysActive) onToggle(false)
-    }
+    open fun onDisable() {}
 
     open fun onKeybind() {
         if (mc.screen != null) return
@@ -96,12 +97,10 @@ abstract class Module(
         }
     }
 
-    override fun <K : Setting<*>> register(setting: K): K {
+    override fun <K : Setting<T>, T> register(setting: K): K {
         addSettings(setting)
         return setting
     }
-
-//    operator fun <K : Setting<*>> K.unaryPlus(): K = register(this)
 
     fun getSettingByName(name: String?): Setting<*>? {
         for (setting in settings) {
@@ -110,18 +109,6 @@ abstract class Module(
             }
         }
         return null
-    }
-
-    fun onToggle(state: Boolean) {
-        val shouldBeRegistered = state || alwaysActive
-
-        if (shouldBeRegistered && !isRegistered) {
-            subscriptions.toList().forEach { EventManager.register(it) }
-            isRegistered = true
-        } else if (!shouldBeRegistered && isRegistered) {
-            subscriptions.toList().forEach { EventManager.unregister(it) }
-            isRegistered = false
-        }
     }
 
     fun inArea() = area?.inBase() ?: true
@@ -133,56 +120,6 @@ abstract class Module(
     }
 
     fun inEnvironment(): Boolean = (area?.inArea() ?: true) && inSubarea()
-
-    protected inline fun <reified T : Event> on(priority: Int = 0, noinline cb: T.() -> Unit): Subscription<T> {
-        val sub = Subscription<T>(T::class.java, priority) {
-            val event = this
-            when (event) {
-                is UnfilteredEvent -> if (inArea() && inSubarea()) cb()
-                else -> if (inEnvironment()) cb()
-            }
-        }
-        subscriptions.add(sub)
-        if (alwaysActive || enabled) {
-            EventManager.register(sub)
-            isRegistered = true
-        }
-        return sub
-    }
-
-    @JvmName("onPacket")
-    protected inline fun <reified E, reified P : Packet<*>> on(
-        priority: Int = 0,
-        noinline cb: PacketScope<E, P>.() -> Unit
-    ): Subscription<E> where E : Event, E : PacketEvent {
-        val sub = Subscription<E>(E::class.java, priority) {
-            if (!inEnvironment()) return@Subscription
-            if (packet !is P) return@Subscription
-            cb(PacketScope(this, packet as P))
-        }
-        subscriptions.add(sub)
-        if (alwaysActive || enabled) {
-            EventManager.register(sub)
-            isRegistered = true
-        }
-        return sub
-    }
-
-    protected inline fun <reified T : Event> until(priority: Int = 0, noinline cb: T.() -> Boolean): Subscription<T> {
-        lateinit var sub: Subscription<T>
-        sub = on<T>(priority) {
-            if (cb()) {
-                EventManager.unregister(sub)
-                subscriptions.remove(sub)
-            }
-        }
-        return sub
-    }
-
-    protected inline fun <reified T : Event> once(priority: Int = 0, noinline cb: T.() -> Unit) = until<T>(priority) {
-        cb()
-        true
-    }
 
     enum class Tag(val desc: String = "") {
         NONE,

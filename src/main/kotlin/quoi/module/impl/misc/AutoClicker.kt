@@ -7,6 +7,7 @@ import quoi.QuoiMod.scope
 import quoi.api.events.MouseEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
+import quoi.api.events.core.on
 import quoi.config.Config
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf

@@ -21,6 +21,7 @@ import net.minecraft.world.phys.AABB
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
+import quoi.api.events.core.on
 import quoi.api.skyblock.Location.inSkyblock
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom

@@ -8,11 +8,12 @@ import quoi.api.animations.Animation
 import quoi.api.events.MouseEvent
 import quoi.api.events.RenderEvent
 import quoi.api.events.WorldEvent
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.api.world.Direction
 
 @Init
-object RotationUtils {
+object RotationUtils : EventListener {
 
     private var rotationTask: (LocalPlayer.() -> Boolean)? = null
 

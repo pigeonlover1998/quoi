@@ -13,6 +13,7 @@ import quoi.api.colour.Colour
 import quoi.api.colour.lerpColour
 import quoi.api.colour.withAlpha
 import quoi.api.events.*
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.module.impl.misc.Test
 import quoi.utils.Scheduler.scheduleTask
@@ -26,7 +27,7 @@ import quoi.utils.startPrediction
 
 @Init
 @OptIn(Internal::class)
-object AuraManager {
+object AuraManager : EventListener {
     private val blockTasks = mutableListOf<BlockInteract>()
     private var interactBlockCd = 0
 

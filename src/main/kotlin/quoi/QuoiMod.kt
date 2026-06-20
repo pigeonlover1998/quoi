@@ -9,7 +9,8 @@ import org.apache.logging.log4j.Logger
 import quoi.annotations.AnnotationLoader
 import quoi.api.commands.QuoiCommand
 import quoi.api.events.GameEvent
-import quoi.api.events.core.on
+import quoi.api.events.core.EventListener
+import quoi.api.events.core.once
 import quoi.config.Config
 import quoi.module.ModuleManager
 import quoi.module.impl.player.RemoteControl
@@ -17,7 +18,8 @@ import quoi.utils.ui.hud.HudManager
 import quoi.utils.ui.rendering.NVGSpecialRenderer
 import kotlin.coroutines.EmptyCoroutineContext
 
-object QuoiMod : ClientModInitializer {
+// todo add docs to some utils and apis
+object QuoiMod : ClientModInitializer, EventListener {
 
     const val MOD_ID = "quoi"
     val mc: Minecraft get() = Minecraft.getInstance()
@@ -31,7 +33,7 @@ object QuoiMod : ClientModInitializer {
             NVGSpecialRenderer(context.bufferSource())
         }
 
-        on<GameEvent.Load> {
+        once<GameEvent.Load> {
             HudManager.init()
             RemoteControl.start()
         }

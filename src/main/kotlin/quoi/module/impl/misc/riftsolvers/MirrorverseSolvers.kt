@@ -3,6 +3,7 @@ package quoi.module.impl.misc.riftsolvers
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSoundPacket
 import quoi.api.events.*
+import quoi.api.events.core.on
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf

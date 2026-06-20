@@ -3,9 +3,10 @@ package quoi.utils
 import quoi.QuoiMod.mc
 import quoi.api.events.TickEvent
 import kotlinx.coroutines.CompletableDeferred
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 
-object Scheduler {
+object Scheduler : EventListener {
     private val clientTasks = mutableListOf<Task>()
     private val serverTasks = mutableListOf<Task>()
 

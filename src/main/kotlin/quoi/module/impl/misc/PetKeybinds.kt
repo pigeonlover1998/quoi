@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack
 import quoi.QuoiMod.scope
 import quoi.api.commands.internal.GreedyString
 import quoi.api.events.GuiEvent
+import quoi.api.events.core.on
 import quoi.api.input.CatKeys
 import quoi.config.Config
 import quoi.module.Module

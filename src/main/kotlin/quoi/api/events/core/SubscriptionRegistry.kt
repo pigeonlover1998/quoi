@@ -2,6 +2,10 @@ package quoi.api.events.core
 
 import java.util.concurrent.CopyOnWriteArrayList
 
+/**
+ * Holds every [Subscription] registered for a single [Event] type.
+ * All elements are ordered descending by [Subscription.priority]
+ */
 class SubscriptionRegistry<T : Event> {
     val subscriptions = CopyOnWriteArrayList<Subscription<T>>()
 
@@ -17,6 +21,7 @@ class SubscriptionRegistry<T : Event> {
         subscriptions.add(index, subscription)
     }
 
+    @Synchronized
     fun remove(subscription: Subscription<T>) {
         subscriptions.remove(subscription)
     }

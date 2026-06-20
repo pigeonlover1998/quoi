@@ -1,6 +1,7 @@
 package quoi.module.impl.player
 
 import quoi.api.events.TickEvent
+import quoi.api.events.core.on
 import quoi.module.Module
 
 object AutoSprint : Module(

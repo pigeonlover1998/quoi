@@ -31,6 +31,7 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
 import quoi.api.events.TickEvent
 import quoi.api.events.core.EventDispatcher
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.until
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.utils.StringUtils.capitaliseFirst
@@ -39,7 +40,7 @@ import quoi.utils.skyblock.player.RotationUtils.rotate
 import java.net.URI
 import kotlin.collections.sortedBy
 
-object QuoiCommand {
+object QuoiCommand : EventListener {
     val command = BaseCommand("quoi", "requise") {
         open(clickGui)
     }

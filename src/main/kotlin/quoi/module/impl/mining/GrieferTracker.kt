@@ -9,6 +9,7 @@ import quoi.api.commands.internal.BaseCommand
 import quoi.api.commands.internal.GreedyString
 import quoi.api.commands.parsers.arg
 import quoi.api.events.AreaEvent
+import quoi.api.events.core.on
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.Location.currentArea
 import quoi.api.skyblock.Location.currentServer

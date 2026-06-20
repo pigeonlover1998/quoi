@@ -6,9 +6,11 @@ import quoi.api.events.AreaEvent
 import quoi.api.events.ChatEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon
+import quoi.module.impl.dungeon.Splits
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.noControlCodes
 
@@ -18,7 +20,9 @@ import quoi.utils.StringUtils.noControlCodes
  * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/SplitsManager.kt
  */
 @Init
-object SplitsManager {
+object SplitsManager : EventListener {
+
+    override val parent get() = Splits
 
     var currentSplits: List<Split> = emptyList()
     private var tickCounter: Long = 0L

@@ -15,12 +15,13 @@ import quoi.config.configMap
 import quoi.config.typedEntries
 import net.minecraft.network.protocol.game.ClientboundSoundPacket
 import net.minecraft.world.phys.AABB
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import java.util.UUID
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.getValue
 
-object TriggerManager {
+object TriggerManager : EventListener {
     val triggers: ConfigMap<String, MutableList<Trigger>> by configMap("custom_triggers.json")
 
     val conditionEntries by lazy { typedEntries<TriggerCondition>() }

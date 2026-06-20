@@ -18,6 +18,7 @@ import quoi.api.colour.withAlpha
 import quoi.api.events.DungeonEvent
 import quoi.api.events.PacketEvent
 import quoi.api.events.WorldEvent
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.Location
@@ -40,7 +41,7 @@ import kotlin.math.roundToLong
  *           https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/dungeon/DungeonListener.kt
  */
 @Init
-object Dungeon {
+object Dungeon : EventListener {
 
     inline val inDungeons: Boolean
         get() = Location.currentArea.isArea(Island.Dungeon)
@@ -267,13 +268,13 @@ object Dungeon {
 
                     is ClientboundTabListPacket -> {
                         Blessing.entries.forEach { blessing ->
-                            blessing.regex.find(footer?.string ?: return@forEach)
+                            blessing.regex.find(footer.string)
                                 ?.let { blessing.current = romanToInt(it.groupValues[1]) }
                         }
                     }
 
                     is ClientboundSystemChatPacket -> {
-                        val message = content?.string?.noControlCodes ?: return@on
+                        val message = content.string.noControlCodes
                         if (expectingBloodRegex.matches(message)) expectingBloodUpdate = true
                         if (enterRegex.matches(message) && warpCooldown == 0L) enterTime = System.currentTimeMillis() + 30_000L
                         doorOpenRegex.find(message)?.let { dungeonStats.doorOpener = it.groupValues[1] }

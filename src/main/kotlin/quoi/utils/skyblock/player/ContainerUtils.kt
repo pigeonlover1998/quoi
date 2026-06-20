@@ -10,7 +10,7 @@ import quoi.QuoiMod.mc
 import quoi.annotations.Init
 import quoi.api.events.PacketEvent
 import quoi.api.events.WorldEvent
-import quoi.api.events.core.EventManager
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.api.events.core.Priority
 import quoi.api.events.core.until
@@ -29,7 +29,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @Init
-object ContainerUtils {
+object ContainerUtils : EventListener {
     var containerId = -1
         private set
     private var lastStateId = 0

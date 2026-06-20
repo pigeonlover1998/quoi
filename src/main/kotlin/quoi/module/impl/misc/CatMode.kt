@@ -8,6 +8,7 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.util.FormattedCharSequence
 import quoi.api.events.GuiEvent
 import quoi.api.events.PacketEvent
+import quoi.api.events.core.on
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.rad

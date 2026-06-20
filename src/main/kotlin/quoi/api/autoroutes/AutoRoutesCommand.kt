@@ -20,6 +20,7 @@ import quoi.api.commands.parsers.arg
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.core.Event
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.EventManager
 import quoi.api.events.core.on
 import quoi.api.events.core.Subscription
@@ -43,7 +44,7 @@ import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
 import java.io.File
 import kotlin.math.floor
 
-object AutoRoutesCommand {
+object AutoRoutesCommand : EventListener {
     private val ar = BaseCommand("route")
         .requires("&cEnable the module and be in a dungeon!") { AutoRoutes.enabled && inClear && currentRoom != null }
 

@@ -2,10 +2,11 @@ package quoi.utils.ui.screens
 
 import quoi.QuoiMod.mc
 import quoi.api.abobaui.AbobaUI
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.EventManager
 import quoi.api.events.core.Subscription
 
-abstract class UIHandler(val ui: AbobaUI.Instance) {
+abstract class UIHandler(val ui: AbobaUI.Instance) : EventListener {
     protected var prevWidth = 0
     protected var prevHeight = 0
 

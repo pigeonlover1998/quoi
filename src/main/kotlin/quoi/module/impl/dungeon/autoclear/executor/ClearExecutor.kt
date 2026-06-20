@@ -6,6 +6,7 @@ import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket
 import quoi.QuoiMod.scope
 import quoi.annotations.Init
 import quoi.api.events.*
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.api.pathfinding.PathConfig
 import quoi.api.pathfinding.impl.EtherwarpPathfinder
@@ -20,7 +21,7 @@ import quoi.utils.skyblock.player.PlayerUtils.at
 import quoi.utils.skyblock.player.PlayerUtils.useItem
 
 @Init
-object ClearExecutor {
+object ClearExecutor : EventListener {
     private var nodes: MutableList<ClearNode>? = null
 
     private var syncDelay = 0

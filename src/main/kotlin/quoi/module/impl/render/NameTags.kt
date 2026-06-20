@@ -4,6 +4,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import quoi.api.colour.Colour
 import quoi.api.events.RenderEvent
+import quoi.api.events.core.on
 import quoi.api.skyblock.dungeon.Dungeon.dungeonTeammatesNoSelf
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.module.Module

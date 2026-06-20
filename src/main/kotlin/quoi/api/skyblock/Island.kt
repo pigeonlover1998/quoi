@@ -26,6 +26,7 @@ enum class Island(val displayName: String, val command: String? = null) {
     Rift("The Rift"),
     BackwaterBayou("Backwater Bayou"),
     Galatea("Galatea", "galatea"),
+    LotusAtoll("Lotus Atoll"),
     Unknown("(Unknown)");
 
     fun isArea(area: Island): Boolean {

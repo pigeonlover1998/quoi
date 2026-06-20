@@ -7,6 +7,7 @@ import quoi.api.colour.Colour
 import quoi.api.colour.colour
 import quoi.api.events.AreaEvent
 import quoi.api.events.core.Priority
+import quoi.api.events.core.on
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.api.skyblock.dungeon.P3Section

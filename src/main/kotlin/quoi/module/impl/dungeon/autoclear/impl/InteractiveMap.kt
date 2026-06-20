@@ -5,6 +5,7 @@ import quoi.api.abobaui.dsl.aboba
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
 import quoi.api.events.PacketEvent
+import quoi.api.events.core.on
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.MapRenderer

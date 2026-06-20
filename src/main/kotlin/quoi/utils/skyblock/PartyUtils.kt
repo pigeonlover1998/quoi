@@ -3,6 +3,7 @@ package quoi.utils.skyblock
 import quoi.QuoiMod.mc
 import quoi.annotations.Init
 import quoi.api.events.ChatEvent
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 
 /**
@@ -11,7 +12,7 @@ import quoi.api.events.core.on
  * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/PartyUtils.kt
  */
 @Init
-object PartyUtils {
+object PartyUtils : EventListener {
 
     private val joinedSelf = Regex("^You have joined ((?:\\[[^]]*?])? ?)?(\\w{1,16})'s? party!$")
     private val joinedOther = Regex("^((?:\\[[^]]*?])? ?)?(\\w{1,16}) joined the party\\.$")

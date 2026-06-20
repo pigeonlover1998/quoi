@@ -13,6 +13,7 @@ import quoi.api.events.DungeonEvent
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.Location
@@ -33,7 +34,7 @@ import kotlin.math.round
 
 // https://github.com/Noamm9/NoammAddons/blob/master/src/main/kotlin/com/github/noamm9/utils/dungeons/map/handlers/DungeonScanner.kt
 // https://github.com/odtheking/Odin/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/dungeon/ScanUtils.kt
-object ScanUtils {
+object ScanUtils : EventListener {
     private const val START = -185
 
     private val roomList: Set<RoomData> = loadRoomData()
@@ -328,7 +329,7 @@ object ScanUtils {
         for (y in 160 downTo 12) {
             mutableBlockPos.set(vec2.x, y, vec2.z)
             val blockState = chunk.getBlockState(mutableBlockPos)
-            if (blockState?.isAir == false) return if (blockState.block == Blocks.GOLD_BLOCK) y - 1 else y
+            if (!blockState.isAir) return if (blockState.block == Blocks.GOLD_BLOCK) y - 1 else y
         }
         return 0
     }

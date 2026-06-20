@@ -12,6 +12,7 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.EquipmentSlot
 import quoi.api.events.GuiEvent
 import quoi.api.events.PacketEvent
+import quoi.api.events.core.on
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.Module
 import quoi.utils.skyblock.item.ItemUtils.texture

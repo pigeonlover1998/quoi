@@ -15,9 +15,9 @@ import kotlin.reflect.KProperty0
 
 abstract class SettingsDSL {
 
-    abstract fun <K : Setting<*>> register(setting: K): K
+    abstract fun <K : Setting<T>, T> register(setting: K): K
 
-    protected operator fun <K : Setting<*>> K.unaryPlus(): K = register(this)
+    protected operator fun <K : Setting<T>, T> K.unaryPlus(): K = register(this)
 
     protected fun switch(name: String, enabled: Boolean = false, desc: String = "") =
         SwitchComponent(name, enabled, desc)

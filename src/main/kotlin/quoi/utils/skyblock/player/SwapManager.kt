@@ -7,6 +7,7 @@ import quoi.annotations.Init
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.api.events.core.Priority
 import quoi.utils.ChatUtils.modMessage
@@ -15,7 +16,7 @@ import quoi.utils.skyblock.item.ItemUtils.loreString
 import quoi.utils.skyblock.item.ItemUtils.skyblockId
 
 @Init
-object SwapManager {
+object SwapManager : EventListener {
     private var lastKnownServerSlot: Int = -1
     private var hasSwappedThisTick: Boolean = false
 

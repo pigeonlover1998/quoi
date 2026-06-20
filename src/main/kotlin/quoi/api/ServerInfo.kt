@@ -10,6 +10,7 @@ import net.minecraft.util.Util
 import net.minecraft.network.protocol.ping.ClientboundPongResponsePacket
 import net.minecraft.network.protocol.ping.ServerboundPingRequestPacket
 import quoi.annotations.Init
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ConcurrentSkipListSet
@@ -19,7 +20,7 @@ import java.util.concurrent.ConcurrentSkipListSet
  * original: https://github.com/Synnerz/devonian/blob/1.21.10/src/main/kotlin/com/github/synnerz/devonian/api/Ping.kt
  */
 @Init
-object ServerInfo {
+object ServerInfo : EventListener {
     private var lastBeat = 0L
 
     private val samples = ConcurrentLinkedQueue<PingSample>()

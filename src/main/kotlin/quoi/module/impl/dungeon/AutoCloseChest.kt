@@ -4,6 +4,7 @@ import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
 import net.minecraft.network.protocol.game.ServerboundContainerClosePacket
 import net.minecraft.world.inventory.MenuType
 import quoi.api.events.PacketEvent
+import quoi.api.events.core.on
 import quoi.api.skyblock.Island
 import quoi.module.Module
 

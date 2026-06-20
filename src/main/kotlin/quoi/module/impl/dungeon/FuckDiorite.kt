@@ -3,6 +3,7 @@ package quoi.module.impl.dungeon
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.Blocks
 import quoi.api.events.TickEvent
+import quoi.api.events.core.on
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.M7Phases

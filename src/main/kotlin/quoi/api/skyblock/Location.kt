@@ -13,6 +13,7 @@ import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
 import quoi.annotations.Init
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.module.impl.render.ClickGui
 
@@ -22,7 +23,7 @@ import quoi.module.impl.render.ClickGui
  * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/LocationUtils.kt
  */
 @Init
-object Location {
+object Location : EventListener {
     var onHypixel: Boolean = false
         private set
     var onZapto: Boolean = false

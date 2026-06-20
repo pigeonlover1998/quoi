@@ -59,7 +59,7 @@ inline val BlockPos.aabb: AABB get() = AABB(this)
 inline val BlockPos.vec3: Vec3 get() = Vec3(x.toDouble(), y.toDouble(), z.toDouble())
 inline val BlockPos.bounds: AABB? get() {
     return mc.level?.let { level ->
-        level.getBlockState(this)?.getShape(level, this)?.singleEncompassing()
+        level.getBlockState(this).getShape(level, this).singleEncompassing()
             ?.takeIf { !it.isEmpty }?.bounds()
     }
 }

@@ -2,6 +2,7 @@ package quoi.module.impl.dungeon
 
 import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket
 import quoi.api.events.PacketEvent
+import quoi.api.events.core.on
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.Module

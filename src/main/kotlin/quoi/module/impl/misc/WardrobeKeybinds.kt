@@ -2,6 +2,7 @@ package quoi.module.impl.misc
 
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import quoi.api.events.GuiEvent
+import quoi.api.events.core.on
 import quoi.api.input.CatKeys
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf

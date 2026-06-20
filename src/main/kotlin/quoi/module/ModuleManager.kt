@@ -3,6 +3,7 @@ package quoi.module
 import quoi.api.events.GuiEvent
 import quoi.api.events.KeyEvent
 import quoi.api.events.MouseEvent
+import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.api.input.CatKeys
 import quoi.module.impl.dungeon.*
@@ -15,7 +16,7 @@ import quoi.module.impl.player.*
 import quoi.module.impl.render.*
 import quoi.module.settings.impl.KeybindComponent
 
-object ModuleManager {
+object ModuleManager : EventListener {
     val modules = mutableListOf<Module>()
 
     fun initialise() {

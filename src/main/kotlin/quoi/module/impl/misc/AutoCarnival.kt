@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.phys.Vec3
 import quoi.api.events.BlockEvent
 import quoi.api.events.TickEvent
+import quoi.api.events.core.on
 import quoi.module.Module
 import quoi.utils.EntityUtils.getEntities
 import quoi.utils.getDirection

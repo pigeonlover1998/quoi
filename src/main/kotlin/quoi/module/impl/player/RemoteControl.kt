@@ -21,6 +21,7 @@ import net.minecraft.client.multiplayer.resolver.ServerAddress
 import quoi.QuoiMod.scope
 import quoi.api.events.GameEvent
 import quoi.api.events.ServerEvent
+import quoi.api.events.core.on
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.ChatUtils

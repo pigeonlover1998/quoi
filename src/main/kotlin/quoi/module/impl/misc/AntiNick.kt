@@ -1,6 +1,7 @@
 package quoi.module.impl.misc
 
 import quoi.api.events.WorldEvent
+import quoi.api.events.core.on
 import quoi.module.Module
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.ChatUtils.prefix
