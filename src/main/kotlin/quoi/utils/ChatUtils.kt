@@ -16,14 +16,14 @@ object ChatUtils {
         = literal("[").withColor(bracketsColour.rgb)
             .append(literal(text).withColor(prefixColour.rgb))
             .append("]").withColor(bracketsColour.rgb)
-    val chatGui get() = mc.gui?.chat!!
+    val chatGui get() = mc.gui.chat!!
 
     fun literal(string: String): MutableComponent {
         return Component.literal(string.replace("&", "§"))
     }
 
     fun removeLines(id: Int, text: String): Boolean {
-        return removeLines { it.id == id || it.content?.string?.noControlCodes == text }
+        return removeLines { it.id == id || it.content.string.noControlCodes == text }
     }
 
     fun removeLines(id: Int): Boolean {

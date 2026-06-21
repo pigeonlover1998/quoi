@@ -31,6 +31,7 @@ import quoi.module.impl.dungeon.DungeonESP.starredMobs
 import quoi.module.impl.dungeon.autoclear.MobCluster
 import quoi.module.impl.dungeon.autoclear.MobClusterer
 import quoi.module.impl.dungeon.autoclear.pathToMobs
+import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.group.ToggleableGroup
 import quoi.module.settings.impl.MapSetting
 import quoi.utils.render.drawFilledBox
@@ -274,8 +275,8 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 }
 
 class TestGroup(module: Module) : ToggleableGroup(module, "Test group") {
-    val text by text("text")
     val test by switch("test")
+    val text by switch("text").childOf(::test)
 
     init {
         on<TickEvent.Start> {

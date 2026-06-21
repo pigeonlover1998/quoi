@@ -16,14 +16,14 @@ interface EventListener {
         get() = parent()?.running ?: true
 
     /**
-     * Parent listener to inherit [running] from
+     * Parent listener to inherit [running] and [shouldHandle] from
      */
     fun parent(): EventListener? = null
 
     /**
      * Extra per event check. Runs after [running]
      */
-    fun shouldHandle(event: Event): Boolean = true
+    fun shouldHandle(event: Event): Boolean = parent()?.shouldHandle(event) ?: true
 }
 
 /**

@@ -51,7 +51,7 @@ open class SettingGroup( // todo impl
 
         module.register(setting)
 
-        if (setting is UIComponent<*>) {
+        if (setting is UIComponent<*> && setting.parent == null) {
             setting.childOf(parent)
         }
 
