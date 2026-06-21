@@ -1,11 +1,7 @@
 package quoi.module
 
-import quoi.QuoiMod
 import quoi.api.commands.QuoiCommand
-import quoi.api.events.PacketEvent
 import quoi.api.events.core.Event
-import quoi.api.events.core.EventManager
-import quoi.api.events.core.PacketScope
 import quoi.api.events.core.UnfilteredEvent
 import quoi.api.input.CatKeys
 import quoi.api.skyblock.Island
@@ -14,11 +10,10 @@ import quoi.api.skyblock.Location
 import quoi.module.settings.Setting
 import quoi.module.settings.impl.Keybinding
 import quoi.utils.ChatUtils.modMessage
-import net.minecraft.network.protocol.Packet
 import quoi.annotations.AlwaysActive
 import quoi.api.events.core.EventListener
-import quoi.api.events.core.Subscription
 import quoi.module.settings.SettingsDSL
+import quoi.utils.Shortcuts
 import quoi.utils.ui.hud.HudDSL
 
 abstract class Module(
@@ -29,7 +24,7 @@ abstract class Module(
     @Transient val desc: String = "",
     toggled: Boolean = false,
     val tag: Tag = Tag.NONE
-) : SettingsDSL(), HudDSL, EventListener {
+) : SettingsDSL(), HudDSL, Shortcuts, EventListener {
     constructor(
         name: String,
         area: Island,
@@ -55,10 +50,6 @@ abstract class Module(
 
     var enabled: Boolean = toggled
         private set
-
-    protected inline val mc get() = QuoiMod.mc
-    protected inline val level get() = requireNotNull(QuoiMod.mc.level) { "tried to access level before world was loaded" } // should never be null in tick events
-    protected inline val player get() = requireNotNull(QuoiMod.mc.player) { "tried to access player before it was loaded" } // should never be null in tick events
 
     protected inline val command get() = QuoiCommand.command
 

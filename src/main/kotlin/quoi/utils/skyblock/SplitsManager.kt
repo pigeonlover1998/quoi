@@ -22,7 +22,7 @@ import quoi.utils.StringUtils.noControlCodes
 @Init
 object SplitsManager : EventListener {
 
-    override val parent get() = Splits
+    override fun parent() = Splits
 
     var currentSplits: List<Split> = emptyList()
     private var tickCounter: Long = 0L

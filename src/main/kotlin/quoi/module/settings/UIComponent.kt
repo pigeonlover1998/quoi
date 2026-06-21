@@ -249,7 +249,7 @@ abstract class UIComponent<T>( // todo cleanup
             addVisibility(condition)
         }
 
-        fun <K : UIComponent<T>, T> K.childOf(parent: UIComponent<*>?, condition: () -> Boolean = { true }) = apply {
+        fun <K : UIComponent<T>, T> K.childOf(parent: UIComponent<*>?, condition: () -> Boolean = { (parent?.value as? Boolean) ?: true }) = apply {
             this.parent = parent
             parent?.children += this
             addVisibility(condition)

@@ -13,13 +13,12 @@ interface EventListener {
      * Whether this listener should currently receive events. Checked before [shouldHandle]
      */
     val running: Boolean
-        get() = parent?.running ?: true
+        get() = parent()?.running ?: true
 
     /**
      * Parent listener to inherit [running] from
      */
-    val parent: EventListener?
-        get() = null
+    fun parent(): EventListener? = null
 
     /**
      * Extra per event check. Runs after [running]

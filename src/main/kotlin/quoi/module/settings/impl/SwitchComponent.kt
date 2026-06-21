@@ -21,7 +21,7 @@ class SwitchComponent(
     name: String,
     override val default: Boolean = false,
     desc: String = "",
-) : UIComponent<Boolean>(name, desc), Saving{
+) : UIComponent<Boolean>(name, desc), Saving {
 
     override var value: Boolean = default
     var enabled: Boolean by this::value

@@ -12,6 +12,7 @@ import quoi.api.colour.withAlpha
 import quoi.api.commands.internal.BaseCommand
 import quoi.api.events.DungeonEvent
 import quoi.api.events.RenderEvent
+import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.on
 import quoi.api.skyblock.Location
@@ -30,6 +31,7 @@ import quoi.module.impl.dungeon.DungeonESP.starredMobs
 import quoi.module.impl.dungeon.autoclear.MobCluster
 import quoi.module.impl.dungeon.autoclear.MobClusterer
 import quoi.module.impl.dungeon.autoclear.pathToMobs
+import quoi.module.settings.group.ToggleableGroup
 import quoi.module.settings.impl.MapSetting
 import quoi.utils.render.drawFilledBox
 import quoi.utils.skyblock.player.interact.AuraAction
@@ -41,6 +43,7 @@ import kotlin.collections.mutableListOf
 
 object Test : Module("Test", desc = "Dev module for testing.") {
 
+    val testGroup = TestGroup(this)
     val auraDebug by switch("Aura debug")
     val uiDebug by switch("UI debug").onValueChanged { old, new -> ClickGui.reopen() }
     val reopen by button("Reopen") { ClickGui.reopen() }
@@ -268,4 +271,16 @@ object Test : Module("Test", desc = "Dev module for testing.") {
     private data class Data(val name: String, val value: () -> Any?, val enabled: () -> Boolean)
 
     private class DungeonMob(val name: String, var starred: Boolean, val pos: IntArray)
+}
+
+class TestGroup(module: Module) : ToggleableGroup(module, "Test group") {
+    val text by text("text")
+    val test by switch("test")
+
+    init {
+        on<TickEvent.Start> {
+            println("if you see this the group is enabled")
+            if (test) println("   this is a test2")
+        }
+    }
 }

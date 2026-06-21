@@ -11,7 +11,7 @@ import kotlin.reflect.KProperty
 abstract class Setting<T> (
     val name: String,
     var description: String = "",
-) : ReadWriteProperty<Module, T>, PropertyDelegateProvider<Module, ReadWriteProperty<Module, T>> {
+) : ReadWriteProperty<SettingsDSL, T>, PropertyDelegateProvider<SettingsDSL, ReadWriteProperty<SettingsDSL, T>> {
 
     /**
      * Default value of the setting
@@ -33,15 +33,15 @@ abstract class Setting<T> (
     var jsonName: String = name
         private set
 
-    override operator fun provideDelegate(thisRef: Module, property: KProperty<*>): ReadWriteProperty<Module, T> {
+    override operator fun provideDelegate(thisRef: SettingsDSL, property: KProperty<*>): ReadWriteProperty<SettingsDSL, T> {
         thisRef.register(this)
         return this
     }
 
-    override operator fun getValue(thisRef: Module, property: KProperty<*>): T =
+    override operator fun getValue(thisRef: SettingsDSL, property: KProperty<*>): T =
         value
 
-    override operator fun setValue(thisRef: Module, property: KProperty<*>, value: T) {
+    override operator fun setValue(thisRef: SettingsDSL, property: KProperty<*>, value: T) {
         this.value = value
     }
 
