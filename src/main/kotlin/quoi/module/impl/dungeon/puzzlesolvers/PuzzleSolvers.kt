@@ -25,7 +25,7 @@ object PuzzleSolvers : Module(
     desc = "Displays solutions and automatically completes dungeon puzzles: Ice Fill, Teleport Maze, Quiz, Three Weirdos, Tic Tac Toe, Water Board, Creeper Beams, Blaze, and Ice Path.",
     area = Island.Dungeon(inClear = true)
 ) {
-
+    @Suppress("unused")
     private val solvers = setOf(
         IceFill,
         TeleportMaze,
