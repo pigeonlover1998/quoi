@@ -22,8 +22,8 @@ public class MouseHandlerMixin {
     private void onMouseScroll(long window, double horizontal, double vertical, CallbackInfo ci) {
         if (checkShit(window)) return;
 
-        if (Chat.INSTANCE.isDown()) {
-            Chat.INSTANCE.scroll((int) vertical);
+        if (Chat.isDown()) {
+            Chat.scroll((int) vertical);
             ci.cancel();
         }
 

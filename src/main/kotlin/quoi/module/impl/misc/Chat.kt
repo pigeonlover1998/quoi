@@ -32,13 +32,16 @@ import quoi.utils.visibleMessages
 object Chat : Module(
     "Chat",
     desc = "Various chat related tweaks."
-) {
+) { // todo use setting groups
 
     private val chatBypass by switch("Chat bypass", desc = "Bypasses chat filters on servers.")
     private val bypassMode by selector("Mode", "Wide", arrayListOf("Wide", "Cyrillic"), desc = "Bypass mode.").childOf(::chatBypass)
 
     private val chatPeek by switch("Chat peek", desc = "Peeks chat on a button press.")
     private val peekKey by keybind("Peek key", CatKeys.KEY_Z).childOf(::chatPeek)
+        .onRelease {
+            if (chatPeek) scroll(-Int.MAX_VALUE)
+        }
 
     private val compactChat by switch("Compact chat", desc = "Compacts message duplicates.")
     private val compactChatTime by slider("Compact timer", 60, 5, 120, desc = "Time until compact chat no longer compacts the same message.", unit = "s").childOf(::compactChat)
@@ -176,10 +179,17 @@ object Chat : Module(
     }
 
     // chat peek
+    @JvmStatic
     fun isDown(): Boolean {
         return this.enabled && chatPeek && this.peekKey.isDown()
     }
 
+    @JvmStatic
+    fun displayMode(mode: ChatComponent.DisplayMode): ChatComponent.DisplayMode {
+        return if (isDown()) ChatComponent.DisplayMode.FOREGROUND else mode
+    }
+
+    @JvmStatic
     fun scroll(amount: Int) {
         chatGui.scrollChat(if (isShiftDown) amount else amount * 7)
     }
