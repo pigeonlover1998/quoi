@@ -80,10 +80,9 @@ object BloodCamp : Module( // todo auto
         }
 
         on<ChatEvent.Packet> {
-            val noCodes = message.noControlCodes
-            if (BLOOD_START_REGEX.matches(noCodes)) {
+            if (BLOOD_START_REGEX.matches(unformatted)) {
                 watcherPhase = 0
-            } else if (BLOOD_MOVE_REGEX.matches(noCodes)) {
+            } else if (BLOOD_MOVE_REGEX.matches(unformatted)) {
                 watcherPhase = 1
             }
         }

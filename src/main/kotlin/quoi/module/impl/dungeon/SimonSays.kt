@@ -77,7 +77,7 @@ object SimonSays : Module(
         }
 
         on<ChatEvent.Packet> {
-            if (message.noControlCodes == "[BOSS] Goldor: Who dares trespass into my domain?") start()
+            if (unformatted == "[BOSS] Goldor: Who dares trespass into my domain?") start()
         }
 
         on<PacketEvent.Sent, ServerboundUseItemOnPacket> {

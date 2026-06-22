@@ -65,7 +65,7 @@ object Secrets : Module(
         }
 
         on<ChatEvent.Packet> {
-            if (secretClicks && message.noControlCodes == "That chest is locked!") {
+            if (secretClicks && unformatted == "That chest is locked!") {
                 clickedSecrets.lastOrNull()?.isLocked = true
             }
         }

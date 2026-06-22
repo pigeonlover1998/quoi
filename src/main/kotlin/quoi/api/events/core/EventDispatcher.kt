@@ -25,6 +25,7 @@ import quoi.api.events.*
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Dungeon.dungeonItemDrops
 import quoi.utils.StringUtils.containsOneOf
+import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.equalsOneOf
 
 /**
@@ -109,7 +110,8 @@ object EventDispatcher {
             }
             is ClientboundSystemChatPacket -> {
                 val text = packet.content
-                if (packet.overlay) ChatEvent.ActionBar(text.string, text).post() else ChatEvent.Packet(text.string, text).post()
+                val string = text.string
+                if (packet.overlay) ChatEvent.ActionBar(string, text).post() else ChatEvent.Packet(string, string.noControlCodes, text).post()
             }
             is ClientboundTakeItemEntityPacket -> {
                 if (mc.player == null || !Dungeon.inClear) return false

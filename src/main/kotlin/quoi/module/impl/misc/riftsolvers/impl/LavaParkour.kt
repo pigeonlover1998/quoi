@@ -51,7 +51,7 @@ object LavaParkour : ToggleableGroup(MirrorverseSolvers, "Lava parkour") { // su
         }
 
         on<ChatEvent.Packet> {
-            if (active && message.noControlCodes == "OH NO! THE LAVA OOFED YOU BACK TO THE START!") {
+            if (active && unformatted == "OH NO! THE LAVA OOFED YOU BACK TO THE START!") {
                 modMessage("&cStopping!")
                 reset()
             }

@@ -9,8 +9,13 @@ import net.minecraft.world.level.block.state.BlockState
 import quoi.QuoiMod.mc
 import quoi.annotations.Internal
 import quoi.utils.WorldUtils.state
+import quoi.utils.getDirection
 import quoi.utils.skyblock.player.PlayerUtils.eyePosition
 import quoi.utils.getHitResult
+import quoi.utils.level
+import quoi.utils.player
+import quoi.utils.skyblock.player.RotationUtils.resetRotation
+import quoi.utils.skyblock.player.RotationUtils.rotateSilently
 import quoi.utils.startPrediction
 import kotlin.math.ceil
 
@@ -19,7 +24,8 @@ class MineTarget(
     val pos: BlockPos,
     private var direction: Direction,
     val custom: Boolean,
-    private val swing: Boolean
+    private val swing: Boolean,
+    private val rotate: Boolean // sometimes when actively moving flags aimmodulo360 for whatever reason.. idc enough to figure it out. hypixel doesn't care about rotations anyway.
 ) {
     private var started = false
     var finished = false
@@ -72,7 +78,7 @@ class MineTarget(
                 sequence,
             )
         }
-        if (swing) mc.player?.swing(InteractionHand.MAIN_HAND)
+        if (swing) player.swing(InteractionHand.MAIN_HAND)
 
         started = true
     }
@@ -86,8 +92,9 @@ class MineTarget(
                 sequence,
             )
         }
-        if (swing) mc.player?.swing(InteractionHand.MAIN_HAND)
+        if (swing) player.swing(InteractionHand.MAIN_HAND)
         finished = true
+        player.resetRotation()
     }
 
     private fun abort() {
@@ -99,17 +106,22 @@ class MineTarget(
                     Direction.DOWN,
                 )
             )
+            player.resetRotation()
         }
         finished = true
+    }
+
+    fun rotate() {
+        if (!rotate) return
+        val hitResult = pos.getHitResult() ?: return abort()
+        val dir = getDirection(hitResult.location)
+        player.rotateSilently(dir)
     }
 
     fun onTick(cd: Int) {
         if (finished) return
 
         if (started) ticksMined++
-
-        val level = mc.level ?: return
-        val player = mc.player ?: return
 
         val hitResult = pos.getHitResult() ?: return abort()
         if (player.eyePosition().distanceToSqr(hitResult.location) > 20.25) return abort()
@@ -157,6 +169,7 @@ class MineTarget(
                     Direction.DOWN,
                 )
             )
+            player.resetRotation()
             started = false
             progress = 0f
             doStop = false

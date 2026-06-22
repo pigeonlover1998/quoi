@@ -71,10 +71,10 @@ object AutoLeap : Module( // todo clean up
 
         on<ChatEvent.Packet> {
             if (!autoLeap) return@on
-            if (message.noControlCodes == "[BOSS] Storm: I should have known that I stood no chance.") {
+            if (unformatted == "[BOSS] Storm: I should have known that I stood no chance.") {
                 handleLeap(forceS1 = true)
             }
-            if (message.noControlCodes == "The Core entrance is opening!") {
+            if (unformatted == "The Core entrance is opening!") {
                 handleLeap(completedSection = P3Section.S4)
             }
         }

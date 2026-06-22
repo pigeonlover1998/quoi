@@ -16,7 +16,6 @@ import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.group.SettingGroup
 import quoi.utils.EntityUtils.getEntities
 import quoi.utils.SoundUtils
-import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.render.drawStyledBox
 import quoi.utils.skyblock.player.interact.AuraAction
 import quoi.utils.skyblock.player.interact.AuraManager
@@ -50,7 +49,7 @@ object ThreeWeirdos : SettingGroup(PuzzleSolvers, "Three weirdos") {
         on<ChatEvent.Packet> {
             if (!solver && !auto) return@on
 
-            weirdosRegex.find(message.noControlCodes)?.destructured?.let { (npc, msg) ->
+            weirdosRegex.find(unformatted)?.destructured?.let { (npc, msg) ->
                 val solution = solutions.any { it.matches(msg) }
                 val wrong = wrong.any { it.matches(msg) }
                 if (!solution && !wrong) return@on

@@ -1,6 +1,9 @@
 package quoi.mixins;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import net.minecraft.client.Minecraft;
 import quoi.api.events.EntityEvent;
+import quoi.api.world.Direction;
 import quoi.mixininterfaces.IEntityGlow;
 import quoi.module.impl.player.Tweaks;
 import net.minecraft.client.player.LocalPlayer;
@@ -11,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import quoi.utils.skyblock.player.RotationUtils;
 
 import static quoi.module.impl.player.Tweaks.shouldSb;
 
@@ -82,5 +86,18 @@ public class EntityMixin implements IEntityGlow {
 //
 //        Integer color = DungeonESP.getTeammateColour(self);
 //        if (color != null) cir.setReturnValue(color);
+    }
+
+    @ModifyExpressionValue(
+            method = "moveRelative",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/Entity;getYRot()F"
+            )
+    )
+    private float onMoveRelativeYaw(float original) {
+        if ((Object) this != Minecraft.getInstance().player) return original;
+        Direction dir = RotationUtils.getServerDirection();
+        return dir != null ? dir.getYaw() : original;
     }
 }

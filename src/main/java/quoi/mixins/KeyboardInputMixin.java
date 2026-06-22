@@ -1,28 +1,31 @@
 package quoi.mixins;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.world.entity.player.Input;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import quoi.api.events.KeyEvent;
 import quoi.api.input.MutableInput;
+import quoi.utils.skyblock.player.RotationUtils;
 
 @Mixin(KeyboardInput.class)
 public class KeyboardInputMixin {
-    @WrapOperation(
+    @ModifyExpressionValue(
             method = "tick",
             at = @At(
-                    value = "FIELD",
-                    target = "Lnet/minecraft/client/player/KeyboardInput;keyPresses:Lnet/minecraft/world/entity/player/Input;",
-                    opcode = Opcodes.PUTFIELD
+                    value = "NEW",
+                    target = "(ZZZZZZZ)Lnet/minecraft/world/entity/player/Input;"
             )
     )
-    private void onTick(KeyboardInput instance, Input input, Operation<Void> original) {
-        KeyEvent.Input event = new KeyEvent.Input(input, new MutableInput(input));
+    private Input hookMovementCorrection(Input original) {
+        MutableInput mutInput = new MutableInput(original);
+
+        RotationUtils.adjustInputFromDirection(mutInput);
+
+        KeyEvent.Input event = new KeyEvent.Input(original, mutInput);
         event.post();
-        original.call(instance, event.getInput().toInput());
+
+        return event.getInput().toInput();
     }
 }

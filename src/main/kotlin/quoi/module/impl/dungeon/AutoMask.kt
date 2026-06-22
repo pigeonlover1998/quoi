@@ -45,10 +45,9 @@ object AutoMask : Module( // todo remove in the future
             if (dungeonsOnly && !Dungeon.inDungeons) return@on
             if (bossOnly && !Dungeon.inBoss) return@on
             if (p3Only && !Dungeon.inP3) return@on
-            val messageRaw = message.noControlCodes
 
-            val bonzoMsg = messageRaw == "Your Bonzo's Mask saved your life!" || messageRaw == "Your ⚚ Bonzo's Mask saved your life!"
-            val spiritMsg = messageRaw == "Second Wind Activated! Your Spirit Mask saved your life!"
+            val bonzoMsg = unformatted == "Your Bonzo's Mask saved your life!" || unformatted == "Your ⚚ Bonzo's Mask saved your life!"
+            val spiritMsg = unformatted == "Second Wind Activated! Your Spirit Mask saved your life!"
 
             if (bonzoMsg || spiritMsg) {
                 triggerEquip(if (bonzoMsg) "spirit mask" else "bonzo's mask")

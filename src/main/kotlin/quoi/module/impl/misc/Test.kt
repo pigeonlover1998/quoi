@@ -39,6 +39,8 @@ import quoi.utils.skyblock.player.interact.AuraAction
 import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.ContainerUtils
 import quoi.utils.skyblock.player.PlayerUtils
+import quoi.utils.skyblock.player.RotationUtils.resetRotation
+import quoi.utils.skyblock.player.RotationUtils.rotateSilently
 import quoi.utils.ui.textPair
 import kotlin.collections.mutableListOf
 
@@ -129,6 +131,14 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 
     init {
         val command = BaseCommand("quoitest")
+
+        command.sub("silentRot") { yaw: Float, pitch: Float ->
+            player.rotateSilently(yaw, pitch)
+        }
+
+        command.sub("silentreset") {
+            player.resetRotation()
+        }
 
         command.sub("blockaura") {
             mc.hitResult?.let {

@@ -42,7 +42,7 @@ object Quiz : SettingGroup(PuzzleSolvers, "Quiz") {
 
         on<ChatEvent.Packet> {
             if (!solver && !auto) return@on
-            val msg = message.noControlCodes.trim()
+            val msg = unformatted.trim()
             if (msg.startsWith("[STATUE] Oruo the Omniscient: ") && msg.endsWith("correctly!")) {
                 if (msg.contains("answered the final question")) return@on reset()
                 if (msg.contains("answered Question #")) triviaOptions.forEach { it.correct = false }

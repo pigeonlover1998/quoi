@@ -42,7 +42,7 @@ object NecronPlatformHighlight : Module( // todo rename maybe question mark
         }
 
         on<ChatEvent.Packet> {
-            when (message.noControlCodes) {
+            when (unformatted) {
                 "[BOSS] Goldor: You have done it, you destroyed the factory…" -> {
                     shouldHighlightBlocks = true
                 }

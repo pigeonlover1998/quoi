@@ -31,7 +31,7 @@ object SplitsManager : EventListener {
         on<ChatEvent.Packet> {
             if (currentSplits.isEmpty()) return@on
 
-            val split = currentSplits.firstOrNull { it.time == 0L && it.regex.matches(message.noControlCodes) } ?: return@on
+            val split = currentSplits.firstOrNull { it.time == 0L && it.regex.matches(unformatted) } ?: return@on
 
             split.time = System.currentTimeMillis()
             split.ticks = tickCounter

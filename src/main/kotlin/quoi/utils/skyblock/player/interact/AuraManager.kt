@@ -69,6 +69,10 @@ object AuraManager : EventListener {
             }
         }
 
+        on<RotationUpdateEvent> {
+            mineTarget?.rotate()
+        }
+
         on<TickEvent.End> {
             if (interactBlockCd > 0) interactBlockCd--
             if (interactEntityCd > 0) interactEntityCd--
@@ -141,7 +145,7 @@ object AuraManager : EventListener {
         if (interactEntityCd > 0) entityTasks.add(task) else task.execute()
     }
 
-    fun breakBlock(pos: BlockPos, immediate: Boolean = false, custom: Boolean = false, swing: Boolean = true) {
+    fun breakBlock(pos: BlockPos, immediate: Boolean = false, custom: Boolean = false, swing: Boolean = true, rotate: Boolean = false) {
         if (mineTarget?.pos == pos) return
 
         val hitResult = pos.getHitResult() ?: return
@@ -160,7 +164,7 @@ object AuraManager : EventListener {
             mineBlockCd = 6
             return
         }
-        mineTarget = MineTarget(pos, hitResult.direction, custom, swing)
+        mineTarget = MineTarget(pos, hitResult.direction, custom, swing, rotate)
     }
 
     fun debugBox(vec3: Vec3) {

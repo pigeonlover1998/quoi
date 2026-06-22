@@ -119,10 +119,9 @@ object SkyblockPlayer : EventListener {
         }
 
         on<ChatEvent.Packet> {
-            val msg = message.noControlCodes
-            InvincibilityType.entries.firstOrNull { type -> msg.matches(type.regex) }?.proc()
+            InvincibilityType.entries.firstOrNull { type -> unformatted.matches(type.regex) }?.proc()
 
-            SUMMON_REGEX.find(msg)?.destructured?.let { (action, name, _) ->
+            SUMMON_REGEX.find(unformatted)?.destructured?.let { (action, name, _) ->
                 currentPet =
                     if (action == "summoned")
                         name.trim()

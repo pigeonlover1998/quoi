@@ -39,7 +39,7 @@ object LavaMaze : ToggleableGroup(MirrorverseSolvers, "Lava maze") {
         }
 
         on<ChatEvent.Packet> {
-            if (!active || message.noControlCodes != "EEK! THE LAVA OOFED YOU!") return@on
+            if (!active || unformatted != "EEK! THE LAVA OOFED YOU!") return@on
             modMessage("&cStopping!")
             reset()
         }
