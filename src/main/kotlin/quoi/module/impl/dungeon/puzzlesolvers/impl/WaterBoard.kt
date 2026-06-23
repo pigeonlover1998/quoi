@@ -66,7 +66,7 @@ object WaterBoard : SettingGroup(PuzzleSolvers, "Water board"), Repositionable {
 
             if (tracer) {
                 val firstSolution = solutionList.firstOrNull()?.first ?: return@on
-                mc.player?.let { ctx.drawLine(listOf(it.renderPos, Vec3(firstSolution.leverPos).add(.5, .5, .5)), colour = tracerFirst, depth = true) }
+                ctx.drawLine(listOf(player.renderPos, Vec3(firstSolution.leverPos).add(.5, .5, .5)), colour = tracerFirst, depth = true)
 
                 if (solutionList.size > 1 && firstSolution.leverPos != solutionList[1].first.leverPos) {
                     ctx.drawLine(

@@ -1,4 +1,4 @@
-package quoi.module.impl.dungeon
+package quoi.module.impl.dungeon.floor7
 
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.game.ServerboundInteractPacket
@@ -13,12 +13,11 @@ import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.on
 import quoi.api.skyblock.Island
-import quoi.api.skyblock.dungeon.Dungeon.inP3
-import quoi.api.skyblock.dungeon.Dungeon.isDead
+import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.invoke
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
-import quoi.utils.ChatUtils.literal
+import quoi.utils.ChatUtils
 import quoi.utils.EntityUtils
 import quoi.utils.addVec
 import quoi.utils.render.drawText
@@ -56,7 +55,7 @@ object ArrowAlign : Module(
 
     init {
         on<TickEvent.End> {
-            if (!isDead && (solver || auto)) handleArrowAlign()
+            if (!Dungeon.isDead && (solver || auto)) handleArrowAlign()
         }
 
         on<RenderEvent.World> {
@@ -67,7 +66,7 @@ object ArrowAlign : Module(
                     else if (clicks < 5) Colour.YELLOW
                     else Colour.RED
 
-                ctx.drawText(literal(clicks.toString()).withColor(col.rgb), pos, scale = 1.0f, depth = true)
+                ctx.drawText(ChatUtils.literal(clicks.toString()).withColor(col.rgb), pos, scale = 1.0f, depth = true)
             }
         }
 
@@ -117,7 +116,7 @@ object ArrowAlign : Module(
 
         if (!auto) return
 
-        val skippedFrame = if (!inP3) {
+        val skippedFrame = if (!Dungeon.inP3) {
             (0 until 25).filter { i ->
                 val frame = currentFrames[i] ?: return@filter false
                 val target = solution[i] ?: return@filter false
@@ -145,7 +144,7 @@ object ArrowAlign : Module(
                 recentClicks[i] = System.currentTimeMillis()
                 repeat(clicksNeeded) {
                     frame.rotation = (frame.rotation + 1) % 8
-                    mc.connection?.send(
+                    connection.send(
                         ServerboundInteractPacket(
                             frame.entity.id,
                             InteractionHand.MAIN_HAND,

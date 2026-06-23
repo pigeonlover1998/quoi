@@ -8,7 +8,6 @@ import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.chunk.LevelChunk
 import quoi.QuoiMod.logger
-import quoi.QuoiMod.mc
 import quoi.api.events.DungeonEvent
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
@@ -27,6 +26,7 @@ import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomDataDeserializer
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
 import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
 import quoi.api.vec.Vec2i
+import quoi.utils.Shortcuts
 import quoi.utils.WorldUtils.getBlockEntityList
 import quoi.utils.WorldUtils.state
 import quoi.utils.equalsOneOf
@@ -34,7 +34,7 @@ import kotlin.math.round
 
 // https://github.com/Noamm9/NoammAddons/blob/master/src/main/kotlin/com/github/noamm9/utils/dungeons/map/handlers/DungeonScanner.kt
 // https://github.com/odtheking/Odin/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/dungeon/ScanUtils.kt
-object ScanUtils : EventListener {
+object ScanUtils : EventListener, Shortcuts {
     private const val START = -185
 
     private val roomList: Set<RoomData> = loadRoomData()
@@ -90,13 +90,13 @@ object ScanUtils : EventListener {
                 scanMimic()
             }
 
-            val pX = mc.player?.x?.toInt() ?: return@on
-            val pZ = mc.player?.z?.toInt() ?: return@on
+            val px = player.x.toInt()
+            val pz = player.z.toInt()
 
-            val room = getRoomFromPos(pX, pZ)
+            val room = getRoomFromPos(px, pz)
 
-            val gx = (round((pX - START) / 32.0).toInt() * 2).coerceIn(0, 10)
-            val gz = (round((pZ - START) / 32.0).toInt() * 2).coerceIn(0, 10)
+            val gx = (round((px - START) / 32.0).toInt() * 2).coerceIn(0, 10)
+            val gz = (round((pz - START) / 32.0).toInt() * 2).coerceIn(0, 10)
 
             if (gx == lastRoomPos.x && gz == lastRoomPos.z && room == currentRoom && !Location.currentArea.isArea(Island.SinglePlayer)) return@on
             lastRoomPos = Vec2i(gx, gz)
@@ -139,8 +139,6 @@ object ScanUtils : EventListener {
     private fun scanDungeon() {
         if (System.currentTimeMillis() - lastScanTime < 250) return
         lastScanTime = System.currentTimeMillis()
-
-        val level = mc.level ?: return
 
         for (x in 0..10) {
             for (z in 0..10) {
@@ -235,7 +233,7 @@ object ScanUtils : EventListener {
 
         if (room.rotation == Rotations.NONE) {
             updateRotation(room, height)
-            mc.player?.blockPosition()?.let { pos ->
+            player.blockPosition().let { pos ->
                 if (getRoomFromPos(pos.x, pos.z) === room) {
                     DungeonEvent.Room.Enter(room).post()
                 }
@@ -271,7 +269,6 @@ object ScanUtils : EventListener {
             return
         }
 
-        val level = mc.level ?: return
         room.rotation = Rotations.entries.dropLast(1).find { rotation ->
             room.tiles.any { component ->
                 BlockPos(component.x + rotation.x, roomHeight, component.z + rotation.z).let { blockPos ->
@@ -288,7 +285,6 @@ object ScanUtils : EventListener {
     }
 
     fun OdonRoom.updateRotation() {
-        val level = mc.level ?: return
         val comp = this.tiles.firstOrNull() ?: return
 
         if (level.hasChunk(comp.x shr 4, comp.z shr 4)) {

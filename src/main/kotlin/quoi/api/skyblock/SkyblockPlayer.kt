@@ -1,7 +1,6 @@
 package quoi.api.skyblock
 
 import net.minecraft.world.entity.ai.attributes.Attributes
-import quoi.QuoiMod.mc
 import quoi.annotations.Init
 import quoi.api.colour.Colour
 import quoi.api.events.ChatEvent
@@ -15,14 +14,14 @@ import quoi.module.impl.dungeon.InvincibilityTimer.mageReduction
 import quoi.module.impl.render.ClickGui.currentPet
 import quoi.module.impl.render.ClickGui.updateCurrentPet
 import quoi.utils.Scheduler.scheduleLoop
+import quoi.utils.Shortcuts
 import quoi.utils.StringUtils.capitaliseFirst
-import quoi.utils.StringUtils.noControlCodes
 import kotlin.math.floor
 
 @Init
-object SkyblockPlayer : EventListener {
+object SkyblockPlayer : EventListener, Shortcuts {
     inline val health: Int
-        get() = mc.player?.let { (maxHealth * it.health / it.maxHealth).toInt() } ?: 0
+        get() = player.let { (maxHealth * it.health / it.maxHealth).toInt() }
     var maxHealth: Int = 0
         private set
     var absorption: Int = 0
@@ -47,7 +46,7 @@ object SkyblockPlayer : EventListener {
         private set
     inline val speed: Int
         get() = floor(
-            (mc.player?.getAttribute(Attributes.MOVEMENT_SPEED)?.baseValue?.toFloat() ?: 0f) * 1000f
+            (player.getAttribute(Attributes.MOVEMENT_SPEED)?.baseValue?.toFloat() ?: 0f) * 1000f
         ).toInt()
 
     var manaUsage: String = ""
@@ -142,7 +141,7 @@ object SkyblockPlayer : EventListener {
         }
 
         scheduleLoop {
-            val name = mc.player?.inventory?.getItem(39)?.displayName?.string
+            val name = player.inventory.getItem(39).displayName.string
             currentMask = when {
                 name?.contains("Bonzo") == true -> Mask.BONZO
                 name?.contains("Spirit") == true -> Mask.SPIRIT

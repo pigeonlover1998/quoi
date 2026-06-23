@@ -6,7 +6,6 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
-import quoi.QuoiMod.mc
 import quoi.annotations.Init
 import quoi.annotations.Internal
 import quoi.api.colour.Colour
@@ -17,6 +16,7 @@ import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.module.impl.misc.Test
 import quoi.utils.Scheduler.scheduleTask
+import quoi.utils.Shortcuts
 import quoi.utils.WorldUtils.shape
 import quoi.utils.WorldUtils.state
 import quoi.utils.copy
@@ -27,7 +27,7 @@ import quoi.utils.startPrediction
 
 @Init
 @OptIn(Internal::class)
-object AuraManager : EventListener {
+object AuraManager : EventListener, Shortcuts {
     private val blockTasks = mutableListOf<BlockInteract>()
     private var interactBlockCd = 0
 
@@ -82,7 +82,7 @@ object AuraManager : EventListener {
         on<PacketEvent.Sent> {
             if (packet is ServerboundUseItemOnPacket) interactBlockCd = 1
             if (packet is ServerboundInteractPacket) interactEntityCd = 1
-            if (packet is ServerboundSetCarriedItemPacket) mineTarget?.onSlotChange(mc.player!!.inventory.getItem(packet.slot))
+            if (packet is ServerboundSetCarriedItemPacket) mineTarget?.onSlotChange(player.inventory.getItem(packet.slot))
         }
 
         on<PacketEvent.Received> {
@@ -152,7 +152,7 @@ object AuraManager : EventListener {
         debugBox(hitResult.location)
 
         if (immediate) {
-            mc.gameMode?.startPrediction { sequence ->
+            gameMode.startPrediction { sequence ->
                 ServerboundPlayerActionPacket(
                     ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,
                     pos,
@@ -160,7 +160,7 @@ object AuraManager : EventListener {
                     sequence,
                 )
             }
-            if (swing) mc.player?.swing(InteractionHand.MAIN_HAND)
+            if (swing) player.swing(InteractionHand.MAIN_HAND)
             mineBlockCd = 6
             return
         }

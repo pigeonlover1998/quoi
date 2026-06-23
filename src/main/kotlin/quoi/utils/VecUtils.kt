@@ -58,7 +58,7 @@ inline val Vec3.floorPos: BlockPos get() = BlockPos(x, ceil(y - 1.0), z)
 inline val BlockPos.aabb: AABB get() = AABB(this)
 inline val BlockPos.vec3: Vec3 get() = Vec3(x.toDouble(), y.toDouble(), z.toDouble())
 inline val BlockPos.bounds: AABB? get() {
-    return mc.level?.let { level ->
+    return level.let { level ->
         level.getBlockState(this).getShape(level, this).singleEncompassing()
             .takeIf { !it.isEmpty }?.bounds()
     }
@@ -329,7 +329,7 @@ fun getArrowDirection(from: Vec3, to: BlockPos, isTerminator: Boolean = false): 
 
             val hit = rayCast(px, py, pz, mx, my, mz)
 
-            if (hit != null) {
+            if (hit.pos != null) {
                 if (hit == to) {
                     good = true
                     break
@@ -372,7 +372,6 @@ fun getArrowOrigin(from: Vec3, yaw: Float, isTerminator: Boolean): Vec3 {
 }
 
 fun isPathClear(from: Vec3, target: Vec3): Boolean {
-    val level = mc.level ?: return false
     val result = level.clip(
         ClipContext(
             from,
@@ -509,7 +508,7 @@ fun rayCastVec(
 }
 
 fun isXZInterceptable(box: AABB, range: Double, pos: Vec3, yaw: Float, pitch: Float): Boolean {
-    val start = pos.addVec(y = (mc.player?.eyeY ?: 0.0))
+    val start = pos.addVec(y = player.eyeY)
     val goal = start.add(getLook(yaw, pitch).multiply(range, range, range))
 
     return isVecInZ(start.intermediateWithXValue(goal, box.minX), box) ||

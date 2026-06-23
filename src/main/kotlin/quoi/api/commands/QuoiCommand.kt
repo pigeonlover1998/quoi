@@ -2,46 +2,44 @@ package quoi.api.commands
 
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Style
-import quoi.QuoiMod.mc
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
+import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.Vec3
 import quoi.api.commands.internal.BaseCommand
 import quoi.api.commands.internal.GreedyString
+import quoi.api.events.TickEvent
+import quoi.api.events.core.EventDispatcher
+import quoi.api.events.core.EventListener
+import quoi.api.events.core.until
 import quoi.api.skyblock.Island
-import quoi.api.skyblock.Location
 import quoi.api.skyblock.Location.currentArea
 import quoi.api.skyblock.Location.currentServer
 import quoi.api.skyblock.Location.inSkyblock
 import quoi.api.skyblock.Location.subarea
 import quoi.api.skyblock.dungeon.Dungeon
+import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.module.ModuleManager
-import quoi.module.impl.misc.chat.Chat
+import quoi.module.impl.misc.chat.impl.CompactChat
 import quoi.module.impl.render.ClickGui.clickGui
 import quoi.utils.ChatUtils.command
 import quoi.utils.ChatUtils.literal
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleLoop
+import quoi.utils.Shortcuts
+import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.WorldUtils
 import quoi.utils.WorldUtils.day
+import quoi.utils.addVec
 import quoi.utils.skyblock.player.MovementUtils.hold
 import quoi.utils.skyblock.player.MovementUtils.isMoving
+import quoi.utils.skyblock.player.RotationUtils.rotate
+import quoi.utils.skyblock.player.RotationUtils.yaw
 import quoi.utils.ticker
 import quoi.utils.ui.hud.HudManager
 import quoi.utils.ui.screens.UIScreen.Companion.open
-import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
-import net.minecraft.world.phys.BlockHitResult
-import net.minecraft.world.phys.Vec3
-import quoi.api.events.TickEvent
-import quoi.api.events.core.EventDispatcher
-import quoi.api.events.core.EventListener
-import quoi.api.events.core.until
-import quoi.api.skyblock.dungeon.Dungeon.currentRoom
-import quoi.module.impl.misc.chat.impl.CompactChat
-import quoi.utils.StringUtils.capitaliseFirst
-import quoi.utils.addVec
-import quoi.utils.skyblock.player.RotationUtils.rotate
 import java.net.URI
-import kotlin.collections.sortedBy
 
-object QuoiCommand : EventListener {
+object QuoiCommand : EventListener, Shortcuts {
     val command = BaseCommand("quoi", "requise") {
         open(clickGui)
     }
@@ -74,7 +72,6 @@ object QuoiCommand : EventListener {
 
             "currentroom" {
                 currentRoom?.let { room ->
-                    val player = mc.player!!
                     val currentComp = room.tiles.minByOrNull { comp ->
                         val dx = player.x - comp.x
                         val dz = player.z - comp.z
@@ -152,13 +149,11 @@ object QuoiCommand : EventListener {
             }
 
             "centre" {
-                with(mc.player) {
-                    this?.setPos(this.blockPosition().center.addVec(y = -0.5))
-                }
+                player.setPos(player.blockPosition().center.addVec(y = -0.5))
             }
 
             "rotate" { yaw: Float, pitch: Float ->
-                mc.player?.rotate(yaw, pitch)
+                player.rotate(yaw, pitch)
             }
         }
 
@@ -192,8 +187,8 @@ object QuoiCommand : EventListener {
                 ?: return@sub modMessage("&cInvalid day number!") else null
 
             fun isMet(): Boolean = when (criteria) {
-                "day" -> mc.level!!.day <= intValue!!
-                "server" -> Location.currentServer.equals(value, true)
+                "day" -> level.day <= intValue!!
+                "server" -> currentServer.equals(value, true)
                 "player" -> WorldUtils.players.any { it.profile.name.equals(value, true) }
                 else -> false
             }
@@ -203,7 +198,7 @@ object QuoiCommand : EventListener {
             modMessage("Starting to look for $criteria $value")
 
             scheduleLoop {
-                if (mc.player!!.isMoving) {
+                if (player.isMoving) {
                     modMessage("Cancelling, you moved!")
                     it.cancel()
                     return@scheduleLoop
@@ -224,12 +219,12 @@ object QuoiCommand : EventListener {
 
         command.sub("antiafk") { delay: Int ->
             if (delay < 20) return@sub modMessage("&cThe delay is too low!")
-            val headRot = mc.player!!.yHeadRot
+            val yaw = player.yaw
             modMessage("Starting. Move your camera to cancel")
 
             var ticker = antiAfkTicker(delay)
             until<TickEvent.End> {
-                if (mc.player!!.yHeadRot != headRot) {
+                if (player.yaw != yaw) {
                     modMessage("Cancelling, you moved your camera!")
                     true
                 } else {

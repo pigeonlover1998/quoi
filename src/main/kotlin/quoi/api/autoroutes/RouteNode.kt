@@ -10,6 +10,7 @@ import quoi.api.vec.MutableVec3
 import quoi.config.TypeNamed
 import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes
 import quoi.utils.ChatUtils.literal
+import quoi.utils.Shortcuts
 import quoi.utils.component1
 import quoi.utils.component2
 import quoi.utils.component3
@@ -26,7 +27,7 @@ abstract class RouteNode(
     var unsneak: Boolean? = null,
     var awaits: MutableList<RouteAwait>? = null,
     var chain: RouteChain? = null
-) : TypeNamed {
+) : TypeNamed, Shortcuts {
 
     @Transient
     lateinit var pos: Vec3
@@ -42,16 +43,16 @@ abstract class RouteNode(
     fun inside(pos: MutableVec3): Boolean =
         pos.inside(aabb)
 
-    fun inside(player: LocalPlayer): Boolean =
+    fun inside(): Boolean =
         player.boundingBox.intersects(aabb)
 
     abstract val colour: Colour
-    abstract fun execute(player: LocalPlayer, pos: MutableVec3): Boolean
+    abstract fun execute(pos: MutableVec3): Boolean
 
     open val priority: Int
         get() = 0
 
-    open fun create(player: LocalPlayer, room: OdonRoom): RouteNode? {
+    open fun create(room: OdonRoom): RouteNode? {
         return this
     }
 
@@ -95,7 +96,7 @@ abstract class RouteNode(
         awaits?.forEach { it.onSecret() }
     }
 
-    open fun checkAwaits(player: LocalPlayer): Boolean {
+    open fun checkAwaits(): Boolean {
         return awaits?.all { it.check(player, this) } ?: true
     }
 }

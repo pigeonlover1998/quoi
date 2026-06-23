@@ -56,9 +56,9 @@ object Test : Module("Test", desc = "Dev module for testing.") {
     private val showZ by switch("Show Z", true)
 
     private val coords = setOf(
-        Data("x:", { (mc.player?.x ?: 0.0).toFixed() }, { showX }),
-        Data("y:", { (mc.player?.y ?: 0.0).toFixed() }, { showY }),
-        Data("z:", { (mc.player?.z ?: 0.0).toFixed() }, { showZ })
+        Data("x:", { (player.x).toFixed() }, { showX }),
+        Data("y:", { (player.y).toFixed() }, { showY }),
+        Data("z:", { (player.z).toFixed() }, { showZ })
     )
 
     private val texthudtest by textHud("coords") {
@@ -271,7 +271,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
         Data("Subarea", { Location.subarea ?: "None" }, { subarea_ }),
         Data("Boss", { Dungeon.inBoss }, { boss }),
         Data("Floor", { Dungeon.floor ?: "None" }, { floor }),
-        Data("P3 Section", { "${Dungeon.p3Section.name} || ${mc.player?.let { Dungeon.getP3Section().name} }" }, { p3Section }),
+        Data("P3 Section", { "${Dungeon.p3Section.name} || ${Dungeon.getP3Section().name} }" }, { p3Section }),
         Data("   Duration", { "${formatTime(Dungeon.p3Section.getDuration())} | ${formatTime(Dungeon.p3Section.getDurationTicks() * 50)}" }, { p3Section } ),
         Data("   Terminals", { "${Dungeon.p3Section.terminals}/${Dungeon.p3Section.reqTerminals}" }, { p3Section }),
         Data("   Levers", { "${Dungeon.p3Section.levers}/2" }, { p3Section }),

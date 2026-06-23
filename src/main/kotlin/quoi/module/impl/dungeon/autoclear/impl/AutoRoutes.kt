@@ -113,10 +113,10 @@ object AutoRoutes : Module(
                 position = player.position().mutable()
             }
 
-            val desynced = roomNodes.any { it.inside(player) && it.triggered }
+            val desynced = roomNodes.any { it.inside() && it.triggered }
 
             if (!desynced) {
-                roomNodes.forEach { if (!it.inside(player)) it.triggered = false }
+                roomNodes.forEach { if (!it.inside()) it.triggered = false }
                 position = player.position().mutable()
             }
 
@@ -140,7 +140,7 @@ object AutoRoutes : Module(
             forcedNode = node
             activeNode = node
 
-            if (node.execute(player, pos)) {
+            if (node.execute(pos)) {
                 node.triggered = true
                 node.chain?.let {
                     lastChainName = it.name
@@ -207,7 +207,7 @@ object AutoRoutes : Module(
 
             activeNode = null
 
-            if (roomNodes.none { it.inside(player) && it.triggered }) {
+            if (roomNodes.none { it.inside() && it.triggered }) {
                 position = null
             }
             return
@@ -225,9 +225,9 @@ object AutoRoutes : Module(
 
         if (interactDelay > 0) return
 
-        if (!active && !node.checkAwaits(player)) return
+        if (!active && !node.checkAwaits()) return
 
-        if (node.execute(player, playerPos)) {
+        if (node.execute(playerPos)) {
             node.triggered = true
             node.chain?.let {
                 lastChainName = it.name

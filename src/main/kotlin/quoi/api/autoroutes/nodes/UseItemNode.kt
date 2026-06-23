@@ -1,6 +1,5 @@
 package quoi.api.autoroutes.nodes
 
-import net.minecraft.client.player.LocalPlayer
 import quoi.api.autoroutes.RouteNode
 import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
@@ -36,7 +35,7 @@ class UseItemNode : RouteNode() {
         realYaw = room.getRealYaw(yaw)
     }
 
-    override fun execute(player: LocalPlayer, pos: MutableVec3): Boolean {
+    override fun execute(pos: MutableVec3): Boolean {
         val slot = (0..8).find {
             val stack = player.inventory.getItem(it)
             item.equalsOneOf(stack.skyblockId, stack.registryPath)
@@ -55,7 +54,7 @@ class UseItemNode : RouteNode() {
         return true
     }
 
-    override fun create(player: LocalPlayer, room: OdonRoom): RouteNode? {
+    override fun create(room: OdonRoom): RouteNode? {
         val stack = player.mainHandItem
         if (stack.isEmpty) return null
 

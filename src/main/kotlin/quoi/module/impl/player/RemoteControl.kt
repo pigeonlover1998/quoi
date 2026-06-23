@@ -94,7 +94,7 @@ object RemoteControl : Module(
         }
 
         cmd("key", "Presses a specified key by its internal name (attack, close, menu, etc)") { args ->
-            if (mc.level == null) return@cmd reply("You're not on a server")
+            if (!inGame) return@cmd reply("You're not on a server")
             if (args.isEmpty()) return@cmd reply("Provide a key")
 
             val key = args[0].lowercase()

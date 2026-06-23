@@ -161,7 +161,7 @@ object LeapMenu : Module(
         val slot = screenHandler.menu.slots.subList(11, 16).firstOrNull {
             it.item.hoverName.string.substringAfter(' ').equals(name.noControlCodes, ignoreCase = true)
         }?.index ?: return
-        mc.player?.clickSlot(slot, screenHandler.menu.containerId)
+        player.clickSlot(slot, screenHandler.menu.containerId)
         modMessage(literal("Leaping to ").append(literal(name).withColor(colour.rgb)).append(literal(".")))
     }
 }

@@ -5,7 +5,6 @@ import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
-import quoi.QuoiMod.mc
 import quoi.annotations.Init
 import quoi.api.events.KeyEvent
 import quoi.api.events.WorldEvent
@@ -13,6 +12,7 @@ import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.api.input.MutableInput
 import quoi.utils.Scheduler.scheduleTask
+import quoi.utils.Shortcuts
 import quoi.utils.WorldUtils.airLike
 import quoi.utils.distanceTo2D
 import quoi.utils.rad
@@ -25,14 +25,13 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 @Init
-object MovementUtils : EventListener {
+object MovementUtils : EventListener, Shortcuts {
 
     private var movementTask: (LocalPlayer.(MutableInput) -> Boolean)? = null
     private var currentInput: MutableInput? = null
 
     init {
         on<KeyEvent.Input> {
-            val player = mc.player ?: return@on
             currentInput = input
 
             while (movementTask != null) {
@@ -53,7 +52,6 @@ object MovementUtils : EventListener {
     }
 
     fun movementTask(task: (LocalPlayer.(MutableInput) -> Boolean)?): Boolean {
-        val player = mc.player ?: return false
         movementTask = task
         val input = currentInput ?: return false
         return if (task != null) player.task(input) else true

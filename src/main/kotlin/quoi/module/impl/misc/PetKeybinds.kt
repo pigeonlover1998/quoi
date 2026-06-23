@@ -92,7 +92,7 @@ object PetKeybinds : Module(
         }.description("Gets pets menu pets.")
 
         petCommand.sub("add") {
-            val item = if (mc.player?.mainHandItem?.skyblockId == "PET") mc.player?.mainHandItem else null
+            val item = if (player.mainHandItem.skyblockId == "PET") player.mainHandItem else null
             val uuid = item?.skyblockUuid ?: return@sub modMessage("§cYou can only add pets to the pet list!")
             if (petMap.size >= 9) return@sub modMessage("§cYou cannot add more than 9 pets to the list. Remove a pet using §e/petkeys remove §cor clear the list using §e/petkeys clear§c.")
             if (uuid in petMap) return@sub modMessage("§cThis pet is already in the list!")
@@ -201,7 +201,7 @@ object PetKeybinds : Module(
             else if (noUnequip) return false
         }
 
-        mc.player?.clickSlot(slot, screen.menu.containerId)
+        player.clickSlot(slot, screen.menu.containerId)
         return true
     }
 

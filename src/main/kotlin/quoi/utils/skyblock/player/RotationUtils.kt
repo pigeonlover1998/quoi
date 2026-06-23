@@ -2,7 +2,6 @@ package quoi.utils.skyblock.player
 
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.util.Mth.wrapDegrees
-import quoi.QuoiMod.mc
 import quoi.annotations.Init
 import quoi.api.animations.Animation
 import quoi.api.events.MouseEvent
@@ -15,13 +14,13 @@ import quoi.api.events.core.Priority
 import quoi.api.events.core.on
 import quoi.api.input.MutableInput
 import quoi.api.world.Direction
-import quoi.utils.player
+import quoi.utils.Shortcuts
 import quoi.utils.rad
 import kotlin.math.cos
 import kotlin.math.sin
 
 @Init
-object RotationUtils : EventListener { // todo cleanup
+object RotationUtils : EventListener, Shortcuts { // todo cleanup
 
     private var rotationTask: (LocalPlayer.() -> Boolean)? = null
 
@@ -66,7 +65,6 @@ object RotationUtils : EventListener { // todo cleanup
     }
 
     fun rotationTask(task: (LocalPlayer.() -> Boolean)?): Boolean {
-        val player = mc.player ?: return false
         rotationTask = task
         return if (task != null) player.task() else true
     }

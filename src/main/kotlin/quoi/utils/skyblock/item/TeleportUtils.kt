@@ -3,77 +3,20 @@ package quoi.utils.skyblock.item
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.core.BlockPos
 import net.minecraft.util.Mth.wrapDegrees
-import net.minecraft.world.level.block.AirBlock
-import net.minecraft.world.level.block.BigDripleafStemBlock
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.level.block.BubbleColumnBlock
-import net.minecraft.world.level.block.BushBlock
-import net.minecraft.world.level.block.ButtonBlock
-import net.minecraft.world.level.block.CandleBlock
-import net.minecraft.world.level.block.ComparatorBlock
-import net.minecraft.world.level.block.CropBlock
-import net.minecraft.world.level.block.DoublePlantBlock
-import net.minecraft.world.level.block.DryVegetationBlock
-import net.minecraft.world.level.block.FireBlock
-import net.minecraft.world.level.block.FlowerBlock
-import net.minecraft.world.level.block.FlowerPotBlock
-import net.minecraft.world.level.block.GrowingPlantBlock
-import net.minecraft.world.level.block.LadderBlock
-import net.minecraft.world.level.block.LanternBlock
-import net.minecraft.world.level.block.LeverBlock
-import net.minecraft.world.level.block.LiquidBlock
-import net.minecraft.world.level.block.MushroomBlock
-import net.minecraft.world.level.block.NetherPortalBlock
-import net.minecraft.world.level.block.NetherWartBlock
-import net.minecraft.world.level.block.RailBlock
-import net.minecraft.world.level.block.RedStoneWireBlock
-import net.minecraft.world.level.block.RedstoneTorchBlock
-import net.minecraft.world.level.block.RepeaterBlock
-import net.minecraft.world.level.block.SaplingBlock
-import net.minecraft.world.level.block.SeagrassBlock
-import net.minecraft.world.level.block.ShortDryGrassBlock
-import net.minecraft.world.level.block.SkullBlock
-import net.minecraft.world.level.block.SmallDripleafBlock
-import net.minecraft.world.level.block.SnowLayerBlock
-import net.minecraft.world.level.block.StemBlock
-import net.minecraft.world.level.block.SugarCaneBlock
-import net.minecraft.world.level.block.TallFlowerBlock
-import net.minecraft.world.level.block.TallGrassBlock
-import net.minecraft.world.level.block.TallSeagrassBlock
-import net.minecraft.world.level.block.TorchBlock
-import net.minecraft.world.level.block.TripWireBlock
-import net.minecraft.world.level.block.TripWireHookBlock
-import net.minecraft.world.level.block.VineBlock
-import net.minecraft.world.level.block.WallSkullBlock
-import net.minecraft.world.level.block.WebBlock
+import net.minecraft.world.level.block.*
 import net.minecraft.world.level.block.piston.PistonHeadBlock
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.phys.Vec3
-import net.minecraft.core.Direction as McDirection
-import quoi.QuoiMod.mc
 import quoi.api.world.Direction
 import quoi.api.world.RaycastResult
-import quoi.utils.BlockPos
-import quoi.utils.component1
-import quoi.utils.component2
-import quoi.utils.component3
+import quoi.utils.*
 import quoi.utils.skyblock.player.PlayerUtils.eyePosition
-import quoi.utils.getDirection
-import quoi.utils.getLook
-import quoi.utils.getVisiblePoint
-import quoi.utils.player
-import quoi.utils.vec3
-import kotlin.math.abs
-import kotlin.math.ceil
-import kotlin.math.floor
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.sign
+import kotlin.math.*
+import net.minecraft.core.Direction as McDirection
 
 // todo cleanup
-object TeleportUtils {
+object TeleportUtils : Shortcuts {
 
     fun Vec3.getTeleportPos(yaw: Float, pitch: Float, distance: Double = 12.0): RaycastResult {
         val (dx, dy, dz) = getLook(wrapDegrees(yaw), wrapDegrees(pitch))
@@ -162,8 +105,6 @@ object TeleportUtils {
         var tMaxX = abs((x + max(stepX, 0) - x0) * invDirX)
         var tMaxY = abs((y + max(stepY, 0) - y0) * invDirY)
         var tMaxZ = abs((z + max(stepZ, 0) - z0) * invDirZ)
-
-        val level = mc.level ?: return RaycastResult.NONE
 
         val mut = BlockPos.MutableBlockPos()
 
@@ -272,8 +213,6 @@ object TeleportUtils {
         var tMaxX = abs((x + max(stepX, 0) - x0) * invDirX)
         var tMaxY = abs((y + max(stepY, 0) - y0) * invDirY)
         var tMaxZ = abs((z + max(stepZ, 0) - z0) * invDirZ)
-
-        val level = mc.level ?: return RaycastResult.NONE
 
         val mut = BlockPos.MutableBlockPos()
 

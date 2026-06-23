@@ -12,6 +12,7 @@ import net.minecraft.network.protocol.ping.ServerboundPingRequestPacket
 import quoi.annotations.Init
 import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
+import quoi.utils.connection
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ConcurrentSkipListSet
 
@@ -115,7 +116,7 @@ object ServerInfo : EventListener {
                 rebalanceHeaps()
             }
 
-            if (t - lastBeat > 2_000L) mc.connection?.send(ServerboundPingRequestPacket(System.nanoTime()))
+            if (t - lastBeat > 2_000L) connection.send(ServerboundPingRequestPacket(System.nanoTime()))
         }
     }
 

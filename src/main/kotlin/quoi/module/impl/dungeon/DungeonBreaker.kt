@@ -43,10 +43,10 @@ object DungeonBreaker : Module(
     area = Island.Dungeon
 ) {
     private val chargesHud by textHud("Charges display") {
-        visibleIf { mc.player != null && inDungeons && getBreakerCharges(player.mainHandItem) > 0 }
+        visibleIf { inDungeons && getBreakerCharges(player.mainHandItem) > 0 }
         textPair(
             string = "Charges:",
-            supplier = { mc.player?.let { getBreakerCharges(it.mainHandItem) } ?: 0 },
+            supplier = { getBreakerCharges(player.mainHandItem) },
             labelColour = colour,
             shadow = shadow,
             font = font

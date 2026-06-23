@@ -35,7 +35,7 @@ object AutoCloseChest : Module(
                 SecretAura.lastClickedPos = null
             }
 
-            mc.connection?.send(ServerboundContainerClosePacket(packet.containerId))
+            connection.send(ServerboundContainerClosePacket(packet.containerId))
             cancel()
         }
     }

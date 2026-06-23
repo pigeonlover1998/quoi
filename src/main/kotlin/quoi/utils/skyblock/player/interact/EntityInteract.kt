@@ -4,12 +4,13 @@ import net.minecraft.network.protocol.game.ServerboundInteractPacket
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
 import quoi.QuoiMod.mc
+import quoi.utils.connection
+import quoi.utils.player
 import quoi.utils.skyblock.player.PlayerUtils.eyePosition
 import quoi.utils.skyblock.player.interact.AuraManager.debugBox
 
 class EntityInteract(private val entity: Entity, private val action: AuraAction) {
     fun execute() { // todo improve
-        val player = mc.player ?: return
         if (player.eyePosition().distanceTo(entity.position()) > 5) return
 
         if (action == AuraAction.INTERACT_AT) {
@@ -21,7 +22,7 @@ class EntityInteract(private val entity: Entity, private val action: AuraAction)
             if (clipResult.isPresent) {
                 val hitVec = clipResult.get()
 
-                mc.connection?.send(
+                connection.send(
                     ServerboundInteractPacket(
                         entity.id,
                         InteractionHand.MAIN_HAND,
@@ -30,7 +31,7 @@ class EntityInteract(private val entity: Entity, private val action: AuraAction)
                     )
                 )
 
-                mc.connection?.send(
+                connection.send(
                     ServerboundInteractPacket(
                         entity.id,
                         InteractionHand.MAIN_HAND,
@@ -42,7 +43,7 @@ class EntityInteract(private val entity: Entity, private val action: AuraAction)
                 debugBox(hitVec)
             }
         } else {
-            mc.connection?.send(
+            connection.send(
                 ServerboundInteractPacket(
                     entity.id,
                     InteractionHand.MAIN_HAND,

@@ -18,6 +18,7 @@ import quoi.utils.equalsOneOf
 import quoi.utils.render.drawStyledBox
 import quoi.utils.render.drawTracer
 
+@Suppress("UNNECESSARY_SAFE_CALL")
 object PlayerESP : Module(
     "Player ESP",
     desc = "Highlights players through walls."

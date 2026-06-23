@@ -76,9 +76,9 @@ object WorldUtils {
 
     @JvmStatic
     val tablist: List<PlayerInfo>
-        get() = mc.connection
-            ?.listedOnlinePlayers
-            ?.sortedWith(tabListComparator) ?: emptyList()
+        get() = connection
+            .listedOnlinePlayers
+            .sortedWith(tabListComparator)
 
     @JvmStatic
     val players: List<PlayerInfo>
@@ -87,8 +87,6 @@ object WorldUtils {
     val ClientLevel.day get() = this.defaultClockTime / 24000
 
     fun getBlockEntityList(): List<BlockPos> {
-        val player = mc.player ?: return emptyList()
-        val level = mc.level ?: return emptyList()
         val renderDistance = mc.options.renderDistance().get()
         val pX = player.chunkPosition().x
         val pZ = player.chunkPosition().z

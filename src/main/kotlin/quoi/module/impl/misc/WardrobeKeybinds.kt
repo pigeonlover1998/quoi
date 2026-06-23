@@ -77,7 +77,7 @@ object WardrobeKeybinds : Module(
             }
         }
 
-        mc.player?.clickSlot(slot, screen.menu.containerId)
+        player.clickSlot(slot, screen.menu.containerId)
         return true
     }
 }

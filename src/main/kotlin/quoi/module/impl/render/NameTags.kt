@@ -22,6 +22,7 @@ import quoi.utils.StringUtils.toFixed
 import quoi.utils.render.drawText
 import kotlin.math.pow
 
+@Suppress("UNNECESSARY_SAFE_CALL")
 object NameTags : Module(
     "Name Tags",
     desc = "Customisable nametags for entities."

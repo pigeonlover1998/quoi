@@ -1,6 +1,5 @@
 package quoi.utils
 
-import quoi.QuoiMod.mc
 import quoi.api.colour.Colour
 import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.Entity
@@ -11,7 +10,7 @@ import quoi.annotations.Init
 import kotlin.math.sqrt
 
 @Init
-object EntityUtils {
+object EntityUtils : Shortcuts {
     val entities get() = getEntities()
     val playerEntities get() = getPlayerEntities()
     val playerEntitiesNoSelf get() = getPlayerEntities(true)
@@ -68,7 +67,7 @@ object EntityUtils {
 
     @JvmName("getAllEntities")
     fun getEntities() =
-        mc.level?.entitiesForRendering()?.asSequence().orEmpty()
+        level.entitiesForRendering().asSequence()
 
     @JvmName("getAllEntitiesByClass")
     inline fun <reified E : Entity> getEntities() =
@@ -76,26 +75,26 @@ object EntityUtils {
 
     @JvmName("getPlayerEntities_")
     private fun getPlayerEntities(noSelf: Boolean = false): List<Player> {
-        val players = mc.level?.players() ?: return emptyList()
+        val players = level.players()
         val result = ArrayList<Player>(players.size)
 
-        for (player in players) {
-            if (player.uuid.version() != 4) continue
-            if (noSelf && player == mc.player) continue
-            result.add(player)
+        for (p in players) {
+            if (p.uuid.version() != 4) continue
+            if (noSelf && p == player) continue
+            result.add(p)
         }
 
         return result
     }
 
-    fun getEntity(id: Int): Entity? = mc.level?.getEntity(id)
+    fun getEntity(id: Int): Entity? = level.getEntity(id)
 
     inline fun <reified E : Entity> getEntities(radius: Double, noinline predicate: (E) -> Boolean = { true }) =
-        mc.player?.let { getEntities<E>(it.position(), radius, predicate) }.orEmpty()
+        getEntities<E>(player.position(), radius, predicate)
 
     inline fun <reified E : Entity> getEntities(vec: Vec3, radius: Double, noinline predicate: (E) -> Boolean = { true }) =
         getEntities<E>(vec.aabb(radius), predicate)
 
     inline fun <reified E : Entity> getEntities(aabb: AABB, noinline predicate: (E) -> Boolean = { true }) =
-        mc.level?.getEntitiesOfClass<E>(E::class.java, aabb, predicate).orEmpty()
+        level.getEntitiesOfClass<E>(E::class.java, aabb, predicate).orEmpty()
 }

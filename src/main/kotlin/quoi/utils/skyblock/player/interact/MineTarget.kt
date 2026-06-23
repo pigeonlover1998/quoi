@@ -9,6 +9,8 @@ import net.minecraft.world.level.block.state.BlockState
 import quoi.QuoiMod.mc
 import quoi.annotations.Internal
 import quoi.utils.WorldUtils.state
+import quoi.utils.connection
+import quoi.utils.gameMode
 import quoi.utils.getDirection
 import quoi.utils.skyblock.player.PlayerUtils.eyePosition
 import quoi.utils.getHitResult
@@ -57,8 +59,6 @@ class MineTarget(
                 if (customDelta <= 0f) return -1
                 customDelta
             } else {
-                val player = mc.player ?: return -1
-                val level = mc.level ?: return -1
                 pos.state.getDestroyProgress(player, level, pos)
             }
 
@@ -70,7 +70,7 @@ class MineTarget(
     private var item: ItemStack = ItemStack.EMPTY
 
     private fun start() {
-        mc.gameMode?.startPrediction { sequence ->
+        gameMode.startPrediction { sequence ->
             ServerboundPlayerActionPacket(
                 ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,
                 pos,
@@ -84,7 +84,7 @@ class MineTarget(
     }
 
     private fun stop() {
-        mc.gameMode?.startPrediction { sequence ->
+        gameMode.startPrediction { sequence ->
             ServerboundPlayerActionPacket(
                 ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK,
                 pos,
@@ -99,7 +99,7 @@ class MineTarget(
 
     private fun abort() {
         if (!finished && started) {
-            mc.connection!!.send(
+            connection.send(
                 ServerboundPlayerActionPacket(
                     ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,
                     pos,
@@ -162,7 +162,7 @@ class MineTarget(
         if (ItemStack.matches(item, stack)) return
 
         if (!finished && started) {
-            mc.connection?.send(
+            connection.send(
                 ServerboundPlayerActionPacket(
                     ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,
                     pos,

@@ -13,6 +13,8 @@ import org.joml.Vector3f
 import quoi.QuoiMod.mc
 import quoi.api.colour.*
 import quoi.utils.EntityUtils.renderPos
+import quoi.utils.player
+import quoi.utils.skyblock.player.PlayerUtils.eyeHeight
 import quoi.utils.unaryMinus
 import kotlin.math.max
 import kotlin.math.pow
@@ -165,9 +167,7 @@ fun LevelRenderContext.drawLine(points: Collection<Vec3>, colour: Colour, depth:
 }
 
 fun LevelRenderContext.drawTracer(to: Vec3, colour: Colour, thickness: Float = 6f, depth: Boolean = false) {
-    val from = mc.player?.let { player ->
-        player.renderPos.add(player.forward.add(0.0, player.eyeHeight.toDouble(), 0.0))
-    } ?: return
+    val from = player.renderPos.add(player.forward.add(0.0, player.eyeHeight().toDouble(), 0.0))
     drawLine(listOf(from, to), colour, depth, thickness)
 }
 

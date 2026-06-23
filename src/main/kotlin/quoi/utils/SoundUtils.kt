@@ -21,7 +21,7 @@ object SoundUtils {
     }
 
     fun play(sound: SoundEvent, volume: Float = 1.0f, pitch: Float = 1.0f) = mc.execute {
-        mc.player?.playSound(sound, volume, pitch)
+        player.playSound(sound, volume, pitch)
     }
 
     fun play(soundSettings: () -> Triple<SoundEvent, Float, Float>) {

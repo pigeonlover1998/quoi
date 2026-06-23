@@ -1,4 +1,4 @@
-package quoi.module.impl.dungeon
+package quoi.module.impl.dungeon.floor7
 
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket
@@ -12,26 +12,30 @@ import quoi.api.abobaui.dsl.ms
 import quoi.api.animations.Animation
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
-import quoi.api.events.*
+import quoi.api.events.BlockEvent
+import quoi.api.events.ChatEvent
+import quoi.api.events.PacketEvent
+import quoi.api.events.RenderEvent
+import quoi.api.events.TickEvent
+import quoi.api.events.WorldEvent
 import quoi.api.events.core.on
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.invoke
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
-import quoi.utils.ChatUtils.command
-import quoi.utils.ChatUtils.modMessage
+import quoi.utils.ChatUtils
 import quoi.utils.EntityUtils
 import quoi.utils.StringUtils
-import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.WorldUtils.state
 import quoi.utils.getDirection
 import quoi.utils.render.drawFilledBox
-import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.RotationUtils.rotateSmoothly
+import quoi.utils.skyblock.player.interact.AuraManager
 import kotlin.random.Random
 
 // Kyleen
+@Suppress("UNNECESSARY_SAFE_CALL")
 object SimonSays : Module(
     "Simon Says",
     desc = "Automatically completes Simon says device.",
@@ -52,6 +56,7 @@ object SimonSays : Module(
 
     private val announceTime by switch("Announce time", desc = "Announces device completion time in party chat")
     private val forceDevice by switch("Force device")
+    @Suppress("unused")
     private val resetSS by button("Reset") { fullReset() }
 
     private var lastClickTime = 0L
@@ -127,7 +132,8 @@ object SimonSays : Module(
             }
 
             if (pos.x == 110) {
-                if (updated.block == Blocks.STONE_BUTTON && updated.hasProperty(BlockStateProperties.POWERED) && updated.getValue(BlockStateProperties.POWERED)) {
+                if (updated.block == Blocks.STONE_BUTTON && updated.hasProperty(BlockStateProperties.POWERED) && updated.getValue(
+                        BlockStateProperties.POWERED)) {
                     val i = clicks.indexOf(pos)
                     if (i != -1) {
                         progress = i + 1
@@ -200,8 +206,8 @@ object SimonSays : Module(
 
                 if (finished) {
                     val time = StringUtils.formatTime(System.currentTimeMillis() - startTime)
-                    modMessage("Simon Says took $time")
-                    if (announceTime) command("pc Simon Says took $time")
+                    ChatUtils.modMessage("Simon Says took $time")
+                    if (announceTime) ChatUtils.command("pc Simon Says took $time")
                     fullReset()
                 } else if (!active) fullReset()
 
@@ -277,7 +283,8 @@ object SimonSays : Module(
         }
     }
 
-    private val BlockPos.randomVec: Vec3 get() {
+    private val BlockPos.randomVec: Vec3
+        get() {
         val yy = Random.nextDouble(-0.1, 0.1)
         val zz = Random.nextDouble(-0.15, 0.15)
         return Vec3(x + 0.9375, y + 0.5 + yy, z + 0.5 + zz)

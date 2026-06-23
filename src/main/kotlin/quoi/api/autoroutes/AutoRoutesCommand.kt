@@ -40,6 +40,7 @@ import quoi.utils.ChatUtils.modMessage
 import quoi.utils.component1
 import quoi.utils.component2
 import quoi.utils.component3
+import quoi.utils.player
 import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
 import java.io.File
 import kotlin.math.floor
@@ -48,7 +49,6 @@ object AutoRoutesCommand : EventListener {
     private val ar = BaseCommand("route")
         .requires("&cEnable the module and be in a dungeon!") { AutoRoutes.enabled && inClear && currentRoom != null }
 
-    private inline val player get() = mc.player!!
     private inline val room get() = currentRoom!!
 
     private val removedNodes = mutableListOf<List<RemovedNode>>()
@@ -98,7 +98,7 @@ object AutoRoutesCommand : EventListener {
                 chain = routeChain
             }
 
-            val node = base.create(player, room) ?: return@sub modMessage("Failed blah blah blah")
+            val node = base.create(room) ?: return@sub modMessage("Failed blah blah blah")
 
             val nodes = routeNodes.getOrPut(room.name) { mutableListOf() }
             nodes.add(node)
@@ -173,15 +173,15 @@ object AutoRoutesCommand : EventListener {
 //        }.description("Modifies arguments of ring you're standing in.").suggestArgs(true)
 
         ar.sub("edit") { type: String, args: GreedyString ->
-            val node = routeNodes[room.name]?.firstOrNull { it.inside(player) && it.typeName.equals(type, true) }
+            val node = routeNodes[room.name]?.firstOrNull { it.inside() && it.typeName.equals(type, true) }
                 ?: return@sub modMessage("&cNo &e$type&c ring found!")
             editNode(node, args)
         }.description("Modifies arguments of ring you're standing in.").suggestArgs(true)
-        .suggests("type") { routeNodes[room.name]?.filter { it.inside(player) }?.map { it.typeName } ?: emptyList<String>() }
+        .suggests("type") { routeNodes[room.name]?.filter { it.inside() }?.map { it.typeName } ?: emptyList<String>() }
 
         ar.sub("editdb") {
             if (breakerRing == null) {
-                val ring = routeNodes[room.name]?.firstOrNull { it.inside(player) && it is BreakerNode }
+                val ring = routeNodes[room.name]?.firstOrNull { it.inside() && it is BreakerNode }
                     ?: return@sub modMessage("&cYou need to stand in a &edungeon_breaker&c ring!")
                 editDBRing(ring as BreakerNode)
             } else {

@@ -6,18 +6,18 @@ import net.minecraft.network.HashedStack
 import net.minecraft.network.protocol.game.*
 import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.ItemStack
-import quoi.QuoiMod.mc
 import quoi.annotations.Init
 import quoi.api.events.PacketEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.EventListener
-import quoi.api.events.core.on
 import quoi.api.events.core.Priority
+import quoi.api.events.core.on
 import quoi.api.events.core.until
 import quoi.module.impl.misc.PetKeybinds
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleTask
+import quoi.utils.Shortcuts
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.items
 import quoi.utils.skyblock.item.ItemUtils.loreString
@@ -29,7 +29,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @Init
-object ContainerUtils : EventListener {
+object ContainerUtils : EventListener, Shortcuts {
     var containerId = -1
         private set
     private var lastStateId = 0
@@ -110,7 +110,6 @@ object ContainerUtils : EventListener {
     ): Boolean {
         require(uuid != null || name != null) { "You must provide either uuid or name." }
         require(!(uuid != null && name != null)) { "Provide only one of uuid or name." }
-        val inventory = mc.player?.inventory ?: return false
 
         val items = getContainerItems(command, container, slots, timeout)
         if (items.isEmpty()) {
@@ -118,7 +117,7 @@ object ContainerUtils : EventListener {
             return false
         }
 
-        val invItems = inventory.items.take(36)
+        val invItems = player.inventory.items.take(36)
         val finalItems = if (inContainer) items else invItems
 
         val slot = finalItems.indexOfFirst { item ->
@@ -222,7 +221,7 @@ object ContainerUtils : EventListener {
             else -> ContainerInput.PICKUP
         }
 
-        mc.gameMode?.handleContainerInput(containerId, slot, button, clickType, this)
+        gameMode.handleContainerInput(containerId, slot, button, clickType, this)
     }
 
     fun click(slot: Int, button: Int = 0, shift: Boolean = false): Boolean {
@@ -235,7 +234,7 @@ object ContainerUtils : EventListener {
         }
 
         scheduleTask {
-            mc.connection?.send(
+            connection.send(
                 ServerboundContainerClickPacket(
                     containerId,
                     lastStateId,
@@ -253,7 +252,7 @@ object ContainerUtils : EventListener {
     fun closeContainer(): Boolean {
         if (containerId == -1) return false
         scheduleTask {
-            mc.connection?.send(ServerboundContainerClosePacket(containerId))
+            connection.send(ServerboundContainerClosePacket(containerId))
         }
 
         return true

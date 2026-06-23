@@ -21,6 +21,7 @@ import net.minecraft.world.entity.player.PlayerSkin
 import org.joml.Matrix3x2f
 import org.joml.Quaternionf
 import org.joml.Vector3f
+import quoi.utils.connection
 import java.util.Optional
 import java.util.UUID
 import kotlin.math.*
@@ -180,7 +181,7 @@ object DrawContextUtils {
         }
 
         val textures = textureCache.getOrElse(uuid) {
-            val profile = mc.connection?.getPlayerInfo(uuid)?.profile
+            val profile = connection.getPlayerInfo(uuid)?.profile
             val skin =
                 if (profile != null) mc.skinManager.get(profile).getNow(Optional.empty()).orElseGet { DefaultPlayerSkin.get(uuid) }
                 else DefaultPlayerSkin.get(uuid)

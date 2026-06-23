@@ -1,4 +1,4 @@
-package quoi.module.impl.dungeon
+package quoi.module.impl.dungeon.floor7
 
 import net.minecraft.world.phys.AABB
 import quoi.api.colour.Colour
@@ -10,7 +10,6 @@ import quoi.api.skyblock.Island
 import quoi.api.skyblock.invoke
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
-import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawWireFrameBox
 

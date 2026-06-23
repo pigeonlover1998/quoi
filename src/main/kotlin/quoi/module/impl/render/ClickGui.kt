@@ -127,7 +127,7 @@ object ClickGui : Module(
     private val dayHud by textHud("Day display") {
         textPair(
             string = "Day:",
-            supplier = { mc.level?.day },
+            supplier = { level.day },
             labelColour = colour,
             shadow = shadow,
             font = font

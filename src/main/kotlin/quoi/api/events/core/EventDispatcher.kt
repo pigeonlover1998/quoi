@@ -17,21 +17,21 @@ import net.minecraft.network.protocol.game.*
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.item.ItemEntity
 import quoi.QuoiMod
-import quoi.QuoiMod.mc
 import quoi.api.events.*
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Dungeon.dungeonItemDrops
+import quoi.utils.Shortcuts
 import quoi.utils.StringUtils.containsOneOf
 import quoi.utils.StringUtils.noControlCodes
+import quoi.utils.WorldUtils.state
 import quoi.utils.equalsOneOf
 
 /**
  * Bridges fabric's own event hooks and packet handling.
  */
-object EventDispatcher {
+object EventDispatcher : Shortcuts {
     var totalTicks = 0
         private set
 
@@ -46,15 +46,15 @@ object EventDispatcher {
                 lastWorld = world
             }
 
-            if (!tabLoaded && !mc.connection?.listedOnlinePlayers.isNullOrEmpty()) {
+            if (!tabLoaded && !connection.listedOnlinePlayers.isNullOrEmpty()) {
                 tabLoaded = true
                 WorldEvent.Load.End().post()
             }
-            if (mc.level != null && mc.player != null) TickEvent.Start().post()
+            if (inGame) TickEvent.Start().post()
         }
-        ClientTickEvents.END_CLIENT_TICK.register { if (mc.level != null && mc.player != null) TickEvent.End().post() }
+        ClientTickEvents.END_CLIENT_TICK.register { if (inGame) TickEvent.End().post() }
 
-        LevelRenderEvents.END_MAIN.register { if (mc.level != null && mc.player != null) RenderEvent.World(it).post() }
+        LevelRenderEvents.END_MAIN.register { if (inGame) RenderEvent.World(it).post() }
 
         ClientLifecycleEvents.CLIENT_STARTED.register { GameEvent.Load().post() }
         ClientLifecycleEvents.CLIENT_STOPPING.register { GameEvent.Unload().post() }
@@ -67,7 +67,7 @@ object EventDispatcher {
         }
 
         ClientChunkEvents.CHUNK_LOAD.register { _, chunk ->
-            if (mc.level != null && mc.player != null) WorldEvent.Chunk.Load(chunk).post()
+            if (inGame) WorldEvent.Chunk.Load(chunk).post()
         }
 
         ClientPlayConnectionEvents.JOIN.register { handler, _, _ ->
@@ -93,7 +93,7 @@ object EventDispatcher {
         }
 
         HudElementRegistry.attachElementBefore(VanillaHudElements.SLEEP, Identifier.fromNamespaceAndPath(QuoiMod.MOD_ID, "quoi_hud")) { ctx, a ->
-            if (mc.options.hideGui || mc.level == null || mc.player == null) return@attachElementBefore
+            if (mc.options.hideGui || !inGame) return@attachElementBefore
             RenderEvent.Overlay(ctx, a).post()
         }
     }
@@ -114,17 +114,17 @@ object EventDispatcher {
                 if (packet.overlay) ChatEvent.ActionBar(string, text).post() else ChatEvent.Packet(string, string.noControlCodes, text).post()
             }
             is ClientboundTakeItemEntityPacket -> {
-                if (mc.player == null || !Dungeon.inClear) return false
-                val itemEntity = mc.level?.getEntity(packet.itemId) as? ItemEntity ?: return false
-                if (itemEntity.item.hoverName.string.containsOneOf(dungeonItemDrops, true) && itemEntity.distanceTo(mc.player as Entity) <= 6)
+                if (!inGame || !Dungeon.inClear) return false
+                val itemEntity = level.getEntity(packet.itemId) as? ItemEntity ?: return false
+                if (itemEntity.item.hoverName.string.containsOneOf(dungeonItemDrops, true) && itemEntity.distanceTo(player) <= 6)
                     DungeonEvent.Secret.Item(itemEntity).post()
                 else false
             }
             is ClientboundRemoveEntitiesPacket -> {
-                if (mc.player == null || !Dungeon.inClear) return false
+                if (!inGame || !Dungeon.inClear) return false
                 packet.entityIds.forEach { id ->
-                    val entity = mc.level?.getEntity(id) as? ItemEntity ?: return@forEach
-                    if (entity.item.hoverName.string.containsOneOf(dungeonItemDrops, true) && entity.distanceTo(mc.player as Entity) <= 6)
+                    val entity = level.getEntity(id) as? ItemEntity ?: return@forEach
+                    if (entity.item.hoverName.string.containsOneOf(dungeonItemDrops, true) && entity.distanceTo(player) <= 6)
                         DungeonEvent.Secret.Item(entity).post()
                 }
                 false
@@ -147,7 +147,7 @@ object EventDispatcher {
             is ServerboundUseItemOnPacket -> {
                 if (!Dungeon.inDungeons || packet.hand == InteractionHand.OFF_HAND) return false
                 val pos = packet.hitResult.blockPos
-                DungeonEvent.Secret.Interact(pos, mc.level?.getBlockState(pos)?.takeIf { Dungeon.isSecret(it, pos) } ?: return false).post()
+                DungeonEvent.Secret.Interact(pos, pos.state.takeIf { Dungeon.isSecret(it, pos) } ?: return false).post()
                 false
             }
             else -> false

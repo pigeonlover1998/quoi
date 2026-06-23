@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.SkullBlock
 import net.minecraft.world.level.block.entity.SkullBlockEntity
 import net.minecraft.world.level.block.state.BlockState
-import quoi.QuoiMod.mc
 import quoi.QuoiMod.scope
 import quoi.annotations.Init
 import quoi.api.colour.Colour
@@ -26,6 +25,7 @@ import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.module.impl.dungeon.LeapMenu
 import quoi.module.impl.render.ClickGui
+import quoi.utils.Shortcuts
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.equalsOneOf
 import quoi.utils.romanToInt
@@ -41,7 +41,8 @@ import kotlin.math.roundToLong
  *           https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/dungeon/DungeonListener.kt
  */
 @Init
-object Dungeon : EventListener {
+@Suppress("unused")
+object Dungeon : EventListener, Shortcuts {
 
     inline val inDungeons: Boolean
         get() = Location.currentArea.isArea(Island.Dungeon)
@@ -116,14 +117,14 @@ object Dungeon : EventListener {
         get() = (dungeonTeammates.map { it.name } + PartyUtils.members).distinct()
 
     val allTeammatesNoSelf: List<String>
-        get() = allTeammates.filter { it != mc.player?.name?.string }
+        get() = allTeammates.filter { it != player.name.string }
 
     var leapTeammates: List<DungeonPlayer> = ArrayList(4)
         private set
 
     inline val currentDungeonPlayer: DungeonPlayer
-        get() = dungeonTeammates.find { it.name == mc.player?.name?.string } ?:
-        DungeonPlayer(mc.player?.name?.string ?: "Unknown", DungeonClass.Unknown, 0, null)
+        get() = dungeonTeammates.find { it.name == player.name.string } ?:
+        DungeonPlayer(player.name.string, DungeonClass.Unknown, 0, null)
 
     inline val isDead: Boolean
         get() = currentDungeonPlayer.isDead
@@ -261,8 +262,8 @@ object Dungeon : EventListener {
                             if (dungeonStats.percentCleared != it && expectingBloodUpdate) dungeonStats.bloodDone = true
                             dungeonStats.percentCleared = it
                         }
-                        dungeonTeammates.find { it.name == mc.player?.name?.string }?.apply {
-                            isDead = mc.player?.inventory?.getItem(0)?.displayName?.string?.contains("Haunt") == true
+                        dungeonTeammates.find { it.name == player.name.string }?.apply {
+                            isDead = player.inventory.getItem(0).displayName.string.contains("Haunt")
                         }
                     }
 
@@ -280,7 +281,7 @@ object Dungeon : EventListener {
                         doorOpenRegex.find(message)?.let { dungeonStats.doorOpener = it.groupValues[1] }
                         deathRegex.find(message)?.let { match ->
                             dungeonTeammates.find { teammate ->
-                                teammate.name == (match.groupValues[1].takeUnless { it == "You" } ?: mc.player?.name?.string)
+                                teammate.name == (match.groupValues[1].takeUnless { it == "You" } ?: player.name.string)
                             }?.deaths?.inc()
                         }
 
@@ -327,7 +328,7 @@ object Dungeon : EventListener {
 
                     is ClientboundSetTimePacket -> {
                         if (!inClear) return@on
-                        val gameTime = mc.level?.gameTime ?: -1
+                        val gameTime = level.gameTime
                         deathTick = 40 - (gameTime % 40).toInt()
 //                            if (openRoomCount == 0)
 //                                40 - (gameTime % 40).toInt()
@@ -365,7 +366,7 @@ object Dungeon : EventListener {
     fun getF7Phase(): M7Phases {
         if ((!isFloor(7) || !inBoss) && Location.onHypixel) return M7Phases.Unknown
 
-        with(mc.player ?: return M7Phases.Unknown) {
+        with(player) {
             return when {
                 y > 210 -> M7Phases.P1
                 y > 155 -> M7Phases.P2
@@ -379,7 +380,7 @@ object Dungeon : EventListener {
     /**
      * gets the current terminal section based on player **position**
      */
-    fun getP3Section(player: LocalPlayer = mc.player!!): P3Section {
+    fun getP3Section(player: LocalPlayer = quoi.utils.player): P3Section {
         if (getF7Phase() != M7Phases.P3) return P3Section.Unknown
 
         val x = player.x
@@ -415,7 +416,7 @@ object Dungeon : EventListener {
 
             previousTeammates.find { it.name == name }?.let { player -> player.isDead = clazz == "DEAD" }
                 ?: run {
-                    val player = mc.connection?.getPlayerInfo(name) ?: continue
+                    val player = connection.getPlayerInfo(name) ?: continue
                     previousTeammates.add(
                         DungeonPlayer(
                             name = name,
@@ -447,7 +448,7 @@ object Dungeon : EventListener {
         return when {
             state.block.equalsOneOf(Blocks.CHEST, Blocks.TRAPPED_CHEST, Blocks.LEVER) -> true
             state.block is SkullBlock ->
-                (mc.level?.getBlockEntity(pos) as? SkullBlockEntity)?.ownerProfile?.partialProfile()?.id
+                (level.getBlockEntity(pos) as? SkullBlockEntity)?.ownerProfile?.partialProfile()?.id
                     ?.toString()?.equalsOneOf(WITHER_ESSENCE_ID, REDSTONE_KEY) ?: false
 
             else -> false
@@ -455,7 +456,6 @@ object Dungeon : EventListener {
     }
 
     fun isProtectedBlock(pos: BlockPos): Boolean {
-        val level = mc.level ?: return true
         if (level.getBlockEntity(pos) != null) return true
 
         val state = level.getBlockState(pos)
@@ -463,8 +463,7 @@ object Dungeon : EventListener {
         return state.block in blacklistedDBBlocks
     }
 
-    fun getBoss(): Boolean = with(mc.player) {
-        if (this == null) return false
+    fun getBoss(): Boolean = with(player) {
         when (floor?.floorNumber) {
             1 -> x > -71 && z > -39
             in 2..4 -> x > -39 && z > -39
@@ -510,7 +509,7 @@ object Dungeon : EventListener {
 
     private fun updateDungeonTeammates(tabList: List<Pair<String, Colour>>) {
         dungeonTeammates = getDungeonTeammates(dungeonTeammates, tabList)
-        dungeonTeammatesNoSelf = dungeonTeammates.filter { it.name != mc.player?.name?.string }
+        dungeonTeammatesNoSelf = dungeonTeammates.filter { it.name != player.name.string }
 
         leapTeammates =
             when (LeapMenu.sorting.selected) {

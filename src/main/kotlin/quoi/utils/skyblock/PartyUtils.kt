@@ -1,10 +1,10 @@
 package quoi.utils.skyblock
 
-import quoi.QuoiMod.mc
 import quoi.annotations.Init
 import quoi.api.events.ChatEvent
 import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
+import quoi.utils.Shortcuts
 
 /**
  * from OdinFabric (BSD 3-Clause)
@@ -12,7 +12,7 @@ import quoi.api.events.core.on
  * original: https://github.com/odtheking/OdinFabric/blob/main/src/main/kotlin/com/odtheking/odin/utils/skyblock/PartyUtils.kt
  */
 @Init
-object PartyUtils : EventListener {
+object PartyUtils : EventListener, Shortcuts {
 
     private val joinedSelf = Regex("^You have joined ((?:\\[[^]]*?])? ?)?(\\w{1,16})'s? party!$")
     private val joinedOther = Regex("^((?:\\[[^]]*?])? ?)?(\\w{1,16}) joined the party\\.$")
@@ -45,7 +45,7 @@ object PartyUtils : EventListener {
 
     val members = mutableListOf<String>()
 
-    val membersNoSelf get() = members.filter { it != mc.player?.name?.string }
+    val membersNoSelf get() = members.filter { it != player.name.string }
 
     var partyLeader: String? = null
         private set
@@ -60,7 +60,7 @@ object PartyUtils : EventListener {
             joinedSelf.find(message)?.let {
                 addMember(it.groupValues[2])
                 partyLeader = it.groupValues[2]
-                addMember(mc.player?.gameProfile?.name ?: return@on)
+                addMember(player.gameProfile.name)
                 return@on
             }
 
@@ -108,8 +108,8 @@ object PartyUtils : EventListener {
             }
 
             queuedInFinder.find(message)?.let {
-                addMember(mc.player?.gameProfile?.name ?: return@on)
-                if (partyLeader == null) partyLeader = mc.player?.gameProfile?.name
+                addMember(player.gameProfile.name)
+                if (partyLeader == null) partyLeader = player.gameProfile.name
                 return@on
             }
 
@@ -161,5 +161,5 @@ object PartyUtils : EventListener {
         isInParty = false
     }
 
-    fun isLeader(): Boolean = partyLeader == mc.player?.gameProfile?.name
+    fun isLeader(): Boolean = partyLeader == player.gameProfile.name
 }

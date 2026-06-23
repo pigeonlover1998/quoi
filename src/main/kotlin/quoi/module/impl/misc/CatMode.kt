@@ -44,12 +44,12 @@ object CatMode : Module(
 
     init {
         on<GuiEvent.DrawBackground.Post> {
-            if (!fallingCats || mc.level == null) return@on
+            if (!fallingCats || !inGame) return@on
             if (!darken) renderer.draw(ctx, screen.width, screen.height, catTexture.selected.path, catSize, catSpeed)
         }
 
         on<GuiEvent.DrawBackground> {
-            if (!fallingCats || mc.level == null) return@on
+            if (!fallingCats || !inGame) return@on
             if (darken) renderer.draw(ctx, screen.width, screen.height, catTexture.selected.path, catSize, catSpeed)
         }
 
@@ -57,7 +57,7 @@ object CatMode : Module(
             if (!meowSound || packet.sound == SoundEvents.CAT_AMBIENT_BABY) return@on
 
             cancel()
-            mc.level?.playLocalSound(
+            level.playLocalSound(
                 packet.x,
                 packet.y,
                 packet.z,

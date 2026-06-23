@@ -1,4 +1,4 @@
-package quoi.module.impl.dungeon
+package quoi.module.impl.dungeon.floor7
 
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.Blocks
@@ -70,7 +70,12 @@ object FuckDiorite : Module(
     private val oneColour by switch("One colour", desc = "Swaps the diorite to one colour rather than pillar based colour.")
     private val colour by selector("Colour", "None", COLS).visibleIf { oneColour }//.childOf(::oneColour)
 
-    private val pillars = arrayOf(BlockPos(46, 169, 41), BlockPos(46, 169, 65), BlockPos(100, 169, 65), BlockPos(100, 169, 41))
+    private val pillars = arrayOf(
+        BlockPos(46, 169, 41),
+        BlockPos(46, 169, 65),
+        BlockPos(100, 169, 65),
+        BlockPos(100, 169, 41)
+    )
     private val pillarColors = intArrayOf(5, 4, 10, 14)
 
     private val coordinates: Array<Set<BlockPos>> = Array(4) { pillarIndex ->

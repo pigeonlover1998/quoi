@@ -1,9 +1,7 @@
 package quoi.api.autoroutes.nodes
 
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
-import net.minecraft.client.player.LocalPlayer
 import net.minecraft.world.phys.Vec3
-import quoi.QuoiMod.mc
 import quoi.api.autoroutes.RouteNode
 import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
@@ -12,12 +10,12 @@ import quoi.config.TypeName
 import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes
 import quoi.utils.addVec
 import quoi.utils.getDirection
-import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
 import quoi.utils.getLook
 import quoi.utils.rayCastVec
 import quoi.utils.render.drawLine
-import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels
 import quoi.utils.skyblock.item.ItemUtils.skyblockId
+import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels
+import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
 import quoi.utils.skyblock.player.SwapManager
 
 @TypeName("etherwarp")
@@ -52,7 +50,7 @@ class EtherwarpNode : RouteNode() {
         realTarget = room.getRealCoords(target)
     }
 
-    override fun execute(player: LocalPlayer, pos: MutableVec3): Boolean {
+    override fun execute(pos: MutableVec3): Boolean {
 //        if (player.mainHandItem.skyblockId != "ASPECT_OF_THE_VOID") {
 //            return !SwapManager.swapById("ASPECT_OF_THE_VOID").success
 //        }
@@ -85,7 +83,7 @@ class EtherwarpNode : RouteNode() {
         return true
     }
 
-    override fun create(player: LocalPlayer, room: OdonRoom): RouteNode? {
+    override fun create(room: OdonRoom): RouteNode? {
         val res = rayCastVec()
         if (!res.succeeded) return null
         val vec = res.vec
@@ -99,7 +97,7 @@ class EtherwarpNode : RouteNode() {
         val col = if (this.chain != null) Colour.GREEN else Colour.WHITE
         val final = if (yaw != null) Colour.ORANGE else col
 
-        val inside = inside(mc.player!!)
+        val inside = inside()
         val actualFinal = if (inside) Colour.CYAN else final
         val thickness = if (inside) 3f else 1.5f
         ctx.drawLine(listOf(pos, realTarget), actualFinal, depth = true, thickness = thickness)

@@ -1,6 +1,5 @@
 package quoi.api.autoroutes.nodes
 
-import net.minecraft.client.player.LocalPlayer
 import quoi.api.autoroutes.RouteNode
 import quoi.api.colour.Colour
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
@@ -26,12 +25,12 @@ class RotateNode : RouteNode() {
         realYaw = room.getRealYaw(yaw)
     }
 
-    override fun execute(player: LocalPlayer, pos: MutableVec3): Boolean {
+    override fun execute(pos: MutableVec3): Boolean {
         player.rotate(realYaw, pitch)
         return true
     }
 
-    override fun create(player: LocalPlayer, room: OdonRoom): RouteNode {
+    override fun create(room: OdonRoom): RouteNode {
         yaw = room.getRelativeYaw(player.yaw)
         pitch = player.pitch
         return this

@@ -20,8 +20,12 @@ import quoi.module.settings.Setting.Companion.gson
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.literal
 import quoi.utils.SoundUtils
+import quoi.utils.WorldUtils.state
 import quoi.utils.floorPos
+import quoi.utils.gameMode
 import quoi.utils.key
+import quoi.utils.level
+import quoi.utils.player
 import quoi.utils.skyblock.item.ItemUtils.getBreakerCharges
 import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.RotationUtils.pitch
@@ -33,7 +37,7 @@ import java.util.*
 object PlayerUtils {
 
     inline val breakerSlot: Int?
-        get() = (0..8).find { getBreakerCharges(mc.player?.inventory?.getItem(it) ?: ItemStack.EMPTY) > 0 }
+        get() = (0..8).find { getBreakerCharges(player.inventory.getItem(it)) > 0 }
 
     fun setTitle(
         title: String,
@@ -54,8 +58,7 @@ object PlayerUtils {
         }
     }
 
-    fun interact(hitResult: BlockHitResult? = null, swing: Boolean = false) = mc.player?.let { player ->
-        val gameMode = mc.gameMode ?: return@let
+    fun interact(hitResult: BlockHitResult? = null, swing: Boolean = false) {
         val hand = InteractionHand.MAIN_HAND
         if (hitResult == null) gameMode.useItem(player, hand)
         else gameMode.useItemOn(player, hand, hitResult)
@@ -72,7 +75,7 @@ object PlayerUtils {
 
     fun LocalPlayer.eyePosition(forceSneak: Boolean = false) = Vec3(x, y + eyeHeight(forceSneak), z)
 
-    fun LocalPlayer.useItem(yaw: Number = this.yaw, pitch: Number = this.pitch) = mc.gameMode?.startPrediction { sequence ->
+    fun LocalPlayer.useItem(yaw: Number = this.yaw, pitch: Number = this.pitch) = gameMode.startPrediction { sequence ->
         ServerboundUseItemPacket(
             InteractionHand.MAIN_HAND,
             sequence,
@@ -97,14 +100,13 @@ object PlayerUtils {
         val hit = mc.hitResult as? BlockHitResult ?: return false
         if (hit.type != HitResult.Type.BLOCK) return false
 
-        val state = mc.level?.getBlockState(hit.blockPos) ?: return false
+        val state = hit.blockPos.state
         return !state.isAir && state.fluidState.isEmpty
     }
 
     fun LocalPlayer.at(pos: BlockPos) = this.position().floorPos == pos
 
     fun getItemsAmount(itemId: String): Int {
-        val player = mc.player ?: return 0
         var amount = 0
 
         for (stack in player.inventory) {
@@ -119,7 +121,7 @@ object PlayerUtils {
     }
 
     fun fillItemFromSack(itemId: String, amount: Int, sackName: String) {
-        val needed = mc.player?.inventory?.find { it.skyblockId == itemId }?.count ?: 0
+        val needed = player.inventory.find { it.skyblockId == itemId }?.count ?: 0
         if (needed != amount) ChatUtils.command("gfs $sackName ${amount - needed}")
     }
 

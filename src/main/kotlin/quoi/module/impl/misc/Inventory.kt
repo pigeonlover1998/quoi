@@ -143,7 +143,7 @@ object Inventory : Module(
                         init { usingCtx = true }
                         override fun drawCtx() {
                             withScale {
-                                ctx.drawEntity(mc.player as LivingEntity, 0, 0, width.toInt(), height.toInt(), 30f, yaw = -45f to 45f)
+                                ctx.drawEntity(player as LivingEntity, 0, 0, width.toInt(), height.toInt(), 30f, yaw = -45f to 45f)
                             }
                         }
                     }.add()

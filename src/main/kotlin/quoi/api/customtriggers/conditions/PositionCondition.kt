@@ -9,12 +9,12 @@ import quoi.config.TypeName
 import quoi.utils.ThemeManager.theme
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.AABB
+import quoi.utils.player
 
 @TypeName("player_position")
 class PositionCondition(var aabb: AABB = AABB(BlockPos(0, 0, 0))) : TriggerCondition {
 
     override fun matches(ctx: TriggerContext): Boolean {
-        val player = mc.player ?: return false
         return aabb.intersects(player.boundingBox)
     }
 
