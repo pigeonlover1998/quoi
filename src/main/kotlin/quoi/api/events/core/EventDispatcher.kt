@@ -46,7 +46,7 @@ object EventDispatcher : Shortcuts {
                 lastWorld = world
             }
 
-            if (!tabLoaded && !connection.listedOnlinePlayers.isNullOrEmpty()) {
+            if (!tabLoaded && !mc.connection?.listedOnlinePlayers.isNullOrEmpty()) {
                 tabLoaded = true
                 WorldEvent.Load.End().post()
             }
