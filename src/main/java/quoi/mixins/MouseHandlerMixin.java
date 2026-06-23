@@ -1,7 +1,7 @@
 package quoi.mixins;
 
 import quoi.api.events.MouseEvent;
-import quoi.module.impl.misc.Chat;
+import quoi.module.impl.misc.chat.impl.ChatPeek;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.input.MouseButtonInfo;
@@ -22,8 +22,8 @@ public class MouseHandlerMixin {
     private void onMouseScroll(long window, double horizontal, double vertical, CallbackInfo ci) {
         if (checkShit(window)) return;
 
-        if (Chat.isDown()) {
-            Chat.scroll((int) vertical);
+        if (ChatPeek.isDown()) {
+            ChatPeek.scroll((int) vertical);
             ci.cancel();
         }
 

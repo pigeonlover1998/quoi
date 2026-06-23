@@ -3,7 +3,7 @@ package quoi.module.impl.misc
 import quoi.api.events.ChatEvent
 import quoi.api.events.core.on
 import quoi.module.Module
-import quoi.module.impl.misc.Chat.socialCommands
+import quoi.module.impl.misc.chat.impl.ChatBypass.socialCommands
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.ChatUtils.say
 import quoi.utils.StringUtils.noControlCodes

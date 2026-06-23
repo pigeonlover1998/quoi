@@ -4,9 +4,8 @@ import quoi.api.events.ChatEvent;
 import quoi.mixininterfaces.IGuiMessage;
 import quoi.mixininterfaces.IChatComponent;
 import quoi.mixininterfaces.ISearchMode;
-import quoi.module.impl.misc.Chat;
+import quoi.module.impl.misc.chat.Chat;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,6 +25,7 @@ import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
+import quoi.module.impl.misc.chat.impl.ChatPeek;
 
 @Mixin(ChatComponent.class)
 public abstract class ChatComponentMixin implements IChatComponent {
@@ -119,7 +119,7 @@ public abstract class ChatComponentMixin implements IChatComponent {
             argsOnly = true
     )
     private ChatComponent.DisplayMode renderFocused(ChatComponent.DisplayMode mode) {
-        return Chat.displayMode(mode);
+        return ChatPeek.displayMode(mode);
     }
 
     @ModifyExpressionValue(
@@ -130,7 +130,7 @@ public abstract class ChatComponentMixin implements IChatComponent {
             )
     )
     private boolean focusWhenPeeking(boolean original) {
-        return original || Chat.isDown();
+        return original || ChatPeek.isDown();
     }
 
 }

@@ -11,6 +11,7 @@ import quoi.module.impl.dungeon.autoclear.impl.*
 import quoi.module.impl.dungeon.puzzlesolvers.PuzzleSolvers
 import quoi.module.impl.mining.*
 import quoi.module.impl.misc.*
+import quoi.module.impl.misc.chat.Chat
 import quoi.module.impl.misc.riftsolvers.MirrorverseSolvers
 import quoi.module.impl.player.*
 import quoi.module.impl.render.*

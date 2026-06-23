@@ -13,7 +13,7 @@ import quoi.api.skyblock.Location.inSkyblock
 import quoi.api.skyblock.Location.subarea
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.ModuleManager
-import quoi.module.impl.misc.Chat
+import quoi.module.impl.misc.chat.Chat
 import quoi.module.impl.render.ClickGui.clickGui
 import quoi.utils.ChatUtils.command
 import quoi.utils.ChatUtils.literal
@@ -34,6 +34,7 @@ import quoi.api.events.core.EventDispatcher
 import quoi.api.events.core.EventListener
 import quoi.api.events.core.until
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
+import quoi.module.impl.misc.chat.impl.CompactChat
 import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.addVec
 import quoi.utils.skyblock.player.RotationUtils.rotate
@@ -243,7 +244,7 @@ object QuoiCommand : EventListener {
         command.register()
         devCommand.register()
 
-        BaseCommand("clearchat") { mc.gui.chat.clearMessages(false); Chat.chatList.clear() }.register()
+        BaseCommand("clearchat") { mc.gui.chat.clearMessages(false); CompactChat.chatList.clear() }.register()
 
         Floors.entries.forEach { floor ->
             BaseCommand(floor.name.lowercase()) {
