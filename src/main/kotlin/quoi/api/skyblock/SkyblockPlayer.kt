@@ -143,8 +143,8 @@ object SkyblockPlayer : EventListener, Shortcuts {
         scheduleLoop {
             val name = player.inventory.getItem(39).displayName.string
             currentMask = when {
-                name?.contains("Bonzo") == true -> Mask.BONZO
-                name?.contains("Spirit") == true -> Mask.SPIRIT
+                name.contains("Bonzo") -> Mask.BONZO
+                name.contains("Spirit") -> Mask.SPIRIT
                 else -> Mask.NONE
             }
         }

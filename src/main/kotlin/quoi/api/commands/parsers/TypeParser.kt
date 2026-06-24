@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import java.lang.reflect.Type
 
+@Suppress("platform_class_mapped_to_kotlin")
 object TypeParser {
 fun getBrigadierType(type: Type): ArgumentType<*> {
     return when (type) {

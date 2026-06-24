@@ -6,7 +6,6 @@ import com.google.gson.*
 import com.google.gson.internal.Streams
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
-import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.Vec3
@@ -16,6 +15,7 @@ import quoi.api.autoroutes.RouteNode
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.modMessage
 import java.io.File
+import java.lang.reflect.Type
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import kotlin.properties.ReadOnlyProperty
@@ -27,8 +27,8 @@ import kotlin.reflect.full.findAnnotation
 val configPath = File("config/quoi!")
 object ConfigSystem {
     val gson: Gson = GsonBuilder()
-        .registerTypeAdapter(Vec3::class.java, Vec3Adapter())
-        .registerTypeAdapter(BlockPos::class.java, BlockPosAdapter())
+        .registerTypeHierarchyAdapter(Vec3::class.java, Vec3Adapter())
+        .registerTypeHierarchyAdapter(BlockPos::class.java, BlockPosAdapter())
         .registerTypeAdapterFactory(typeAdapter<TriggerAction>())
         .registerTypeAdapterFactory(typeAdapter<TriggerCondition>())
         .registerTypeAdapterFactory(routeNodeAdapter<RouteNode>(RouteRegistry._nodeTypes))
@@ -264,74 +264,48 @@ inline fun <reified T : TypeNamed> routeNodeAdapter(
 }
 
 
-class Vec3Adapter : TypeAdapter<Vec3>() {
-    override fun write(out: JsonWriter, value: Vec3?) {
-        if (value == null) {
-            out.nullValue()
-            return
-        }
-        out.beginObject()
-        out.name("x").value(value.x)
-        out.name("y").value(value.y)
-        out.name("z").value(value.z)
-        out.endObject()
+class Vec3Adapter : JsonSerializer<Vec3>, JsonDeserializer<Vec3> {
+
+    override fun serialize(src: Vec3?, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
+        if (src == null) return JsonNull.INSTANCE
+        val obj = JsonObject()
+        obj.addProperty("x", src.x)
+        obj.addProperty("y", src.y)
+        obj.addProperty("z", src.z)
+        return obj
     }
 
-    override fun read(reader: JsonReader): Vec3? {
-        if (reader.peek() == JsonToken.NULL) {
-            reader.nextNull()
-            return null
-        }
-        var x = 0.0
-        var y = 0.0
-        var z = 0.0
+    override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): Vec3? {
+        if (json == null || json.isJsonNull) return null
+        val obj = json.asJsonObject
 
-        reader.beginObject()
-        while (reader.hasNext()) {
-            when (reader.nextName()) {
-                "x" -> x = reader.nextDouble()
-                "y" -> y = reader.nextDouble()
-                "z" -> z = reader.nextDouble()
-                else -> reader.skipValue()
-            }
-        }
-        reader.endObject()
+        val x = obj.get("x")?.asDouble ?: 0.0 // todo figure whatever obf shit it had
+        val y = obj.get("y")?.asDouble ?: 0.0
+        val z = obj.get("z")?.asDouble ?: 0.0
+
         return Vec3(x, y, z)
     }
 }
 
-class BlockPosAdapter : TypeAdapter<BlockPos>() {
-    override fun write(out: JsonWriter, value: BlockPos?) {
-        if (value == null) {
-            out.nullValue()
-            return
-        }
-        out.beginObject()
-        out.name("x").value(value.x.toDouble())
-        out.name("y").value(value.y.toDouble())
-        out.name("z").value(value.z.toDouble())
-        out.endObject()
+class BlockPosAdapter : JsonSerializer<BlockPos>, JsonDeserializer<BlockPos> {
+
+    override fun serialize(src: BlockPos?, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
+        if (src == null) return JsonNull.INSTANCE
+        val obj = JsonObject()
+        obj.addProperty("x", src.x)
+        obj.addProperty("y", src.y)
+        obj.addProperty("z", src.z)
+        return obj
     }
 
-    override fun read(reader: JsonReader): BlockPos? {
-        if (reader.peek() == JsonToken.NULL) {
-            reader.nextNull()
-            return null
-        }
-        var x = 0
-        var y = 0
-        var z = 0
+    override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): BlockPos? {
+        if (json == null || json.isJsonNull) return null
+        val obj = json.asJsonObject
 
-        reader.beginObject()
-        while (reader.hasNext()) {
-            when (reader.nextName()) {
-                "x", "field_11175" -> x = reader.nextDouble().toInt()
-                "y", "field_11174" -> y = reader.nextDouble().toInt()
-                "z", "field_11173" -> z = reader.nextDouble().toInt()
-                else -> reader.skipValue()
-            }
-        }
-        reader.endObject()
+        val x = (obj.get("x") ?: obj.get("field_11175"))?.asInt ?: 0
+        val y = (obj.get("y") ?: obj.get("field_11174"))?.asInt ?: 0
+        val z = (obj.get("z") ?: obj.get("field_11173"))?.asInt ?: 0
+
         return BlockPos(x, y, z)
     }
 }
