@@ -38,7 +38,7 @@ import quoi.module.settings.impl.SwitchComponent
  * @param default Initial enabled/disabled state of the switch
  * @param desc Description for the switch.
  */
-abstract class ToggleableGroup( // todo impl
+abstract class ToggleableGroup(
     module: Module,
     name: String,
     default: Boolean = false,

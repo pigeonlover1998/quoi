@@ -13,11 +13,10 @@ import quoi.api.skyblock.dungeon.P3Section
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf
-import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.skyblock.player.LeapManager
 
 // Kyleen (maybe)
-object AutoLeap : Module( // todo clean up
+object AutoLeap : Module(
     "Auto Leap",
     desc = "Automatically leaps to predefined targets.",
     area = Island.Dungeon,

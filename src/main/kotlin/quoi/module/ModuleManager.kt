@@ -41,7 +41,6 @@ object ModuleManager : EventListener {
             NecronPlatformHighlight,
 //            DungeonMap,
             TerminalAura,
-            AutoMask,
             TickTimers,
             DungeonESP,
             FuckDiorite,

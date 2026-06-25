@@ -13,10 +13,8 @@ object Tweaks : Module(
     @JvmStatic val instantSneak by switch("Instant sneak", desc = "Instantly moves your camera when sneaking.")
 
     private val skyblockOnly by text("Skyblock only", desc = "Hypixel skyblock only features")
-    @JvmStatic val legacySneakHeight by switch("Legacy sneak height", desc = "Reverts sneak height to pre 1.13 height.").childOf(::skyblockOnly)
-    @JvmStatic val disableCrawling by switch("Disable crawling", desc = "Disables crawling animation (does not disable swimming).").childOf(::skyblockOnly)
     @JvmStatic val disableItemCooldowns by switch("Disable item cooldowns", desc = "Disables item cooldowns such as ender pearls.").childOf(::skyblockOnly)
-    @JvmStatic val fixInteract by switch("Fix interaction", desc = "Fixes a bug where you can't interact when SA jumps the player.").childOf(::skyblockOnly) // todo move to no interact module
+    @JvmStatic val fixInteract by switch("Fix interaction", desc = "Fixes a bug where you can't interact when SA jumps the player.").childOf(::skyblockOnly)
 
     @JvmStatic
     fun should(condition: Boolean): Boolean = this.enabled && condition // idkman

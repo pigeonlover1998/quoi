@@ -12,7 +12,6 @@
   ],
   "client": [
     "AbstractContainerScreenMixin",
-    "AvatarMixin",
     "BlockBehaviourMixin",
     "ButtonBlockMixin",
     "CameraMixin",

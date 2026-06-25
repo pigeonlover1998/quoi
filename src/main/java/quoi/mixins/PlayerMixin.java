@@ -17,18 +17,6 @@ import static quoi.module.impl.player.Tweaks.shouldSb;
 @Mixin(Player.class)
 public class PlayerMixin {
 
-    @WrapOperation(
-            method = "updatePlayerPose",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/player/Player;setPose(Lnet/minecraft/world/entity/Pose;)V"
-            )
-    )
-    private void disableSwim(Player instance, Pose pose, Operation<Void> original) {
-        if (shouldSb(Tweaks.getDisableCrawling()) && pose == Pose.SWIMMING && !instance.isInWater()) return;
-        original.call(instance, pose);
-    }
-
     @ModifyExpressionValue(
             method = {"causeExtraKnockback", "doSweepAttack"},
             at = @At(

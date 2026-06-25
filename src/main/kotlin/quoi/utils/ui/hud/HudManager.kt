@@ -43,7 +43,7 @@ import quoi.utils.ui.screens.UIScreen.Companion.open
 import kotlin.collections.forEach
 import kotlin.math.abs
 
-object HudManager : EventListener { // todo add hud grouping
+object HudManager : EventListener {
     val huds = arrayListOf<Hud>()
     var stupid = false
 

@@ -21,7 +21,7 @@ import kotlin.reflect.KProperty0
  * @param module The [Module] that owns this group
  * @param parent The [UIComponent] that serves as the header and uI parent for this group.
  */
-open class SettingGroup( // todo impl
+open class SettingGroup(
     val module: Module,
     val parent: UIComponent<*>
 ) : SettingsDSL(), Shortcuts, EventListener {

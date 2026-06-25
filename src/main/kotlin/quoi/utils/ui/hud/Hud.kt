@@ -101,7 +101,7 @@ open class Hud(
     inner class Element : Group(constrain(x.value.percent, y.value.percent, IsolatedBounding, IsolatedBounding)) {
 
         override var enabled: Boolean = true
-            get() = field && (this@Hud.module.enabled || this@Hud.module.alwaysActive) && (this@Hud.enabled || !this@Hud.toggleable)
+            get() = field && (this@Hud.module.running) && (this@Hud.enabled || !this@Hud.toggleable)
 
         override var usingCtx: Boolean = true
 

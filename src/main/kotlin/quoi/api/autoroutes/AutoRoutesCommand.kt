@@ -203,7 +203,7 @@ object AutoRoutesCommand : EventListener {
         }.description("Sets the chain for newly placed rings.")
         .suggests { routeNodes[room.name]?.mapNotNull { it.chain?.name }?.distinct() ?: emptyList<String>() }
 
-        ar.sub("convert") { from: String -> // todo add a warning that the routes will NOT be perfect at all
+        ar.sub("convert") { from: String ->
             val name = when (from) {
                 "legacy" -> "auto_routes"
                 "rsa"    -> "rsa"
