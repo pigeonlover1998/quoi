@@ -69,7 +69,7 @@ class HudComponent<T : Hud>(
                     val dummy = value.settings.first() as UIComponent<*>
                     val asSub = setting in dummy.children && !setting.children.isNotEmpty() && !setting.forceParent
                     setting.render(this, asSub).onEvent(setting.valueUpdated) {
-                        HudManager.reinit()
+                        value.rebuild()
                         true
                     }
                 }
@@ -158,7 +158,9 @@ class HudComponent<T : Hud>(
                 cursor(CursorShape.HAND)
                 onClick(nonSpecific = true) {
                     popup?.closePopup()
-                    popup = settings(at(popupX(gap = if (asSub) 10f else 35f), popupY()), value, { popup = null }) { HudManager.reinit() }
+                    popup = settings(at(popupX(gap = if (asSub) 10f else 35f), popupY()), value, { popup = null }) {
+                        value.rebuild()
+                    }
                     true
                 }
             }

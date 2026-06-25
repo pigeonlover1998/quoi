@@ -37,8 +37,10 @@ class TextHud(
         val element = base.element
 
         anchorSetting?.onValueChanged { _, _ ->
-            savePosition(element, element.ui.main.width, element.ui.main.height)
-            base.rebuildHuds()
+            if (element.ui.initialised) {
+                savePosition(element, element.ui.main.width, element.ui.main.height)
+                base.rebuildHuds()
+            }
         }
 
         element.constraints.x = Alignment.Relative(x.value.percent, anchor.x)

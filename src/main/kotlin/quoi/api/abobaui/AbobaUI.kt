@@ -95,7 +95,7 @@ class AbobaUI(val title: String) {
     }
 
     fun addOperation(operation: Operation) {
-        operations.add(operation)
+        if (!operation.run()) operations.add(operation)
     }
 
     class Instance(

@@ -62,8 +62,11 @@ object HudManager : EventListener { // todo add hud grouping
                 huds.forEach { hud ->
                     if (!hud.inContainer) return@forEach
                     val element = hud.Element()
+                    hud.element = element
                     element.add()
-                    Hud.Scope(element, preview = false).apply { hud.builder(this) }
+                    val scope = Hud.Scope(element, preview = false)
+                    hud.scope = scope
+                    hud.builder(scope)
                 }
             }, cancelling = false).apply { open() }
         }
@@ -88,8 +91,11 @@ object HudManager : EventListener { // todo add hud grouping
             huds.forEach { hud ->
                 if (hud.inContainer) return@forEach
                 val element = hud.Element()
+                hud.element = element
                 element.add()
-                Hud.Scope(element, preview = false).apply { hud.builder(this) }
+                val scope = Hud.Scope(element, preview = false)
+                hud.scope = scope
+                hud.builder(scope)
             }
         }).apply { open() }
     }
@@ -533,8 +539,10 @@ object HudManager : EventListener { // todo add hud grouping
                             val asSub = setting in dummy.children && setting.children.isNotEmpty() && !setting.forceParent
                             setting.render(this, asSub).onEvent(setting.valueUpdated) {
                                 val cs = setting as? ColourPickerComponent
-                                if (cs?.rainbow != wasRainbow) onValue()
-                                wasRainbow = cs?.rainbow ?: false
+                                val rainbow = cs?.rainbow ?: false
+                                if (cs != null && rainbow && wasRainbow) return@onEvent true
+                                wasRainbow = rainbow
+                                onValue()
                                 true
                             }
                         }
@@ -563,6 +571,7 @@ object HudManager : EventListener { // todo add hud grouping
                                 hud.settings.drop(if (hudElement == null) 0 else 3).forEach { // schizo, idc
                                     it.reset()
                                 }
+                                onValue()
                                 thickness.animate(0.25.seconds, style = Animation.Style.EaseInOutQuint)?.onFinish {
                                     scheduleTask { thickness.animate(0.25.seconds, style = Animation.Style.EaseInOutQuint) }
                                 }
