@@ -45,7 +45,6 @@ object GrieferTracker : Module(
     private val dontGrief by ListSetting("Do not grief", mutableListOf("Morph213", "UgduBugdu", "ShortNotice"))
 
     private val hud by textHud("Tracker hud", toggleable = false) {
-        visibleIf { currentArea == Island.CrystalHollows }
         column {
             stupid.forEach { (text, supplier) ->
                 textPair(

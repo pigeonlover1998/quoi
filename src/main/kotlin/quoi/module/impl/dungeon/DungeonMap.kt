@@ -67,7 +67,6 @@ object DungeonMap : Module(
     val nameScale by slider("Name scale", 0.8f, 0.1f, 3.0f, 0.1f).childOf(::showNames)
 
     private val map by hud("Dungeon map", toggleable = false) {
-        visibleIf { inClear }
         renderMap(config = MapConfig(font = font.selected.get()))
     }.withSettings(
         ::shadow, ::font, ::fontScale,

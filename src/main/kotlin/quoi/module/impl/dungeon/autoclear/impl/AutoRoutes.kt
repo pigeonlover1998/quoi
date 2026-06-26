@@ -65,7 +65,7 @@ object AutoRoutes : Module(
         type to set
     }
 
-    var active = false
+    var executing = false
         private set
     var editMode = false
     var breakerRing: BreakerNode? = null
@@ -97,7 +97,7 @@ object AutoRoutes : Module(
 
             if (editMode || roomNodes.isEmpty() || ClearExecutor.active) {
                 position = null
-                active = false
+                executing = false
                 return@on
             }
 
@@ -129,7 +129,7 @@ object AutoRoutes : Module(
         }
 
         on<MouseEvent.Click> {
-            if (button != 0 || !state || active) return@on
+            if (button != 0 || !state || executing) return@on
             val pos = position ?: return@on
 
             val nodes = roomNodes.filter { it.inside(pos) }.sortedByDescending { it.priority }
@@ -147,10 +147,10 @@ object AutoRoutes : Module(
                     lastChainIndex = it.index
                 }
                 position = pos
-                active = false
+                executing = false
             } else {
                 node.triggered = false
-                active = true
+                executing = true
             }
         }
 
@@ -225,7 +225,7 @@ object AutoRoutes : Module(
 
         if (interactDelay > 0) return
 
-        if (!active && !node.checkAwaits()) return
+        if (!executing && !node.checkAwaits()) return
 
         if (node.execute(playerPos)) {
             node.triggered = true
@@ -233,10 +233,10 @@ object AutoRoutes : Module(
                 lastChainName = it.name
                 lastChainIndex = it.index
             }
-            active = false
+            executing = false
         } else {
             position = null
-            active = true
+            executing = true
         }
     }
 

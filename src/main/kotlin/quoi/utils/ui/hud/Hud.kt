@@ -16,6 +16,7 @@ import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.impl.TextComponent
 import quoi.module.settings.impl.SliderComponent
 import quoi.utils.inGame
+import quoi.utils.ui.inHudEditor
 import quoi.utils.ui.settingFromK0
 import kotlin.reflect.KProperty0
 
@@ -101,7 +102,10 @@ open class Hud(
     inner class Element : Group(constrain(x.value.percent, y.value.percent, IsolatedBounding, IsolatedBounding)) {
 
         override var enabled: Boolean = true
-            get() = field && (this@Hud.module.running) && (this@Hud.enabled || !this@Hud.toggleable)
+            get() =
+                field &&
+                (if (inHudEditor) this@Hud.module.running else this@Hud.module.active) &&
+                (this@Hud.enabled || !this@Hud.toggleable)
 
         override var usingCtx: Boolean = true
 

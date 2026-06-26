@@ -36,7 +36,6 @@ object Splits : Module( // todo section split info hud, task (terms, levers, dev
 
     private val hud by textHud("Splits hud", toggleable = false) {
         refreshable = refreshableGroup(bounds()) {
-            visibleIf { inDungeons }
 
             val splits = (if (preview) previewSplits else SplitsManager.currentSplits)
 

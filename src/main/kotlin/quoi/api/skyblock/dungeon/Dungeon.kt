@@ -48,13 +48,13 @@ object Dungeon : EventListener, Shortcuts {
         get() = Location.currentArea.isArea(Island.Dungeon)
 
     inline val inClear: Boolean
-        get() = inDungeons && !inBoss
+        get() = inGame && inDungeons && !inBoss
 
     var floor: Floor? = null
         private set
 
     inline val inBoss: Boolean
-        get() = getBoss()
+        get() = inGame && getBoss()
 
     inline val inP3: Boolean
         get() = p3Section != P3Section.Unknown

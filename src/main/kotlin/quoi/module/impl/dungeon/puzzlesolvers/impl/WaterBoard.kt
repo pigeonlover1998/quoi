@@ -48,7 +48,7 @@ object WaterBoard : SettingGroup(PuzzleSolvers, "Water board"), Repositionable {
 
     init {
         scheduleLoop(10) {
-            if (!module.running) return@scheduleLoop
+            if (!module.active) return@scheduleLoop
             if (solver || auto) scan(optimised)
         }
 

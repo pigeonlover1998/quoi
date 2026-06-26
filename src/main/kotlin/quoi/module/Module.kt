@@ -38,6 +38,9 @@ abstract class Module(
     override val running: Boolean
         get() = enabled || alwaysActive
 
+    inline val active: Boolean
+        get() = running && inEnvironment()
+
     override fun shouldHandle(event: Event): Boolean = when (event) {
         is UnfilteredEvent -> inArea() && inSubarea()
         else -> inEnvironment()

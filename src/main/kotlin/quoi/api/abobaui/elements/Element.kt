@@ -91,7 +91,7 @@ abstract class Element(
     open fun drawCtx() {}
 
     fun render() {
-        if (ui.nvgPass && redraw) {
+        if (!ui.nvgPass && redraw) {
             redraw = false
             size()
             positionChildren()
