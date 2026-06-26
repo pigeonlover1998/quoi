@@ -9,13 +9,22 @@ import kotlin.math.pow
  *
  * Helps assist in interpolating values, which is usually used to smoothly animate something
  *
+ * @param from Starting value
+ * @param to Target value
  * @param duration Duration time in nanoseconds.
  * @param style Style of the animations
+ * @param lerp Custom interpolation function
  */
 class Animation(
+    var from: Float = 0f,
+    var to: Float = 1f,
     private var duration: Float,
-    private var style: Style
+    private var style: Style,
+    private val lerp: (from: Float, to: Float, progress: Float) -> Float = { f, t, p -> f + (t - f) * p }
 ) {
+
+    constructor(duration: Float, style: Style) : this(0f, 1f, duration, style)
+
     private var time: Long = System.nanoTime()
 
     /**
@@ -27,7 +36,10 @@ class Animation(
 
     private var onFinish: (() -> Unit)? = null
 
-    fun get(): Float {
+    /**
+     * returns progress from 0.0 to 1.0
+     */
+    fun getProgress(): Float {
         val percent = ((System.nanoTime() - time) / duration)
         if (percent >= 1f) {
             finished = true
@@ -37,11 +49,31 @@ class Animation(
     }
 
     /**
+     * returns interpolated float value
+     */
+    fun get(): Float {
+        if (finished) return to
+        return lerp(from, to, getProgress())
+    }
+
+    /**
      * Adds a function for this animation to run when it is finished.
      */
     fun onFinish(block: () -> Unit): Animation {
         onFinish = block
         return this
+    }
+
+    /**
+     * updates the target value continuing from the current position
+     */
+    fun retarget(newTo: Float, duration: Float, style: Style = this.style) {
+        this.from = get()
+        this.to = newTo
+        this.duration = duration
+        this.style = style
+        this.time = System.nanoTime()
+        this.finished = false
     }
 
     /**
