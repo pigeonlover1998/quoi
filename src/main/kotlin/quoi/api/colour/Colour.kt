@@ -1,7 +1,7 @@
 package quoi.api.colour
 
 import quoi.api.animations.Animation
-import quoi.module.impl.render.ClickGui.rainbowSpeed
+import quoi.module.impl.render.clickgui.impl.VisualsSettings.rainbowSpeed
 import kotlin.math.roundToInt
 import java.awt.Color as JavaColour
 

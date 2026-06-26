@@ -1,9 +1,9 @@
 package quoi.utils
 
 import quoi.QuoiMod.mc
-import quoi.module.impl.render.ClickGui.bracketsColour
-import quoi.module.impl.render.ClickGui.prefixColour
-import quoi.module.impl.render.ClickGui.prefixText
+import quoi.module.impl.render.clickgui.impl.PrefixSettings.bracketsColour
+import quoi.module.impl.render.clickgui.impl.PrefixSettings.prefixColour
+import quoi.module.impl.render.clickgui.impl.PrefixSettings.prefixText
 import quoi.utils.StringUtils.noControlCodes
 import net.fabricmc.fabric.impl.command.client.ClientCommandInternals
 import net.minecraft.client.multiplayer.chat.GuiMessage

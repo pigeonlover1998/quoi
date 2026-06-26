@@ -24,7 +24,7 @@ import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.module.impl.dungeon.LeapMenu
-import quoi.module.impl.render.ClickGui
+import quoi.module.impl.render.clickgui.ClickGui
 import quoi.utils.Shortcuts
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.equalsOneOf

@@ -5,8 +5,7 @@ import quoi.api.abobaui.dsl.px
 import quoi.api.colour.Colour
 import quoi.api.colour.colour
 import quoi.api.colour.toHSB
-import quoi.module.impl.render.ClickGui.seedColour
-import quoi.module.impl.render.ClickGui.selectedTheme
+import quoi.module.impl.render.clickgui.impl.VisualsSettings
 import quoi.utils.ui.rendering.NVGRenderer.image
 
 // https://m3.material.io/styles/color
@@ -23,7 +22,7 @@ object ThemeManager {
             var cache: Int = -1
 
             return colour {
-                val seed = seedColour.rgb
+                val seed = VisualsSettings.colour.rgb
 
                 if (seed != lastSeed) {
                     val cam = Cam16.fromInt(seed)
@@ -47,7 +46,7 @@ object ThemeManager {
     private val neutralVariantPalette = TonalPalette(chromaOverride = 8.0)
     private val errorPalette = TonalPalette(hueOverride = 25.0, chromaOverride = 84.0)
 
-    val theme get() = when(selectedTheme.selected) {
+    val theme get() = when(VisualsSettings.selectedTheme) {
         "Dark" -> DarkTheme
         "Light" -> LightTheme
         else -> OnyxTheme

@@ -2,7 +2,7 @@ package quoi.module.settings.group
 
 import quoi.api.events.core.EventListener
 import quoi.module.Module
-import quoi.module.impl.render.ClickGui
+import quoi.module.impl.render.clickgui.ClickGui
 import quoi.module.settings.Setting
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.SettingsDSL
@@ -10,6 +10,7 @@ import quoi.module.settings.UIComponent
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.impl.TextComponent
 import quoi.utils.Shortcuts
+import quoi.utils.ui.hud.HudDSL
 import kotlin.reflect.KProperty0
 
 /**
@@ -24,7 +25,7 @@ import kotlin.reflect.KProperty0
 open class SettingGroup(
     val module: Module,
     val parent: UIComponent<*>
-) : SettingsDSL(), Shortcuts, EventListener {
+) : SettingsDSL(), HudDSL, Shortcuts, EventListener {
 
     /**
      * Creates a [SettingGroup] with a [TextComponent] as the header
@@ -41,6 +42,9 @@ open class SettingGroup(
             asParent()
         }
     }
+
+    override val hudModule: Module
+        get() = module
 
     override fun parent() = module
 

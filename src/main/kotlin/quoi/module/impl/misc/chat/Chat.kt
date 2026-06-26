@@ -12,10 +12,10 @@ object Chat : Module(
     private val features = setOf(
         ChatBypass,
         ChatPeek,
-        NoChatLimit,
-        KeepChatHistory,
         CompactChat,
         CopyChat,
+        NoChatLimit,
+        KeepChatHistory,
         AutoDialogue
     )
 }

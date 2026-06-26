@@ -22,7 +22,7 @@ import quoi.api.abobaui.elements.impl.refreshableGroup
 import quoi.api.animations.Animation
 import quoi.api.colour.*
 import quoi.api.input.CursorShape
-import quoi.module.impl.render.ClickGui.rainbowSpeed
+import quoi.module.impl.render.clickgui.impl.VisualsSettings.rainbowSpeed
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.*
 import quoi.utils.ui.data.Gradient

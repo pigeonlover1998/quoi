@@ -15,6 +15,10 @@ import quoi.utils.ui.hud.impl.TextHud
 import quoi.utils.ui.inHudEditor
 
 interface HudDSL {
+
+    val hudModule: Module
+        get() = this as Module
+
     fun <T : Hud> T.setting(desc: String = "") = HudComponent(name, this, desc)
 
     fun <T : Hud> T.withTransform(ctx: GuiGraphicsExtractor, block: GuiGraphicsExtractor.() -> Unit) {
@@ -28,7 +32,7 @@ interface HudDSL {
     }
 
     fun hud(name: String, toggleable: Boolean = true, block: Hud.Scope.() -> Unit) =
-        Hud(name, this as Module, toggleable, block)
+        Hud(name, hudModule, toggleable, block)
 
     fun textHud(
         name: String,
@@ -43,7 +47,7 @@ interface HudDSL {
         val fontSetting = font?.let { SegmentedComponent("Font", it) }
         val anchorSetting = anchor?.let { SelectorComponent("Anchor", it) }
 
-        val hud = TextHud(name, this as Module, toggleable, colourSetting, shadowSetting, fontSetting, anchorSetting, block)
+        val hud = TextHud(name, hudModule, toggleable, colourSetting, shadowSetting, fontSetting, anchorSetting, block)
 
         val settings = listOfNotNull<UIComponent<*>>(colourSetting, shadowSetting, fontSetting, anchorSetting).toTypedArray()
         hud.withSettings(*settings)
@@ -66,7 +70,7 @@ interface HudDSL {
         val outlineColour = outline?.let { ColourPickerComponent("Outline colour", it, allowAlpha = true) }
         val outlineThickness = outline?.let { SliderComponent("Outline thickness", thickness, 1f, 10f, increment = 0.5f) }
 
-        val hud = ResizableHud(name, this as Module, toggleable, width, height, colour, outlineColour, outlineThickness, block)
+        val hud = ResizableHud(name, hudModule, toggleable, width, height, colour, outlineColour, outlineThickness, block)
 
         val settings = listOfNotNull<UIComponent<*>>(width, height, colour, outlineColour, outlineThickness).toTypedArray()
         hud.withSettings(*settings)

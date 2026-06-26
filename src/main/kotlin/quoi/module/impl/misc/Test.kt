@@ -18,7 +18,7 @@ import quoi.api.events.core.on
 import quoi.api.skyblock.Location
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.Module
-import quoi.module.impl.render.ClickGui
+import quoi.module.impl.render.clickgui.ClickGui
 import quoi.utils.*
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.formatTime

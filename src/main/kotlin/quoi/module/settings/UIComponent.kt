@@ -11,7 +11,7 @@ import quoi.api.abobaui.events.AbobaEvent
 import quoi.api.abobaui.transforms.impl.Alpha
 import quoi.api.animations.Animation
 import quoi.api.input.CursorShape
-import quoi.module.impl.render.ClickGui.description
+import quoi.module.impl.render.clickgui.ClickGui.description
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.cursor
 import quoi.utils.ui.settingFromK0

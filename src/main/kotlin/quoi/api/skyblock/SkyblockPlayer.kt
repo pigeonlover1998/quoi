@@ -2,6 +2,7 @@ package quoi.api.skyblock
 
 import net.minecraft.world.entity.ai.attributes.Attributes
 import quoi.annotations.Init
+import quoi.annotations.Internal
 import quoi.api.colour.Colour
 import quoi.api.events.ChatEvent
 import quoi.api.events.TickEvent
@@ -11,14 +12,14 @@ import quoi.api.events.core.on
 import quoi.api.skyblock.dungeon.Dungeon.getMageCooldownMultiplier
 import quoi.module.impl.dungeon.InvincibilityTimer.cataLevel
 import quoi.module.impl.dungeon.InvincibilityTimer.mageReduction
-import quoi.module.impl.render.ClickGui.currentPet
-import quoi.module.impl.render.ClickGui.updateCurrentPet
+import quoi.module.impl.render.clickgui.impl.Data
 import quoi.utils.Scheduler.scheduleLoop
 import quoi.utils.Shortcuts
 import quoi.utils.StringUtils.capitaliseFirst
 import kotlin.math.floor
 
 @Init
+@OptIn(Internal::class)
 object SkyblockPlayer : EventListener, Shortcuts {
     inline val health: Int
         get() = player.let { (maxHealth * it.health / it.maxHealth).toInt() }
@@ -60,8 +61,8 @@ object SkyblockPlayer : EventListener, Shortcuts {
     var currentMask: Mask = Mask.NONE
         private set
 
-    inline var currentPet get() = currentPet()
-        set(v) { updateCurrentPet(v) }
+    inline var currentPet get() = Data.currentPet
+        set(v) { Data.currentPet = v }
 
     inline val canUseCommands get() = commandsTick <= 0
 

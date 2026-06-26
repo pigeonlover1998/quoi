@@ -15,7 +15,7 @@ import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
 import quoi.annotations.Init
 import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
-import quoi.module.impl.render.ClickGui
+import quoi.module.impl.render.clickgui.ClickGui
 
 /**
  * modified OdinFabric (BSD 3-Clause)

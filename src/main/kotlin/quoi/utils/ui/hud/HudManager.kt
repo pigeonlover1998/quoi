@@ -38,7 +38,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
 import quoi.module.impl.misc.Test
-import quoi.module.impl.render.ClickGui.clickGui
+import quoi.module.impl.render.clickgui.ClickGui.clickGui
 import quoi.utils.ui.screens.UIScreen.Companion.open
 import kotlin.collections.forEach
 import kotlin.math.abs

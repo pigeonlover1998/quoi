@@ -1,7 +1,7 @@
 package quoi.api.skyblock
 
 import quoi.api.skyblock.dungeon.Dungeon
-import quoi.module.impl.render.ClickGui
+import quoi.module.impl.render.clickgui.ClickGui
 
 enum class Island(val displayName: String, val command: String? = null) {
     SinglePlayer("Singleplayer"),

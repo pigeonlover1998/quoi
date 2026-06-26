@@ -1,12 +1,12 @@
 package quoi.api.pathfinding
 
-import quoi.module.impl.render.ClickGui
+import quoi.module.impl.render.clickgui.impl.PathSettings
 
 data class PathConfig(
-    val yawStep: Float = ClickGui.yawStep,
-    val pitchStep: Float = ClickGui.pitchStep,
-    val hWeight: Double = ClickGui.hWeight,
-    val threads: Int = ClickGui.threads,
-    val timeout: Long = ClickGui.timeout,
+    val yawStep: Float = PathSettings.yawStep,
+    val pitchStep: Float = PathSettings.pitchStep,
+    val hWeight: Double = PathSettings.hWeight,
+    val threads: Int = PathSettings.threads,
+    val timeout: Long = PathSettings.timeout,
     val feedback: Boolean = true
 )

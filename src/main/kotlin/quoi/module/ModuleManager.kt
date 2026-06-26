@@ -20,6 +20,7 @@ import quoi.module.impl.misc.chat.Chat
 import quoi.module.impl.misc.riftsolvers.MirrorverseSolvers
 import quoi.module.impl.player.*
 import quoi.module.impl.render.*
+import quoi.module.impl.render.clickgui.ClickGui
 import quoi.module.settings.impl.KeybindComponent
 
 object ModuleManager : EventListener {
@@ -27,6 +28,7 @@ object ModuleManager : EventListener {
 
     fun initialise() {
         modules += listOf(
+            ClickGui,
             // DUNGEONS
             ShadowAssassinAlert,
             LeapMenu,
@@ -79,7 +81,7 @@ object ModuleManager : EventListener {
             NameTags,
             RenderOptimiser,
             NickHider,
-            ClickGui,
+
             PlayerESP,
             EtherwarpOverlay,
 
