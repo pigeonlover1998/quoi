@@ -1,19 +1,15 @@
 package quoi.mixins;
 
+import org.spongepowered.asm.mixin.injection.*;
 import quoi.api.events.ChatEvent;
 import quoi.mixininterfaces.IGuiMessage;
 import quoi.mixininterfaces.IChatComponent;
 import quoi.mixininterfaces.ISearchMode;
-import quoi.module.impl.misc.chat.Chat;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
@@ -26,6 +22,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
 import quoi.module.impl.misc.chat.impl.ChatPeek;
+import quoi.module.impl.misc.chat.impl.KeepChatHistory;
+import quoi.module.impl.misc.chat.impl.NoChatLimit;
 
 @Mixin(ChatComponent.class)
 public abstract class ChatComponentMixin implements IChatComponent {
@@ -131,6 +129,39 @@ public abstract class ChatComponentMixin implements IChatComponent {
     )
     private boolean focusWhenPeeking(boolean original) {
         return original || ChatPeek.isDown();
+    }
+
+    // from: https://github.com/jcnlk/quoi/blob/ac3574b5370e8d8327c65dcca81245f33afb2eab/src/main/java/quoi/mixins/ChatComponentMixin.java#L169
+    @ModifyExpressionValue(
+            method = {
+                    "addMessageToDisplayQueue(Lnet/minecraft/client/multiplayer/chat/GuiMessage;)V",
+                    "addMessageToQueue(Lnet/minecraft/client/multiplayer/chat/GuiMessage;)V"
+            },
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/util/List;size()I"
+            ),
+            slice = @Slice(
+                    from = @At(value = "INVOKE", target = "Ljava/util/List;addFirst(Ljava/lang/Object;)V"),
+                    to = @At(value = "INVOKE", target = "Ljava/util/List;removeLast()Ljava/lang/Object;")
+            ),
+            require = 2,
+            expect = 2
+    )
+    private int applyNoChatLimit(int size) {
+        return NoChatLimit.keepChat() ? 0 : size;
+    }
+
+    // from: https://github.com/jcnlk/quoi/blob/ac3574b5370e8d8327c65dcca81245f33afb2eab/src/main/java/quoi/mixins/ChatComponentMixin.java#L178
+    @Inject(
+            method = "clearMessages(Z)V",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private void keepChatHistory(boolean clearRecentChat, CallbackInfo ci) {
+        if (clearRecentChat && KeepChatHistory.keepsChat()) {
+            ci.cancel();
+        }
     }
 
 }
