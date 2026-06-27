@@ -19,7 +19,6 @@ object InvincibilityTimer : Module(
 ) {
     private val dungeonOnly by switch("Dungeons only", desc = "Active in dungeons only.")
     private val bossOnly by switch("Boss only", desc = "Active in boss room only.")
-//    private val serverTicks by BooleanSetting("Use server ticks", desc = "Uses server ticks instead of real time.")
     val mageReduction by switch("Mage reduction", desc = "Accounts for mage cooldown reduction.")
     val cataLevel by slider("Catacombs level", 0, 0, 50, desc = "Catacombs level for Bonzo's mask ability.")
 
@@ -27,20 +26,18 @@ object InvincibilityTimer : Module(
         visibleIf { inSkyblock && (!bossOnly || inBoss) && (!dungeonOnly || inDungeons || bossOnly) }
         column {
             SkyblockPlayer.InvincibilityType.entries.forEach { type ->
-                val (col, time) = type.getTime()
                 row(gap = 1.px) {
                     text(
                         string = "◼",
                         font = font,
                         size = 18.px,
                         colour = colour { if (type.shouldDot()) colour.rgb else Colour.TRANSPARENT.rgb },
-                        pos = at(y = Centre - 2.px),
+                        pos = at(y = Centre - 1.px),
                     )
                     textPair(
                         string = "${type.displayName}:",
-                        supplier = { time() },
+                        supplier = { type.getTime() },
                         labelColour = colour,
-                        valueColour = col(),
                         shadow = shadow,
                         font = font
                     )

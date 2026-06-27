@@ -3,7 +3,6 @@ package quoi.api.skyblock
 import net.minecraft.world.entity.ai.attributes.Attributes
 import quoi.annotations.Init
 import quoi.annotations.Internal
-import quoi.api.colour.Colour
 import quoi.api.events.ChatEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
@@ -176,7 +175,7 @@ object SkyblockPlayer : EventListener, Shortcuts {
             currentCooldown = when (this) {
                 SPIRIT -> (customCooldown * multiplier).toInt()
                 BONZO -> ((customCooldown - cataLevel * 72) * multiplier).toInt()
-                else -> customCooldown
+                PHOENIX -> customCooldown
             }
         }
 
@@ -188,20 +187,17 @@ object SkyblockPlayer : EventListener, Shortcuts {
             currentCooldown = 0
         }
 
-        fun getTime(): Pair<() -> Colour, () -> String> {
-            val highlight = h@ { // idt it works correctly rn
-                if (!currentPet.contains("phoenix", true)) return@h false
-                when (this) {
-                    BONZO -> currentMask == Mask.BONZO && PHOENIX.currentCooldown <= 0
-                    SPIRIT -> currentMask == Mask.SPIRIT && PHOENIX.currentCooldown <= 0
-                    PHOENIX -> (currentMask == Mask.SPIRIT && SPIRIT.currentCooldown <= 0)
-                            || (currentMask == Mask.BONZO && BONZO.currentCooldown <= 0)
-                }
+        fun getTime(): String {
+            val highlight = currentPet.contains("phoenix", true) && when(this) {
+                BONZO -> currentMask == Mask.BONZO && PHOENIX.currentCooldown <= 0
+                SPIRIT -> currentMask == Mask.SPIRIT && PHOENIX.currentCooldown <= 0
+                PHOENIX -> (currentMask == Mask.SPIRIT && SPIRIT.currentCooldown <= 0)
+                        || (currentMask == Mask.BONZO && BONZO.currentCooldown <= 0)
             }
-            val colour = { if (currentCooldown <= 0) Colour.MINECRAFT_GREEN else Colour.MINECRAFT_RED }
-            val time = { if (currentCooldown <= 0) "✔" else "%.1f".format(currentCooldown / 20.0) }
 
-            return { if (highlight()) Colour.MINECRAFT_RED else colour() } to time
+            val col = if (!highlight && currentCooldown <= 0) "&a" else "&c"
+            val time = if (currentCooldown <= 0) "✔" else "%.1f".format(currentCooldown / 20.0)
+            return "$col$time"
         }
 
         fun shouldDot(): Boolean = when (this) {
