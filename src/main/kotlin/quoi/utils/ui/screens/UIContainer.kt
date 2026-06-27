@@ -19,6 +19,20 @@ class UIContainer(ui: AbobaUI.Instance, val cancelling: Boolean = true) : UIHand
 
     constructor(ui: AbobaUI, cancelling: Boolean = true) : this(AbobaUI.Instance(ui), cancelling)
 
+    private var open = false
+
+    override fun open() {
+        if (open) return
+        open = true
+        super.open()
+    }
+
+    override fun close() {
+        if (!open) return
+        open = false
+        super.close()
+    }
+
     private fun render(ctx: GuiGraphicsExtractor, cancel: () -> Unit) {
         resize(width, height)
 

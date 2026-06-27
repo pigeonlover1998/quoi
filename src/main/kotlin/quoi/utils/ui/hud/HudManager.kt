@@ -48,6 +48,7 @@ object HudManager : EventListener {
     var stupid = false
 
     private var overlay: UIOverlay? = null
+    private var container: UIContainer? = null
 
     private var selected: Popup? = null
     private var lineX: Float = -1f
@@ -58,17 +59,21 @@ object HudManager : EventListener {
         on<GuiEvent.Open.Post> {
             if (screen !is AbstractContainerScreen<*>) return@on
 
-            UIContainer(aloba {
-                huds.forEach { hud ->
-                    if (!hud.inContainer) return@forEach
-                    val element = hud.Element()
-                    hud.element = element
-                    element.add()
-                    val scope = Hud.Scope(element, preview = false)
-                    hud.scope = scope
-                    hud.builder(scope)
-                }
-            }, cancelling = false).apply { open() }
+            if (container == null) {
+                container = UIContainer(aloba {
+                    huds.forEach { hud ->
+                        if (!hud.inContainer) return@forEach
+                        val element = hud.Element()
+                        hud.element = element
+                        element.add()
+                        val scope = Hud.Scope(element, preview = false)
+                        hud.scope = scope
+                        hud.builder(scope)
+                    }
+                }, cancelling = false).apply { open() }
+            }
+
+            container?.open()
         }
 
         on<WorldEvent.Load.Start> { // fixes visibleIf {} shit. todo find an actual fix
