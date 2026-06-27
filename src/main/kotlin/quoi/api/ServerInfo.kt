@@ -1,6 +1,5 @@
 package quoi.api
 
-import quoi.QuoiMod.mc
 import quoi.api.events.PacketEvent
 import quoi.api.events.WorldEvent
 import quoi.utils.Scheduler.scheduleLoop

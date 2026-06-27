@@ -39,7 +39,7 @@ class HudComponent<T : Hud>(
         if (value.toggleable) addProperty("enabled", value.enabled)
         value.settings.forEach {
             if (it !is Saving) return@forEach
-            add(it.name, it.write())
+            add(it.jsonName, it.write())
         }
     }
 
