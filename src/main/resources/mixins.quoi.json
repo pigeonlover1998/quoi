@@ -16,6 +16,7 @@
     "ButtonBlockMixin",
     "CameraMixin",
     "ChatComponentMixin",
+    "ChatListenerMixin",
     "ChatScreenMixin",
     "ChestBlockMixin",
     "ClientLevelMixin",
