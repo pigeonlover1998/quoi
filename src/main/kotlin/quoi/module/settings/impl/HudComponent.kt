@@ -15,7 +15,6 @@ import quoi.api.colour.Colour
 import quoi.api.input.CursorShape
 import quoi.module.settings.Saving
 import quoi.module.settings.UIComponent
-import quoi.utils.ChatUtils.modMessage
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.cursor
 import quoi.utils.ui.elements.switch
@@ -32,7 +31,14 @@ class HudComponent<T : Hud>(
     desc: String = ""
 ) : UIComponent<T>(name, desc), Saving {
 
-    override val default: T = hud
+    var hud: T = hud
+        set(value) {
+            field = value
+            default = value
+            this.value = value
+        }
+
+    override var default: T = hud
     override var value: T = hud
 
     override fun write(): JsonElement = JsonObject().apply {
