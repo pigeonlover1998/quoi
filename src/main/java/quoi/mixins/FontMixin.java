@@ -1,6 +1,6 @@
 package quoi.mixins;
 
-import quoi.module.impl.misc.CatMode;
+import quoi.module.impl.misc.catmode.CatMode;
 import quoi.module.impl.render.NickHider;
 import net.minecraft.client.gui.Font;
 import net.minecraft.util.FormattedCharSequence;

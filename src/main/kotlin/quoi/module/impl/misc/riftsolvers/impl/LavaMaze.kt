@@ -11,7 +11,6 @@ import quoi.module.impl.misc.riftsolvers.MirrorverseSolvers
 import quoi.module.settings.group.ToggleableGroup
 import quoi.utils.BlockPos
 import quoi.utils.ChatUtils.modMessage
-import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.aabb
 import quoi.utils.render.drawFilledBox
 import quoi.utils.skyblock.player.MovementUtils.moveTo

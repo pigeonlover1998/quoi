@@ -23,6 +23,9 @@ import quoi.utils.skyblock.item.TeleportUtils.getEtherwarpDirection
 import quoi.utils.skyblock.item.TeleportUtils.traverseVoxels
 import kotlin.math.abs
 
+/**
+ * A* pathfinder using etherwarp ability
+ */
 object EtherwarpPathfinder : AbstractTeleportPathfinder<EtherwarpContext>() {
 
     private var lastDist = -1.0
@@ -30,6 +33,11 @@ object EtherwarpPathfinder : AbstractTeleportPathfinder<EtherwarpContext>() {
     private var lastYawStep = -1.0f
     private var cachedRaycasts: Raycasts? = null
 
+    /**
+     * Finds a path of teleports from [from] to [to]
+     * @param offset if true, offsets the teleport y position by 0.05
+     * @param withLast if true, includes the goal node in the path
+     */
     fun findPath(
         from: Vec3,
         to: BlockPos,
@@ -58,6 +66,10 @@ object EtherwarpPathfinder : AbstractTeleportPathfinder<EtherwarpContext>() {
         }
     }
 
+    /**
+     * Same as [findPath], but optimised for dungeons.
+     * Navigates room by room using [DungeonMapPathfinder]
+     */
     fun findDungeonPath(
         from: Vec3,
         to: BlockPos,

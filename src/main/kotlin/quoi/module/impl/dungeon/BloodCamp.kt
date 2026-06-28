@@ -20,7 +20,6 @@ import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
 import quoi.api.skyblock.invoke
 import quoi.module.Module
 import quoi.utils.ChatUtils.literal
-import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.StringUtils.toFixed
 import quoi.utils.render.drawText
 import quoi.utils.render.drawWireFrameBox

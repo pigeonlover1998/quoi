@@ -9,7 +9,6 @@ import quoi.api.events.AreaEvent
 import quoi.api.events.core.Priority
 import quoi.api.events.core.on
 import quoi.api.skyblock.Island
-import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.api.skyblock.dungeon.P3Section
 import quoi.module.Module
 import quoi.utils.Scheduler.scheduleTask
@@ -34,6 +33,7 @@ object Splits : Module( // todo section split info hud, task (terms, levers, dev
 
     private lateinit var refreshable: RefreshableGroup
 
+    @Suppress("unused")
     private val hud by textHud("Splits hud", toggleable = false) {
         refreshable = refreshableGroup(bounds()) {
 

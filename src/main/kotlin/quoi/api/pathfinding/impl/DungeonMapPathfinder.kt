@@ -10,6 +10,10 @@ import java.util.PriorityQueue
 import kotlin.math.abs
 
 // ty rice skyblock addons
+
+/**
+ * A* pathfinder for navigating between rooms on the dungeon map
+ */
 object DungeonMapPathfinder {
 
     // door x, door z, next room x, next room z
@@ -20,6 +24,10 @@ object DungeonMapPathfinder {
         intArrayOf(-1, 0, -2, 0) // w
     )
 
+    /**
+     * Finds a sequence of [OdonRoom]s and [OdonDoor]s from [start] to [goal]3
+     * @param ignoreLocked if `true` treats locked (wither/blood) doors as passable
+     */
     fun findPath(start: OdonRoom, goal: OdonRoom, ignoreLocked: Boolean = false): List<RoomPath>? {
 
         val openSet = PriorityQueue<RoomNode>()
@@ -53,9 +61,15 @@ object DungeonMapPathfinder {
         return null
     }
 
+    /**
+     * Gets the distance (in [OdonRoom]s) from [start] to a specific [door]
+     */
     fun getDistToDoor(start: OdonRoom, door: OdonDoor, ignoreLocked: Boolean = false): Int =
         stupid(start, door, ignoreLocked)?.third ?: Int.MAX_VALUE
 
+    /**
+     * Gets the position of a [door] accounting for the side it should be approached from
+     */
     fun getDoorPos(start: OdonRoom, door: OdonDoor): BlockPos? {
         val pos = BlockPos(door.pos.x, 68, door.pos.z)
         if (!door.locked) return pos // no need to offset

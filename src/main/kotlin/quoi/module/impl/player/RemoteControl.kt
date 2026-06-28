@@ -42,6 +42,7 @@ object RemoteControl : Module(
 
     private val commandsDropdown by text("Commands")
 
+    @Suppress("unused")
     private val login by button("Login") {
         if (!enabled) return@button
         if (botToken.isEmpty()) return@button modMessage("Bot token is empty.")
@@ -49,6 +50,7 @@ object RemoteControl : Module(
         start()
     }
 
+    @Suppress("unused")
     private val guide by button("How to setup") {
         Util.getPlatform().openUri(URI("https://github.com/kordlib/kord/wiki/Getting-Started#creating-a-bot-application"))
     }

@@ -17,7 +17,6 @@ import quoi.utils.EntityUtils.interpolatedBox
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.SoundUtils
 import quoi.utils.StringUtils.containsOneOf
-import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.aabb
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawWireFrameBox

@@ -15,13 +15,21 @@ import quoi.utils.distanceTo
 import quoi.utils.skyblock.item.TeleportUtils.getTransmissionDirection
 import quoi.utils.skyblock.item.TeleportUtils.predictTransmission
 
-// assuming the player is not sneaking
+/**
+ * A* pathfinder using transmission ability (aotv, aote).
+ * assumes the player is not sneakign
+ */
 object TransmissionPathfinder : AbstractTeleportPathfinder<TransmissionContext>() {
 
     private var lastPitchStep = -1.0f
     private var lastYawStep = -1.0f
     private var cachedRaycasts: Raycasts? = null
 
+    /**
+     * Finds a path of teleports from [from] to [to]
+     * @param ground if true prioritises teleports on ground
+     * @param withLast if true includes the goal node in the path
+     */
     fun findPath(
         from: Vec3,
         to: BlockPos,

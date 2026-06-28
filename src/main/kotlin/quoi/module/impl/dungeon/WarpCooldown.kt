@@ -10,6 +10,7 @@ object WarpCooldown : Module(
     "Warp Cooldown",
     desc = "Dungeon warp cooldown display"
 ) {
+    @Suppress("unused")
     private val hud by textHud("Warp cooldown", toggleable = false) {
         visibleIf { Dungeon.warpCooldown != 0L }
 

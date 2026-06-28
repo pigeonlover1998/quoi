@@ -1,26 +1,40 @@
-package quoi.module.impl.misc
+package quoi.module.impl.misc.inventory
 
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.world.entity.LivingEntity
 import quoi.api.abobaui.constraints.impl.size.Fill
-import quoi.api.abobaui.dsl.*
+import quoi.api.abobaui.dsl.alignOpposite
+import quoi.api.abobaui.dsl.at
+import quoi.api.abobaui.dsl.constrain
+import quoi.api.abobaui.dsl.focused
+import quoi.api.abobaui.dsl.inset
+import quoi.api.abobaui.dsl.minus
+import quoi.api.abobaui.dsl.onFocusChanged
+import quoi.api.abobaui.dsl.outlineBlock
+import quoi.api.abobaui.dsl.percent
+import quoi.api.abobaui.dsl.px
+import quoi.api.abobaui.dsl.radius
+import quoi.api.abobaui.dsl.size
+import quoi.api.abobaui.dsl.toggle
+import quoi.api.abobaui.dsl.withScale
 import quoi.api.abobaui.elements.Element
 import quoi.api.abobaui.elements.Layout.Companion.divider
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
-import quoi.api.abobaui.elements.impl.RefreshableGroup
 import quoi.api.abobaui.elements.impl.Text.Companion.shadow
 import quoi.api.abobaui.elements.impl.Text.Companion.string
 import quoi.api.abobaui.elements.impl.TextInput.Companion.maxWidth
 import quoi.api.abobaui.elements.impl.TextInput.Companion.onTextChanged
-import quoi.api.abobaui.elements.impl.refreshableGroup
-import quoi.api.colour.*
+import quoi.api.colour.Colour
+import quoi.api.colour.colour
+import quoi.api.colour.multiply
+import quoi.api.colour.toHSB
+import quoi.api.colour.withAlpha
 import quoi.api.events.GuiEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.core.Priority
 import quoi.api.events.core.on
 import quoi.api.input.CursorShape
 import quoi.module.Module
-import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.toFixed
 import quoi.utils.StringUtils.width
 import quoi.utils.render.DrawContextUtils.drawEntity
@@ -30,7 +44,6 @@ import quoi.utils.skyblock.item.ItemUtils.loreString
 import quoi.utils.ui.cursor
 import quoi.utils.ui.delegateClick
 import quoi.utils.ui.inHudEditor
-import quoi.utils.ui.rendering.NVGRenderer.minecraftFont
 import kotlin.math.pow
 
 object Inventory : Module(

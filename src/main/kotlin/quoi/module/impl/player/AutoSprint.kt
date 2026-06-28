@@ -8,10 +8,17 @@ object AutoSprint : Module(
     "Auto Sprint",
     desc = "Automatically sprints."
 ) {
+    private var wasUnderWater = false
+
     init {
         on<TickEvent.End> {
-            if (player.isInWater || player.isUnderWater) return@on
-            mc.options.keySprint.isDown = true
+            if (player.isInWater || player.isUnderWater) {
+                if (!wasUnderWater) mc.options.keySprint.isDown = false
+                wasUnderWater = true
+            } else {
+                mc.options.keySprint.isDown = true
+                wasUnderWater = false
+            }
         }
     }
 }

@@ -45,6 +45,7 @@ object TickTimers : Module(
 
     private val startTimer by switch("Goldor start timer").visibleIf { goldorHud.enabled }
 
+    @Suppress("unused")
     private val deathTickHud by textHud("Death tick") { // maybe make an option to show it before dung start only
         visibleIf { deathTick >= 0 }
         textSupplied(

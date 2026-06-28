@@ -15,7 +15,6 @@ import quoi.api.events.core.on
 import quoi.api.skyblock.Island
 import quoi.api.skyblock.dungeon.Dungeon.floor
 import quoi.api.skyblock.dungeon.Dungeon.inBoss
-import quoi.api.skyblock.dungeon.Dungeon.inDungeons
 import quoi.api.skyblock.dungeon.Dungeon.isProtectedBlock
 import quoi.config.configList
 import quoi.module.Module
@@ -42,6 +41,7 @@ object DungeonBreaker : Module(
     "Dungeon Breaker",
     area = Island.Dungeon
 ) {
+    @Suppress("unused")
     private val chargesHud by textHud("Charges display") {
         visibleIf { getBreakerCharges(player.mainHandItem) > 0 }
         textPair(
