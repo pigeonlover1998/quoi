@@ -29,7 +29,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @Init
-object ContainerUtils : EventListener, Shortcuts {
+object ContainerUtils : EventListener, Shortcuts { // todo cleanup
     var containerId = -1
         private set
     private var lastStateId = 0
@@ -167,16 +167,14 @@ object ContainerUtils : EventListener, Shortcuts {
 
         ChatUtils.command(command)
 
-        val openSub = until<PacketEvent.Received> (Priority.LOWEST) {
-            if (packet !is ClientboundOpenScreenPacket) return@until false
-            if (packet.title.string != containerName) return@until false
+        val openSub = until<PacketEvent.Received, ClientboundOpenScreenPacket> (Priority.LOWEST) {
+            if (!packet.title.string.contains(containerName, true)) return@until false
             windowId = packet.containerId
             cancel()
             true
         }
 
-        val setSlotSub = until<PacketEvent.Received> (Priority.LOWEST) {
-            if (packet !is ClientboundContainerSetSlotPacket) return@until false
+        val setSlotSub = until<PacketEvent.Received, ClientboundContainerSetSlotPacket> (Priority.LOWEST) {
             if (packet.containerId != windowId) return@until false
             val slot = packet.slot
             if (slot !in 0..<slots) return@until false
