@@ -6,6 +6,7 @@ import quoi.api.events.core.Event
 import net.minecraft.world.entity.Entity
 
 abstract class EntityEvent {
+    class Attack(val entity: Entity) : CancellableEvent()
     class Leave(val entity: Entity, val reason: Entity.RemovalReason) : CancellableEvent()
     class ForceGlow(val entity: Entity) : Event() {
         var isGlowing: Boolean = false

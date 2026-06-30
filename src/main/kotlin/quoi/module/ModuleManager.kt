@@ -72,6 +72,7 @@ object ModuleManager : EventListener {
             MirrorverseSolvers,
             CatMode,
             AutoCarnival,
+            AutoAttune,
 
             // PLAYER
             AutoSprint,
