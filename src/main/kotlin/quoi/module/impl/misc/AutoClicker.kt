@@ -26,6 +26,7 @@ object AutoClicker: Module(
     desc = "A simple auto clicker for both left and right click. Activates when the corresponding key is being held down."
 ) {
     private val breakBlocks by switch("Break blocks", desc = "Allows the player to break blocks.")
+    private val stopOnSwap by switch("Stop on item swap", desc = "Stops clicking on item swap.")
 //    private val clickInGui by BooleanSetting("Click while in inventory", desc = "Continues to auto click while the player is in inventory.")
     private val favouriteItems by switch("Favourite items only")
     private val favLeft by ListSetting("FAVOURITE_ITEMS_LEFT", mutableListOf<String>())
@@ -83,7 +84,7 @@ object AutoClicker: Module(
             val isLeft = button == 0
             val enabled = if (isLeft) leftClick else rightClick
 
-            if (state && enabled && shouldClick(isLeft)) {
+            if (state && enabled /*&& shouldClick(isLeft)*/) {
                 cancel()
                 startClicking(isLeft)
             } else {
@@ -93,10 +94,12 @@ object AutoClicker: Module(
 
         on<TickEvent.End> {
             val currentSlot = player.inventory.selectedSlot
-            if (currentSlot != lastHeldSlot || mc.screen != null) {
+
+            if (lastHeldSlot == -1) lastHeldSlot = currentSlot
+            if (mc.screen != null || (stopOnSwap && currentSlot != lastHeldSlot)) {
                 reset()
-                lastHeldSlot = currentSlot
             }
+            lastHeldSlot = currentSlot
 
             if (leftJob != null && lookingAtBreakable) {
                 if (!isMining) {
