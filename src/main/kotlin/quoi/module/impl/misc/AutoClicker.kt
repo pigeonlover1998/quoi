@@ -84,7 +84,7 @@ object AutoClicker: Module(
             val isLeft = button == 0
             val enabled = if (isLeft) leftClick else rightClick
 
-            if (state && enabled /*&& shouldClick(isLeft)*/) {
+            if (state && enabled && shouldClick(isLeft)) {
                 cancel()
                 startClicking(isLeft)
             } else {
