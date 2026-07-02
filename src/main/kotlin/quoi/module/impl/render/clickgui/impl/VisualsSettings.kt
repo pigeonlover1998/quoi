@@ -15,7 +15,7 @@ object VisualsSettings : SettingGroup(
             reopen()
         }
 ) {
-    val selectedTheme get() = (parent as SelectorComponent<*>).selected
+    val selectedTheme get() = (component as SelectorComponent<*>).selected
     val colour by colourPicker("Colour", Colour.RGB(255, 204, 134)).asParent()
     val moduleSorting by selector("Module sorting", ModuleSorting.Alphabetical).onValueChanged { _, _ -> reopen() }
 

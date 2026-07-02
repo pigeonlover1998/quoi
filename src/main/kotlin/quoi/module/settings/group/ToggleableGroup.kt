@@ -35,24 +35,42 @@ import quoi.api.skyblock.location.Location
  *     }
  * }
  * ```
- *
- * @param module The [Module] that owns this group
- * @param name The switch display name
- * @param default Initial enabled/disabled state of the switch
- * @param desc Description for the switch.
- * @param area Optional [Area] condition for this group's [EventListener]s to be active.
- * @param subarea Optinal [Location.subarea] string condition for this group's [EventListener]s.
  */
-abstract class ToggleableGroup(
-    module: Module,
-    name: String,
-    default: Boolean = false,
-    desc: String = "",
-    area: Area? = null,
-    subarea: String? = null
-) : SettingGroup(module, SwitchComponent(name, default, desc), area, subarea) {
+abstract class ToggleableGroup : SettingGroup {
 
-    private val switch = (parent as SwitchComponent).onValueChanged { _, new ->
+    /**
+     * Creates a root [ToggleableGroup] with a [SwitchComponent] as the header.
+     *
+     * @param module The [Module] that owns this group
+     * @param name The switch display name
+     * @param default Initial enabled/disabled state of the switch
+     * @param desc Description for the switch.
+     * @param area Optional [Area] condition for this group's [EventListener]s to be active.
+     * @param subarea Optinal [Location.subarea] string condition for this group's [EventListener]s.
+     */
+    constructor(
+        module: Module,
+        name: String,
+        default: Boolean = false,
+        desc: String = "",
+        area: Area? = null,
+        subarea: String? = null
+    ) : super(module, SwitchComponent(name, default, desc), module, area, subarea)
+
+    /**
+     * Creates a nested [ToggleableGroup] with a [SwitchComponent] as the header.
+     * Automatically inherits area and subarea constraints from the [parent] group
+     */
+    constructor(
+        parent: SettingGroup,
+        name: String,
+        default: Boolean = false,
+        desc: String = "",
+        area: Area? = null,
+        subarea: String? = null
+    ) : super(parent, SwitchComponent(name, default, desc), area, subarea)
+
+    private val switch = (component as SwitchComponent).onValueChanged { _, new ->
         if (new) onEnable()
         else onDisable()
     }

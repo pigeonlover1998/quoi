@@ -107,13 +107,13 @@ object Displays : SettingGroup(ClickGui, "Displays") {
 
     override fun <K : Setting<T>, T> register(setting: K): K {
         if (setting.jsonName == setting.name) {
-            setting.json("${parent.jsonName}.${setting.name}")
+            setting.json("${component.jsonName}.${setting.name}")
         }
 
         module.register(setting)
 
         if (setting is UIComponent<*> && setting.parent == null) {
-            setting.childOf(parent).asParent()
+            setting.childOf(component).asParent()
         }
 
         return setting

@@ -81,6 +81,6 @@ object InventoryHud : SettingGroup(Inventory, HudComponent("Inventory", Hud("Inv
 
     init {
         @Suppress("unchecked_cast")
-        (parent as HudComponent<Hud>).hud = hud
+        (component as HudComponent<Hud>).hud = hud
     }
 }

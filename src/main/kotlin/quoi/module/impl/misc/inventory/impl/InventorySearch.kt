@@ -104,7 +104,7 @@ object InventorySearch : SettingGroup(Inventory, HudComponent("Search Bar", Hud(
 
     init {
         @Suppress("unchecked_cast")
-        (parent as HudComponent<Hud>).hud = searchBar
+        (component as HudComponent<Hud>).hud = searchBar
 
         on<TickEvent.End> {
             if (mc.screen !is AbstractContainerScreen<*>) return@on
