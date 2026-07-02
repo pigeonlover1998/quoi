@@ -14,6 +14,7 @@ import quoi.utils.EntityUtils.distanceToCamera
 import quoi.utils.EntityUtils.interpolatedBox
 import quoi.utils.EntityUtils.playerEntitiesNoSelf
 import quoi.utils.EntityUtils.renderPos
+import quoi.utils.WorldUtils
 import quoi.utils.equalsOneOf
 import quoi.utils.render.drawStyledBox
 import quoi.utils.render.drawTracer
@@ -22,7 +23,7 @@ import quoi.utils.render.drawTracer
 object PlayerESP : Module(
     "Player ESP",
     desc = "Highlights players through walls."
-) {
+) { // todo cleanup
     private val tracer by switch("Tracer").json("Tracer toggle")
     private val tracerCustomCol by switch("Custom colour").json("Tracer distance colours").childOf(::tracer)
     private val tracerColour by colourPicker("Colour", Colour.WHITE).json("Tracer colour").childOf(::tracerCustomCol)
@@ -30,6 +31,10 @@ object PlayerESP : Module(
     private val tracerThickness by slider("Thickness", 4f, 1f, 8f, 1f).json("Tracer thickness").childOf(::tracer)
 
     private val ironmenOnly by switch("Ir*nmen only")
+    private var specific by switch("Specific player")
+    private var specificName by textInput("Name", length = 16, placeholder = "Player name")
+        .suggests { WorldUtils.players.map { it.profile.name } }
+        .childOf(::specific)
     private val depth by switch("Depth check")
     private val style by selector("Style", "Box", arrayListOf("Box", "Filled box", "Glow", "2D"), desc = "Esp render style to be used.")
     private val customCol by switch("Custom colour").json("Box custom colour").visibleIf { !style.selected.equalsOneOf("Glow", "2D") }
@@ -43,6 +48,7 @@ object PlayerESP : Module(
         on<RenderEvent.World> {
             playerEntitiesNoSelf.forEach { entity ->
                 if (ironmenOnly && entity.displayName?.string?.contains("♲") == false) return@forEach
+                if (specific && entity.displayName?.string?.contains(specificName) == false) return@forEach
                 val aabb = entity.interpolatedBox.inflate(sizeOffset, 0.0, sizeOffset)
                 val c = if (customCol) colour else entity.colourFromDistance
                 val fc = if (fillCustomCol) fillColour else entity.colourFromDistance.withAlpha(fillColour.alpha)
