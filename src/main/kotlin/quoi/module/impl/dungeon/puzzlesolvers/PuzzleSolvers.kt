@@ -20,23 +20,24 @@ import quoi.module.settings.UIComponent.Companion.visibleIf
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 
+@Suppress("unused_expression")
 object PuzzleSolvers : Module(
     "Puzzle Solvers",
     desc = "Displays solutions and automatically completes dungeon puzzles: Ice Fill, Teleport Maze, Quiz, Three Weirdos, Tic Tac Toe, Water Board, Creeper Beams, Blaze, and Ice Path.",
     area = Island.Dungeon(inClear = true)
 ) {
-    @Suppress("unused")
-    private val solvers = setOf(
-        IceFill,
-        TeleportMaze,
-        Quiz,
-        ThreeWeirdos,
-        TicTacToe,
-        WaterBoard,
-        CreeperBeams,
-        Blaze,
+
+    init {
+        IceFill
+        TeleportMaze
+        Quiz
+        ThreeWeirdos
+        TicTacToe
+        WaterBoard
+        CreeperBeams
+        Blaze
         IcePath
-    )
+    }
 
     private val bowDropdown by text("Bow settings").visibleIf { CreeperBeams.auto || Blaze.auto || IcePath.auto }
     val shootCd by slider("Shoot cooldown", 500L, 250L, 1000L, 50L, unit = "ms").childOf(::bowDropdown)
