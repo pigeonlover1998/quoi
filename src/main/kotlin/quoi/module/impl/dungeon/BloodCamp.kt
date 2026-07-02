@@ -13,11 +13,11 @@ import quoi.api.events.PacketEvent
 import quoi.api.events.RenderEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.on
-import quoi.api.skyblock.Island
+import quoi.api.skyblock.location.Island
 import quoi.api.skyblock.dungeon.Dungeon.BLOOD_START_REGEX
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
-import quoi.api.skyblock.invoke
+import quoi.api.skyblock.location.invoke
 import quoi.module.Module
 import quoi.utils.ChatUtils.literal
 import quoi.utils.StringUtils.toFixed

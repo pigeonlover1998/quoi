@@ -2,8 +2,8 @@ package quoi.module.impl.dungeon.puzzlesolvers
 
 import com.google.gson.reflect.TypeToken
 import quoi.QuoiMod.logger
-import quoi.api.skyblock.Island
-import quoi.api.skyblock.invoke
+import quoi.api.skyblock.location.Island
+import quoi.api.skyblock.location.invoke
 import quoi.config.ConfigSystem.gson
 import quoi.module.Module
 import quoi.module.impl.dungeon.puzzlesolvers.impl.CreeperBeams

@@ -11,11 +11,11 @@ import quoi.api.events.TickEvent
 import quoi.api.events.core.EventDispatcher
 import quoi.api.events.core.EventListener
 import quoi.api.events.core.until
-import quoi.api.skyblock.Island
-import quoi.api.skyblock.Location.currentArea
-import quoi.api.skyblock.Location.currentServer
-import quoi.api.skyblock.Location.inSkyblock
-import quoi.api.skyblock.Location.subarea
+import quoi.api.skyblock.location.Island
+import quoi.api.skyblock.location.Location.currentArea
+import quoi.api.skyblock.location.Location.currentServer
+import quoi.api.skyblock.location.Location.inSkyblock
+import quoi.api.skyblock.location.Location.subarea
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
 import quoi.module.ModuleManager

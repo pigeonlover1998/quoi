@@ -1,7 +1,10 @@
 package quoi.module.settings.group
 
+import quoi.api.events.core.EventListener
+import quoi.api.skyblock.location.Area
 import quoi.module.Module
 import quoi.module.settings.impl.SwitchComponent
+import quoi.api.skyblock.location.Location
 
 /**
  * Unlike a [SettingGroup], a [ToggleableGroup] has a state that can be toggled on and off
@@ -12,7 +15,7 @@ import quoi.module.settings.impl.SwitchComponent
  * ### Example
  * ```kotlin
  *
- * class Test : Module("Test") {
+ * class Test : Module("Test", area = Island.Hub) {
  *     val testGroup = TestGroup(this)
  *
  *     init {
@@ -20,13 +23,13 @@ import quoi.module.settings.impl.SwitchComponent
  *     }
  * }
  *
- * class TestGroup(module: Module) : ToggleableGroup(module, "Test group") { // class makes it reusable
+ * class TestGroup(module: Module) : ToggleableGroup(module, "Test group", subarea = "carnival") { // class makes it reusable
  *     val text by text("text")
  *     val test by switch("test") // saves as "Test group.test" in the config
  *
  *     init {
  *         on<TickEvent.Start> {
- *             println("if you see this the group is enabled")
+ *             println("if you see this the group is enabled, area is Island.Hub and subarea is \"carnival\"")
  *             if (test) println("   this is a test2")
  *         }
  *     }
@@ -37,13 +40,17 @@ import quoi.module.settings.impl.SwitchComponent
  * @param name The switch display name
  * @param default Initial enabled/disabled state of the switch
  * @param desc Description for the switch.
+ * @param area Optional [Area] condition for this group's [EventListener]s to be active.
+ * @param subarea Optinal [Location.subarea] string condition for this group's [EventListener]s.
  */
 abstract class ToggleableGroup(
     module: Module,
     name: String,
     default: Boolean = false,
-    desc: String = ""
-) : SettingGroup(module, SwitchComponent(name, default, desc)) {
+    desc: String = "",
+    area: Area? = null,
+    subarea: String? = null
+) : SettingGroup(module, SwitchComponent(name, default, desc), area, subarea) {
 
     private val switch = (parent as SwitchComponent).onValueChanged { _, new ->
         if (new) onEnable()

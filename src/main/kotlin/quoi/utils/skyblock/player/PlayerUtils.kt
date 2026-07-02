@@ -14,7 +14,7 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import quoi.QuoiMod.mc
-import quoi.api.skyblock.Location
+import quoi.api.skyblock.location.Location
 import quoi.api.world.Direction
 import quoi.module.settings.Setting.Companion.gson
 import quoi.utils.ChatUtils

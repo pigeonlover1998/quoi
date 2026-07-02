@@ -14,8 +14,8 @@ import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
-import quoi.api.skyblock.Island
-import quoi.api.skyblock.Location
+import quoi.api.skyblock.location.Island
+import quoi.api.skyblock.location.Location
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.tiles.DoorType
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonDoor

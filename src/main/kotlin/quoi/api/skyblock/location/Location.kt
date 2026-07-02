@@ -1,21 +1,21 @@
-package quoi.api.skyblock
+package quoi.api.skyblock.location
 
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
+import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket
+import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
 import quoi.QuoiMod.mc
+import quoi.annotations.Init
 import quoi.api.events.AreaEvent
 import quoi.api.events.PacketEvent
 import quoi.api.events.ServerEvent
 import quoi.api.events.WorldEvent
-import quoi.api.events.core.Priority
-import quoi.utils.StringUtils.noControlCodes
-import quoi.utils.equalsOneOf
-import quoi.utils.StringUtils.startsWithOneOf
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
-import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket
-import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
-import quoi.annotations.Init
 import quoi.api.events.core.EventListener
+import quoi.api.events.core.Priority
 import quoi.api.events.core.on
 import quoi.module.impl.render.clickgui.ClickGui
+import quoi.utils.StringUtils.noControlCodes
+import quoi.utils.StringUtils.startsWithOneOf
+import quoi.utils.equalsOneOf
 
 /**
  * modified OdinFabric (BSD 3-Clause)
@@ -39,8 +39,6 @@ object Location : EventListener {
     var previousServer: String? = null
         private set
 
-    val onModernIsland: Boolean get() = true//currentArea.equalsOneOf(Island.ThePark, Island.Galatea, Island.Hub, Island.SpiderDen)
-
     private val teamRegex = Regex("^team_(\\d+)$")
     private val subAreaRegex = Regex("^ ([⏣ф]) .*")
     private val serverIdRegex = Regex("\\d\\d/\\d\\d/\\d\\d (\\w{0,6}) *")
@@ -50,7 +48,7 @@ object Location : EventListener {
             when (packet) {
                 is ClientboundPlayerInfoUpdatePacket -> {
                     if (!currentArea.isArea(Island.Unknown) || packet.actions()
-                            .none { it.equalsOneOf(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME,) }
+                            .none { it.equalsOneOf(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME) }
                     ) return@on
                     val area = packet.entries().find {
                         it.displayName?.string?.startsWithOneOf(

@@ -8,11 +8,10 @@ import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.EventListener
 import quoi.api.events.core.on
-import quoi.api.skyblock.Island
+import quoi.api.skyblock.location.Island
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.impl.dungeon.Splits
 import quoi.utils.Scheduler.scheduleTask
-import quoi.utils.StringUtils.noControlCodes
 
 /**
  * modified OdinFabric (BSD 3-Clause)

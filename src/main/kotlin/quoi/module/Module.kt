@@ -1,50 +1,32 @@
 package quoi.module
 
 import quoi.api.commands.QuoiCommand
-import quoi.api.events.core.Event
-import quoi.api.events.core.UnfilteredEvent
 import quoi.api.input.CatKeys
-import quoi.api.skyblock.Island
-import quoi.api.skyblock.IslandArea
-import quoi.api.skyblock.Location
 import quoi.module.settings.Setting
 import quoi.module.settings.impl.Keybinding
 import quoi.utils.ChatUtils.modMessage
 import quoi.annotations.AlwaysActive
-import quoi.api.events.core.EventListener
+import quoi.api.events.core.AreaBoundListener
+import quoi.api.skyblock.location.Area
 import quoi.module.settings.SettingsDSL
 import quoi.utils.Shortcuts
 import quoi.utils.ui.hud.HudDSL
 
 abstract class Module(
     val name: String,
-    val area: IslandArea? = null,
-    val subarea: String? = null,
+    override val area: Area? = null,
+    override val subarea: String? = null,
     val key: Int = CatKeys.KEY_NONE,
     @Transient val desc: String = "",
     toggled: Boolean = false,
     val tag: Tag = Tag.NONE
-) : SettingsDSL(), HudDSL, Shortcuts, EventListener {
-    constructor(
-        name: String,
-        area: Island,
-        subarea: String? = null,
-        key: Int = CatKeys.KEY_NONE,
-        desc: String = "",
-        toggled: Boolean = false,
-        tag: Tag = Tag.NONE
-    ) : this(name, IslandArea.Base(area), subarea, key, desc, toggled, tag)
+) : SettingsDSL(), HudDSL, Shortcuts, AreaBoundListener {
 
     override val running: Boolean
         get() = enabled || alwaysActive
 
     inline val active: Boolean
         get() = running && inEnvironment()
-
-    override fun shouldHandle(event: Event): Boolean = when (event) {
-        is UnfilteredEvent -> inArea() && inSubarea()
-        else -> inEnvironment()
-    }
 
     @Transient
     val category: Category = getCategory(this::class.java) ?: Category.RENDER
@@ -104,16 +86,6 @@ abstract class Module(
         }
         return null
     }
-
-    fun inArea() = area?.inBase() ?: true
-
-    fun inSubarea(): Boolean {
-        if (subarea == null) return true
-
-        return Location.subarea?.contains(subarea, true) == true
-    }
-
-    fun inEnvironment(): Boolean = (area?.inArea() ?: true) && inSubarea()
 
     enum class Tag(val desc: String = "") {
         NONE,

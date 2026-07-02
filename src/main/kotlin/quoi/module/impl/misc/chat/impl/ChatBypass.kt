@@ -2,7 +2,7 @@ package quoi.module.impl.misc.chat.impl
 
 import quoi.api.events.ChatEvent
 import quoi.api.events.core.on
-import quoi.api.skyblock.Location.onHypixel
+import quoi.api.skyblock.location.Location.onHypixel
 import quoi.module.impl.misc.chat.Chat
 import quoi.module.settings.group.ToggleableGroup
 import quoi.utils.ChatUtils.commandAny

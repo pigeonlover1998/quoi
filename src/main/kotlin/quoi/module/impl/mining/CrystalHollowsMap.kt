@@ -11,7 +11,7 @@ import quoi.api.events.RenderEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.on
-import quoi.api.skyblock.Island
+import quoi.api.skyblock.location.Island
 import quoi.module.Module
 import quoi.module.impl.mining.CrystalHollowsScanner.foundRouteBlocks
 import quoi.module.impl.mining.CrystalHollowsScanner.routeScanner
@@ -28,7 +28,6 @@ import quoi.utils.render.DrawContextUtils.drawPlayerHead
 import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.render.DrawContextUtils.rect
 import quoi.utils.render.DrawContextUtils.withMatrix
-import quoi.utils.ui.rendering.NVGRenderer.createImage
 import quoi.utils.ui.rendering.NVGRenderer.image
 import java.util.*
 import quoi.module.impl.mining.CrystalHollowsScanner.enabled as chScanner

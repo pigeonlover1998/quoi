@@ -15,7 +15,7 @@ import quoi.api.events.RenderEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.on
-import quoi.api.skyblock.Location
+import quoi.api.skyblock.location.Location
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.Module
 import quoi.module.impl.render.clickgui.ClickGui
@@ -25,6 +25,7 @@ import quoi.utils.StringUtils.formatTime
 import quoi.utils.StringUtils.toFixed
 import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
+import quoi.api.skyblock.location.Island
 import quoi.config.Config
 import quoi.module.impl.dungeon.DungeonESP
 import quoi.module.impl.dungeon.DungeonESP.starredMobs
@@ -201,6 +202,10 @@ object Test : Module("Test", desc = "Dev module for testing.") {
             currRooms.clear()
         }
 
+//        on<TickEvent.Start> {
+////            println("test")
+//        }
+
         command.register()
     }
 
@@ -284,7 +289,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
     private class DungeonMob(val name: String, var starred: Boolean, val pos: IntArray)
 }
 
-class TestGroup(module: Module) : ToggleableGroup(module, "Test group") {
+class TestGroup(module: Module) : ToggleableGroup(module, "Test group", subarea = "carnival") {
     val test by switch("test")
     val text by switch("text").childOf(::test)
 

@@ -1,6 +1,9 @@
 package quoi.module.settings.group
 
+import quoi.api.events.core.AreaBoundListener
 import quoi.api.events.core.EventListener
+import quoi.api.skyblock.location.Area
+import quoi.api.skyblock.location.Location
 import quoi.module.Module
 import quoi.module.impl.render.clickgui.ClickGui
 import quoi.module.settings.Setting
@@ -21,11 +24,15 @@ import kotlin.reflect.KProperty0
  *
  * @param module The [Module] that owns this group
  * @param parent The [UIComponent] that serves as the header and uI parent for this group.
+ * @param area Optional [Area] condition for this group's [EventListener]s to be active.
+ * @param subarea Optinal [Location.subarea] string condition for this group's [EventListener]s.
  */
 open class SettingGroup(
     val module: Module,
-    val parent: UIComponent<*>
-) : SettingsDSL(), HudDSL, Shortcuts, EventListener {
+    val parent: UIComponent<*>,
+    override val area: Area? = null,
+    override val subarea: String? = null
+) : SettingsDSL(), HudDSL, Shortcuts, AreaBoundListener {
 
     /**
      * Creates a [SettingGroup] with a [TextComponent] as the header
@@ -33,10 +40,16 @@ open class SettingGroup(
     constructor(
         module: Module,
         name: String,
-        desc: String = ""
-    ) : this(module, TextComponent(name, desc))
+        desc: String = "",
+        area: Area? = null,
+        subarea: String? = null
+    ) : this(module, TextComponent(name, desc), area, subarea)
 
     init {
+        require(module.subarea != null && subarea != null) {
+            "can't specify a subarea ($subarea) for a settinggroup when the module already has a subarea (${module.subarea})"
+        }
+
         parent.apply {
             module.register(this)
             asParent()
@@ -47,6 +60,12 @@ open class SettingGroup(
         get() = module
 
     override fun parent() = module
+
+    override fun inArea(): Boolean = super.inArea() && module.inArea()
+
+    override fun inSubarea(): Boolean = super.inSubarea() && module.inSubarea()
+
+    override fun inEnvironment(): Boolean = super.inEnvironment() && module.inEnvironment()
 
     override fun <K : Setting<T>, T> register(setting: K): K {
         if (setting.jsonName == setting.name) {

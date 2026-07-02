@@ -10,7 +10,7 @@ import quoi.api.abobaui.elements.impl.Block
 import quoi.api.abobaui.elements.impl.Text.Companion.shadow
 import quoi.api.abobaui.elements.impl.Text.Companion.textSupplied
 import quoi.api.colour.Colour
-import quoi.api.skyblock.Location.inSkyblock
+import quoi.api.skyblock.location.Location.inSkyblock
 import quoi.api.skyblock.SkyblockPlayer
 import quoi.api.skyblock.SkyblockPlayer.DEF_REGEX
 import quoi.api.skyblock.SkyblockPlayer.HP_REGEX
