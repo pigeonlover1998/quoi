@@ -75,7 +75,7 @@ object Location : EventListener {
                         AreaEvent.Sub(text).post()
                     }
 
-                if (currentArea == Island.Unknown) serverIdRegex.find(text)?.groupValues?.getOrNull(1)?.let {
+                    if (currentArea == Island.Unknown) serverIdRegex.find(text)?.groupValues?.getOrNull(1)?.let {
                         if (currentServer != it) {
                             previousServer = currentServer
                             currentServer = it

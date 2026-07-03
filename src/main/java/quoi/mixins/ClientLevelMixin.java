@@ -18,6 +18,14 @@ public class ClientLevelMixin {
     )
     private void quoi$onRemoveEntity(int entityId, Entity.RemovalReason removalReason, CallbackInfo ci) {
         Entity entity = ((ClientLevel) (Object) this).getEntity(entityId);
-        if (entity != null && new EntityEvent.Leave(entity, removalReason).post()) ci.cancel();
+        if (entity != null && new EntityEvent.Despawn(entity, removalReason).post()) ci.cancel();
+    }
+
+    @Inject(
+            method = "addEntity",
+            at = @At("TAIL")
+    )
+    private void quoi$onAddEntity(Entity entity, CallbackInfo ci) {
+        new EntityEvent.Spawn(entity).post();
     }
 }

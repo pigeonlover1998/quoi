@@ -3,6 +3,8 @@ package quoi.api.events.core
 import net.minecraft.network.protocol.Packet
 import quoi.api.events.PacketEvent
 import quoi.api.events.core.EventManager.register
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 /**
  * Anything that can own [Subscription].
@@ -111,11 +113,16 @@ inline fun <reified E, reified P : Packet<*>> EventListener.once(
 ): Subscription<E> where E : Event, E : PacketEvent = once<E>(priority) {
     if (packet is P) block(PacketScope(this, packet as P))
 }
-/*
-inline fun <reified E : Event, V> trackedBy(
+
+/**
+ * Subscribes to every dispatch of [Event] and tracks a value
+ *
+ * [block] is executed on every event dispatch receiving the previous value and must return the new value
+ */
+inline fun <reified E : Event, V> EventListener.trackedBy(
     defaultValue: V,
     priority: Int = 0,
-    noinline block: (event: E, prev: V) -> V
+    noinline block: E.(prev: V) -> V
 ): ReadWriteProperty<Any?, V> = object : ReadWriteProperty<Any?, V> {
     @Volatile
     private var value = defaultValue
@@ -130,4 +137,28 @@ inline fun <reified E : Event, V> trackedBy(
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: V) {
         this.value = value
     }
-}*/
+}
+
+/**
+ * [trackedBy] filtered to packets
+ */
+@JvmName("trackedByPacket")
+inline fun <reified E, reified P : Packet<*>, V> EventListener.trackedBy(
+    defaultValue: V,
+    priority: Int = 0,
+    noinline block: PacketScope<E, P>.(prev: V) -> V
+): ReadWriteProperty<Any?, V> where E : Event, E : PacketEvent = object : ReadWriteProperty<Any?, V> {
+    @Volatile
+    private var value = defaultValue
+
+    init {
+        on<E, P>(priority) {
+            value = block(value)
+        }
+    }
+
+    override fun getValue(thisRef: Any?, property: KProperty<*>): V = value
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: V) {
+        this.value = value
+    }
+}
