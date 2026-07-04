@@ -1,19 +1,21 @@
 package quoi.api.pathfinding.impl
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.world.phys.Vec3
+import quoi.api.pathfinding.AbstractPathfinder
 import quoi.utils.WorldUtils.airLike
 import quoi.utils.WorldUtils.collisionShape
 import quoi.utils.WorldUtils.solid
 import quoi.utils.WorldUtils.walkable
 import quoi.utils.distanceTo
 import quoi.api.pathfinding.PathNode
+import quoi.api.pathfinding.context.WalkContext
+import quoi.module.impl.render.clickgui.impl.PathSettings
 import quoi.utils.ChatUtils.modMessage
-import java.util.PriorityQueue
+import java.util.concurrent.ConcurrentHashMap
 
-object Pathfinder { // todo recode
+object WalkPathfinder : AbstractPathfinder<PathNode, WalkContext>() { // todo smoothing
 
     private val directions = arrayOf(
         intArrayOf(1, 0, 0), // n
@@ -27,67 +29,48 @@ object Pathfinder { // todo recode
     )
 
     fun findPath(
-        start: BlockPos,
+        start: Vec3,
         goal: BlockPos,
-        maxNodes: Int = 10_000,
         hWeight: Double = 1.1,
+        threads: Int = PathSettings.threads,
+        timeout: Long = PathSettings.timeout,
         feedback: Boolean = false
-    ): List<BlockPos>? {
+    ): List<Vec3>? {
         val goal = goal.above()
-
         val startTime = System.currentTimeMillis()
 
-        val openSet = PriorityQueue<PathNode>()
-        val closedSet = LongOpenHashSet()
-        val nodeMap = Long2ObjectOpenHashMap<PathNode>()
-        val penaltyCache = Long2ObjectOpenHashMap<Double>()
+        val ctx = WalkContext(goal, timeout, hWeight)
 
-        val startNode = PathNode(0.0, 0.0, 0.0, start, 0.0, start.distanceTo(goal), null)
-        openSet.add(startNode)
-        nodeMap[start.asLong()] = startNode
+        val startPos = BlockPos.containing(start)
 
-        var processed = 0
+        val startNode = PathNode(start.x, start.y, start.z, startPos, 0.0, startPos.distanceTo(goal), null)
 
-        while (openSet.isNotEmpty() && processed < maxNodes) {
+        ctx.addNode(startNode)
 
-            val current = openSet.poll()
-            val currentLong = current.pos.asLong()
+        val path = find(ctx, threads)
 
-            val best = nodeMap[currentLong]
-            if (best != null && current.g > best.g) {
-                continue
-            }
-
-            if (current.pos == goal) {
-                if (feedback) modMessage("Found path in ${System.currentTimeMillis() - startTime}ms ($processed)")
-                return current.path
-            }
-
-            closedSet.add(currentLong)
-            processed++
-
-            current.pos.forEachNeighbour { neighbour ->
-                val neighbourLong = neighbour.asLong()
-
-                if (neighbourLong !in closedSet) {
-                    val stepCost = current.pos.distanceTo(neighbour)
-                    val posPenalty = getPenalty(neighbour, neighbourLong, penaltyCache)
-                    val gCost = current.g + stepCost + posPenalty
-
-                    val neighbourNode = nodeMap[neighbourLong]
-
-                    if (neighbourNode == null || gCost < neighbourNode.g) {
-                        val hCost = neighbour.distanceTo(goal) * hWeight
-                        val node = PathNode(0.0, 0.0, 0.0, neighbour, gCost, hCost, current)
-                        openSet.add(node)
-                        nodeMap[neighbourLong] = node
-                    }
-                }
+        if (feedback) {
+            if (path != null) {
+                modMessage("Found path in ${System.currentTimeMillis() - startTime}ms (${ctx.processed.get()})")
+            } else {
+                modMessage("Failed after ${System.currentTimeMillis() - startTime}ms (${ctx.processed.get()})")
             }
         }
 
-        if (feedback) modMessage("Failed after ${System.currentTimeMillis() - startTime}ms ($processed)")
-        return null
+        return path?.map { it.vec }
+    }
+
+    override fun expand(ctx: WalkContext, current: PathNode) {
+        current.pos.forEachNeighbour { neighbour ->
+            val stepCost = current.pos.distanceTo(neighbour)
+            val posPenalty = getPenalty(neighbour, ctx.penaltyCache)
+            val gCost = current.g + stepCost + posPenalty
+
+            val hCost = neighbour.distanceTo(ctx.goal) * ctx.hWeight
+
+            val node = PathNode(neighbour.x + 0.5, neighbour.y.toDouble(), neighbour.z + 0.5, neighbour, gCost, hCost, current)
+            ctx.addNode(node)
+        }
     }
 
     private inline fun BlockPos.forEachNeighbour(block: (BlockPos) -> Unit) {
@@ -126,7 +109,8 @@ object Pathfinder { // todo recode
         }
     }
 
-    private fun getPenalty(pos: BlockPos, posLong: Long, cache: Long2ObjectOpenHashMap<Double>): Double {
+    private fun getPenalty(pos: BlockPos, cache: ConcurrentHashMap<Long, Double>): Double {
+        val posLong = pos.asLong()
         val cached = cache[posLong]
         if (cached != null) return cached
 
@@ -166,16 +150,4 @@ object Pathfinder { // todo recode
         cache[posLong] = penalty
         return penalty
     }
-
-    private inline val PathNode.path: List<BlockPos>
-        get() {
-            val path = mutableListOf<BlockPos>()
-            var current: PathNode? = this
-
-            while (current != null) {
-                path.add(0, current.pos.below())
-                current = current.parent
-            }
-            return path
-        }
 }

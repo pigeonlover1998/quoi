@@ -3,6 +3,7 @@ package quoi.utils
 import quoi.QuoiMod.mc
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.multiplayer.PlayerInfo
+import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.level.GameType
@@ -25,7 +26,7 @@ import kotlin.math.max
  * modified Stella (LGPL-3.0) (c) Eclipse-5214
  * original: https://github.com/Eclipse-5214/stella/blob/main/src/main/kotlin/co/stellarskys/stella/utils/WorldUtils.kt
  */
-object WorldUtils {
+object WorldUtils { // todo cleanup
     inline val BlockPos.state: BlockState
         get() = mc.level?.getBlockState(this) ?: Blocks.AIR.defaultBlockState()
 
@@ -64,6 +65,18 @@ object WorldUtils {
     val Block.registryName: String get() {
         val registry = BuiltInRegistries.BLOCK.getKey(this)
         return "${registry.namespace}:${registry.path}"
+    }
+
+    fun LocalPlayer.blocksBelow(): Iterable<BlockPos> {
+        val box = this.boundingBox
+        val y = floor(box.minY - 1.0).toInt()
+
+        val minX = floor(box.minX).toInt()
+        val minZ = floor(box.minZ).toInt()
+        val maxX = floor(box.maxX).toInt()
+        val maxZ = floor(box.maxZ).toInt()
+
+        return BlockPos.betweenClosed(minX, y, minZ, maxX, y, maxZ)
     }
 
     fun worldToMap(n: Number, inMin: Number, inMax: Number, outMin: Number, outMax: Number): Double = (n.toDouble() - inMin.toDouble()) * (outMax.toDouble() - outMin.toDouble()) / (inMax.toDouble() - inMin.toDouble()) + outMin.toDouble()

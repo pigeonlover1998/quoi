@@ -17,8 +17,10 @@ import quoi.utils.WorldUtils.airLike
 import quoi.utils.distanceTo2D
 import quoi.utils.rad
 import quoi.utils.skyblock.player.RotationUtils.yaw
+import kotlin.math.atan2
 import kotlin.math.ceil
 import kotlin.math.cos
+import kotlin.math.floor
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.sin
@@ -134,10 +136,36 @@ object MovementUtils : EventListener, Shortcuts {
             val vx = dx * -s + dz * c
             val vz = dx * c + dz * s
 
-            input.forward  = vx > 0.3
-            input.backward = vx < -0.3
-            input.left     = vz > 0.3
-            input.right    = vz < -0.3
+            val angle = atan2(vz, vx)
+            val octant = floor(angle / (Math.PI / 4.0) + 0.5).toInt()
+
+            input.forward = false
+            input.backward = false
+            input.left = false
+            input.right = false
+
+            when (octant) {
+                0 -> input.forward = true
+                1 -> {
+                    input.forward = true
+                    input.left = true
+                }
+                2 -> input.left = true
+                3 -> {
+                    input.backward = true
+                    input.left = true
+                }
+                4, -4 -> input.backward = true
+                -3 -> {
+                    input.backward = true
+                    input.right = true
+                }
+                -2 -> input.right = true
+                -1 -> {
+                    input.forward = true
+                    input.right = true
+                }
+            }
 
             if (onGround()) {
                 val higher = target.y > y + 0.6
@@ -153,7 +181,7 @@ object MovementUtils : EventListener, Shortcuts {
     }
     fun LocalPlayer.moveTo(path: List<BlockPos>, onFinish: (() -> Unit)? = null) = moveTo(path.map { it.center }, onFinish)
     fun LocalPlayer.moveTo(target: Vec3, onFinish: (() -> Unit)? = null) = moveTo(listOf(target), onFinish)
-    fun LocalPlayer.moveTo(target: BlockPos, onFinish: (() -> Unit)? = null) = moveTo(listOf(target), onFinish)
+    fun LocalPlayer.moveTo(target: BlockPos, onFinish: (() -> Unit)? = null) = moveTo(listOf(target.center), onFinish)
 
     val LocalPlayer.isMoving get() = deltaMovement.x != 0.0 || deltaMovement.z != 0.0 || input.hasForwardImpulse()
 

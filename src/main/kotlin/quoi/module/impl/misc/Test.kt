@@ -4,6 +4,7 @@ import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ambient.Bat
 import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.Vec3
 import quoi.api.abobaui.dsl.radius
 import quoi.api.abobaui.dsl.size
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
@@ -15,6 +16,7 @@ import quoi.api.events.RenderEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.on
+import quoi.api.pathfinding.impl.WalkPathfinder
 import quoi.api.skyblock.location.Location
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.Module
@@ -25,7 +27,6 @@ import quoi.utils.StringUtils.formatTime
 import quoi.utils.StringUtils.toFixed
 import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
-import quoi.api.skyblock.location.Island
 import quoi.config.Config
 import quoi.module.impl.dungeon.DungeonESP
 import quoi.module.impl.dungeon.DungeonESP.starredMobs
@@ -35,10 +36,14 @@ import quoi.module.impl.dungeon.autoclear.pathToMobs
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.group.ToggleableGroup
 import quoi.module.settings.impl.MapSetting
+import quoi.utils.WorldUtils.blocksBelow
+import quoi.utils.WorldUtils.state
 import quoi.utils.render.drawFilledBox
+import quoi.utils.render.drawLine
 import quoi.utils.skyblock.player.interact.AuraAction
 import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.ContainerUtils
+import quoi.utils.skyblock.player.MovementUtils.moveTo
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.RotationUtils.resetRotation
 import quoi.utils.skyblock.player.RotationUtils.rotateSilently
@@ -133,6 +138,13 @@ object Test : Module("Test", desc = "Dev module for testing.") {
     init {
         val command = BaseCommand("quoitest")
 
+        command.sub("testblock") {
+            val a = player.blocksBelow().map { pos ->
+                pos.state.block
+            }
+            modMessage(a)
+        }
+
         command.sub("silentRot") { yaw: Float, pitch: Float ->
             player.rotateSilently(yaw, pitch)
         }
@@ -162,8 +174,13 @@ object Test : Module("Test", desc = "Dev module for testing.") {
         }
 
         command.sub("transpath") {
-            val room = Dungeon.currentRoom ?: return@sub modMessage("room is null")
-            pathToMobs(player.position(), room)
+//            val room = Dungeon.currentRoom ?: return@sub modMessage("room is null")
+//            pathToMobs(player.position(), room)
+
+            val goal = BlockPos(-963, 68, 18477)
+            path = WalkPathfinder.findPath(player.position(), goal, feedback = true)
+//            path?.let { player.moveTo(it) }
+            player.moveTo(goal)
         }
 
         command.sub("spawnstarred") {
@@ -185,6 +202,14 @@ object Test : Module("Test", desc = "Dev module for testing.") {
                         ctx.drawFilledBox(it.position().aabb(0.5).setMinY(seed.y + 1.0), colour = Colour.PINK.withAlpha(100), depth = true)
                     }
                 }
+            }
+
+            if (path != null) {
+                val path = path!!
+//                path.forEach {
+//                    ctx.drawFilledBox(it.aabb, colour = Colour.ORANGE.withAlpha(150))
+//                }
+                ctx.drawLine(path, colour = Colour.WHITE, depth = false)
             }
         }
 
@@ -210,6 +235,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
     }
 
     private var clusters: List<MobCluster>? = null
+    private var path: List<Vec3>? = null
 
 
     private val collectedMobs = mutableMapOf<Int, DungeonMob>()
