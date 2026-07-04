@@ -11,14 +11,23 @@ import quoi.module.impl.misc.slayers.blaze.BlazeSlayer
 import quoi.utils.EntityUtils.getEntities
 import quoi.utils.EntityUtils.getEntity
 import quoi.utils.StringUtils.noControlCodes
+import quoi.utils.romanToInt
 
-@Suppress("unused_expression")
 object Slayers : Module(
     "Slayers"
 ) {
-    init {
+
+    private val slayers = setOf(
         BlazeSlayer
+    ).flatMap { it.features }
+
+    override fun onDisable() {
+        slayers.forEach { it.onDisable() }
+        super.onDisable()
     }
+
+    var questTier = 0
+        private set
 
     val questState by trackedBy<PacketEvent.Received, ClientboundSetPlayerTeamPacket, QuestState>(QuestState.NONE) {
         val params = packet.parameters.orElse(null) ?: return@trackedBy it
@@ -33,14 +42,31 @@ object Slayers : Module(
     }
 
     val currentBoss by trackedBy<TickEvent.End, LivingEntity?>(null) { boss ->
-        if (questState != QuestState.KILLING) return@trackedBy null
-        if (boss?.isDeadOrDying == false) return@trackedBy boss
+        if (questState != QuestState.KILLING) {
+            questTier = 0
+            return@trackedBy null
+        }
+
+        boss?.let {
+            if (!it.isDeadOrDying) return@trackedBy it
+            return@trackedBy null
+        }
+
         val spawnedBy = getEntities<ArmorStand>().firstOrNull { stand ->
-            val name = stand.displayName?.string?.noControlCodes ?: return@trackedBy null
+            val name = stand.displayName?.string ?: return@trackedBy null
             name.contains("Spawned by: ${player.name.string}", ignoreCase = true)
         } ?: return@trackedBy null
 
-        getEntity(spawnedBy.id - 3) as? LivingEntity
+        val bossStand = (getEntity(spawnedBy.id - 2) as? ArmorStand)?.displayName?.string
+            ?: return@trackedBy null
+
+        questTier = tierRegex.find(bossStand)?.destructured
+            ?.let { (tier) -> romanToInt(tier) }
+            ?: return@trackedBy null
+
+        val a = getEntity(spawnedBy.id - 3) as? LivingEntity
+        a
     }
 
+    private val tierRegex = Regex(".* (I{1,3}|IV|V) \\d+.*❤$")
 }

@@ -7,6 +7,8 @@ import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.core.on
 import quoi.api.events.core.once
+import quoi.module.impl.misc.slayers.QuestState
+import quoi.module.impl.misc.slayers.Slayers
 import quoi.module.settings.group.ToggleableGroup
 import quoi.utils.skyblock.player.PlayerUtils.rightClick
 import quoi.utils.skyblock.player.SwapManager
@@ -38,4 +40,7 @@ object AutoAttune : ToggleableGroup(BlazeSlayer, "Auto attune") {
                 unformatted.startsWith("Your hit was reduced by Hellion Shield!")) cancel()
         }
     }
+
+    override val running: Boolean
+        get() = super.running && Slayers.questState == QuestState.KILLING
 }

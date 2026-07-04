@@ -3,6 +3,7 @@ package quoi.module.impl.misc
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ambient.Bat
 import net.minecraft.world.entity.decoration.ArmorStand
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
 import quoi.api.abobaui.dsl.radius
@@ -32,11 +33,12 @@ import quoi.module.impl.dungeon.DungeonESP
 import quoi.module.impl.dungeon.DungeonESP.starredMobs
 import quoi.module.impl.dungeon.autoclear.MobCluster
 import quoi.module.impl.dungeon.autoclear.MobClusterer
-import quoi.module.impl.dungeon.autoclear.pathToMobs
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.group.ToggleableGroup
 import quoi.module.settings.impl.MapSetting
 import quoi.utils.WorldUtils.blocksBelow
+import quoi.utils.WorldUtils.nearbyBlocks
+import quoi.utils.WorldUtils.solid
 import quoi.utils.WorldUtils.state
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawLine
@@ -139,10 +141,21 @@ object Test : Module("Test", desc = "Dev module for testing.") {
         val command = BaseCommand("quoitest")
 
         command.sub("testblock") {
-            val a = player.blocksBelow().map { pos ->
-                pos.state.block
-            }
-            modMessage(a)
+            val a = player.blocksBelow { _, state ->
+                state.block == Blocks.TERRACOTTA
+            }.firstOrNull()?.first ?: return@sub modMessage("no terracotta")
+
+            val safePos =
+                player.position().nearbyBlocks(2.0f) { it.state.block != Blocks.TERRACOTTA && it.solid }
+                    .minByOrNull { it.center.distanceToSqr(player.position()) }?.center
+                    ?: return@sub modMessage("no safe blocks")
+
+            val awayDir = safePos.subtract(a.center).normalize()
+            val safe = safePos.add(awayDir.scale(0.3))
+
+            modMessage(safe)
+
+            player.moveTo(safe)
         }
 
         command.sub("silentRot") { yaw: Float, pitch: Float ->

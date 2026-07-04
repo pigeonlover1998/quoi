@@ -79,6 +79,12 @@ object WorldUtils { // todo cleanup
         return BlockPos.betweenClosed(minX, y, minZ, maxX, y, maxZ)
     }
 
+    fun LocalPlayer.blocksBelow(predicate: (BlockPos, BlockState) -> Boolean) =
+        blocksBelow().iterator().asSequence().mapNotNull { pos ->
+            val state = pos.state
+            if (predicate(pos, state)) pos.immutable() to state else null
+        }
+
     fun worldToMap(n: Number, inMin: Number, inMax: Number, outMin: Number, outMax: Number): Double = (n.toDouble() - inMin.toDouble()) * (outMax.toDouble() - outMin.toDouble()) / (inMax.toDouble() - inMin.toDouble()) + outMin.toDouble()
 
     private val tabListComparator: Comparator<PlayerInfo> = compareBy(

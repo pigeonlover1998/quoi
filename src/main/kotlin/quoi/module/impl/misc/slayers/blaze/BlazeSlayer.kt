@@ -8,6 +8,7 @@ import net.minecraft.world.entity.monster.zombie.ZombifiedPiglin
 import quoi.api.events.TickEvent
 import quoi.api.events.core.trackedBy
 import quoi.api.skyblock.location.Island
+import quoi.module.impl.misc.slayers.ISlayer
 import quoi.module.impl.misc.slayers.QuestState
 import quoi.module.impl.misc.slayers.Slayers
 import quoi.module.settings.group.SettingGroup
@@ -16,10 +17,11 @@ import quoi.utils.EntityUtils.getEntity
 import quoi.utils.StringUtils.noControlCodes
 
 // todo auto terracotta fire thing dodge, auto aim. I am too lazy to do it myself.
-object BlazeSlayer : SettingGroup(Slayers, "Blaze", area = Island.CrimsonIsle, subarea = "smoldering tomb") {
+object BlazeSlayer : SettingGroup(Slayers, "Blaze", area = Island.CrimsonIsle, subarea = "smoldering tomb"), ISlayer {
 
-    private val features = setOf(
-        AutoAttune
+    override val features = setOf(
+        AutoAttune,
+        DDRDodge
     )
 
     inline val blazeBoss: Blaze?
@@ -42,8 +44,10 @@ object BlazeSlayer : SettingGroup(Slayers, "Blaze", area = Island.CrimsonIsle, s
     // could fail if someone next to you spawns demons at the same time, but it's very unlikely it'd every happen
     private val demons by trackedBy<TickEvent.End, Pair<LivingEntity, LivingEntity>?>(null) { demons ->
         if (Slayers.questState != QuestState.KILLING || blazeBoss?.isInvisible == false) return@trackedBy null // boss becomes invisible during demons phase
-        if (demons != null && (!demons.first.isDeadOrDying || !demons.second.isDeadOrDying)) {
-            return@trackedBy demons
+
+        demons?.let { (wither, pig) ->
+            if (!wither.isDeadOrDying || !pig.isDeadOrDying) return@trackedBy demons
+            return@trackedBy null
         }
 
         val mobs = getEntities<LivingEntity>(radius = 10.0) {
