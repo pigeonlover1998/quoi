@@ -16,7 +16,7 @@ import quoi.utils.EntityUtils.getEntities
 import quoi.utils.EntityUtils.getEntity
 import quoi.utils.StringUtils.noControlCodes
 
-// todo auto terracotta fire thing dodge, auto aim. I am too lazy to do it myself.
+// todo auto demon fire dodge (more like a walk in preventer), auto aim. I am too lazy to do it myself.
 object BlazeSlayer : SettingGroup(Slayers, "Blaze", area = Island.CrimsonIsle, subarea = "smoldering tomb"), ISlayer {
 
     override val features = setOf(
