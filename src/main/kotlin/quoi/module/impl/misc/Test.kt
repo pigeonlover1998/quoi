@@ -1,9 +1,11 @@
 package quoi.module.impl.misc
 
+import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ambient.Bat
 import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
 import quoi.api.abobaui.dsl.radius
@@ -13,9 +15,11 @@ import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
 import quoi.api.commands.internal.BaseCommand
 import quoi.api.events.DungeonEvent
+import quoi.api.events.KeyEvent
 import quoi.api.events.RenderEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
+import quoi.api.events.core.Priority
 import quoi.api.events.core.on
 import quoi.api.pathfinding.impl.WalkPathfinder
 import quoi.api.skyblock.location.Location
@@ -36,10 +40,11 @@ import quoi.module.impl.dungeon.autoclear.MobClusterer
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.group.ToggleableGroup
 import quoi.module.settings.impl.MapSetting
-import quoi.utils.WorldUtils.blocksBelow
+import quoi.utils.WorldUtils.blocksAtFeet
 import quoi.utils.WorldUtils.nearbyBlocks
 import quoi.utils.WorldUtils.solid
 import quoi.utils.WorldUtils.state
+import quoi.utils.WorldUtils.ticksUntilCollision
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawLine
 import quoi.utils.skyblock.player.interact.AuraAction
@@ -141,7 +146,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
         val command = BaseCommand("quoitest")
 
         command.sub("testblock") {
-            val a = player.blocksBelow { _, state ->
+            val a = player.blocksAtFeet { _, state ->
                 state.block == Blocks.TERRACOTTA
             }.firstOrNull()?.first ?: return@sub modMessage("no terracotta")
 
@@ -224,6 +229,18 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 //                }
                 ctx.drawLine(path, colour = Colour.WHITE, depth = false)
             }
+
+//            val simulation = PlayerSimulation.simulation
+//            val points = mutableListOf<Vec3>()
+//
+//            points.add(player.position())
+//
+//            repeat(20) {
+//                val snapshot = simulation.getSnapshotAt(it + 1)
+//                points.add(snapshot.pos)
+//            }
+//
+//            ctx.drawLine(points, Colour.WHITE, depth = true)
         }
 
         on<DungeonEvent.Room.Scan> {
@@ -244,7 +261,23 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 ////            println("test")
 //        }
 
+        on<KeyEvent.Input>(Priority.LOW) {
+            if (!input.moving || player.blocksAtFeet(0.0, fire).any()) return@on
+            val ticks = ticksUntilCollision(BlockPos(-1900, 66, -1900)) ?: return@on
+            if (ticks <= 1) {
+                input.forward = false
+                input.backward = false
+                input.left = false
+                input.right = false
+                input.shift = true
+            }
+        }
+
         command.register()
+    }
+
+    private val fire: (BlockPos, BlockState) -> Boolean = { _, state ->
+        state.block == Blocks.FIRE
     }
 
     private var clusters: List<MobCluster>? = null

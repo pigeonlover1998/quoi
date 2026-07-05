@@ -10,7 +10,7 @@ import quoi.module.impl.misc.slayers.QuestState
 import quoi.module.impl.misc.slayers.Slayers
 import quoi.module.settings.group.ToggleableGroup
 import quoi.utils.ChatUtils.modMessage
-import quoi.utils.WorldUtils.blocksBelow
+import quoi.utils.WorldUtils.blocksAtFeet
 import quoi.utils.WorldUtils.nearbyBlocks
 import quoi.utils.WorldUtils.registryName
 import quoi.utils.WorldUtils.solid
@@ -24,7 +24,7 @@ object DDRDodge : ToggleableGroup(BlazeSlayer, "DDR dodge", desc = "Automaticall
         on<TickEvent.End> {
             if (Slayers.questState != QuestState.KILLING) return@on
             if (mc.screen != null || !BlazeSlayer.blazeBoss.canDDR) return@on
-            val a = player.blocksBelow { _, state -> state.isTerra }.firstOrNull()?.first ?: return@on
+            val a = player.blocksAtFeet(-1) { _, state -> state.isTerra }.firstOrNull()?.first ?: return@on
 
             val safePos =
                 player.position().nearbyBlocks(2.0f) { !it.state.isTerra && it.solid }

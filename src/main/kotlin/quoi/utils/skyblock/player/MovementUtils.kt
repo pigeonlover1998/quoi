@@ -9,6 +9,7 @@ import quoi.annotations.Init
 import quoi.api.events.KeyEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.EventListener
+import quoi.api.events.core.Priority
 import quoi.api.events.core.on
 import quoi.api.input.MutableInput
 import quoi.utils.Scheduler.scheduleTask
@@ -33,7 +34,7 @@ object MovementUtils : EventListener, Shortcuts {
     private var currentInput: MutableInput? = null
 
     init {
-        on<KeyEvent.Input> {
+        on<KeyEvent.Input>(Priority.LOWEST) {
             currentInput = input
 
             while (movementTask != null) {

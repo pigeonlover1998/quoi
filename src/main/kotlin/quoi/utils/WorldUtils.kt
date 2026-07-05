@@ -11,12 +11,14 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.status.ChunkStatus
+import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 import net.minecraft.world.phys.shapes.VoxelShape
 import quoi.utils.skyblock.item.TeleportUtils.BLOCKS_FEET
 import quoi.utils.skyblock.item.TeleportUtils.PASSABLE
 import quoi.utils.skyblock.item.TeleportUtils.blockFlags
+import quoi.utils.skyblock.player.simulation.PlayerSimulation
 import net.minecraft.core.Direction as McDirection
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -67,23 +69,52 @@ object WorldUtils { // todo cleanup
         return "${registry.namespace}:${registry.path}"
     }
 
-    fun LocalPlayer.blocksBelow(): Iterable<BlockPos> {
-        val box = this.boundingBox
-        val y = floor(box.minY - 1.0).toInt()
+    fun AABB.blocksAtFeet(offset: Number = 0.0): Iterable<BlockPos> {
+        val y = floor(minY + offset.toDouble()).toInt()
 
-        val minX = floor(box.minX).toInt()
-        val minZ = floor(box.minZ).toInt()
-        val maxX = floor(box.maxX).toInt()
-        val maxZ = floor(box.maxZ).toInt()
+        val minX = floor(minX).toInt()
+        val minZ = floor(minZ).toInt()
+        val maxX = floor(maxX).toInt()
+        val maxZ = floor(maxZ).toInt()
 
         return BlockPos.betweenClosed(minX, y, minZ, maxX, y, maxZ)
     }
 
-    fun LocalPlayer.blocksBelow(predicate: (BlockPos, BlockState) -> Boolean) =
-        blocksBelow().iterator().asSequence().mapNotNull { pos ->
+    fun AABB.blocksAtFeet(offset: Number = 0.0, predicate: (BlockPos, BlockState) -> Boolean) =
+        blocksAtFeet(offset).iterator().asSequence().mapNotNull { pos ->
             val state = pos.state
             if (predicate(pos, state)) pos.immutable() to state else null
         }
+
+    fun LocalPlayer.blocksAtFeet(offset: Number = 0.0) = boundingBox.blocksAtFeet(offset)
+    fun LocalPlayer.blocksAtFeet(offset: Number = 0.0, predicate: (BlockPos, BlockState) -> Boolean) = boundingBox.blocksAtFeet(offset, predicate)
+
+    fun ticksUntilCollision(pos: BlockPos): Double? {
+        val snapshots = PlayerSimulation.simulation.getSnapshotsBetween(1.0..3.0, 0.5)
+        val box = pos.aabb
+
+        var error = 0.0
+
+        snapshots.forEachIndexed { i, snapshot ->
+            val p = snapshot.pos
+            val tick = i * 0.5
+
+            if (box.intersects(
+                    p.x - error,
+                    p.y,
+                    p.z - error,
+                    p.x + error,
+                    p.y + 1.8 + error,
+                    p.z + error
+                )
+            ) return tick
+
+            error += 0.05
+
+        }
+
+        return null
+    }
 
     fun worldToMap(n: Number, inMin: Number, inMax: Number, outMin: Number, outMax: Number): Double = (n.toDouble() - inMin.toDouble()) * (outMax.toDouble() - outMin.toDouble()) / (inMax.toDouble() - inMin.toDouble()) + outMin.toDouble()
 
