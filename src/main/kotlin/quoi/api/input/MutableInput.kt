@@ -23,13 +23,12 @@ data class MutableInput(
 
     fun toInput(): Input = Input(forward, backward, left, right, jump, shift, sprint)
 
-    fun invert() = MutableInput(
-        backward,
-        forward,
-        right,
-        left,
-        jump, shift, sprint
-    )
+    fun stop() {
+        forward = false
+        backward = false
+        left = false
+        right = false
+    }
 
     val moving: Boolean get() = forward != backward || left != right
 }

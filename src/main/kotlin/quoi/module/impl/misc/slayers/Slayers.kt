@@ -4,8 +4,10 @@ import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.decoration.ArmorStand
 import quoi.api.events.PacketEvent
+import quoi.api.events.SlayerEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.core.trackedBy
+import quoi.api.skyblock.location.Island
 import quoi.module.Module
 import quoi.module.impl.misc.slayers.blaze.BlazeSlayer
 import quoi.utils.EntityUtils.getEntities
@@ -13,8 +15,10 @@ import quoi.utils.EntityUtils.getEntity
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.romanToInt
 
+@Suppress("unnecessary_safe_call")
 object Slayers : Module(
-    "Slayers"
+    "Slayers",
+    area = Island.Skyblock
 ) {
 
     private val slayers = setOf(
@@ -33,12 +37,16 @@ object Slayers : Module(
         val params = packet.parameters.orElse(null) ?: return@trackedBy it
 
         val text = (params.playerPrefix.string + params.playerSuffix.string).noControlCodes.trim()
-        when {
+        val new = when {
             text.contains("Combat") || text.contains("Kills") -> QuestState.SPAWNING
             text == "Slay the boss!" -> QuestState.KILLING
             text == "Boss slain!" -> QuestState.SLAIN
             else -> it // can get stuck when boss is slain and you collect the reward but doesn't really matter since I won't be using it prob.
         }
+
+        if (new != it) SlayerEvent.State(it, new).post()
+
+        new
     }
 
     val currentBoss by trackedBy<TickEvent.End, LivingEntity?>(null) { boss ->
@@ -48,7 +56,7 @@ object Slayers : Module(
         }
 
         boss?.let {
-            if (!it.isDeadOrDying) return@trackedBy it
+            if (!it.isDeadOrDying && !it.isRemoved) return@trackedBy it
             return@trackedBy null
         }
 

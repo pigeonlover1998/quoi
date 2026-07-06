@@ -69,31 +69,34 @@ object WorldUtils { // todo cleanup
         return "${registry.namespace}:${registry.path}"
     }
 
-    fun AABB.blocksAtFeet(offset: Number = 0.0): Iterable<BlockPos> {
-        val y = floor(minY + offset.toDouble()).toInt()
+    fun LocalPlayer.blocksAtFeet(offset: Number = 0.0): Iterable<BlockPos> {
+        val box = boundingBox
+        val y = floor(box.minY + offset.toDouble()).toInt()
 
-        val minX = floor(minX).toInt()
-        val minZ = floor(minZ).toInt()
-        val maxX = floor(maxX).toInt()
-        val maxZ = floor(maxZ).toInt()
+        val minX = floor(box.minX).toInt()
+        val minZ = floor(box.minZ).toInt()
+        val maxX = floor(box.maxX).toInt()
+        val maxZ = floor(box.maxZ).toInt()
 
         return BlockPos.betweenClosed(minX, y, minZ, maxX, y, maxZ)
     }
 
-    fun AABB.blocksAtFeet(offset: Number = 0.0, predicate: (BlockPos, BlockState) -> Boolean) =
+    fun LocalPlayer.blocksAtFeet(offset: Number = 0.0, predicate: (BlockPos, BlockState) -> Boolean) =
         blocksAtFeet(offset).iterator().asSequence().mapNotNull { pos ->
             val state = pos.state
             if (predicate(pos, state)) pos.immutable() to state else null
         }
 
-    fun LocalPlayer.blocksAtFeet(offset: Number = 0.0) = boundingBox.blocksAtFeet(offset)
-    fun LocalPlayer.blocksAtFeet(offset: Number = 0.0, predicate: (BlockPos, BlockState) -> Boolean) = boundingBox.blocksAtFeet(offset, predicate)
+    fun LocalPlayer.blocksAtFeet(offset: Number = 0.0, predicate: (BlockPos) -> Boolean) =
+        blocksAtFeet(offset).iterator().asSequence().mapNotNull { pos ->
+            if (predicate(pos)) pos.immutable() else null
+        }
 
     fun ticksUntilCollision(pos: BlockPos): Double? {
         val snapshots = PlayerSimulation.simulation.getSnapshotsBetween(1.0..3.0, 0.5)
         val box = pos.aabb
 
-        var error = 0.0
+        var error = 0.1
 
         snapshots.forEachIndexed { i, snapshot ->
             val p = snapshot.pos
@@ -109,7 +112,7 @@ object WorldUtils { // todo cleanup
                 )
             ) return tick
 
-            error += 0.05
+            error += 0.1
 
         }
 

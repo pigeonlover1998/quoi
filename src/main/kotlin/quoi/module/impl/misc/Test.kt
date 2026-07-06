@@ -261,17 +261,17 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 ////            println("test")
 //        }
 
-        on<KeyEvent.Input>(Priority.LOW) {
-            if (!input.moving || player.blocksAtFeet(0.0, fire).any()) return@on
-            val ticks = ticksUntilCollision(BlockPos(-1900, 66, -1900)) ?: return@on
-            if (ticks <= 1) {
-                input.forward = false
-                input.backward = false
-                input.left = false
-                input.right = false
-                input.shift = true
-            }
-        }
+//        on<KeyEvent.Input>(Priority.LOW) {
+//            if (!input.moving || player.blocksAtFeet(0.0, fire).any()) return@on
+//            val ticks = ticksUntilCollision(BlockPos(-1900, 66, -1900)) ?: return@on
+//            if (ticks <= 1) {
+//                input.forward = false
+//                input.backward = false
+//                input.left = false
+//                input.right = false
+//                input.shift = true
+//            }
+//        }
 
         command.register()
     }

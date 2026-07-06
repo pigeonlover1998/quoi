@@ -16,12 +16,12 @@ import quoi.utils.EntityUtils.getEntities
 import quoi.utils.EntityUtils.getEntity
 import quoi.utils.StringUtils.noControlCodes
 
-// todo auto demon fire dodge (more like a walk in preventer), auto aim. I am too lazy to do it myself.
+// todo auto aim.
 object BlazeSlayer : SettingGroup(Slayers, "Blaze", area = Island.CrimsonIsle, subarea = "smoldering tomb"), ISlayer {
 
     override val features = setOf(
         AutoAttune,
-        DDRDodge
+        DamageDodge
     )
 
     inline val blazeBoss: Blaze?
@@ -42,11 +42,11 @@ object BlazeSlayer : SettingGroup(Slayers, "Blaze", area = Island.CrimsonIsle, s
 
 
     // could fail if someone next to you spawns demons at the same time, but it's very unlikely it'd every happen
-    private val demons by trackedBy<TickEvent.End, Pair<LivingEntity, LivingEntity>?>(null) { demons ->
+    val demons by trackedBy<TickEvent.End, Pair<LivingEntity, LivingEntity>?>(null) { demons ->
         if (Slayers.questState != QuestState.KILLING || blazeBoss?.isInvisible == false) return@trackedBy null // boss becomes invisible during demons phase
 
         demons?.let { (wither, pig) ->
-            if (!wither.isDeadOrDying || !pig.isDeadOrDying) return@trackedBy demons
+            if ((!wither.isDeadOrDying && !wither.isRemoved) || (!pig.isDeadOrDying && !pig.isRemoved)) return@trackedBy demons
             return@trackedBy null
         }
 
