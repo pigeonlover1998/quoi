@@ -45,28 +45,23 @@ object DungeonESP : Module(
     private val teammateClassGlow by switch("Teammate class glow", true, desc = "Highlights dungeon teammates based on their class colour.")
     private val starEsp by switch("Starred mobs")
 
-    private val depth by switch("Depth check").childOf(::starEsp)
-    private val style by selector("Style", "Box", arrayListOf("Box", "Filled box", "Glow"/*, "2D"*/), desc = "Esp render style to be used.").childOf(::starEsp)
-    private val thickness by slider("Thickness", 4, 1, 8, 1).childOf(::style) { it.selected.equalsOneOf("Box", "Filled box") }
-    private val sizeOffset by slider("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").childOf(::style) { it.selected.equalsOneOf("Box", "Filled box") }
+    private val starHighlight = highlight(colour = null, fillColour = null).apply { childOf(::starEsp)} // fixme
 
     private val colourDropdown by text("Colours").childOf(::starEsp)
     private val colourStar by colourPicker("Star", Colour.RED, true, "ESP color for star mobs.").childOf(::colourDropdown)
     private val colourSA by colourPicker("Shadow assassin", Colour.RED, true, "ESP color for shadow assassins.").childOf(::colourDropdown)
     private val colourBat by colourPicker("Bat", Colour.RED, true, "ESP color for bats.").childOf(::colourDropdown)
 
-    private val fillDropdown by text("Fill colours").childOf(::starEsp).visibleIf { style.selected == "Filled box" }
+    private val fillDropdown by text("Fill colours").childOf(::starEsp).visibleIf { starHighlight.style == "Filled box" }
     private val colourStarFill by colourPicker("Star", Colour.RED.withAlpha(60), true, "ESP color for star mobs.").json("Star fill").childOf(::fillDropdown)
     private val colourSAFill by colourPicker("Shadow assassin", Colour.RED.withAlpha(60), true, "ESP color for shadow assassins.").json("Shadow assassin fill").childOf(::fillDropdown)
     private val colourBatFill by colourPicker("Bat", Colour.RED.withAlpha(60), true, "ESP color for bats.").json("Bat fill").childOf(::fillDropdown)
 
     private val bossEsp by switch("Wither boss")
-    private val depthBoss by switch("Depth check").json("Depth check boss").childOf(::bossEsp)
-    private val styleBoss by selector("Style", "Box", arrayListOf("Box", "Filled box", "Glow"/*, "2D"*/), desc = "Esp render style to be used.").json("Style boss").childOf(::bossEsp)
-    private val colourBoss by colourPicker("Colour", Colour.WHITE, desc = "Colour for the Boss ESP").json("Colour boss").childOf(::styleBoss)
-    private val fillColourBoss by colourPicker("Fill colour", Colour.WHITE.withAlpha(60), allowAlpha = true, desc = "Fill colour for the Boss ESP").json("Fill colour boss").childOf(::styleBoss).visibleIf { style.selected == "Filled box" }
-    private val thicknessBoss by slider("Thickness", 4, 1, 8, 1).json("Thickness boss").childOf(::styleBoss)
-    private val sizeOffsetBoss by slider("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").json("Size offset boss").childOf(::styleBoss).visibleIf { style.selected.equalsOneOf("Box", "Filled box") }
+    private val bossHighlight = highlight("Style", aabbOffset = true).apply {
+        component.json("Boss style")
+        childOf(::bossEsp)
+    }
 
     var currentEntities = mutableMapOf<Int, EspMob>()
         private set
@@ -87,20 +82,15 @@ object DungeonESP : Module(
                 val entity = mob.entity
 
                 if (entity.isDeadOrDying || entity.isRemoved) return@removeIf true
+                if (!enabled || !starEsp) return@removeIf false
 
-                if (enabled && starEsp && style.selected != "Glow") {
-                    val aabb = entity.interpolatedBox.inflate(sizeOffset, 0.0, sizeOffset)
-                    ctx.drawStyledBox(style.selected, aabb, mob.colour, mob.fillColour, thickness.toFloat(), depth)
-                }
+                starHighlight.draw(ctx, entity.interpolatedBox, mob.colour, mob.fillColour)
                 false
             }
 
             if (enabled && bossEsp && inBoss && floor?.floorNumber == 7) getEntities<WitherBoss>()
                 .filter { it.isWitherBoss }
-                .forEach { entity ->
-                    val aabb = entity.interpolatedBox.inflate(sizeOffsetBoss, 0.0, sizeOffsetBoss)
-                    ctx.drawStyledBox(styleBoss.selected, aabb, colourBoss, fillColourBoss, thicknessBoss.toFloat(), depthBoss)
-                }
+                .forEach { bossHighlight.draw(ctx, it.interpolatedBox) }
         }
 
         on<EntityEvent.ForceGlow> {
@@ -108,23 +98,18 @@ object DungeonESP : Module(
             getTeammateColour(entity)?.let { glowColour = it }
 
             if (starEsp) {
-                if (style.selected != "Glow") return@on
-                if (depth && !player.hasLineOfSight(entity)) return@on
-
                 getColour(entity)?.let {
-                    glowColour = it.first
+                    starHighlight.draw(this, it.first)
                     return@on
                 }
 
                 currentEntities[entity.id]?.let {
-                    glowColour = it.colour
+                    starHighlight.draw(this, it.colour)
                 }
             }
 
-            if (bossEsp && inBoss && floor?.floorNumber == 7) {
-                if (styleBoss.selected != "Glow" && !entity.isWitherBoss) return@on
-                if (depthBoss && !player.hasLineOfSight(entity)) return@on
-                glowColour = colourBoss
+            if (bossEsp && inBoss && floor?.floorNumber == 7 && entity.isWitherBoss) {
+                bossHighlight.draw(this)
             }
         }
     }

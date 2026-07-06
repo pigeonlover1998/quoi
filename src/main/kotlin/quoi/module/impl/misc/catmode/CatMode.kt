@@ -19,7 +19,7 @@ import quoi.utils.StringUtils.FORMATTING_CODE_PATTERN
  */
 object CatMode : Module(
     "Cat Mode",
-    desc = "MEOWMEOWMEOWMEOWMEOWMEOWMEOW"
+    desc = "MEOWMEOWMEOW"
 ) {
     private val meowSound by switch("Meowound", desc = "Meow sound everywhere")
     private val meowText by switch("Meow meow?", desc = "Meow everywhere")

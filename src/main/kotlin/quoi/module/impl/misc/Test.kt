@@ -59,6 +59,9 @@ import kotlin.collections.mutableListOf
 
 object Test : Module("Test", desc = "Dev module for testing.") {
 
+    val highlightTest = highlight()
+    val tracerTest = tracer()
+
     val testGroup = TestGroup(this)
     val auraDebug by switch("Aura debug")
     val uiDebug by switch("UI debug").onValueChanged { old, new -> ClickGui.reopen() }
@@ -229,6 +232,9 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 //                }
                 ctx.drawLine(path, colour = Colour.WHITE, depth = false)
             }
+//            val a = BlockPos(-1900, 67, -1900)
+//            highlightTest.draw(ctx, a.aabb)
+//            tracerTest.draw(ctx, a.center)
 
 //            val simulation = PlayerSimulation.simulation
 //            val points = mutableListOf<Vec3>()

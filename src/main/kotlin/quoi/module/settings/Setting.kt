@@ -1,6 +1,5 @@
 package quoi.module.settings
 
-import quoi.module.Module
 import quoi.module.settings.impl.TextComponent
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -48,14 +47,6 @@ abstract class Setting<T> (
     companion object {
 
         val gson: Gson = GsonBuilder().setPrettyPrinting().create()
-
-        @Deprecated("use dependsOn")
-        fun <K : Setting<T>, T> K.withDependency(dropdown: TextComponent? = null, dependency: () -> Boolean = { true }): K {
-//            if (this is UISetting<*>) dropdown?.children?.add(this)
-//            parent = dropdown
-//            visibilityDependency = { (dropdown?.visibilityDependency?.invoke() ?: true) && dependency() }
-            return this
-        }
 
         // allows you to set a custom json name for config file to have duplicate setting names in ui
         fun <K : Setting<T>, T> K.json(name: String): K {
