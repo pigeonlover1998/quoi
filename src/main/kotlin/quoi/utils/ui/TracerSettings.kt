@@ -52,28 +52,30 @@ class TracerSettings(
     /**
      * Draws a tracer line
      * @param colour colour used if the custom colour toggle is off
+     * @param overrideColour if not `null` forces this colour ignoring custom colour switch and picker
      */
     fun draw(
         ctx: LevelRenderContext,
         to: Vec3,
         colour: Colour = Colour.WHITE,
+        overrideColour: Colour? = null,
         distanceToCamera: Double = 6767.0
     ) {
         if (!enabled) return
 
         if (distance != null && distanceToCamera > distance.value) return
 
-        val c = if (this.colour != null && customCol.value) this.colour.value else colour
+        val c = overrideColour ?: if (this.colour != null && customCol.value) this.colour.value else colour
         ctx.drawTracer(to, c, thickness, depth = false)
     }
 
     /**
      * Draws a tracer line to entity
-     * @param colour colour used if the custom colour toggle is off
      */
     fun draw(
         ctx: LevelRenderContext,
         to: Entity,
-        colour: Colour = Colour.WHITE
-    ) = draw(ctx, to.renderPos.add(0.0, 1.5, 0.0), colour, to.distanceToCamera)
+        colour: Colour = Colour.WHITE,
+        overrideColour: Colour? = null
+    ) = draw(ctx, to.renderPos.add(0.0, 1.5, 0.0), colour, overrideColour, to.distanceToCamera)
 }

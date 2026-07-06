@@ -15,7 +15,7 @@ import quoi.utils.render.drawStyledBox
 import quoi.module.settings.SettingsDSL
 
 /**
- * A s[SettingGroup] for rendering esp boxes
+ * A [SettingGroup] for rendering esp boxes
  * Represents a selector with styles (Box, Filled box, Glow) with optional colour and other settings
  *
  * @param module Parent module
@@ -61,12 +61,14 @@ class HighlightSettings( // kinda ugly but it works
         if (customColour && colour != null) +it
         else it.value = true
     }
-    private val outline = colour?.let { col ->
+    private val _outline = colour?.let { col ->
         colourPicker("Colour", col, allowAlpha = true).also {
             if (!customColour) +it
             else it.childOf(customCol)
         }
     }
+    val outline: Colour
+        get() = _outline?.value ?: Colour.WHITE
 
     private val fillCustomCol = switch("Fill custom colour")
         .visibleIf { style == "Filled box" }
@@ -75,7 +77,7 @@ class HighlightSettings( // kinda ugly but it works
             else it.value = true
         }
 
-    private val fill = fillColour?.let { col ->
+    private val _fill = fillColour?.let { col ->
         colourPicker("Fill colour", col, allowAlpha = true)
             .visibleIf { style == "Filled box" }
             .also {
@@ -83,6 +85,8 @@ class HighlightSettings( // kinda ugly but it works
                 else +it.childOf(fillCustomCol)
             }
     }
+    val fill: Colour
+        get() = _fill?.value ?: Colour.WHITE
 
     private val depth by switch("Depth check")
     private val thickness by slider("Thickness", 4f, 1f, 8f, 0.5f)
@@ -94,31 +98,33 @@ class HighlightSettings( // kinda ugly but it works
     /**
      * Draws a styled bounding box
      * @param colour outline colour used if the custom colour toggle is off
-     * @param fillColour fill colour used if the custom colour toggle is off
+     * @param overrideColour if not `null` forces this colour ignoring custom colour switch and picker
      */
     fun draw(
         ctx: LevelRenderContext,
         aabb: AABB,
         colour: Colour = Colour.WHITE,
         fillColour: Colour = Colour.WHITE.withAlpha(67),
+        overrideColour: Colour? = null,
+        overrideFillColour: Colour? = null,
     ) {
         if (style == "Glow") return
 
         val box = if (aabbOffset) aabb.inflate(sizeOffset.value, 0.0, sizeOffset.value) else aabb
-        val c = if (outline != null && customCol.value) outline.value else colour
-        val fc = if (fill != null && fillCustomCol.value) fill.value else fillColour.withAlpha(fill?.value?.alpha ?: 1f) // idk maybe make fill colour alpha slider when custom is true but disabled
+
+        val c = overrideColour ?: if (_outline != null && customCol.value) _outline.value else colour
+        val fc = overrideFillColour ?: if (_fill != null && fillCustomCol.value) _fill.value else fillColour.withAlpha(_fill?.value?.alpha ?: 1f) // idk maybe make fill colour alpha slider when custom is true but disabled
 
         ctx.drawStyledBox(style, box, c, fc, thickness, depth)
     }
 
     /**
      * shit for glow
-     * @param colour colour used if the custom colour toggle is off
      */
-    fun draw(event: EntityEvent.ForceGlow, colour: Colour = Colour.WHITE) {
+    fun draw(event: EntityEvent.ForceGlow, colour: Colour = Colour.WHITE, overrideColour: Colour? = null) {
         if (style != "Glow") return
         if (depth && !player.hasLineOfSight(event.entity)) return // todo replace with something better.
-        val c = if (outline != null && customCol.value) outline.value else colour
+        val c = overrideColour ?: if (_outline != null && customCol.value) _outline.value else colour
         event.glowColour = c
     }
 }

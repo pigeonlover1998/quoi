@@ -112,20 +112,26 @@ open class SettingGroup(
         return setting
     }
 
-    fun childOf(parentC: UIComponent<*>?, condition: () -> Boolean = { (parentC?.value as? Boolean) ?: true }) = apply {
-        component.childOf(parentC, condition)
-    }
+    companion object {
+        fun <T : SettingGroup> T.json(name: String) = apply {
+            component.json(name)
+        }
 
-    fun childOf(parent: KProperty0<*>?) = apply {
-        component.childOf(parent)
-    }
+        fun <T : SettingGroup> T.childOf(parentC: UIComponent<*>?, condition: () -> Boolean = { (parentC?.value as? Boolean) ?: true }) = apply {
+            component.childOf(parentC, condition)
+        }
 
-    fun <P> childOf(parent: KProperty0<P>?, condition: (P) -> Boolean) = apply {
-        component.childOf(parent, condition)
-    }
+        fun <T : SettingGroup> T.childOf(parent: KProperty0<*>?) = apply {
+            component.childOf(parent)
+        }
 
-    @JvmName("childOfBooleanGroup")
-    fun childOf(parent: KProperty0<Boolean>) = apply {
-        component.childOf(parent)
+        fun <T : SettingGroup, P> T.childOf(parent: KProperty0<P>?, condition: (P) -> Boolean) = apply {
+            component.childOf(parent, condition)
+        }
+
+        @JvmName("childOfBooleanGroup")
+        fun <T : SettingGroup> T.childOf(parent: KProperty0<Boolean>) = apply {
+            component.childOf(parent)
+        }
     }
 }

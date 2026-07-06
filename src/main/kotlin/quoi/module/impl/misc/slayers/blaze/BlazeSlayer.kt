@@ -5,6 +5,7 @@ import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.world.entity.monster.Blaze
 import net.minecraft.world.entity.monster.skeleton.WitherSkeleton
 import net.minecraft.world.entity.monster.zombie.ZombifiedPiglin
+import quoi.api.colour.Colour
 import quoi.api.events.TickEvent
 import quoi.api.events.core.trackedBy
 import quoi.api.skyblock.location.Island
@@ -75,6 +76,9 @@ object BlazeSlayer : SettingGroup(Slayers, "Blaze", area = Island.CrimsonIsle, s
         val name = stand?.customName?.string?.noControlCodes ?: return null
         return Attunement.entries.firstOrNull { name.contains(it.name, true) }
     }
+
+    override val entitiesForRender: List<Pair<LivingEntity, Colour?>> // untested, maybe works
+        get() = demons?.toList()?.map { it to it.getAttune()?.colour }.orEmpty()
 
     override val running: Boolean
         get() = super.running && features.any { it.enabled }

@@ -27,6 +27,8 @@ import quoi.module.impl.misc.Test
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.UIComponent.Companion.visibleIf
+import quoi.module.settings.group.SettingGroup.Companion.childOf
+import quoi.module.settings.group.SettingGroup.Companion.json
 import quoi.utils.EntityUtils.getEntities
 import quoi.utils.EntityUtils.getEntity
 import quoi.utils.EntityUtils.interpolatedBox
@@ -45,7 +47,7 @@ object DungeonESP : Module(
     private val teammateClassGlow by switch("Teammate class glow", true, desc = "Highlights dungeon teammates based on their class colour.")
     private val starEsp by switch("Starred mobs")
 
-    private val starHighlight = highlight(colour = null, fillColour = null).apply { childOf(::starEsp)} // fixme
+    private val starHighlight = highlight(colour = null, fillColour = null).childOf(::starEsp)
 
     private val colourDropdown by text("Colours").childOf(::starEsp)
     private val colourStar by colourPicker("Star", Colour.RED, true, "ESP color for star mobs.").childOf(::colourDropdown)
@@ -58,10 +60,7 @@ object DungeonESP : Module(
     private val colourBatFill by colourPicker("Bat", Colour.RED.withAlpha(60), true, "ESP color for bats.").json("Bat fill").childOf(::fillDropdown)
 
     private val bossEsp by switch("Wither boss")
-    private val bossHighlight = highlight("Style", aabbOffset = true).apply {
-        component.json("Boss style")
-        childOf(::bossEsp)
-    }
+    private val bossHighlight = highlight("Style", aabbOffset = true).json("Boss style").childOf(::bossEsp)
 
     var currentEntities = mutableMapOf<Int, EspMob>()
         private set

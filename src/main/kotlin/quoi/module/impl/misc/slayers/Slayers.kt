@@ -1,17 +1,25 @@
 package quoi.module.impl.misc.slayers
 
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.decoration.ArmorStand
+import quoi.api.colour.Colour
+import quoi.api.colour.alpha
+import quoi.api.colour.withAlpha
 import quoi.api.events.PacketEvent
+import quoi.api.events.RenderEvent
 import quoi.api.events.SlayerEvent
 import quoi.api.events.TickEvent
+import quoi.api.events.core.on
 import quoi.api.events.core.trackedBy
 import quoi.api.skyblock.location.Island
 import quoi.module.Module
 import quoi.module.impl.misc.slayers.blaze.BlazeSlayer
+import quoi.module.settings.group.SettingGroup.Companion.childOf
 import quoi.utils.EntityUtils.getEntities
 import quoi.utils.EntityUtils.getEntity
+import quoi.utils.EntityUtils.interpolatedBox
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.romanToInt
 
@@ -23,10 +31,28 @@ object Slayers : Module(
 
     private val slayers = setOf(
         BlazeSlayer
-    ).flatMap { it.features }
+    )
+
+    private val esp by switch("Boss ESP")
+    private val highlight = highlight(aabbOffset = true).childOf(::esp)
+    private val tracer = tracer(distance = null).childOf(::esp)
+
+    init {
+        on<RenderEvent.World> {
+            if (!esp || questState != QuestState.KILLING) return@on
+
+            ctx.drawSlayer(currentBoss)
+
+            slayers.forEach { slayer ->
+                slayer.entitiesForRender.forEach { (it, col) ->
+                    ctx.drawSlayer(it, col)
+                }
+            }
+        }
+    }
 
     override fun onDisable() {
-        slayers.forEach { it.onDisable() }
+        slayers.forEach { s -> s.features.forEach { it.onDisable() } }
         super.onDisable()
     }
 
@@ -41,7 +67,7 @@ object Slayers : Module(
             text.contains("Combat") || text.contains("Kills") -> QuestState.SPAWNING
             text == "Slay the boss!" -> QuestState.KILLING
             text == "Boss slain!" -> QuestState.SLAIN
-            else -> it // can get stuck when boss is slain and you collect the reward but doesn't really matter since I won't be using it prob.
+            else -> it // can get stuck when boss is slain, and you collect the reward but doesn't really matter since I won't be using it prob.
         }
 
         if (new != it) SlayerEvent.State(it, new).post()
@@ -72,8 +98,19 @@ object Slayers : Module(
             ?.let { (tier) -> romanToInt(tier) }
             ?: return@trackedBy null
 
-        val a = getEntity(spawnedBy.id - 3) as? LivingEntity
-        a
+        getEntity(spawnedBy.id - 3) as? LivingEntity
+    }
+
+    private fun LevelRenderContext.drawSlayer(entity: LivingEntity?, overrideColour: Colour? = null) {
+        if (entity == null) return
+        highlight.draw(
+            this,
+            entity.interpolatedBox,
+            overrideColour = overrideColour,
+            overrideFillColour = overrideColour?.withAlpha(highlight.fill.alpha)
+        )
+
+        tracer.draw(this, entity, overrideColour = overrideColour)
     }
 
     private val tierRegex = Regex(".* (I{1,3}|IV|V) \\d+.*❤$")
