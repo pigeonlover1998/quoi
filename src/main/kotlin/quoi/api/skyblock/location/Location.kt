@@ -66,9 +66,9 @@ object Location : EventListener {
                 is ClientboundSetObjectivePacket ->
                     if (!inSkyblock) inSkyblock = onHypixel && packet.objectiveName == "SBScoreboard" || ClickGui.forceSkyblock || onZapto
 
-                is ClientboundSetPlayerTeamPacket -> {
+                is ClientboundSetPlayerTeamPacket -> { // todo fix when skyblock is alive
                     val team = packet.parameters.orElse(null) ?: return@on
-                    val text = team.playerPrefix.string.noControlCodes + team.playerSuffix.string.noControlCodes
+                    val text = (team.playerPrefix.string + team.playerSuffix.string).noControlCodes
 
                     if (packet.name.matches(teamRegex) && text.matches(subAreaRegex) && text.lowercase() != subarea) {
                         subarea = text.lowercase()

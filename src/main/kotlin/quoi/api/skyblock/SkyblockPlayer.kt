@@ -68,12 +68,12 @@ object SkyblockPlayer : EventListener, Shortcuts {
     var commandsTick = -1
         private set
 
-    val HP_REGEX = Regex("§[c6]([\\d,]+)/([\\d,]+)❤") // §c1389/1390❤ , §62181/1161❤
-    val DEF_REGEX = Regex("§a([\\d,]+)§a❈ Defense") // §a593§a❈ Defense
-    val MANA_REGEX = Regex("§b([\\d,]+)/([\\d,]+)✎( Mana)?") // §b550/550✎ Mana§r
+    val HP_REGEX = Regex("§[c6]([\\d,]+)/([\\d,]+)[\uE010❤]") // §c1389/1390❤ , §62181/1161❤
+    val DEF_REGEX = Regex("§a([\\d,]+)§a[\uE008❈] Defense") // §a593§a❈ Defense
+    val MANA_REGEX = Regex("§b([\\d,]+)/([\\d,]+)[\uE003✎]( Mana)?") // §b550/550✎ Mana§r
 
-    val OVERFLOW_REGEX = Regex("§3([\\d,]+)ʬ") // §3100ʬ
-    val STACKS_REGEX = Regex("§6([0-9]+[ᝐ⁑Ѫ])") // §610⁑
+    val OVERFLOW_REGEX = Regex("§3([\\d,]+)ʬ") // §3100ʬ // fixme
+    val STACKS_REGEX = Regex("§6([0-9]+[ᝐ⁑Ѫ])") // §610⁑ // fixme
     val SALVATION_REGEX = Regex("T([1-3])!") // no idea
 
     val MANA_USAGE_REGEX = Regex("§b-[\\d,]+ Mana \\(§6.+?§b\\)|§c§lNOT ENOUGH MANA") // §b-50 Mana (§6Speed Boost§b) , §c§lNOT ENOUGH MANA
