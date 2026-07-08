@@ -40,7 +40,7 @@ object Location : EventListener {
         private set
 
     private val teamRegex = Regex("^team_(\\d+)$")
-    private val subAreaRegex = Regex("^ ([⏣ф]) .*")
+    private val subAreaRegex = Regex("^ ([\uE067\uE020]) .*")
     private val serverIdRegex = Regex("\\d\\d/\\d\\d/\\d\\d (\\w{0,6}) *")
 
     init {
@@ -66,7 +66,7 @@ object Location : EventListener {
                 is ClientboundSetObjectivePacket ->
                     if (!inSkyblock) inSkyblock = onHypixel && packet.objectiveName == "SBScoreboard" || ClickGui.forceSkyblock || onZapto
 
-                is ClientboundSetPlayerTeamPacket -> { // todo fix when skyblock is alive
+                is ClientboundSetPlayerTeamPacket -> {
                     val team = packet.parameters.orElse(null) ?: return@on
                     val text = (team.playerPrefix.string + team.playerSuffix.string).noControlCodes
 
