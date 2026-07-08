@@ -11,6 +11,7 @@ import quoi.api.events.TickEvent
 import quoi.api.events.core.on
 import quoi.module.Module
 import quoi.utils.EntityUtils.getEntities
+import quoi.utils.EntityUtils.helmet
 import quoi.utils.getDirection
 import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.skyblock.player.PlayerUtils.useItem
@@ -50,7 +51,7 @@ object AutoCarnival : Module(
 
     private fun getTargets(): List<Vec3> {
         val zombies = getEntities<Zombie>(50.0) { !it.isDeadOrDying }
-            .groupBy({ it.getItemBySlot(EquipmentSlot.HEAD).item }) { z ->
+            .groupBy({ it.helmet.item }) { z ->
                 val m = z.deltaMovement
                 Vec3(z.x + m.x * 8.0, z.y + z.eyeHeight, z.z + m.z * 8.0)
             }

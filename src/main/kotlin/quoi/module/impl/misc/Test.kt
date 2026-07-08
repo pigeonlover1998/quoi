@@ -198,10 +198,10 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 //            val room = Dungeon.currentRoom ?: return@sub modMessage("room is null")
 //            pathToMobs(player.position(), room)
 
-            val goal = BlockPos(-963, 68, 18477)
+            val goal = BlockPos(-1900, 65, -1900)
             path = WalkPathfinder.findPath(player.position(), goal, feedback = true)
-//            path?.let { player.moveTo(it) }
-            player.moveTo(goal)
+            path?.let { player.moveTo(it) }
+//            player.moveTo(goal)
         }
 
         command.sub("spawnstarred") {

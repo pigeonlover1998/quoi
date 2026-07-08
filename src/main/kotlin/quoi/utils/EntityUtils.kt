@@ -3,7 +3,10 @@ package quoi.utils
 import quoi.api.colour.Colour
 import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EquipmentSlot
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import quoi.annotations.Init
@@ -31,13 +34,25 @@ object EntityUtils : Shortcuts {
         get() = boundingBox.move(renderX - x, renderY - y, renderZ - z)
 
 
-    val Entity.distanceToCamera: Double get() {
+    inline val Entity.distanceToCamera: Double get() {
         val cameraPos = mc.gameRenderer.mainCamera.position()
         val dx = cameraPos.x - this.x
         val dy = cameraPos.y - this.y + this.getEyeHeight(this.pose)
         val dz = cameraPos.z - this.z
         return sqrt(dx * dx + dy * dy + dz * dz)
     }
+
+    inline val LivingEntity.helmet: ItemStack
+        get() = getItemBySlot(EquipmentSlot.HEAD)
+
+    inline val LivingEntity.chestplate: ItemStack
+        get() = getItemBySlot(EquipmentSlot.CHEST)
+
+    inline val LivingEntity.leggings: ItemStack
+        get() = getItemBySlot(EquipmentSlot.LEGS)
+
+    inline val LivingEntity.boots: ItemStack
+        get() = getItemBySlot(EquipmentSlot.FEET)
 
     fun Entity.distanceTo(x: Double, y: Double, z: Double) = sqrt(distanceToSqr(x, y, z))
 

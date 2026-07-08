@@ -15,13 +15,18 @@ import quoi.api.input.MutableInput
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.Shortcuts
 import quoi.utils.WorldUtils.airLike
+import quoi.utils.WorldUtils.solid
+import quoi.utils.WorldUtils.ticksUntilCollision
 import quoi.utils.distanceTo2D
 import quoi.utils.rad
 import quoi.utils.skyblock.player.RotationUtils.yaw
+import quoi.utils.skyblock.player.simulation.PlayerSimulation
+import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.floor
+import kotlin.math.hypot
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.sin
@@ -97,12 +102,15 @@ object MovementUtils : EventListener, Shortcuts {
     }
 
     @JvmName("moveTo_")
-    fun LocalPlayer.moveTo(path: List<Vec3>, onFinish: (() -> Unit)? = null) = movementTask {
+    fun LocalPlayer.moveTo(path: List<Vec3>, onFinish: (() -> Unit)? = null) = movementTask { // todo recode
         if (path.isEmpty()) {
             onFinish?.invoke()
             return@movementTask true
         }
         var index = 0
+
+        var jumpedGap = false
+        var gapTarget: Vec3? = null
 
         movementTask { input ->
             if (index >= path.size) {
@@ -169,12 +177,63 @@ object MovementUtils : EventListener, Shortcuts {
             }
 
             if (onGround()) {
+                jumpedGap = false
+                gapTarget = null
+
                 val higher = target.y > y + 0.6
                 val stuck = horizontalCollision && speed < 0.01
 
                 val clear = blockPosition().above(1).airLike && blockPosition().above(2).airLike
 
-                input.jump = (higher || stuck) && clear
+                val gap = abs(target.y - y) < 0.6 && !stuck && run { // todo make it not shit
+                    val dx = target.x - x
+                    val dz = target.z - z
+                    val dist = hypot(dx, dz)
+
+                    if (dist <= 1.1) return@run false
+
+                    val gapBlock = (1..3).firstNotNullOfOrNull { step ->
+                        val checkDist = step * 0.6
+                        val pos = BlockPos.containing(
+                            x + (dx / dist) * checkDist,
+                            y - 0.1,
+                            z + (dz / dist) * checkDist
+                        )
+                        if (!pos.solid && !pos.below().solid) pos else null
+                    } ?: return@run false
+
+                    val ticks = ticksUntilCollision(gapBlock)
+                    ticks != null && ticks < 1.5
+                }
+
+                input.jump = (higher || stuck || gap) && clear
+
+                if (gap && input.jump) {
+                    jumpedGap = true
+                    gapTarget = target
+                }
+            } else if (jumpedGap) {
+                // predict where player will actually land. if it's past gapTarget
+                // then brake by inverting keys instead of continuing to go forward trhogh the whole jump
+                if (gapTarget != null) {
+                    val toTarget = Vec3(gapTarget!!.x - x, 0.0, gapTarget!!.z - z)
+                    val distToTarget = toTarget.length()
+
+                    if (distToTarget > 1e-4) {
+                        val dir = toTarget.scale(1.0 / distToTarget)
+
+                        val landing = PlayerSimulation.simulation.findSnapshot(1..20) { it.onGround }
+
+                        if (landing != null) {
+                            val landDist = landing.pos.subtract(Vec3(x, 0.0, z)).dot(dir)
+                            val overshoot = landDist - distToTarget
+
+                            if (overshoot > 0.15) {
+                                input.invert()
+                            }
+                        }
+                    }
+                }
             }
 
             false

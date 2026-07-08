@@ -1,5 +1,6 @@
 package quoi.module.settings.group
 
+import quoi.api.events.core.AreaBoundListener
 import quoi.api.events.core.EventListener
 import quoi.api.skyblock.location.Area
 import quoi.module.Module
@@ -69,6 +70,16 @@ abstract class ToggleableGroup : SettingGroup {
         area: Area? = null,
         subarea: String? = null
     ) : super(parent, SwitchComponent(name, default, desc), area, subarea)
+
+    constructor(
+        module: Module,
+        name: String,
+        default: Boolean = false,
+        desc: String = "",
+        area: Area? = null,
+        subarea: String? = null,
+        areaParent: AreaBoundListener = module
+    ) : super(module, SwitchComponent(name, default, desc), areaParent, area, subarea)
 
     private val switch = (component as SwitchComponent).onValueChanged { _, new ->
         if (new) onEnable()

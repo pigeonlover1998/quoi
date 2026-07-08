@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
 import quoi.api.colour.Colour
+import quoi.api.events.core.AreaBoundListener
 import quoi.module.Module
 import quoi.module.settings.SettingsDSL
 import quoi.module.settings.UIComponent.Companion.childOf
@@ -29,8 +30,9 @@ class TracerSettings(
     name: String = "Tracer",
     colour: Colour? = Colour.WHITE,
     customColour: Boolean = false,
-    distance: Int? = 256
-) : ToggleableGroup(module, name) {
+    distance: Int? = 256,
+    areaParent: AreaBoundListener = module,
+) : ToggleableGroup(module, name, areaParent = areaParent) {
 
     private val customCol = switch("Custom colour").also {
         if (customColour && colour != null) +it

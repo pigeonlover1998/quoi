@@ -21,6 +21,7 @@ import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.literal
 import quoi.utils.SoundUtils
 import quoi.utils.WorldUtils.state
+import quoi.utils.blockPos
 import quoi.utils.floorPos
 import quoi.utils.gameMode
 import quoi.utils.key
@@ -105,6 +106,7 @@ object PlayerUtils {
     }
 
     fun LocalPlayer.at(pos: BlockPos) = this.position().floorPos == pos
+    fun LocalPlayer.at(pos: Vec3) = this.at(pos.blockPos)
 
     fun getItemsAmount(itemId: String): Int {
         var amount = 0

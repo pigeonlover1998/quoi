@@ -38,6 +38,7 @@
     "LivingEntityMixin",
     "LivingEntityRendererMixin",
     "LocalPlayerMixin",
+    "MinecraftMixin",
     "MouseHandlerMixin",
     "MultiPlayerGameModeMixin",
     "NameTagFeatureRendererMixin",

@@ -22,4 +22,7 @@ data class Direction(val yaw: Float, val pitch: Float, val distance: Double = 0.
 
         return Direction(wrapDegrees(previous.yaw + gy), (previous.pitch + gp).coerceIn(-90f, 90f), distance)
     }
+
+    fun withYaw(yaw: Number) = Direction(yaw.toFloat(), this.pitch, this.distance)
+    fun withPitch(pitch: Number) = Direction(this.yaw, pitch.toFloat(), this.distance)
 }

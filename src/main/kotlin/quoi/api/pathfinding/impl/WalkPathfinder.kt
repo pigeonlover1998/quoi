@@ -86,24 +86,63 @@ object WalkPathfinder : AbstractPathfinder<PathNode, WalkContext>() { // todo sm
 
             val neighbour = BlockPos(nx, ny, nz)
 
-            if (neighbour.walkable) { // same y
-                if (!neighbour.below().solid) { // fall down
-                    var curr = neighbour
-                    while (curr.y > 0) { // -64
-                        curr = curr.below()
+            if (neighbour.solid) { // go up
+                val above = neighbour.above()
+                if (above.walkable && this.above(2).airLike) {
+                    block(above)
+                }
+            } else {
+                var jumped = false
+                if (this.above(2).airLike) {
+                    for (gapWidth in 1..3) {
+                        val pos = BlockPos(this.x + dir[0] * gapWidth, this.y, this.z + dir[2] * gapWidth)
 
-                        if (!curr.airLike) break
+                        if (!pos.airLike || !pos.above(2).airLike) break // need clearance
 
-                        if (curr.below().solid && curr.walkable) {
-                            block(curr)
-                            break
+                        val lx = this.x + dir[0] * (gapWidth + 1) // landing coords
+                        val lz = this.z + dir[2] * (gapWidth + 1)
+
+                        // go through y from +1 to -4. doesn't account for player's speed/jump height so we just assume it's vanilla
+                        // idrc. good enough for now.
+                        for (y in 1 downTo -4) {
+                            if (y > 0 && !pos.above(2 + y).airLike) continue // clearance
+
+                            val landing = BlockPos(lx, this.y + y, lz)
+
+                            if (landing.walkable && landing.below().solid) {
+                                if (y < 0) {
+                                    var stupid = false
+                                    for (checkY in (this.y - 1) downTo (landing.y + 1)) {
+                                        if (!BlockPos(lx, checkY, lz).airLike) {
+                                            stupid = true
+                                            break
+                                        }
+                                    }
+                                    if (stupid) continue
+                                }
+
+                                block(landing)
+                                jumped = true
+                                break
+                            }
                         }
                     }
-                } else block(neighbour)
-            } else { // go up
-                val above = neighbour.above()
-                if (neighbour.solid && above.walkable && this.above(2).airLike) {
-                    block(above)
+                }
+
+                if (!jumped && neighbour.walkable) {
+                    if (!neighbour.below().solid) { // fall down
+                        var curr = neighbour
+                        while (curr.y > 0) { // -64
+                            curr = curr.below()
+
+                            if (!curr.airLike) break
+
+                            if (curr.below().solid && curr.walkable) {
+                                block(curr)
+                                break
+                            }
+                        }
+                    } else block(neighbour)
                 }
             }
         }

@@ -30,5 +30,16 @@ data class MutableInput(
         right = false
     }
 
+    fun invert() {
+        val f = forward
+        val b = backward
+        val l = left
+        val r = right
+        forward = b
+        backward = f
+        left = r
+        right = l
+    }
+
     val moving: Boolean get() = forward != backward || left != right
 }

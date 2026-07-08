@@ -261,6 +261,7 @@ abstract class UIComponent<T>(
          * @param condition A visibility condition (defaults to checking if parent's value is true)
          */
         fun <K : UIComponent<T>, T> K.childOf(parent: UIComponent<*>?, condition: () -> Boolean = { (parent?.value as? Boolean) ?: true }) = apply {
+            this.parent?.children?.remove(this)
             this.parent = parent
             parent?.children += this
             addVisibility(condition)
@@ -273,6 +274,7 @@ abstract class UIComponent<T>(
         fun <K : UIComponent<T>, T> K.childOf(parent: KProperty0<*>?) = apply {
             if (parent == null) return@apply
             val setting = settingFromK0(parent)
+            this.parent?.children?.remove(this)
             this.parent = setting
             setting.children += this
         }

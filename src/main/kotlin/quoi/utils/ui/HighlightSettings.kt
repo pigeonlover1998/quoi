@@ -5,6 +5,7 @@ import net.minecraft.world.phys.AABB
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
 import quoi.api.events.EntityEvent
+import quoi.api.events.core.AreaBoundListener
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.UIComponent.Companion.visibleIf
@@ -40,6 +41,7 @@ class HighlightSettings( // kinda ugly but it works
     customColour: Boolean = false,
     customFillColour: Boolean = false,
     private val aabbOffset: Boolean = false,
+    areaParent: AreaBoundListener = module,
 ): SettingGroup(
     module,
     SelectorComponent(
@@ -51,7 +53,8 @@ class HighlightSettings( // kinda ugly but it works
             if (glow) add("Glow")
         },
         desc = desc
-    )
+    ),
+    areaParent
 ) {
     @Suppress("unchecked_cast")
     val style: String

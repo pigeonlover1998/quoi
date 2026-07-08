@@ -1,5 +1,6 @@
 package quoi.module.settings.group
 
+import quoi.api.colour.Colour
 import quoi.api.events.core.AreaBoundListener
 import quoi.api.events.core.EventListener
 import quoi.api.skyblock.location.Area
@@ -90,6 +91,12 @@ open class SettingGroup(
     override val hudModule: Module
         get() = module
 
+    override val settingModule: Module
+        get() = module
+
+    override val settingParent: AreaBoundListener
+        get() = this
+
     override fun parent() = module
 
     override fun inArea(): Boolean = super.inArea() && areaParent.inArea()
@@ -113,6 +120,10 @@ open class SettingGroup(
     }
 
     companion object {
+        fun <T : SettingGroup> T.hide() = apply {
+            component.hide()
+        }
+
         fun <T : SettingGroup> T.json(name: String) = apply {
             component.json(name)
         }
