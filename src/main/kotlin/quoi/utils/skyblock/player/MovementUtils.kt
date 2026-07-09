@@ -203,7 +203,7 @@ object MovementUtils : EventListener, Shortcuts {
                     } ?: return@run false
 
                     val ticks = ticksUntilCollision(gapBlock)
-                    ticks != null && ticks < 1.5
+                    ticks != null && ticks < 1
                 }
 
                 input.jump = (higher || stuck || gap) && clear

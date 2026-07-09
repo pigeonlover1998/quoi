@@ -9,9 +9,9 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import org.joml.Vector3fc
-import org.joml.Vector3f
 import quoi.QuoiMod.mc
 import quoi.api.colour.*
+import quoi.utils.ChatUtils.literal
 import quoi.utils.EntityUtils.renderPos
 import quoi.utils.player
 import quoi.utils.skyblock.player.PlayerUtils.eyeHeight
@@ -233,6 +233,9 @@ fun LevelRenderContext.drawText(text: Component, pos: Vec3, colour: Colour = Col
     consumers.endBatch()
     stack.popPose()
 }
+
+fun LevelRenderContext.drawText(text: String, pos: Vec3, colour: Colour = Colour.TRANSPARENT, shadow: Boolean = true, scale: Float = 0.5f, depth: Boolean = false) =
+    drawText(literal(text), pos, colour, shadow, scale, depth)
 
 fun LevelRenderContext.drawCylinder(
     center: Vec3,

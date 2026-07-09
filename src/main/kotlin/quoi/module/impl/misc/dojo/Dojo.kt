@@ -1,15 +1,16 @@
 package quoi.module.impl.misc.dojo
 
+import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.Vec3
-import quoi.api.events.AreaEvent
 import quoi.api.events.ChatEvent
-import quoi.api.events.RenderEvent
-import quoi.api.events.core.on
+import quoi.api.events.TickEvent
 import quoi.api.events.core.trackedBy
+import quoi.api.events.core.until
 import quoi.module.Module
 import quoi.module.impl.misc.dojo.impl.*
-import quoi.module.impl.misc.dojo.impl.Discipline
-import quoi.utils.render.DrawContextUtils.drawText
+import quoi.utils.WorldUtils.nearbyBlocks
+import quoi.utils.WorldUtils.state
+import quoi.utils.addVec
 
 object Dojo : Module(
     "Dojo",
@@ -19,7 +20,7 @@ object Dojo : Module(
 
     private val features = setOf(
         Force,
-//        Stamina,
+        Stamina,
         Mastery,
         Discipline,
         Swiftness,
@@ -27,20 +28,11 @@ object Dojo : Module(
         Tenacity
     )
 
-    init {
+    var centre = Vec3(-207.5, 99.0, -598.5)
+        private set
 
-
-        on<RenderEvent.Overlay> { // temp
-            ctx.drawText(dojoType.name, 0, 0)
-        }
-
-//        on<AreaEvent.Sub> {
-//            if (subarea?.contains("dogo") == false)
-//                dojoType = DojoType.NONE
-//        }
-    }
-
-    val centre = Vec3(-207.0, 99.0, -598.0)
+    var centrePos = BlockPos(-207, 99, -598)
+        private set
 
     var dojoType by trackedBy<ChatEvent.Packet, DojoType>(DojoType.NONE) { prev ->
         if (message.contains("Your Rank:")) {
@@ -48,7 +40,18 @@ object Dojo : Module(
             return@trackedBy DojoType.NONE
         }
         if (!message.contains("OBJECTIVES")) prev
-        else DojoType.fromString(message.uppercase())
+        else {
+            val new = DojoType.fromString(message.uppercase())
+            if (new == DojoType.NONE) return@trackedBy new
+            until<TickEvent.End> {
+                val block = player.position().nearbyBlocks(radius = 5f) { it.state.block == new.block }
+                    .firstOrNull() ?: return@until false
+                centrePos = block
+                centre = block.center.addVec(y = 0.5)
+                true
+            }
+            new
+        }
     }
 }
 

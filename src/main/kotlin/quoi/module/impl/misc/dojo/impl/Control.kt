@@ -10,7 +10,6 @@ import quoi.api.events.core.on
 import quoi.module.impl.misc.dojo.Dojo
 import quoi.module.impl.misc.dojo.Dojo.centre
 import quoi.module.impl.misc.dojo.DojoType
-import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.group.ToggleableGroup
 import quoi.utils.EntityUtils.getEntities
 import quoi.utils.EntityUtils.helmet
@@ -19,6 +18,7 @@ import quoi.utils.component1
 import quoi.utils.component2
 import quoi.utils.component3
 import quoi.utils.getDirection
+import quoi.utils.skyblock.player.MovementUtils.cancelMovementTask
 import quoi.utils.skyblock.player.MovementUtils.moveTo
 import quoi.utils.skyblock.player.MovementUtils.moving
 import quoi.utils.skyblock.player.PlayerUtils.at
@@ -28,9 +28,8 @@ import quoi.utils.skyblock.player.RotationUtils.rotateSmoothly
 object Control : ToggleableGroup(Dojo, "Control", subarea = "dojo arena") {
     private val highlight by switch("Highlight correct", /*desc = "Highlights mobs based on held weapon."*/)
     private val style = highlight(glow = false).childOf(::highlight)
-
+    private val ticks by slider("Prediction ticks", 5, 1, 10, 1, unit = "t")
     private val aim by switch("Auto aim")
-    private val ticks by slider("Prediction ticks", 5, 1, 10, 1, unit = "t").childOf(::aim)
     private val keep by switch("Keep in centre")
 
     private var lastRot = 0L
@@ -43,7 +42,7 @@ object Control : ToggleableGroup(Dojo, "Control", subarea = "dojo arena") {
                 player.moveTo(centre)
             }
 
-            val skeleton = getEntities<WitherSkeleton>(centre, radius = 25.0) { it.helmet.item != Items.REDSTONE_BLOCK } // todo use entity spawn event
+            val skeleton = getEntities<WitherSkeleton>(centre, radius = 25.0) { it.helmet.item != Items.REDSTONE_BLOCK }
                 .minByOrNull { it.distanceToSqr(player.position()) } ?: return@on
             if (skeleton.position() == skeleton.oldPosition()) return@on // if server lags
             val (x, y, z) = skeleton.position()
@@ -66,9 +65,10 @@ object Control : ToggleableGroup(Dojo, "Control", subarea = "dojo arena") {
             }
         }
 
-        on<RenderEvent.World> { // maybe should render all skeletons since legits won't know which one is closest but idgaf
+        on<RenderEvent.World> {
             if (!highlight || wither == null || position == null) return@on
-            val box = wither!!.interpolatedBox.move(position!!)
+            val dir = position!!.subtract(wither!!.position()).normalize()
+            val box = wither!!.interpolatedBox.move(dir)
             style.draw(ctx, box)
         }
     }
@@ -76,6 +76,7 @@ object Control : ToggleableGroup(Dojo, "Control", subarea = "dojo arena") {
     override fun onDisable() {
         position = null
         wither = null
+        cancelMovementTask()
     }
 
     override val running: Boolean

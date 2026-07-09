@@ -1,6 +1,5 @@
 package quoi.module.impl.misc.dojo.impl
 
-import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.Vec3
 import quoi.api.abobaui.dsl.ms
@@ -8,6 +7,7 @@ import quoi.api.animations.Animation
 import quoi.api.events.BlockEvent
 import quoi.api.events.core.on
 import quoi.module.impl.misc.dojo.Dojo
+import quoi.module.impl.misc.dojo.Dojo.centrePos
 import quoi.module.impl.misc.dojo.DojoType
 import quoi.module.settings.group.ToggleableGroup
 import quoi.utils.Scheduler.scheduleTask
@@ -33,13 +33,11 @@ object Swiftness : ToggleableGroup(Dojo, "Swiftness", subarea = "dojo arena") { 
     private val blocks = ArrayDeque<Vec3>()
     private var moving = false
 
-    private val centre = BlockPos(-207, 99, -598)
-
     init {
         on<BlockEvent.Update> {
             if (updated.block != Blocks.LIME_WOOL) return@on
 
-            if (pos == centre) return@on
+            if (pos == centrePos) return@on
 
             val target = pos.center.addVec(y = 0.5)
 
