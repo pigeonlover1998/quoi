@@ -102,7 +102,7 @@ object Slayers : Module(
     }
 
     private fun LevelRenderContext.drawSlayer(entity: LivingEntity?, overrideColour: Colour? = null) {
-        if (entity == null) return
+        if (entity == null || entity.isInvisible || entity.isDeadOrDying) return
         highlight.draw(
             this,
             entity.interpolatedBox,
