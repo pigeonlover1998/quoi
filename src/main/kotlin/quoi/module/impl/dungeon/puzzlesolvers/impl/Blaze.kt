@@ -331,7 +331,7 @@ object Blaze : SettingGroup(PuzzleSolvers, "Blaze"), Repositionable {
         currentSpot = 0
     }
 
-    private val BLAZE_HEALTH_REGEX = Regex("^\\[Lv15] ♨ Blaze [\\d,]+/([\\d,]+)❤$")
+    private val BLAZE_HEALTH_REGEX = Regex("^\\[Lv15] . Blaze [\\d,]+/([\\d,]+)❤$")
 
     private val HIGHER_SPOTS = listOf(
         BlockPos(10, 94, 19),
