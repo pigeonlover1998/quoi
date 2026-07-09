@@ -30,7 +30,7 @@ object WardrobeKeybinds : Module(
         KeybindComponent("Slot $i", CatKeys.KEY_0 + i, "Slot $i on the menu.").childOf(::advanced).value
     }
 
-    private val wardrobeRegex = Regex("Wardrobe \\((\\d)/(\\d)\\)")
+    private val wardrobeRegex = Regex("""^\((\d+)/(\d+)\) Armor Sets$""")
 
     init {
         on<GuiEvent.Click> {

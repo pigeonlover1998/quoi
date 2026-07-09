@@ -11,6 +11,7 @@ import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.group.ToggleableGroup
 import quoi.utils.EntityUtils.distanceToCamera
 import quoi.utils.EntityUtils.renderPos
+import quoi.utils.render.drawLine
 import quoi.utils.render.drawTracer
 
 /**
@@ -80,4 +81,19 @@ class TracerSettings(
         colour: Colour = Colour.WHITE,
         overrideColour: Colour? = null
     ) = draw(ctx, to.renderPos.add(0.0, 1.5, 0.0), colour, overrideColour, to.distanceToCamera)
+
+    /**
+     * Draws line between points
+     */
+    fun draw(
+        ctx: LevelRenderContext,
+        points: Collection<Vec3>,
+        colour: Colour = Colour.WHITE,
+        overrideColour: Colour? = null
+    ) {
+        if (!enabled) return
+
+        val c = overrideColour ?: if (this.colour != null && customCol.value) this.colour.value else colour
+        ctx.drawLine(points, c, false, thickness)
+    }
 }

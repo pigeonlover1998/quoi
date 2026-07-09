@@ -40,7 +40,7 @@ object Discipline : ToggleableGroup(Dojo, "Discipline", subarea = "dojo arena") 
         on<RenderEvent.World> {
             if (!highlight) return@on
             val held = player.mainHandItem.item
-            getEntities<Zombie>(Dojo.centre, radius = 16.0) { it.helmet.item == stupid[held] }.forEach {
+            getEntities<Zombie>(Dojo.centre, radius = 16.0) { it.helmet.item == stupid[held] }.forEach { // todo use entity spawn event
                 style.draw(ctx, it.interpolatedBox)
                 tracer.draw(ctx, it, it.colourFromDistance)
             }

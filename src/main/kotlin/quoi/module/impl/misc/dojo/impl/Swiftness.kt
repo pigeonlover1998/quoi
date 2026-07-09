@@ -16,14 +16,17 @@ import quoi.utils.getDirection
 import quoi.utils.skyblock.player.MovementUtils.cancelMovementTask
 import quoi.utils.skyblock.player.MovementUtils.fullStop
 import quoi.utils.skyblock.player.MovementUtils.moveTo
-import quoi.utils.skyblock.player.MovementUtils.moving
 import quoi.utils.skyblock.player.RotationUtils.rotateSmoothly
 
 // parkour shit
+
+// todo fix it randomly stopping
 object Swiftness : ToggleableGroup(Dojo, "Swiftness", subarea = "dojo arena") { // kinda rng but good enough for 2-3k
 //    private val tracer = tracer(distance = null) // I doubt it's even useful since it goes crazy after around 1k score..
 //    private val auto by switch("Auto")
     private val fullStop by switch("Full stop", desc = "Fully stops after walking.") // doesn't really change anything lowkey
+    private val magicNumber by slider("Magic number", 0.3, 0.0, 0.5, 0.05, desc = "Adjust it and maybe it will suck less.")
+    private val magicNumber2 by slider("Magic number 2", 9, 4, 9, 0.5, desc = "Adjust it and maybe it will suck less 2.") // todo maybe get rid of these and fucking improve moveto.
     private val speed by slider("Rotation speed", 150, 0, 300, 50, desc = "Lower = better but less legit looking idk", unit = "ms")
     private val style by selector("Style", Animation.Style.Linear, desc = "Rotation style")
 
@@ -72,14 +75,14 @@ object Swiftness : ToggleableGroup(Dojo, "Swiftness", subarea = "dojo arena") { 
         moving = true
 
         val pos = blocks.removeFirst()
-//        val dir = pos.subtract(player.position()).normalize()
-//        val to = pos.add(dir.scale(0.3))
+        val dir = pos.subtract(player.position()).normalize()
+        val to = pos.add(dir.scale(magicNumber))
 
-        if (player.position().distanceToSqr(pos) > 9) {
+        if (player.blockPosition().center.distanceToSqr(pos) > magicNumber2) {
             player.rotateSmoothly(getDirection(pos).withPitch(90), speed.ms, style = style.selected)
         }
 
-        player.moveTo(pos) {
+        player.moveTo(to) {
             if (fullStop) player.fullStop()
             move()
         }

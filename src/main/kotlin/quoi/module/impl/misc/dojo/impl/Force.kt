@@ -26,7 +26,7 @@ object Force : ToggleableGroup(Dojo, "Force", subarea = "dojo arena") {
         on<RenderEvent.World> {
             if (!highlight) return@on
 
-            getEntities<Zombie>(Dojo.centre, radius = 11.0) { it.negative }.forEach {
+            getEntities<Zombie>(Dojo.centre, radius = 11.0) { it.negative }.forEach { // todo use entity spawn event
                 style.draw(ctx, it.interpolatedBox)
             }
         }

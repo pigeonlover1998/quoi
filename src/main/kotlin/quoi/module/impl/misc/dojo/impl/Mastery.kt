@@ -18,14 +18,14 @@ import quoi.utils.skyblock.player.RotationUtils.rotateSmoothly
 import quoi.utils.skyblock.player.SwapManager
 
 // bow shit
-object Mastery : ToggleableGroup(Dojo, "Mastery", subarea = "dojo arena") { // todo make it not suck
+object Mastery : ToggleableGroup(Dojo, "Mastery", subarea = "dojo arena") {
 
     private val tracer = tracer(colour = null, distance = null)
     private val amount by slider("Amount", 3, 1, 4).childOf(tracer.component)
 
     private val auto by switch("Auto")
     private val sneakToDisable by switch("Sneak to disable").childOf(::auto)
-    private val offset by slider("Offset", 200.0, 0.0, 400.0, 50.0, unit = "ms").childOf(::auto)
+    private val offset by slider("Offset", 500.0, 0.0, 1000.0, 50.0, unit = "ms").childOf(::auto)
 
     private val blocks = mutableMapOf<BlockPos, Long>()
     private val colours = listOf(Colour.RED, Colour.ORANGE, Colour.YELLOW, Colour.GREEN)
@@ -92,11 +92,7 @@ object Mastery : ToggleableGroup(Dojo, "Mastery", subarea = "dojo arena") { // t
                     val expires = blocks[target]!!
                     val remaining = expires - currentTime
 
-                    val distance = player.eyePosition.distanceTo(target.center)
-                    val travel = (distance / 3.0) * 50.0
-                    val delay = offset + travel
-
-                    if (remaining < delay) {
+                    if (remaining < offset) {
                         mc.options.keyUse.isDown = false
                         state = BowState.RELEASED
                         blocks.remove(target)

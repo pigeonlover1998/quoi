@@ -43,7 +43,7 @@ object Control : ToggleableGroup(Dojo, "Control", subarea = "dojo arena") {
                 player.moveTo(centre)
             }
 
-            val skeleton = getEntities<WitherSkeleton>(centre, radius = 25.0) { it.helmet.item != Items.REDSTONE_BLOCK }
+            val skeleton = getEntities<WitherSkeleton>(centre, radius = 25.0) { it.helmet.item != Items.REDSTONE_BLOCK } // todo use entity spawn event
                 .minByOrNull { it.distanceToSqr(player.position()) } ?: return@on
             if (skeleton.position() == skeleton.oldPosition()) return@on // if server lags
             val (x, y, z) = skeleton.position()
