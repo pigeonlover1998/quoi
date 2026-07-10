@@ -1,6 +1,5 @@
 package quoi.module.settings
 
-import quoi.module.settings.impl.TextComponent
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlin.properties.PropertyDelegateProvider

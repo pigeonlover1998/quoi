@@ -6,7 +6,6 @@ import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
 import quoi.api.events.EntityEvent
 import quoi.api.events.core.AreaBoundListener
-import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.module.settings.group.SettingGroup
@@ -19,7 +18,7 @@ import quoi.module.settings.SettingsDSL
  * A [SettingGroup] for rendering esp boxes
  * Represents a selector with styles (Box, Filled box, Glow) with optional colour and other settings
  *
- * @param module Parent module
+ * @param parent Parent
  * @param name Selector name
  * @param desc Selector description
  * @param colour Default outline colour. If `null`, the outline colour picker is hidden
@@ -32,7 +31,7 @@ import quoi.module.settings.SettingsDSL
  * @see [SettingsDSL.highlight]
  */
 class HighlightSettings( // kinda ugly but it works
-    module: Module,
+    parent: AreaBoundListener,
     name: String = "Style",
     desc: String = "Esp render style to be used.",
     colour: Colour? = Colour.WHITE,
@@ -41,9 +40,8 @@ class HighlightSettings( // kinda ugly but it works
     customColour: Boolean = false,
     customFillColour: Boolean = false,
     private val aabbOffset: Boolean = false,
-    areaParent: AreaBoundListener = module,
 ): SettingGroup(
-    module,
+    parent,
     SelectorComponent(
         name,
         "Box",
@@ -54,7 +52,6 @@ class HighlightSettings( // kinda ugly but it works
         },
         desc = desc
     ),
-    areaParent
 ) {
     @Suppress("unchecked_cast")
     val style: String

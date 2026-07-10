@@ -1,6 +1,5 @@
 package quoi.module.settings.group
 
-import quoi.api.colour.Colour
 import quoi.api.events.core.AreaBoundListener
 import quoi.api.events.core.EventListener
 import quoi.api.skyblock.location.Area
@@ -23,67 +22,44 @@ import kotlin.reflect.KProperty0
  *
  * It's purely organisational and for categorising settings.
  *
- * @param module The [Module] that owns this group
+ * @param parent The [AreaBoundListener] that owns this group. Must be [Module] or [SettingGroup]
  * @param component The [UIComponent] that serves as the header and UI parent for this group.
- * @param areaParent The [AreaBoundListener] whose area/subarea constraints this group inherits.
- *                   Defaults to [module]. When nesting groups pass the parent [SettingGroup]
  * @param area Optional [Area] condition for this group's [EventListener]s to be active.
  * @param subarea Optinal [Location.subarea] string condition for this group's [EventListener]s.
  */
 open class SettingGroup(
-    val module: Module,
+    val parent: AreaBoundListener,
     val component: UIComponent<*>,
-    val areaParent: AreaBoundListener = module,
     override val area: Area? = null,
     override val subarea: String? = null
 ) : SettingsDSL(), HudDSL, Shortcuts, AreaBoundListener {
 
     /**
-     * Creates a nested [SettingGroup] with a custom [UIComponent] as the header.
-     * Automatically inherits area and subarea constraints from the [parent] group.
-     */
-    constructor(
-        parent: SettingGroup,
-        component: UIComponent<*>,
-        area: Area? = null,
-        subarea: String? = null
-    ) : this(parent.module, component, parent, area, subarea)
-
-    /**
      * Creates a root [SettingGroup] with a [TextComponent] as the header
      */
     constructor(
-        module: Module,
+        parent: AreaBoundListener,
         name: String,
         desc: String = "",
         area: Area? = null,
         subarea: String? = null
-    ) : this(module, TextComponent(name, desc), module, area, subarea)
+    ) : this(parent, TextComponent(name, desc), area, subarea)
 
-    /**
-     * Creates a nested [SettingGroup] with a [TextComponent] as the header.
-     * Automatically inherits area and subarea constraints from the [parent] group.
-     */
-    constructor(
-        parent: SettingGroup,
-        name: String,
-        desc: String = "",
-        area: Area? = null,
-        subarea: String? = null
-    ) : this(parent.module, TextComponent(name, desc), parent, area, subarea)
+    val module: Module = (parent as? Module)
+        ?: (parent as? SettingGroup)?.module
+        ?: error("parent must be a module or a settinggroup. got ${parent::class.simpleName}")
+
 
     init {
-//        require(module.subarea != null && subarea != null) {
-//            "can't specify a subarea ($subarea) for a settinggroup when the module already has a subarea (${module.subarea})"
-//        }
-
         component.apply {
             module.register(this)
             asParent()
 
-            if (areaParent is SettingGroup) {
-                json("${areaParent.component.jsonName}.$name")
-                childOf(areaParent.component)
+            val parent = this@SettingGroup.parent
+
+            if (parent is SettingGroup) {
+                json("${parent.component.jsonName}.$name")
+                childOf(parent.component)
             }
         }
     }
@@ -91,19 +67,13 @@ open class SettingGroup(
     override val hudModule: Module
         get() = module
 
-    override val settingModule: Module
-        get() = module
-
-    override val settingParent: AreaBoundListener
-        get() = this
-
     override fun parent() = module
 
-    override fun inArea(): Boolean = super.inArea() && areaParent.inArea()
+    override fun inArea(): Boolean = super.inArea() && parent.inArea()
 
-    override fun inSubarea(): Boolean = super.inSubarea() && areaParent.inSubarea()
+    override fun inSubarea(): Boolean = super.inSubarea() && parent.inSubarea()
 
-    override fun inEnvironment(): Boolean = super.inEnvironment() && areaParent.inEnvironment()
+    override fun inEnvironment(): Boolean = super.inEnvironment() && parent.inEnvironment()
 
     override fun <K : Setting<T>, T> register(setting: K): K {
         if (setting.jsonName == setting.name) {

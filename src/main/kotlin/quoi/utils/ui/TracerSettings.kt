@@ -5,7 +5,6 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
 import quoi.api.colour.Colour
 import quoi.api.events.core.AreaBoundListener
-import quoi.module.Module
 import quoi.module.settings.SettingsDSL
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.group.ToggleableGroup
@@ -18,7 +17,7 @@ import quoi.utils.render.drawTracer
  * A [ToggleableGroup] for rendering tracer lines
  * Represents a switch with optional colour and distance settings
  *
- * @param module Parent module
+ * @param parent Parent
  * @param name Switch name
  * @param colour Default outline colour. If `null`, the colour picker is hidden
  * @param customColour Whether to show a `Custom colour` toggle for the colour
@@ -27,13 +26,12 @@ import quoi.utils.render.drawTracer
  * @see [SettingsDSL.tracer]
  */
 class TracerSettings(
-    module: Module,
+    parent: AreaBoundListener,
     name: String = "Tracer",
     colour: Colour? = Colour.WHITE,
     customColour: Boolean = false,
     distance: Int? = 256,
-    areaParent: AreaBoundListener = module,
-) : ToggleableGroup(module, name, areaParent = areaParent) {
+) : ToggleableGroup(parent, name) {
 
     private val customCol = switch("Custom colour").also {
         if (customColour && colour != null) +it
