@@ -14,6 +14,7 @@ import quoi.utils.ui.elements.slider
 import quoi.utils.ui.watch
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
+import quoi.utils.clean
 import kotlin.math.floor
 import kotlin.math.round
 
@@ -42,7 +43,7 @@ class SliderComponent<E>(
         }
 
     fun set(new: Number) {
-        val n = (round((new.toDouble() / incrementD) + 1e-9) * incrementD).coerceIn(minD, maxD)
+        val n = (round((new.toDouble() / incrementD) + 1e-9) * incrementD).coerceIn(minD, maxD).clean()
 
         value = when (default) {
             is Int -> n.toInt() as E

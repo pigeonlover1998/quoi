@@ -35,7 +35,7 @@ open class SettingGroup(
 ) : SettingsDSL(), HudDSL, Shortcuts, AreaBoundListener {
 
     /**
-     * Creates a root [SettingGroup] with a [TextComponent] as the header
+     * Creates a [SettingGroup] with a [TextComponent] as the header
      */
     constructor(
         parent: AreaBoundListener,

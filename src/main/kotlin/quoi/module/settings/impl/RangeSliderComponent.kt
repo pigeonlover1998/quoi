@@ -12,6 +12,7 @@ import quoi.utils.round
 import quoi.utils.ui.elements.rangeSlider
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
+import quoi.utils.clean
 import kotlin.math.floor
 import kotlin.math.round
 
@@ -41,7 +42,7 @@ class RangeSliderComponent<E>(
         return "$num"
     }
 
-    private fun clamp(n: Number) = (round((n.toDouble() / incrementD) + 1e-9) * incrementD).coerceIn(minD, maxD)
+    private fun clamp(n: Number) = (round((n.toDouble() / incrementD) + 1e-9) * incrementD).coerceIn(minD, maxD).clean()
 
     private fun cast(n: Number) = when (default.first) {
         is Int -> n.toInt()

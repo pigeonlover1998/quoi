@@ -20,6 +20,8 @@ inline val Double.sq get() = this * this
 
 fun Number.commas(): String = NumberFormat.getInstance(Locale.US).format(this)
 
+fun Double.clean() = round(this * 1_000_000.0) / 1_000_000.0
+
 private val romanMap = mapOf('I' to 1, 'V' to 5, 'X' to 10, 'L' to 50, 'C' to 100, 'D' to 500, 'M' to 1000)
 private val numberRegex = Regex("^[0-9]+$")
 fun romanToInt(s: String): Int {

@@ -22,6 +22,7 @@ import quoi.api.colour.withAlpha
 import quoi.api.input.CatKeys
 import quoi.api.input.CursorShape
 import quoi.utils.ThemeManager.theme
+import quoi.utils.clean
 import quoi.utils.ui.cursor
 import quoi.utils.ui.watch
 import kotlin.getValue
@@ -48,7 +49,7 @@ fun <T : Number> ElementScope<*>.slider(
     val increment = increment.toDouble()
 
     fun set(new: Number) {
-        val n = (round((new.toDouble() / increment)) * increment).coerceIn(min, max)
+        val n = (round((new.toDouble() / increment)) * increment).coerceIn(min, max).clean()
         value = n as T
     }
     fun getPercent(): Float = ((value.toDouble() - min) / (max - min)).toFloat()
@@ -188,8 +189,8 @@ fun <T : Number> ElementScope<*>.rangeSlider(
     val increment = increment.toDouble()
 
     fun set(first: Number, second: Number) {
-        val v1 = (round(first.toDouble() / increment) * increment).coerceIn(min, max)
-        val v2 = (round(second.toDouble() / increment) * increment).coerceIn(min, max)
+        val v1 = (round(first.toDouble() / increment) * increment).coerceIn(min, max).clean()
+        val v2 = (round(second.toDouble() / increment) * increment).coerceIn(min, max).clean()
 
         value =
             if (v1 > v2)
@@ -238,12 +239,26 @@ fun <T : Number> ElementScope<*>.rangeSlider(
             }
         )
 
+        var prev1 = value.first
+        var prev2 = value.second
+
         watch(ref) {
+            val first = value.first
+            val second = value.second
+
             if (animate || !clicked) {
-                knob1Pos.animate(to = getPercent(value.first).coerce(), 0.4.seconds, style = Animation.Style.EaseOutQuint)
-                knob2Pos.animate(to = getPercent(value.second).coerce(), 0.4.seconds, style = Animation.Style.EaseOutQuint)
+                if (first != prev1 && draggingKnob != 1) {
+                    knob1Pos.animate(to = getPercent(first).coerce(), 0.4.seconds, style = Animation.Style.EaseOutQuint)
+                }
+                if (second != prev2 && draggingKnob != 2) {
+                    knob2Pos.animate(to = getPercent(second).coerce(), 0.4.seconds, style = Animation.Style.EaseOutQuint)
+                }
                 animate = false
             }
+
+            prev1 = first
+            prev2 = second
+
             this@rangeSlider.element.redraw()
         }
 
@@ -309,7 +324,7 @@ fun <T : Number> ElementScope<*>.rangeSlider(
             }
             true
         }
-        onMouseMove { // todo fix some day
+        onMouseMove {
             if (clicked) {
                 val percent = ((ui.mx - element.x) / element.width).coerceIn(0f, 1f)
                 val currentVal = percent * (max - min) + min
