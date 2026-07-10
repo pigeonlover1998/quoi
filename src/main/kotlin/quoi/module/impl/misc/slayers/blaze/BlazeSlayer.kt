@@ -48,7 +48,7 @@ object BlazeSlayer : SettingGroup(Slayers, "Blaze", area = Island.CrimsonIsle, s
     init {
         on<ChatEvent.Packet> {
             if (unformatted == "You ate a Re-heated Gummy Polar Bear!")
-                gummyRemaining = System.currentTimeMillis() + 3_600_000L
+                gummyRemaining = 3_600_000L
         }
 
         scheduleLoop {
