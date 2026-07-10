@@ -30,6 +30,7 @@ import quoi.api.abobaui.dsl.radius
 import quoi.api.abobaui.dsl.seconds
 import quoi.api.abobaui.dsl.size
 import quoi.api.abobaui.dsl.tonalHover
+import quoi.api.abobaui.elements.Element
 import quoi.api.abobaui.elements.ElementScope
 import quoi.api.abobaui.elements.Layout.Companion.divider
 import quoi.api.abobaui.elements.impl.Block.Companion.outline
@@ -304,11 +305,14 @@ object ClickGui : Module(
     }
 
     private var popup: Popup? = null
+    private var popupOwner: Element? = null
     fun ElementScope<*>.description(desc: String) {
         if (desc.isEmpty()) return
 
         onHover(duration = 0.5.seconds) {
-            if (popup != null) return@onHover
+            if (popupOwner == element) return@onHover // still ass but better than noting
+            popup?.closePopup()
+            popupOwner = element
 
             val x =
                     if (element.x >= ui.main.width / 2)
@@ -341,8 +345,11 @@ object ClickGui : Module(
         }
 
         onMouseExit {
-            popup?.closePopup()
-            popup = null
+            if (popupOwner == element) {
+                popup?.closePopup()
+                popup = null
+                popupOwner = null
+            }
         }
     }
 

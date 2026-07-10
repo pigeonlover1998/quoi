@@ -15,17 +15,21 @@ import quoi.api.events.core.on
 import quoi.api.events.core.trackedBy
 import quoi.api.skyblock.location.Island
 import quoi.module.Module
+import quoi.module.impl.misc.Test
 import quoi.module.impl.misc.slayers.blaze.BlazeSlayer
+import quoi.module.settings.UIComponent.Companion.visibleIf
 import quoi.module.settings.group.SettingGroup.Companion.childOf
 import quoi.utils.EntityUtils.getEntities
 import quoi.utils.EntityUtils.getEntity
 import quoi.utils.EntityUtils.interpolatedBox
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.romanToInt
+import quoi.utils.ui.textPair
 
 @Suppress("unnecessary_safe_call")
 object Slayers : Module(
     "Slayers",
+    desc = "Various slayer features.",
     area = Island.Skyblock
 ) {
 
@@ -37,6 +41,20 @@ object Slayers : Module(
     private val highlight = highlight(aabbOffset = true).childOf(::esp)
     private val tracer = tracer(distance = null).childOf(::esp)
 
+    private val debug by textHud("Debug") {
+        column {
+            debugStrings.forEach { (name, str) ->
+                textPair(
+                    string = "$name:",
+                    supplier = str,
+                    labelColour = colour,
+                    shadow = shadow,
+                    font = font
+                )
+            }
+        }
+    }.setting().visibleIf { Test.enabled }
+
     init {
         on<RenderEvent.World> {
             if (!esp || questState != QuestState.KILLING) return@on
@@ -45,7 +63,7 @@ object Slayers : Module(
 
             slayers.forEach { slayer ->
                 slayer.entitiesForRender.forEach { (it, col) ->
-                    ctx.drawSlayer(it, col)
+                    ctx.drawSlayer(it, col, false)
                 }
             }
         }
@@ -101,16 +119,25 @@ object Slayers : Module(
         getEntity(spawnedBy.id - 3) as? LivingEntity
     }
 
-    private fun LevelRenderContext.drawSlayer(entity: LivingEntity?, overrideColour: Colour? = null) {
+    private fun LevelRenderContext.drawSlayer(entity: LivingEntity?, colour: Colour? = null, main: Boolean = true) {
         if (entity == null || entity.isInvisible || entity.isDeadOrDying) return
+        if (!main && colour == null) return
         highlight.draw(
             this,
             entity.interpolatedBox,
-            overrideColour = overrideColour,
-            overrideFillColour = overrideColour?.withAlpha(highlight.fill.alpha)
+            overrideColour = colour,
+            overrideFillColour = colour?.withAlpha(highlight.fill.alpha)
         )
 
-        tracer.draw(this, entity, overrideColour = overrideColour)
+        tracer.draw(this, entity, overrideColour = colour)
+    }
+
+    private val debugStrings = buildList {
+        add("Boss" to { currentBoss?.displayName?.string })
+        add("Tier" to { questTier })
+        addAll(slayers.map {
+            it.component.name to { it.debugString }
+        })
     }
 
     private val tierRegex = Regex(".* (I{1,3}|IV|V) \\d+.*❤$")

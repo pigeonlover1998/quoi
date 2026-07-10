@@ -117,6 +117,9 @@ object BlazeSlayer : SettingGroup(Slayers, "Blaze", area = Island.CrimsonIsle, s
     override val entitiesForRender: List<Pair<LivingEntity, Colour?>> // untested, maybe works
         get() = demons?.toList()?.map { it to it.getAttune()?.colour }.orEmpty()
 
+    override val debugString: String
+        get() = "${activeDemon?.displayName?.string} $attune"
+
     override val running: Boolean
         get() = super.running && features.any { it.enabled }
 }

@@ -9,4 +9,7 @@ interface ISlayer {
 
     val entitiesForRender: List<Pair<LivingEntity, Colour?>>
         get() = emptyList()
+
+    val debugString: String
+        get() = ""
 }

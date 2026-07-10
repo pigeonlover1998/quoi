@@ -18,6 +18,7 @@ import quoi.api.skyblock.location.Location.inSkyblock
 import quoi.api.skyblock.location.Location.subarea
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Dungeon.currentRoom
+import quoi.module.Module.Tag
 import quoi.module.ModuleManager
 import quoi.module.impl.misc.chat.impl.CompactChat
 import quoi.module.impl.render.clickgui.ClickGui.clickGui
@@ -133,7 +134,8 @@ object QuoiCommand : EventListener, Shortcuts {
                     }
 
                     for (module in modulesInCategory.sortedBy { it.name }) {
-                        featureList.appendLine("- **${module.name}**")
+                        val tag = if (module.tag != Tag.NONE) " (${module.tag.name.capitaliseFirst()})" else ""
+                        featureList.appendLine("- **${module.name}**$tag")
                         if (module.desc.isNotEmpty()) featureList.appendLine("  - ${module.desc}")
                     }
 

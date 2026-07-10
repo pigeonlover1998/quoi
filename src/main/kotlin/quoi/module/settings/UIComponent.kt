@@ -13,6 +13,7 @@ import quoi.api.animations.Animation
 import quoi.api.input.CursorShape
 import quoi.module.impl.render.clickgui.ClickGui
 import quoi.module.impl.render.clickgui.ClickGui.description
+import quoi.module.settings.impl.SelectorComponent
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.cursor
 import quoi.utils.ui.settingFromK0
@@ -106,7 +107,7 @@ abstract class UIComponent<T>(
                 chevronImage = image(
                     image = theme.chevronImage,
                     colour = theme.onSurfaceVariant,
-                    constraints = constrain(5.px.alignOpposite, w = 16.px, h = 16.px, y = if (this@UIComponent.value is Boolean) 2.px else 0.px),
+                    constraints = constrain(5.px.alignOpposite, w = 16.px, h = 16.px, y = if (this@UIComponent.value is Boolean || this@UIComponent.value is SelectorComponent<*>) 2.px else 0.px),
                 ) {
                     cursor(CursorShape.HAND)
 

@@ -14,6 +14,7 @@ import quoi.utils.addVec
 
 object Dojo : Module(
     "Dojo",
+    desc = "Auto dojo",
     subarea = "dojo",
     tag = Tag.BETA
 ) {
