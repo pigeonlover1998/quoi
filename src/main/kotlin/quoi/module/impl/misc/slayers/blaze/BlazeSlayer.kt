@@ -19,6 +19,7 @@ import quoi.module.impl.misc.slayers.Slayers
 import quoi.module.settings.group.SettingGroup
 import quoi.utils.EntityUtils.getEntities
 import quoi.utils.EntityUtils.getEntity
+import quoi.utils.Scheduler.scheduleLoop
 import quoi.utils.StringUtils.formatTime
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.ui.textPair
@@ -31,26 +32,29 @@ object BlazeSlayer : SettingGroup(Slayers, "Blaze", area = Island.CrimsonIsle, s
         DamageDodge
     )
 
-    private var gummyExpires by slider("gummy_expires", 0L, 0L, Long.MAX_VALUE).hide()
+    private var gummyRemaining by slider("remaining", 0L, 0L, Long.MAX_VALUE).hide()
     @Suppress("unused")
     private val gummyBear by textHud("Gummy bear timer") {
         visibleIf { Location.currentArea == Island.CrimsonIsle }
         textPair(
             string = "Gummy bear:",
-            supplier = {
-                val remaining = gummyExpires - System.currentTimeMillis()
-                if (remaining <= 0) "&cInactive" else formatTime(remaining, 0)
-            },
+            supplier = { if (gummyRemaining <= 0) "&cInactive" else formatTime(gummyRemaining, 0) },
             labelColour = colour,
             shadow = shadow,
             font = font
         )
-    }.withSettings(::gummyExpires).setting(desc = "Re-heated gummy polar bear timer").asParent()
+    }.withSettings(::gummyRemaining).setting(desc = "Re-heated gummy polar bear timer").asParent()
 
     init {
         on<ChatEvent.Packet> {
             if (unformatted == "You ate a Re-heated Gummy Polar Bear!")
-                gummyExpires = System.currentTimeMillis() + 3_600_000L
+                gummyRemaining = System.currentTimeMillis() + 3_600_000L
+        }
+
+        scheduleLoop {
+            if (Location.inSkyblock && gummyRemaining > 0) {
+                gummyRemaining = (gummyRemaining - 50).coerceAtLeast(0)
+            }
         }
     }
 
@@ -114,7 +118,7 @@ object BlazeSlayer : SettingGroup(Slayers, "Blaze", area = Island.CrimsonIsle, s
         return super.shouldHandle(event)
     }
 
-    override val entitiesForRender: List<Pair<LivingEntity, Colour?>> // untested, maybe works
+    override val entitiesForRender: List<Pair<LivingEntity, Colour?>>
         get() = demons?.toList()?.map { it to it.getAttune()?.colour }.orEmpty()
 
     override val debugString: String
