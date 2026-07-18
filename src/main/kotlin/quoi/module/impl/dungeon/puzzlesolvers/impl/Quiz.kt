@@ -102,7 +102,7 @@ object Quiz : SettingGroup(PuzzleSolvers, "Quiz") {
 
         if (event is DungeonEvent.Room.Enter || event is RenderEvent.World) return true
 
-        return Dungeon.currentRoom?.name == "Quiz"
+        return true //Dungeon.currentRoom?.name == "Quiz"
     }
 
     private fun reset() {
