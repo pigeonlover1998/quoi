@@ -49,6 +49,8 @@ open class SettingGroup(
         ?: (parent as? SettingGroup)?.module
         ?: error("parent must be a module or a settinggroup. got ${parent::class.simpleName}")
 
+    private val settings: ArrayList<Setting<*>> = ArrayList()
+
 
     init {
         component.apply {
@@ -80,6 +82,7 @@ open class SettingGroup(
             setting.json("${component.jsonName}.${setting.name}")
         }
 
+        settings.add(setting)
         module.register(setting)
 
         if (setting is UIComponent<*> && setting.parent == null) {
@@ -95,11 +98,21 @@ open class SettingGroup(
         }
 
         fun <T : SettingGroup> T.json(name: String) = apply {
+            val old = component.jsonName
+            if (old == name) return@apply
+
             component.json(name)
+
+            settings.forEach { setting ->
+                if (setting.jsonName.startsWith("$old.")) {
+                    val s = setting.jsonName.substring(old.length + 1)
+                    setting.json("$name.$s")
+                }
+            }
         }
 
-        fun <T : SettingGroup> T.childOf(parentC: UIComponent<*>?, condition: () -> Boolean = { (parentC?.value as? Boolean) ?: true }) = apply {
-            component.childOf(parentC, condition)
+        fun <T : SettingGroup> T.childOf(parent: UIComponent<*>?, condition: () -> Boolean = { (parent?.value as? Boolean) ?: true }) = apply {
+            component.childOf(parent, condition)
         }
 
         fun <T : SettingGroup> T.childOf(parent: KProperty0<*>?) = apply {
