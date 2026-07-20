@@ -15,11 +15,9 @@ import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
 import quoi.api.commands.internal.BaseCommand
 import quoi.api.events.DungeonEvent
-import quoi.api.events.KeyEvent
 import quoi.api.events.RenderEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
-import quoi.api.events.core.Priority
 import quoi.api.events.core.on
 import quoi.api.pathfinding.impl.WalkPathfinder
 import quoi.api.skyblock.location.Location
@@ -40,11 +38,11 @@ import quoi.module.impl.dungeon.autoclear.MobClusterer
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.group.ToggleableGroup
 import quoi.module.settings.impl.MapSetting
+import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.WorldUtils.blocksAtFeet
 import quoi.utils.WorldUtils.nearbyBlocks
 import quoi.utils.WorldUtils.solid
 import quoi.utils.WorldUtils.state
-import quoi.utils.WorldUtils.ticksUntilCollision
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawLine
 import quoi.utils.skyblock.player.interact.AuraAction
@@ -54,6 +52,7 @@ import quoi.utils.skyblock.player.MovementUtils.moveTo
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.RotationUtils.resetRotation
 import quoi.utils.skyblock.player.RotationUtils.rotateSilently
+import quoi.utils.skyblock.player.container.containerTask
 import quoi.utils.ui.textPair
 import kotlin.collections.mutableListOf
 
@@ -147,6 +146,16 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 
     init {
         val command = BaseCommand("quoitest")
+
+        command.sub("inventory") {
+            scheduleTask(20) {
+                containerTask {
+                    setOf(10, 11, 12, 13).forEach { slot ->
+                        throwOne(slot)
+                    }
+                }.run()
+            }
+        }
 
         command.sub("testblock") {
             val a = player.blocksAtFeet { _, state ->
@@ -360,7 +369,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
         Data("   Levers", { "${Dungeon.p3Section.levers}/2" }, { p3Section }),
         Data("   Device", { "${Dungeon.p3Section.device}" }, { p3Section }),
         Data("   Gate", { Dungeon.p3Section.gate }, { p3Section }),
-        Data("Container", { "${mc.screen != null} | ${ContainerUtils.containerId}" }, { container })
+        Data("Container", { "${mc.screen != null} | ${ContainerUtils.containerId} | ${player.containerMenu.containerId}" }, { container })
     )
     private data class Data(val name: String, val value: () -> Any?, val enabled: () -> Boolean)
 

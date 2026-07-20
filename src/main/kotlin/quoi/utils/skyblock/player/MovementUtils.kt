@@ -245,6 +245,13 @@ object MovementUtils : EventListener, Shortcuts {
 
     val LocalPlayer.isMoving get() = deltaMovement.x != 0.0 || deltaMovement.z != 0.0 || input.hasForwardImpulse()
 
+    val LocalPlayer.hasMovementInput: Boolean
+        get() = mc.options.keyUp.isDown ||
+                mc.options.keyDown.isDown ||
+                mc.options.keyLeft.isDown ||
+                mc.options.keyRight.isDown ||
+                mc.options.keyJump.isDown
+
     fun KeyMapping.hold(ticks: Int) {
         isDown = true
         scheduleTask(ticks) {
