@@ -18,6 +18,7 @@ import quoi.api.skyblock.dungeon.DungeonPlayer
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.Scheduler.scheduleTask
 import quoi.utils.StringUtils.noControlCodes
+import quoi.utils.skyblock.player.container.ContainerUtils
 
 @Init
 object LeapManager : EventListener { // still schizophrenia
@@ -78,7 +79,7 @@ object LeapManager : EventListener { // still schizophrenia
         on<TickEvent.Server> {
             if (leapCD > 0) leapCD -= 1
 
-            if (pendingLeap != null && mc.screen == null && ContainerUtils.containerId == -1) {
+            if (pendingLeap != null && mc.screen == null && ContainerUtils.containerId == 0) {
                 doLeap(pendingLeap!!)
                 pendingLeap = null
             }
@@ -96,7 +97,7 @@ object LeapManager : EventListener { // still schizophrenia
 
 //        if (teammate.name !in WorldUtils.players.map { it.profile.name }) return modMessage("&c Failed to leap! &r$target &cnot found")
 
-        if (mc.screen != null || ContainerUtils.containerId != -1) {
+        if (mc.screen != null || ContainerUtils.containerId != 0) {
             pendingLeap = teammate
             modMessage("&eQueued leap to &f${teammate.name}")
         } else doLeap(teammate)

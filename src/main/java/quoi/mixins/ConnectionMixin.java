@@ -1,7 +1,6 @@
 package quoi.mixins;
 
 import quoi.api.events.core.EventDispatcher;
-import quoi.api.events.PacketEvent;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.Connection;
@@ -20,15 +19,6 @@ public abstract class ConnectionMixin {
     )
     private void quoi$receivePacket(ChannelHandlerContext context, Packet<?> packet, CallbackInfo ci) {
         if (EventDispatcher.onPacketReceived(packet)) ci.cancel();
-    }
-
-    @Inject(
-            method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/protocol/Packet;)V",
-            at = @At("TAIL"),
-            cancellable = true
-    )
-    private void quoi$receivePacketPost(ChannelHandlerContext context, Packet<?> packet, CallbackInfo ci) {
-        if (new PacketEvent.ReceivedPost(packet).post()) ci.cancel();
     }
 
     @Inject(

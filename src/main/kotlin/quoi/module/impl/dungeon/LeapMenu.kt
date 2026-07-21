@@ -28,7 +28,7 @@ import quoi.utils.ChatUtils.literal
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.equalsOneOf
-import quoi.utils.skyblock.player.ContainerUtils.clickSlot
+import quoi.utils.skyblock.player.container.ContainerUtils.clickSlot
 import quoi.utils.ui.rendering.NVGRenderer.minecraftFont
 import quoi.utils.ui.screens.UIContainer
 

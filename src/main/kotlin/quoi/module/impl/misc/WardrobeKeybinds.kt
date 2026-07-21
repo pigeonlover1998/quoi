@@ -9,7 +9,7 @@ import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.impl.KeybindComponent
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.skyblock.item.ItemUtils.loreString
-import quoi.utils.skyblock.player.ContainerUtils.clickSlot
+import quoi.utils.skyblock.player.container.ContainerUtils.clickSlot
 
 /**
  * modified OdinLegacy (BSD 3-Clause)

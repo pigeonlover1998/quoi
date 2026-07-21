@@ -47,12 +47,14 @@ import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawLine
 import quoi.utils.skyblock.player.interact.AuraAction
 import quoi.utils.skyblock.player.interact.AuraManager
-import quoi.utils.skyblock.player.ContainerUtils
+import quoi.utils.skyblock.player.container.ContainerUtils
 import quoi.utils.skyblock.player.MovementUtils.moveTo
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.RotationUtils.resetRotation
 import quoi.utils.skyblock.player.RotationUtils.rotateSilently
-import quoi.utils.skyblock.player.container.containerTask
+import quoi.utils.skyblock.player.container.task.any
+import quoi.utils.skyblock.player.container.task.containerTask
+import quoi.utils.skyblock.player.container.task.menu
 import quoi.utils.ui.textPair
 import kotlin.collections.mutableListOf
 
@@ -149,9 +151,37 @@ object Test : Module("Test", desc = "Dev module for testing.") {
 
         command.sub("inventory") {
             scheduleTask(20) {
-                containerTask {
-                    setOf(10, 11, 12, 13).forEach { slot ->
-                        throwOne(slot)
+//                ChatUtils.command("/ac")
+//                containerTask(name = "Tes&at") {
+//                    awaitingContainer("Anticheat") {
+//                        pickup("Multi-Select".any).unlessName("ON")
+//                        pickup("NCP".menu).unlessLore("ACTIVE")
+//                        pickup("Grim".any).unlessLore("ACTIVE")
+//                        pickup("Apply".any)
+//                    }
+//                }.run()
+
+                ChatUtils.command("/wd")
+                val start = System.currentTimeMillis()
+                containerTask(name = "wd test") { // idk it feels slow as shit... maybe it's cuz I have 250ms.
+//                    awaitingContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$""")/*, waitForItems = true*/) {
+////                        pickup(53.menu)
+////                        pickup(45.menu)
+//                        pickup(36.menu)//.unlessName("Equipped")
+//                    }
+                    awaitContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$"""))
+                    pickup(36.menu)
+                    action { player.closeContainer() }
+                    // hypixel reopens and insta closes the window if you close it manually when you trigger reopen
+                    awaitContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$""")) // todo make it conditional or sm (if you don't click anything to trigger reopen)
+
+//                    awaitingContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$""")) {
+//                        pickup(36.menu)
+//                        action { player.closeContainer() }
+//                    }
+
+                    onComplete {
+                        modMessage(System.currentTimeMillis() - start)
                     }
                 }.run()
             }
@@ -369,7 +399,7 @@ object Test : Module("Test", desc = "Dev module for testing.") {
         Data("   Levers", { "${Dungeon.p3Section.levers}/2" }, { p3Section }),
         Data("   Device", { "${Dungeon.p3Section.device}" }, { p3Section }),
         Data("   Gate", { Dungeon.p3Section.gate }, { p3Section }),
-        Data("Container", { "${mc.screen != null} | ${ContainerUtils.containerId} | ${player.containerMenu.containerId}" }, { container })
+        Data("Container", { "${mc.screen != null} | ${ContainerUtils.containerServerSide} | ${ContainerUtils.containerId} | ${player.containerMenu.containerId}" }, { container })
     )
     private data class Data(val name: String, val value: () -> Any?, val enabled: () -> Boolean)
 

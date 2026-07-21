@@ -8,12 +8,14 @@ package quoi.api.events.core
  * @param listener the owner of this subscription; gates dispatch via [EventListener.running] or [EventListener.shouldHandle]
  * @param eventClass the runtime [Class] o the event being listened to
  * @param priority the execution order priority (see [Priority]). higher values run first
+ * @param acceptCancelled accepts cancelled [CancellableEvent]s
  * @param callback the handler invoked with the event instance as its receiver
  */
 class Subscription<T : Event>(
     val listener: EventListener,
     val eventClass: Class<*>,
     val priority: Int,
+    val acceptCancelled: Boolean = false,
     val callback: T.() -> Unit,
 ) {
     /**

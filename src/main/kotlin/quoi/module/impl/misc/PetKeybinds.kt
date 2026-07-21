@@ -25,9 +25,9 @@ import quoi.utils.skyblock.item.ItemUtils.loreString
 import quoi.utils.skyblock.item.ItemUtils.petHeldItem
 import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.skyblock.item.ItemUtils.skyblockUuid
-import quoi.utils.skyblock.player.ContainerUtils
-import quoi.utils.skyblock.player.ContainerUtils.clickSlot
-import quoi.utils.skyblock.player.ContainerUtils.getContainerItemsClose
+import quoi.utils.skyblock.player.container.ContainerUtils
+import quoi.utils.skyblock.player.container.ContainerUtils.clickSlot
+import quoi.utils.skyblock.player.container.ContainerUtils.getContainerItemsClose
 
 
 /**
@@ -203,10 +203,6 @@ object PetKeybinds : Module(
 
         player.clickSlot(slot, screen.menu.containerId)
         return true
-    }
-
-    private suspend fun summonPet(uuid: String): Boolean {
-        return ContainerUtils.getContainerItemsClick("petsmenu", "Pets", uuid = uuid, lore = "Left-click to summon!")
     }
 
     private suspend fun getPets(timeout: Int = 20): List<ItemStack> {

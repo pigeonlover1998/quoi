@@ -8,5 +8,4 @@ interface PacketEvent {
     val packet: Packet<*>
     class Received(override val packet: Packet<*>) : CancellableEvent(), PacketEvent
     class Sent(override val packet: Packet<*>) : CancellableEvent(), PacketEvent
-    class ReceivedPost(override val packet: Packet<*>) : Event(), PacketEvent
 }

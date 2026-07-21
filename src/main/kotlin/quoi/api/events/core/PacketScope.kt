@@ -8,8 +8,12 @@ import quoi.api.events.PacketEvent
  * inside packet filtered event subscriptions.
  */
 class PacketScope<E : PacketEvent, P : Packet<*>>(val event: E, val packet: P) {
+
+    val cancelled: Boolean
+        get() = (event as CancellableEvent).cancelled
+
     fun cancel() {
-        if (event is CancellableEvent) event.cancel()
+        (event as CancellableEvent).cancel()
     }
 
     fun unregister() {

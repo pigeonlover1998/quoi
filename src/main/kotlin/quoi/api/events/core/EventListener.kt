@@ -33,10 +33,11 @@ interface EventListener {
  */
 inline fun <reified T : Event> EventListener.on(
     priority: Int = 0,
+    acceptCancelled: Boolean = false,
     register: Boolean = true,
     noinline block: T.() -> Unit
 ): Subscription<T> {
-    val sub = Subscription(this, T::class.java, priority, block)
+    val sub = Subscription(this, T::class.java, priority, acceptCancelled, block)
     if (register) register(sub)
     return sub
 }
@@ -46,8 +47,9 @@ inline fun <reified T : Event> EventListener.on(
  */
 inline fun <reified T : Event> EventListener.until(
     priority: Int = 0,
+    acceptCancelled: Boolean = false,
     noinline block: T.() -> Boolean
-): Subscription<T> = on<T>(priority) {
+): Subscription<T> = on<T>(priority, acceptCancelled) {
     if (!this@until.running || block(this)) {
         unregister()
     }
@@ -58,8 +60,9 @@ inline fun <reified T : Event> EventListener.until(
  */
 inline fun <reified T : Event> EventListener.once(
     priority: Int = 0,
+    acceptCancelled: Boolean = false,
     noinline block: T.() -> Unit
-): Subscription<T> = until<T>(priority) {
+): Subscription<T> = until<T>(priority, acceptCancelled) {
     block(this)
     true
 }
@@ -70,11 +73,12 @@ inline fun <reified T : Event> EventListener.once(
 inline fun <reified T : Event> EventListener.repeated(
     times: Int,
     priority: Int = 0,
+    acceptCancelled: Boolean = false,
     noinline block: T.() -> Unit
 ): Subscription<T> {
     require(times > 0) { "times must be > 0" }
     var i = 0
-    return until<T>(priority) {
+    return until<T>(priority, acceptCancelled) {
         block(this)
         ++i >= times
     }
@@ -86,8 +90,9 @@ inline fun <reified T : Event> EventListener.repeated(
 @JvmName("onPacket")
 inline fun <reified E, reified P : Packet<*>> EventListener.on(
     priority: Int = 0,
+    acceptCancelled: Boolean = false,
     noinline block: PacketScope<E, P>.() -> Unit
-): Subscription<E> where E : Event, E : PacketEvent = on<E>(priority) {
+): Subscription<E> where E : Event, E : PacketEvent = on<E>(priority, acceptCancelled) {
     if (packet is P) block(PacketScope(this, packet as P))
 }
 
@@ -97,8 +102,9 @@ inline fun <reified E, reified P : Packet<*>> EventListener.on(
 @JvmName("untilPacket")
 inline fun <reified E, reified P : Packet<*>> EventListener.until(
     priority: Int = 0,
+    acceptCancelled: Boolean = false,
     noinline block: PacketScope<E, P>.() -> Boolean
-): Subscription<E> where E : Event, E : PacketEvent = until<E>(priority) {
+): Subscription<E> where E : Event, E : PacketEvent = until<E>(priority, acceptCancelled) {
     if (packet is P) block(PacketScope(this, packet as P))
     else false
 }
@@ -109,8 +115,9 @@ inline fun <reified E, reified P : Packet<*>> EventListener.until(
 @JvmName("oncePacket")
 inline fun <reified E, reified P : Packet<*>> EventListener.once(
     priority: Int = 0,
+    acceptCancelled: Boolean = false,
     noinline block: PacketScope<E, P>.() -> Unit
-): Subscription<E> where E : Event, E : PacketEvent = once<E>(priority) {
+): Subscription<E> where E : Event, E : PacketEvent = once<E>(priority, acceptCancelled) {
     if (packet is P) block(PacketScope(this, packet as P))
 }
 
@@ -122,13 +129,14 @@ inline fun <reified E, reified P : Packet<*>> EventListener.once(
 inline fun <reified E : Event, V> EventListener.trackedBy(
     defaultValue: V,
     priority: Int = 0,
+    acceptCancelled: Boolean = false,
     noinline block: E.(prev: V) -> V
 ): ReadWriteProperty<Any?, V> = object : ReadWriteProperty<Any?, V> {
     @Volatile
     private var value = defaultValue
 
     init {
-        on<E>(priority) {
+        on<E>(priority, acceptCancelled) {
             value = block(this, value)
         }
     }
@@ -146,13 +154,14 @@ inline fun <reified E : Event, V> EventListener.trackedBy(
 inline fun <reified E, reified P : Packet<*>, V> EventListener.trackedBy(
     defaultValue: V,
     priority: Int = 0,
+    acceptCancelled: Boolean = false,
     noinline block: PacketScope<E, P>.(prev: V) -> V
 ): ReadWriteProperty<Any?, V> where E : Event, E : PacketEvent = object : ReadWriteProperty<Any?, V> {
     @Volatile
     private var value = defaultValue
 
     init {
-        on<E, P>(priority) {
+        on<E, P>(priority, acceptCancelled) {
             value = block(value)
         }
     }
