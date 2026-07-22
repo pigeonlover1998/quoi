@@ -20,6 +20,7 @@ import quoi.api.skyblock.SkyblockPlayer.OVERFLOW_REGEX
 import quoi.api.skyblock.SkyblockPlayer.SALVATION_REGEX
 import quoi.api.skyblock.SkyblockPlayer.SECRETS_REGEX
 import quoi.api.skyblock.SkyblockPlayer.STACKS_REGEX
+import quoi.api.skyblock.SkyblockPlayer.VITALITY_REGEX
 import quoi.api.skyblock.SkyblockPlayer.currentSecrets
 import quoi.api.skyblock.SkyblockPlayer.maxSecrets
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
@@ -105,6 +106,14 @@ object PlayerDisplay : Module(
     ).json("Overflow mana").childOf(::manaDropdown)
 
     private val otherDropdown by text("Other")
+
+    private val vitality by text(
+        name = "Vitality",
+        defaultColour = Colour.MINECRAFT_DARK_RED,
+        text = { "${SkyblockPlayer.vitality.commas()}/${SkyblockPlayer.maxVitality.commas()}\uE028" },
+        previewText = { "670/670\uE028" },
+        visibility = { SkyblockPlayer.maxVitality != 0 }
+    ).childOf(::otherDropdown)
 
     private val defence by text(
         name = "Defence",
@@ -200,6 +209,7 @@ object PlayerDisplay : Module(
                 health to HP_REGEX,
                 mana to MANA_REGEX,
                 overflowMana to OVERFLOW_REGEX,
+                vitality to VITALITY_REGEX,
                 defence to DEF_REGEX,
                 stacks to STACKS_REGEX,
                 salvation to SALVATION_REGEX,

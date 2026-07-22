@@ -35,6 +35,11 @@ object SkyblockPlayer : EventListener, Shortcuts {
     var maxMana: Int = 0
         private set
 
+    var vitality: Int = 0
+        private set
+    var maxVitality: Int = 0
+        private set
+
     var overflowMana: Int = 0
         private set
     var stacks: String = ""
@@ -69,12 +74,13 @@ object SkyblockPlayer : EventListener, Shortcuts {
         private set
 
     val HP_REGEX = Regex("§[c6]([\\d,]+)/([\\d,]+)[\uE010❤]") // §c1389/1390❤ , §62181/1161❤
-    val DEF_REGEX = Regex("§a([\\d,]+)§a[\uE008❈] Defense") // §a593§a❈ Defense
+    val DEF_REGEX = Regex("""§a([\d,]+)[❈]?( Defense)?""")
     val MANA_REGEX = Regex("§b([\\d,]+)/([\\d,]+)[\uE003✎]( Mana)?") // §b550/550✎ Mana§r
 
     val OVERFLOW_REGEX = Regex("§3([\\d,]+)[\\uE017ʬ]") // §3100ʬ
-    val STACKS_REGEX = Regex("§6([0-9]+[ᝐ⁑Ѫ])") // §610⁑ // fixme?
+    val STACKS_REGEX = Regex("§6([0-9]+[ᝐ⁑Ѫ])") // §610⁑
     val SALVATION_REGEX = Regex("T([1-3])!") // no idea
+    val VITALITY_REGEX = Regex("§4([\\d.,]+)/([\\d,.]+)[♨\uE028]( Vitality)?") // https://regex101.com/r/tLHZYG/1 // https://github.com/Noamm9/NoammAddons/blob/fd000be897fd2facf1b8dfbfd28416206c544860/src/main/kotlin/com/github/noamm9/utils/ActionBarParser.kt#L25
 
     val MANA_USAGE_REGEX = Regex("§b-[\\d,]+ Mana \\(§6.+?§b\\)|§c§lNOT ENOUGH MANA") // §b-50 Mana (§6Speed Boost§b) , §c§lNOT ENOUGH MANA
     val SECRETS_REGEX = Regex("\\s*§7(\\d+)/(\\d+) Secrets") // §76/10 Secrets§r
@@ -98,6 +104,14 @@ object SkyblockPlayer : EventListener, Shortcuts {
             MANA_REGEX.find(message)?.destructured?.let { (mana, maxMana) ->
                 this@SkyblockPlayer.mana = mana.toInt()
                 this@SkyblockPlayer.maxMana = maxMana.toInt()
+            }
+
+            VITALITY_REGEX.find(message)?.destructured?.let { (vitality, maxVitality) ->
+                this@SkyblockPlayer.vitality = vitality.toInt()
+                this@SkyblockPlayer.maxVitality = maxVitality.toInt()
+            } ?: run {
+                vitality = 0
+                maxVitality = 0
             }
 
             overflowMana = OVERFLOW_REGEX.find(message)?.destructured?.component1()?.toInt() ?: 0
