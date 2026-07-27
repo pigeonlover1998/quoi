@@ -62,7 +62,7 @@ object SecretAura : Module(
     private val inContainer by switch("In container", desc = "Makes secret aura work while container is opened.")
 
     private val REDSTONE_KEY = UUID.fromString("fed95410-aba1-39df-9b95-1d4f361eb66e")
-    private val WITHER_ESSENCE = UUID.fromString("e0f3e929-869e-3dca-9504-54c666ee6f23")
+    private val WITHER_ESSENCE = UUID.fromString("2865274b-3097-394e-8149-ec629c72d850"/*"e0f3e929-869e-3dca-9504-54c666ee6f23"*/)
 
     private var redstoneKey = true
     private val clickedBlocks = Long2LongOpenHashMap()
