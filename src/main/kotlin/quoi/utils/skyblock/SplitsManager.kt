@@ -58,6 +58,7 @@ object SplitsManager : EventListener {
         on<AreaEvent.Main> {
             if (area != Island.Dungeon) {
                 currentSplits = emptyList()
+                tickCounter = 0L
                 return@on
             }
             scheduleTask(20) {
@@ -68,7 +69,7 @@ object SplitsManager : EventListener {
 
                 val fullList = ArrayList<Split>(floorSplits.size + 4)
                 fullList.addAll(startSplits.map { it.copy() })
-                fullList.addAll(floorSplits)
+                fullList.addAll(floorSplits.map { it.copy() })
                 fullList.add(Split(TOTAL_REGEX, "Time Elapsed", Colour.MINECRAFT_GREEN))
 
                 currentSplits = fullList
