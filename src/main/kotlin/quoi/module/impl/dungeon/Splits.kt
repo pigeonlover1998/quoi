@@ -16,6 +16,7 @@ import quoi.utils.StringUtils.formatTime
 import quoi.utils.StringUtils.toFixed
 import quoi.utils.skyblock.SplitsManager
 import quoi.utils.skyblock.SplitsManager.Split
+import quoi.utils.ui.data.TextAlignment
 import quoi.utils.ui.textPair
 
 object Splits : Module( // todo section split info hud, task (terms, levers, devices) times in chat
@@ -34,7 +35,7 @@ object Splits : Module( // todo section split info hud, task (terms, levers, dev
     private lateinit var refreshable: RefreshableGroup
 
     @Suppress("unused")
-    private val hud by textHud("Splits hud", toggleable = false) {
+    private val hud by textHud("Splits hud", toggleable = false, alignment = TextAlignment.Left) {
         refreshable = refreshableGroup(bounds()) {
 
             val splits = (if (preview) previewSplits else SplitsManager.currentSplits)

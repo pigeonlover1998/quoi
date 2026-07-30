@@ -16,6 +16,7 @@ import quoi.api.abobaui.elements.impl.layout.Column
 import quoi.api.abobaui.elements.impl.layout.Grid
 import quoi.api.abobaui.elements.impl.layout.Row
 import quoi.api.abobaui.events.AbobaEvent
+import quoi.api.abobaui.events.Lifetime
 import quoi.api.abobaui.operations.Operation
 import quoi.api.abobaui.transforms.Transform
 import quoi.api.colour.Colour
@@ -166,7 +167,14 @@ open class ElementScope<E : Element>(val element: E) {
         element.init()
     }
 
-    fun operation(operation: Operation) = element.ui.addOperation(operation)
+    fun operation(operation: Operation) {
+        var ded = false
+        element.registerEvent(Lifetime.Uninitialised) { ded = true; false }
+        element.ui.addOperation {
+            if (ded) return@addOperation true
+            operation.run()
+        }
+    }
 
     fun transform(transform: Transform) = element.addTransform(transform)
 }

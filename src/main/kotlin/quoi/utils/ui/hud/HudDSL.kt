@@ -10,6 +10,7 @@ import quoi.utils.scaledHeight
 import quoi.utils.scaledWidth
 import quoi.utils.sf
 import quoi.utils.ui.data.Anchor
+import quoi.utils.ui.data.TextAlignment
 import quoi.utils.ui.hud.impl.ResizableHud
 import quoi.utils.ui.hud.impl.TextHud
 import quoi.utils.ui.inHudEditor
@@ -39,6 +40,7 @@ interface HudDSL {
         colour: Colour = Colour.WHITE,
         font: TextHud.HudFont? = TextHud.HudFont.Minecraft,
         anchor: Anchor? = Anchor.TopLeft,
+        alignment: TextAlignment? = null,
         toggleable: Boolean = true,
         block: TextHud.Scope.() -> Unit
     ): TextHud {
@@ -46,10 +48,11 @@ interface HudDSL {
         val shadowSetting = SwitchComponent("Shadow", true)
         val fontSetting = font?.let { SegmentedComponent("Font", it) }
         val anchorSetting = anchor?.let { SelectorComponent("Anchor", it) }
+        val alignmentSetting = alignment?.let { SelectorComponent("Alignment", it) }
 
-        val hud = TextHud(name, hudModule, toggleable, colourSetting, shadowSetting, fontSetting, anchorSetting, block)
+        val hud = TextHud(name, hudModule, toggleable, colourSetting, shadowSetting, fontSetting, anchorSetting, alignmentSetting, block)
 
-        val settings = listOfNotNull<UIComponent<*>>(colourSetting, shadowSetting, fontSetting, anchorSetting).toTypedArray()
+        val settings = listOfNotNull<UIComponent<*>>(colourSetting, shadowSetting, fontSetting, anchorSetting, alignmentSetting).toTypedArray()
         hud.withSettings(*settings)
         return hud
     }

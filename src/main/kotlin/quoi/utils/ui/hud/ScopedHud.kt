@@ -2,7 +2,7 @@ package quoi.utils.ui.hud
 
 import quoi.module.Module
 
-abstract class ScopedHud<S : Hud.Scope>(
+abstract class ScopedHud<S : Hud.Scope>( // todo recode this shit
     name: String,
     module: Module,
     toggleable: Boolean,
