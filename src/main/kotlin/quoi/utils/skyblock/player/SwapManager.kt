@@ -1,5 +1,6 @@
 package quoi.utils.skyblock.player
 
+import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket
 import net.minecraft.world.item.ItemStack
 import quoi.annotations.Init
@@ -16,7 +17,7 @@ import quoi.utils.skyblock.item.ItemUtils.loreString
 import quoi.utils.skyblock.item.ItemUtils.skyblockId
 
 @Init
-object SwapManager : EventListener, Shortcuts {
+object SwapManager : EventListener, Shortcuts { // todo refactor
     private var lastKnownServerSlot: Int = -1
     private var hasSwappedThisTick: Boolean = false
 
@@ -73,8 +74,11 @@ object SwapManager : EventListener, Shortcuts {
             hasSwappedThisTick = false
         }
 
-        on<PacketEvent.Sent> (Priority.HIGHEST) {
-            if (packet !is ServerboundSetCarriedItemPacket) return@on
+        on<PacketEvent.Received, ClientboundSetHeldSlotPacket> {
+            lastKnownServerSlot = packet.slot()
+        }
+
+        on<PacketEvent.Sent, ServerboundSetCarriedItemPacket> (Priority.HIGHEST) {
             if (packet.slot == lastKnownServerSlot) {
                 cancel()
                 return@on
