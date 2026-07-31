@@ -167,14 +167,7 @@ open class ElementScope<E : Element>(val element: E) {
         element.init()
     }
 
-    fun operation(operation: Operation) {
-        var ded = false
-        element.registerEvent(Lifetime.Uninitialised) { ded = true; false }
-        element.ui.addOperation {
-            if (ded) return@addOperation true
-            operation.run()
-        }
-    }
+    fun operation(operation: Operation) = element.ui.addOperation(operation)
 
     fun transform(transform: Transform) = element.addTransform(transform)
 }
