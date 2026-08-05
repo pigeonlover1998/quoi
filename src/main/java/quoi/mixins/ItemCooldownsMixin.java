@@ -1,6 +1,6 @@
 package quoi.mixins;
 
-import quoi.module.impl.player.Tweaks;
+import quoi.module.impl.general.Tweaks;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static quoi.module.impl.player.Tweaks.shouldSb;
+import static quoi.module.impl.general.Tweaks.shouldSb;
 
 @Mixin(ItemCooldowns.class)
 public class ItemCooldownsMixin {

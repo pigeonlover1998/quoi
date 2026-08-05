@@ -5,18 +5,13 @@ import net.minecraft.client.Minecraft;
 import quoi.api.events.EntityEvent;
 import quoi.api.world.Direction;
 import quoi.mixininterfaces.IEntityGlow;
-import quoi.module.impl.player.Tweaks;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import quoi.utils.skyblock.player.RotationUtils;
-
-import static quoi.module.impl.player.Tweaks.shouldSb;
 
 @Mixin(Entity.class)
 public class EntityMixin implements IEntityGlow {

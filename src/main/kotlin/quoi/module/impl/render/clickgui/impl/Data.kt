@@ -10,7 +10,7 @@ import kotlin.collections.set
 
 @Internal
 object Data : SettingGroup(ClickGui, TextComponent("").hide()) {
-    val categoryData by MapSetting("category data", mutableMapOf<Category, CategoryData>()).also { setting ->
+    val categoryData by MapSetting("category_data", mutableMapOf<Category, CategoryData>()).also { setting ->
         Category.entries.forEach {
             setting.value[it] = CategoryData(x = 10f + 265f * it.ordinal, y = 10f, extended = true)
         }

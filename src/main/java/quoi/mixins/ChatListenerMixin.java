@@ -1,6 +1,6 @@
 package quoi.mixins;
 
-import quoi.module.impl.player.PlayerDisplay;
+import quoi.module.impl.general.PlayerDisplay;
 import net.minecraft.client.multiplayer.chat.ChatListener;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;

@@ -42,7 +42,7 @@ import kotlin.math.roundToLong
  */
 @Init
 @Suppress("unused")
-object Dungeon : EventListener, Shortcuts {
+object Dungeon : EventListener, Shortcuts { // todo refactor https://github.com/jcnlk/quoi/blob/26.1.x/src/main/kotlin/quoi/api/skyblock/dungeon/Floor7Utils.kt
 
     inline val inDungeons: Boolean
         get() = Location.currentArea.isArea(Island.Dungeon)

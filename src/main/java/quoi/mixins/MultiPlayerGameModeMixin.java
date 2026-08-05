@@ -4,7 +4,7 @@ import net.minecraft.core.Direction;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import quoi.api.events.BlockEvent;
-import quoi.module.impl.player.Tweaks;
+import quoi.module.impl.general.Tweaks;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
@@ -13,7 +13,7 @@ import net.minecraft.world.level.border.WorldBorder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import static quoi.module.impl.player.Tweaks.shouldSb;
+import static quoi.module.impl.general.Tweaks.shouldSb;
 
 @Mixin(MultiPlayerGameMode.class)
 public class MultiPlayerGameModeMixin {

@@ -21,9 +21,9 @@ import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
-import quoi.module.impl.misc.chat.impl.ChatPeek;
-import quoi.module.impl.misc.chat.impl.KeepChatHistory;
-import quoi.module.impl.misc.chat.impl.NoChatLimit;
+import quoi.module.impl.general.chat.impl.ChatPeek;
+import quoi.module.impl.general.chat.impl.KeepChatHistory;
+import quoi.module.impl.general.chat.impl.NoChatLimit;
 
 @Mixin(ChatComponent.class)
 public abstract class ChatComponentMixin implements IChatComponent {

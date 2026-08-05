@@ -1,7 +1,7 @@
 package quoi.mixins;
 
 import quoi.api.events.ChatEvent;
-import quoi.module.impl.player.Tweaks;
+import quoi.module.impl.general.Tweaks;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;

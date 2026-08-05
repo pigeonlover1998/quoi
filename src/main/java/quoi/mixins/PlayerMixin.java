@@ -3,16 +3,10 @@ package quoi.mixins;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.Minecraft;
 import quoi.api.world.Direction;
-import quoi.module.impl.player.Tweaks;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import quoi.utils.skyblock.player.RotationUtils;
-
-import static quoi.module.impl.player.Tweaks.shouldSb;
 
 @Mixin(Player.class)
 public class PlayerMixin {

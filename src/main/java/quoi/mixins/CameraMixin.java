@@ -1,6 +1,6 @@
 package quoi.mixins;
 
-import quoi.module.impl.player.Tweaks;
+import quoi.module.impl.general.Tweaks;
 import net.minecraft.client.Camera;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;

@@ -1,11 +1,9 @@
 package quoi.mixins;
 
-import quoi.api.events.RenderEvent;
-import quoi.module.impl.misc.ChatReplacements;
-import quoi.module.impl.player.PlayerDisplay;
-import quoi.module.impl.player.PlayerDisplay.HudType;
+import quoi.module.impl.general.ChatReplacements;
+import quoi.module.impl.general.PlayerDisplay;
+import quoi.module.impl.general.PlayerDisplay.HudType;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;

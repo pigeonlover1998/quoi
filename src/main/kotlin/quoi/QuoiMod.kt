@@ -13,7 +13,7 @@ import quoi.api.events.core.EventListener
 import quoi.api.events.core.once
 import quoi.config.Config
 import quoi.module.ModuleManager
-import quoi.module.impl.player.RemoteControl
+import quoi.module.impl.general.RemoteControl
 import quoi.utils.ui.hud.HudManager
 import quoi.utils.ui.rendering.NVGSpecialRenderer
 import kotlin.coroutines.EmptyCoroutineContext

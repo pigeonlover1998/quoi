@@ -5,7 +5,7 @@ import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Shadow;
 import quoi.api.events.MouseEvent;
-import quoi.module.impl.misc.chat.impl.ChatPeek;
+import quoi.module.impl.general.chat.impl.ChatPeek;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.input.MouseButtonInfo;
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import quoi.module.impl.player.Tweaks;
+import quoi.module.impl.general.Tweaks;
 
 @Mixin(MouseHandler.class)
 public class MouseHandlerMixin {

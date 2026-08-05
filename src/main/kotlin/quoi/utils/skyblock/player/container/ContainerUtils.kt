@@ -158,7 +158,7 @@ object ContainerUtils : EventListener, Shortcuts { // todo cleanup
     /**
      * Same as [getContainerItems] but automatically closes the container afterward.
      *
-     * @see [quoi.module.impl.misc.PetKeybinds.getPets]
+     * @see [quoi.module.impl.general.PetKeybinds.getPets]
      */
     suspend fun getContainerItemsClose(command: String, containerName: String, slots: Int = 54, timeout: Int = 20): List<ItemStack?> { // todo remove or replace with containertask
         val items = getContainerItems(command, containerName, slots, timeout)

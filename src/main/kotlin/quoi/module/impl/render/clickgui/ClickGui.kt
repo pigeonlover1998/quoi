@@ -61,7 +61,6 @@ import quoi.module.impl.render.clickgui.impl.VisualsSettings.moduleSorting
 import quoi.module.settings.UIComponent
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.impl.SelectorComponent
-import quoi.utils.StringUtils.capitaliseFirst
 import quoi.utils.ThemeManager.theme
 import quoi.utils.ui.elements.themedInput
 import quoi.utils.ui.hud.HudManager
@@ -129,7 +128,7 @@ object ClickGui : Module(
                     radius(tl = 6, tr = 6)
                 ) {
                     text(
-                        string = category.name.capitaliseFirst(),
+                        string = category.displayName,
                         size = 70.percent,
                         colour = theme.onSurface
                     )
