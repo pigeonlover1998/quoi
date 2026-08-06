@@ -1,7 +1,7 @@
 package quoi.mixins;
 
 import quoi.mixininterfaces.IOriginalCollisionShapeProvider;
-import quoi.module.impl.dungeon.FullBlockHitboxes;
+import quoi.module.impl.dungeon.secrets.impl.FullBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -32,7 +32,7 @@ public abstract class ChestBlockMixin implements IOriginalCollisionShapeProvider
 
     @Inject(method = "getShape", at = @At("HEAD"), cancellable = true)
     private void onGetShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context, CallbackInfoReturnable<VoxelShape> cir) {
-        if (FullBlockHitboxes.getShouldExpandHitboxes()) {
+        if (FullBlock.getShouldExpandHitboxes()) {
             cir.setReturnValue(Shapes.block());
         }
     }

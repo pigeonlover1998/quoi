@@ -40,7 +40,6 @@ object ModuleManager : EventListener {
             LeapMenu,
             ArrowAlign,
             AutoLeap,
-            FullBlockHitboxes,
             InvincibilityTimer,
             SimonSays,
             DungeonBreaker,

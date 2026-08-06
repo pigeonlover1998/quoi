@@ -41,7 +41,7 @@ import quoi.utils.ui.screens.UIScreen.Companion.open
 import java.net.URI
 
 object QuoiCommand : EventListener, Shortcuts {
-    val command = BaseCommand("quoi") {
+    val command = BaseCommand("quoi", "requise") {
         open(clickGui)
     }
 
