@@ -19,6 +19,7 @@ import quoi.utils.ui.cursor
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import quoi.api.abobaui.constraints.impl.positions.Centre
 import quoi.api.colour.Colour
 import java.util.Objects
 
@@ -125,7 +126,8 @@ class KeybindComponent(
         text(
             string = name,
             size = theme.textSize,
-            colour = theme.onSurfaceVariant
+            colour = theme.onSurfaceVariant,
+            pos = at(y = Centre)
         )
         val w = Bounding + 5.px
         block(
