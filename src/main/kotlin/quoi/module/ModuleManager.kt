@@ -39,7 +39,6 @@ object ModuleManager : EventListener {
             ShadowAssassinAlert,
             LeapMenu,
             ArrowAlign,
-            AutoLeap,
             InvincibilityTimer,
             SimonSays,
             DungeonBreaker,

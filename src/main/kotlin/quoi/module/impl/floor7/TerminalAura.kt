@@ -9,12 +9,9 @@ import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.location.Island
 import quoi.api.skyblock.location.invoke
 import quoi.module.Module
-import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.EntityUtils
-import quoi.utils.skyblock.player.LeapManager
 
 // Kyleen
-@Suppress("UNNECESSARY_SAFE_CALL")
 object TerminalAura : Module(
     "Terminal Aura",
     desc = "Automatically opens terminals.",
@@ -24,8 +21,6 @@ object TerminalAura : Module(
     private val auraDistance by slider("Distance", 4.0, 0.0, 4.0, 0.1)
     private val auraDelay by slider("Delay", 750, 0, 2000, 50)
     private val groundOnly by switch("Ground only")
-    private val leapDelayEnabled by switch("Leap delay", desc = "Delays opening terminals for x seconds after leap")
-    private val leapDelay by slider("Leap delay time", 0.5, 0.1, 5.0, 0.1, unit = "s").childOf(::leapDelayEnabled)
 
     private var lastClick = 0L
 
@@ -34,11 +29,6 @@ object TerminalAura : Module(
         on<TickEvent.Start> {
             if (!Dungeon.inP3 || Dungeon.inTerminal || Dungeon.isDead || mc.screen != null) return@on
             if (System.currentTimeMillis() - lastClick < auraDelay) return@on
-
-            if (leapDelayEnabled) {
-                val delayMs = (leapDelay * 1000.0).toLong()
-                if (System.currentTimeMillis() - LeapManager.lastLeap < delayMs) return@on
-            }
 
             if (groundOnly && !player.onGround()) return@on
 
