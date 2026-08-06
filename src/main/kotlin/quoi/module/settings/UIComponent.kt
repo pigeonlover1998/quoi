@@ -122,6 +122,7 @@ abstract class UIComponent<T>(
                     transform(chevronAlphaAnim)
 
                     onClick {
+                        if (!hasVisible) return@onClick false
                         collapsed = !collapsed
                         true
                     }
@@ -209,9 +210,15 @@ abstract class UIComponent<T>(
 
                 if (hasVisibleCurr != hasVisible) {
                     hasVisible = hasVisibleCurr
-                    chevronImage.element.enabled = hasVisible
+
+                    if (hasVisible) {
+                        chevronImage.element.enabled = true
+                    }
+
                     chevronSpaceAnim.animate(0.2.seconds, Animation.Style.EaseInOutQuint)
-                    chevronAlphaAnim.animate(0.2.seconds, Animation.Style.EaseInOutQuint)
+                    chevronAlphaAnim.animate(0.2.seconds, Animation.Style.EaseInOutQuint)?.onFinish {
+                        chevronImage.element.enabled = hasVisible
+                    }
                 }
 
                 val showingCurr = !collapsed && hasVisible
