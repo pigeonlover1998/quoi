@@ -28,7 +28,7 @@ object SecretHighlight : ToggleableGroup(
     desc = "Highlights collected secrets.",
 ) {
     private val secretChime by switch("Chime", desc = "Plays a sound on secret click.")
-    private val clickSound = sound("Secret").childOf(::secretChime)
+    private val clickSound = sound("Secret sound").childOf(::secretChime)
 //    private val dropSound = createSoundSettings("Drop", chimeDropdown) { secretChime }
 
     private val secretClicks by switch("Clicks", desc = "Highlights the secret on click.")
@@ -42,7 +42,7 @@ object SecretHighlight : ToggleableGroup(
     private val farColour by colourPicker("Far colour", Colour.RED, allowAlpha = true, desc = "Highlight colour when the player is far from the item.").childOf(::itemHighlight)
     private val sizeOffset by slider("Size offset", 0.0, -1.0, 1.0, 0.05, desc = "Changes box size offset.").childOf(::itemHighlight)
     private val playSound by switch("Play sound", desc = "Plays a sound when the player is near the item.").childOf(::itemHighlight)
-    private val itemSound = sound("Item").childOf(::itemHighlight) { playSound }
+    private val itemSound = sound("Item sound").childOf(::itemHighlight) { playSound }
 
     private data class Secret(val blockPos: BlockPos, var isLocked: Boolean = false)
     private val clickedSecrets = CopyOnWriteArrayList<Secret>()
