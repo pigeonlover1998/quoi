@@ -1,4 +1,4 @@
-package quoi.module.impl.dungeon
+package quoi.module.impl.dungeon.secrets.impl
 
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
 import net.minecraft.network.protocol.game.ServerboundContainerClosePacket
@@ -6,13 +6,16 @@ import net.minecraft.world.inventory.MenuType
 import quoi.api.events.PacketEvent
 import quoi.api.events.core.on
 import quoi.api.skyblock.location.Island
-import quoi.module.Module
+import quoi.api.skyblock.location.invoke
+import quoi.module.impl.dungeon.secrets.Secrets
+import quoi.module.settings.group.ToggleableGroup
 
 // Kyleen
-object AutoCloseChest : Module(
+object AutoCloseChest : ToggleableGroup(
+    Secrets,
     "Auto Close Chest",
     desc = "Automatically closes secret chests.",
-    area = Island.Dungeon
+    area = Island.Dungeon(inClear = true)
 ) {
 
     private val secretChestTitles = setOf("Chest", "Large Chest", "Trapped Chest")

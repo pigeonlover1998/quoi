@@ -10,7 +10,6 @@ import quoi.api.abobaui.elements.impl.Block
 import quoi.api.abobaui.elements.impl.Text.Companion.shadow
 import quoi.api.abobaui.elements.impl.Text.Companion.textSupplied
 import quoi.api.colour.Colour
-import quoi.api.skyblock.location.Location.inSkyblock
 import quoi.api.skyblock.SkyblockPlayer
 import quoi.api.skyblock.SkyblockPlayer.DEF_REGEX
 import quoi.api.skyblock.SkyblockPlayer.HP_REGEX
@@ -24,6 +23,7 @@ import quoi.api.skyblock.SkyblockPlayer.VITALITY_REGEX
 import quoi.api.skyblock.SkyblockPlayer.currentSecrets
 import quoi.api.skyblock.SkyblockPlayer.maxSecrets
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
+import quoi.api.skyblock.location.Location.inSkyblock
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf

@@ -2,12 +2,7 @@ package quoi.module.impl.general.inventory.impl
 
 import net.minecraft.world.entity.LivingEntity
 import quoi.api.abobaui.constraints.impl.size.Fill
-import quoi.api.abobaui.dsl.inset
-import quoi.api.abobaui.dsl.outlineBlock
-import quoi.api.abobaui.dsl.px
-import quoi.api.abobaui.dsl.radius
-import quoi.api.abobaui.dsl.size
-import quoi.api.abobaui.dsl.withScale
+import quoi.api.abobaui.dsl.*
 import quoi.api.abobaui.elements.Element
 import quoi.api.abobaui.elements.Layout.Companion.divider
 import quoi.api.colour.Colour

@@ -10,11 +10,7 @@ import quoi.api.pathfinding.impl.EtherwarpPathfinder
 import quoi.api.pathfinding.impl.TransmissionPathfinder
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
-import quoi.api.skyblock.dungeon.odonscanning.tiles.DoorType
-import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonDoor
-import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
-import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomTile
-import quoi.api.skyblock.dungeon.odonscanning.tiles.Rotations
+import quoi.api.skyblock.dungeon.odonscanning.tiles.*
 import quoi.module.impl.dungeon.DungeonESP.starredMobs
 import quoi.module.impl.dungeon.autoclear.executor.ClearExecutor
 import quoi.module.impl.dungeon.autoclear.executor.ClearNode
@@ -22,20 +18,12 @@ import quoi.module.impl.dungeon.autoclear.executor.nodes.ClearAotvNode
 import quoi.module.impl.dungeon.autoclear.executor.nodes.ClearEtherNode
 import quoi.module.impl.dungeon.autoclear.executor.nodes.ClearHypeNode
 import quoi.module.impl.dungeon.autoclear.impl.AutoRoutes.routeNodes
+import quoi.utils.*
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.containsOneOf
 import quoi.utils.WorldUtils.etherwarpable
 import quoi.utils.WorldUtils.nearbyBlocks
-import quoi.utils.addVec
-import quoi.utils.distanceToSqr
-import quoi.utils.equalsOneOf
-import quoi.utils.floorPos
-import quoi.utils.getLook
-import quoi.utils.player
-import quoi.utils.rayCastVec
 import quoi.utils.skyblock.player.PlayerUtils.getEyeHeight
-import quoi.utils.vec3
-import kotlin.collections.filter
 
 const val HYPE_AOE = 6.0
 

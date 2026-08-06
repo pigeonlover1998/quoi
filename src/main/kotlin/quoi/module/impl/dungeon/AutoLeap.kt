@@ -5,11 +5,11 @@ import quoi.api.events.ChatEvent
 import quoi.api.events.DungeonEvent
 import quoi.api.events.MouseEvent
 import quoi.api.events.core.on
-import quoi.api.skyblock.location.Island
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.Dungeon.allTeammatesNoSelf
 import quoi.api.skyblock.dungeon.DungeonClass
 import quoi.api.skyblock.dungeon.P3Section
+import quoi.api.skyblock.location.Island
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf

@@ -10,12 +10,14 @@ import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
-import quoi.api.events.*
+import quoi.api.events.PacketEvent
+import quoi.api.events.RenderEvent
+import quoi.api.events.TickEvent
 import quoi.api.events.core.on
-import quoi.api.skyblock.location.Island
 import quoi.api.skyblock.dungeon.Dungeon.floor
 import quoi.api.skyblock.dungeon.Dungeon.inBoss
 import quoi.api.skyblock.dungeon.Dungeon.isProtectedBlock
+import quoi.api.skyblock.location.Island
 import quoi.config.configList
 import quoi.module.Module
 import quoi.module.settings.UIComponent.Companion.childOf
@@ -24,16 +26,16 @@ import quoi.utils.Scheduler.scheduleLoop
 import quoi.utils.StringUtils.width
 import quoi.utils.WorldUtils.state
 import quoi.utils.aabb
-import quoi.utils.skyblock.player.PlayerUtils.eyePosition
 import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawWireFrameBox
 import quoi.utils.scaledHeight
 import quoi.utils.scaledWidth
 import quoi.utils.skyblock.item.ItemUtils.getBreakerCharges
-import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.PlayerUtils
+import quoi.utils.skyblock.player.PlayerUtils.eyePosition
 import quoi.utils.skyblock.player.SwapManager
+import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.ui.textPair
 
 // Kyleen

@@ -14,6 +14,7 @@ import quoi.module.impl.floor7.NecronPlatformHighlight
 import quoi.module.impl.floor7.SimonSays
 import quoi.module.impl.floor7.TerminalAura
 import quoi.module.impl.dungeon.puzzlesolvers.PuzzleSolvers
+import quoi.module.impl.dungeon.secrets.Secrets
 import quoi.module.impl.floor7.TickTimers
 import quoi.module.impl.mining.*
 import quoi.module.impl.misc.*
@@ -39,9 +40,7 @@ object ModuleManager : EventListener {
             LeapMenu,
             ArrowAlign,
             AutoLeap,
-            AutoCloseChest,
             FullBlockHitboxes,
-            SecretTriggerBot,
             InvincibilityTimer,
             SimonSays,
             DungeonBreaker,
@@ -54,7 +53,6 @@ object ModuleManager : EventListener {
             AutoGFS,
             Splits,
             Secrets,
-            SecretAura,
             PuzzleSolvers,
             InteractiveMap,
             DungeonMap,

@@ -6,15 +6,7 @@ import quoi.api.skyblock.location.Island
 import quoi.api.skyblock.location.invoke
 import quoi.config.ConfigSystem.gson
 import quoi.module.Module
-import quoi.module.impl.dungeon.puzzlesolvers.impl.CreeperBeams
-import quoi.module.impl.dungeon.puzzlesolvers.impl.Blaze
-import quoi.module.impl.dungeon.puzzlesolvers.impl.IceFill
-import quoi.module.impl.dungeon.puzzlesolvers.impl.IcePath
-import quoi.module.impl.dungeon.puzzlesolvers.impl.TeleportMaze
-import quoi.module.impl.dungeon.puzzlesolvers.impl.Quiz
-import quoi.module.impl.dungeon.puzzlesolvers.impl.TicTacToe
-import quoi.module.impl.dungeon.puzzlesolvers.impl.WaterBoard
-import quoi.module.impl.dungeon.puzzlesolvers.impl.ThreeWeirdos
+import quoi.module.impl.dungeon.puzzlesolvers.impl.*
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.UIComponent.Companion.visibleIf
 import java.io.InputStreamReader

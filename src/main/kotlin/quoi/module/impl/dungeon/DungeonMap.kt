@@ -1,9 +1,9 @@
 package quoi.module.impl.dungeon
 
 import quoi.api.colour.Colour
-import quoi.api.skyblock.location.Island
 import quoi.api.skyblock.dungeon.odonscanning.MapRenderer.MapConfig
 import quoi.api.skyblock.dungeon.odonscanning.MapRenderer.renderMap
+import quoi.api.skyblock.location.Island
 import quoi.api.skyblock.location.invoke
 import quoi.module.Module
 import quoi.module.settings.Setting.Companion.json

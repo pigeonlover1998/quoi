@@ -6,10 +6,10 @@ import quoi.api.abobaui.dsl.minus
 import quoi.api.abobaui.dsl.px
 import quoi.api.colour.Colour
 import quoi.api.colour.colour
-import quoi.api.skyblock.location.Location.inSkyblock
 import quoi.api.skyblock.SkyblockPlayer
 import quoi.api.skyblock.dungeon.Dungeon.inBoss
 import quoi.api.skyblock.dungeon.Dungeon.inDungeons
+import quoi.api.skyblock.location.Location.inSkyblock
 import quoi.module.Module
 import quoi.utils.ui.textPair
 

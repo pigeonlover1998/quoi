@@ -6,7 +6,6 @@ import quoi.module.impl.render.clickgui.ClickGui
 import quoi.module.settings.group.SettingGroup
 import quoi.module.settings.impl.MapSetting
 import quoi.module.settings.impl.TextComponent
-import kotlin.collections.set
 
 @Internal
 object Data : SettingGroup(ClickGui, TextComponent("").hide()) {

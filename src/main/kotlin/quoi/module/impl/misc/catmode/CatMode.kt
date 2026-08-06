@@ -9,7 +9,7 @@ import net.minecraft.util.FormattedCharSequence
 import quoi.api.events.PacketEvent
 import quoi.api.events.core.on
 import quoi.module.Module
-import quoi.module.impl.misc.catmode.impl.*
+import quoi.module.impl.misc.catmode.impl.FallingCats
 import quoi.utils.StringUtils.FORMATTING_CODE_PATTERN
 
 /**

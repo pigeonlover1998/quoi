@@ -12,12 +12,8 @@ import quoi.api.input.CatKeys
 import quoi.mixins.accessors.ChatComponentAccessor
 import quoi.module.impl.general.chat.Chat
 import quoi.module.settings.group.ToggleableGroup
-import quoi.utils.ChatUtils
+import quoi.utils.*
 import quoi.utils.StringUtils.noControlCodes
-import quoi.utils.getMessageLineIdx
-import quoi.utils.toChatLineMX
-import quoi.utils.toChatLineMY
-import quoi.utils.visibleMessages
 
 object CopyChat : ToggleableGroup(Chat, "Copy chat", desc = "Copies chat on mouse click.") {
 

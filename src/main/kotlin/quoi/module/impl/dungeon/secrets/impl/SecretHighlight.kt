@@ -1,7 +1,6 @@
-package quoi.module.impl.dungeon
+package quoi.module.impl.dungeon.secrets.impl
 
 import net.minecraft.core.BlockPos
-import net.minecraft.sounds.SoundEvent
 import net.minecraft.world.entity.item.ItemEntity
 import quoi.api.colour.Colour
 import quoi.api.colour.withAlpha
@@ -10,12 +9,12 @@ import quoi.api.events.DungeonEvent
 import quoi.api.events.RenderEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.on
-import quoi.api.skyblock.dungeon.Dungeon.dungeonItemDrops
-import quoi.module.Module
+import quoi.api.skyblock.dungeon.Dungeon
+import quoi.module.impl.dungeon.secrets.Secrets
 import quoi.module.settings.UIComponent.Companion.childOf
+import quoi.module.settings.group.ToggleableGroup
 import quoi.utils.EntityUtils.interpolatedBox
-import quoi.utils.Scheduler.scheduleTask
-import quoi.utils.SoundUtils
+import quoi.utils.Scheduler
 import quoi.utils.StringUtils.containsOneOf
 import quoi.utils.aabb
 import quoi.utils.render.drawFilledBox
@@ -23,9 +22,10 @@ import quoi.utils.render.drawWireFrameBox
 import java.util.concurrent.CopyOnWriteArrayList
 
 // https://github.com/Noamm9/CatgirlAddons/blob/main/src/main/kotlin/catgirlroutes/module/impl/dungeons/Secrets.kt
-object Secrets : Module(
-    "Secrets",
-    desc = "Highlights collected secrets."
+object SecretHighlight : ToggleableGroup(
+    Secrets,
+    name = "Secret Highlight",
+    desc = "Highlights collected secrets.",
 ) {
     private val secretChime by switch("Chime", desc = "Plays a sound on secret click.")
     private val clickSound = sound("Secret").childOf(::secretChime)
@@ -46,21 +46,20 @@ object Secrets : Module(
 
     private data class Secret(val blockPos: BlockPos, var isLocked: Boolean = false)
     private val clickedSecrets = CopyOnWriteArrayList<Secret>()
-    private var lastPlayed = System.currentTimeMillis()
     private val itemEntities = CopyOnWriteArrayList<ItemEntity>()
 
     init {
         on<DungeonEvent.Secret.Interact> {
             secretHighlight(blockPos)
-            playSecretSound(clickSound)
+            if (secretChime) clickSound.play(10)
         }
 
         on<DungeonEvent.Secret.Item> {
-            playSecretSound(clickSound) // dropSound
+            if (secretChime) clickSound.play(10)
         }
 
         on<DungeonEvent.Secret.Bat> {
-            playSecretSound(clickSound) // dropSound?
+            if (secretChime) clickSound.play(10)
         }
 
         on<ChatEvent.Packet> {
@@ -81,7 +80,7 @@ object Secrets : Module(
                 var colour = farColour
 
                 if (item.distanceTo(player) <= 3.5) {
-                    if (playSound) SoundUtils.play(itemSound)
+                    if (playSound) itemSound.play(10)
                     colour = closeColour
                 }
                 ctx.drawFilledBox(item.interpolatedBox.inflate(sizeOffset), colour)
@@ -92,7 +91,7 @@ object Secrets : Module(
         on<RenderEvent.Entity> {
             if (!itemHighlight) return@on
             val itemEntity = entity as? ItemEntity ?: return@on
-            if (itemEntity.item.hoverName.string.containsOneOf(dungeonItemDrops, true)) {
+            if (itemEntity.item.hoverName.string.containsOneOf(Dungeon.dungeonItemDrops, true)) {
                 itemEntities.addIfAbsent(itemEntity)
                 cancel()
             }
@@ -104,16 +103,9 @@ object Secrets : Module(
         }
     }
 
-    private fun playSecretSound(sound: () -> Triple<SoundEvent, Float, Float>) {
-        if (System.currentTimeMillis() - lastPlayed > 10 && secretChime) {
-            SoundUtils.play(sound)
-            lastPlayed = System.currentTimeMillis()
-        }
-    }
-
     private fun secretHighlight(blockPos: BlockPos) {
         if (!secretClicks || clickedSecrets.any { it.blockPos == blockPos }) return
         clickedSecrets.add(Secret(blockPos))
-        scheduleTask(20) { clickedSecrets.removeFirstOrNull() }
+        Scheduler.scheduleTask(20) { clickedSecrets.removeFirstOrNull() }
     }
 }

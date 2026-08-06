@@ -7,13 +7,11 @@ import quoi.api.colour.withAlpha
 import quoi.api.events.*
 import quoi.api.events.core.Event
 import quoi.api.events.core.on
-import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.impl.dungeon.autoclear.executor.ClearExecutor
 import quoi.module.impl.dungeon.puzzlesolvers.PuzzleSolvers
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.group.SettingGroup
 import quoi.utils.EntityUtils.getEntities
-import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.StringUtils.startsWithOneOf
 import quoi.utils.aabb
 import quoi.utils.render.drawFilledBox

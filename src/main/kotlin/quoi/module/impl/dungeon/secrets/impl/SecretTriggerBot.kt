@@ -1,4 +1,4 @@
-package quoi.module.impl.dungeon
+package quoi.module.impl.dungeon.secrets.impl
 
 import net.minecraft.core.BlockPos
 import net.minecraft.world.InteractionHand
@@ -7,10 +7,9 @@ import net.minecraft.world.phys.HitResult
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.on
-import quoi.api.skyblock.location.Island
 import quoi.api.skyblock.dungeon.Dungeon
-import quoi.api.skyblock.dungeon.Dungeon.inBoss
-import quoi.module.Module
+import quoi.module.impl.dungeon.secrets.Secrets
+import quoi.module.settings.group.ToggleableGroup
 import quoi.utils.Ticker
 import quoi.utils.equalsOneOf
 import quoi.utils.skyblock.player.SwapManager
@@ -18,10 +17,10 @@ import quoi.utils.skyblock.player.SwapResult
 import quoi.utils.ticker
 
 // Kyleen
-object SecretTriggerBot : Module(
-    "Secret TriggerBot",
-    desc = "Automatically collects secrets when looking at them.",
-    area = Island.Dungeon
+object SecretTriggerBot : ToggleableGroup(
+    Secrets,
+    name = "Secret TriggerBot",
+    desc = "Automatically collects secrets when looking at them."
 ) {
 
     private val swapSlot by slider("Swap slot", 1, 1, 9, 1, desc = "Hotbar slot to swap to (1-9).")
@@ -32,7 +31,6 @@ object SecretTriggerBot : Module(
 
     override fun onDisable() {
         clickedBlocks.clear()
-        super.onDisable()
     }
 
     init {
@@ -41,7 +39,7 @@ object SecretTriggerBot : Module(
         }
 
         on<TickEvent.End> {
-            if (mc.screen != null || inBoss) return@on
+            if (mc.screen != null || Dungeon.inBoss) return@on
 
             tBotTicker?.let {
                 if (it.tick()) tBotTicker = null

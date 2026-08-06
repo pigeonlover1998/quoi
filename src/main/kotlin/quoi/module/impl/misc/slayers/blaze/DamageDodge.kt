@@ -1,20 +1,10 @@
 package quoi.module.impl.misc.slayers.blaze
 
 import net.minecraft.core.BlockPos
-import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket
 import net.minecraft.world.entity.monster.Blaze
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
-import quoi.api.colour.Colour
-import quoi.api.colour.withAlpha
-import quoi.api.events.AreaEvent
-import quoi.api.events.BlockEvent
-import quoi.api.events.GuiEvent
-import quoi.api.events.KeyEvent
-import quoi.api.events.PacketEvent
-import quoi.api.events.RenderEvent
-import quoi.api.events.SlayerEvent
-import quoi.api.events.TickEvent
+import quoi.api.events.*
 import quoi.api.events.core.Priority
 import quoi.api.events.core.on
 import quoi.module.impl.misc.slayers.QuestState
@@ -30,9 +20,7 @@ import quoi.utils.WorldUtils.nearbyBlocks
 import quoi.utils.WorldUtils.registryName
 import quoi.utils.WorldUtils.state
 import quoi.utils.WorldUtils.ticksUntilCollision
-import quoi.utils.aabb
 import quoi.utils.distanceToSqr
-import quoi.utils.render.drawFilledBox
 import quoi.utils.skyblock.player.MovementUtils.cancelMovementTask
 import quoi.utils.skyblock.player.MovementUtils.moveTo
 

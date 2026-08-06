@@ -1,4 +1,4 @@
-package quoi.module.impl.dungeon
+package quoi.module.impl.dungeon.secrets.impl
 
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
@@ -18,32 +18,32 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity
 import net.minecraft.world.level.block.entity.SkullBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.AABB
+import quoi.api.commands.QuoiCommand.command
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.on
-import quoi.api.skyblock.location.Location.inSkyblock
 import quoi.api.skyblock.dungeon.Dungeon
-import quoi.api.skyblock.dungeon.Dungeon.currentRoom
-import quoi.api.skyblock.dungeon.Dungeon.inDungeons
-import quoi.module.Module
+import quoi.api.skyblock.location.Location
 import quoi.module.impl.dungeon.autoclear.executor.ClearExecutor
+import quoi.module.impl.dungeon.secrets.Secrets
 import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.UIComponent.Companion.visibleIf
+import quoi.module.settings.group.ToggleableGroup
 import quoi.utils.*
-import quoi.utils.EntityUtils.getEntities
 import quoi.utils.WorldUtils.state
 import quoi.utils.skyblock.player.PlayerUtils.eyePosition
-import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.skyblock.player.SwapManager
 import quoi.utils.skyblock.player.SwapResult
+import quoi.utils.skyblock.player.interact.AuraManager
 import java.util.*
 
 // modified https://github.com/Hypericat/NoobRoutes/blob/main/src/main/kotlin/noobroutes/features/dungeon/SecretAura.kt
 @Suppress("UNNECESSARY_SAFE_CALL")
-object SecretAura : Module(
-    "Secret Aura",
+object SecretAura : ToggleableGroup(
+    Secrets,
+    name = "Secret Aura",
     desc = "Automatically collects secrets."
 ) {
     private val range by slider("Range", 6.2, 2.1, 6.5, 0.1, desc = "Maximum range for secret aura. Both levers and chests.").json("Chest range")
@@ -95,9 +95,10 @@ object SecretAura : Module(
     private val extraDevLever = BlockPos(59, 133, 142)
 
     override fun onDisable() {
-        super.onDisable()
         clear()
     }
+
+    override fun inEnvironment(): Boolean = super.inEnvironment() && (!dungeonsOnly || Dungeon.inDungeons)
 
     init {
         command.sub("clearaura") {
@@ -110,9 +111,8 @@ object SecretAura : Module(
 
         on<TickEvent.End> {
             if (ClearExecutor.active) return@on
-            if (!inSkyblock ||
+            if (!Location.inSkyblock ||
                 (mc.screen != null && !inContainer) ||
-                (dungeonsOnly && !inDungeons) ||
                 (Dungeon.inBoss && !inBoss)
             ) return@on
 
@@ -134,7 +134,7 @@ object SecretAura : Module(
                 }
             }
 
-            currentRoom?.let { room ->
+            Dungeon.currentRoom?.let { room ->
                 when (room.name) {
                     "Three Weirdos" -> return@on
                     "Ice Path" if (!room.getRealCoords(BlockPos(15, 68, 25)).state.isAir) -> return@on
@@ -186,7 +186,7 @@ object SecretAura : Module(
                     blockCandidate = BlockDistance(block, pos.immutable(), currentDistanceSq)
                 }
             }
-            currentRoom?.let { room ->
+            Dungeon.currentRoom?.let { room ->
                 when (room.name) {
                     "Water Board", "Tic Tac Toe" -> if (blockCandidate.block == Blocks.LEVER) return@on
                     "Lower Blaze" -> {
@@ -305,9 +305,11 @@ object SecretAura : Module(
 
     private fun BlockPos.isBossBlock(state: BlockState): Boolean {
         if (state.block != Blocks.LEVER) return false
-        val p3Lever = this in levers && getEntities<ArmorStand>(above().vec3.aabb(1.5)) { it.displayName?.string == "Not Activated" }.isNotEmpty()
+        val p3Lever = this in levers && EntityUtils.getEntities<ArmorStand>(above().vec3.aabb(1.5)) { it.displayName?.string == "Not Activated" }
+            .isNotEmpty()
         val devLever = this in deviceLevers && state.hasProperty(LeverBlock.POWERED) && !state.getValue(LeverBlock.POWERED)
-        val extraDevLever = this == extraDevLever && !devLever && getEntities<ArmorStand>(vec3.aabb(2.0)) { it.displayName?.string == "Inactive" }.isNotEmpty() // untested
+        val extraDevLever = this == extraDevLever && !devLever && EntityUtils.getEntities<ArmorStand>(vec3.aabb(2.0)) { it.displayName?.string == "Inactive" }
+            .isNotEmpty() // untested
         return p3Lever || devLever || extraDevLever
     }
 

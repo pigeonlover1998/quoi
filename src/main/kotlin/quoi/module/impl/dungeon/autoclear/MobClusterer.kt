@@ -3,6 +3,8 @@ package quoi.module.impl.dungeon.autoclear
 import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.phys.Vec3
+import quoi.module.impl.dungeon.autoclear.MobClusterer.cluster
+import quoi.module.impl.dungeon.autoclear.MobClusterer.greedyOrder
 import quoi.utils.BlockPos
 import quoi.utils.vec3
 

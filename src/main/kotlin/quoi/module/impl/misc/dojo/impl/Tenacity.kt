@@ -12,20 +12,12 @@ import quoi.api.events.PacketEvent
 import quoi.api.events.RenderEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.core.on
-import quoi.api.pathfinding.impl.WalkPathfinder
 import quoi.module.impl.misc.dojo.Dojo
 import quoi.module.impl.misc.dojo.DojoType
 import quoi.module.settings.group.ToggleableGroup
 import quoi.utils.BlockPos
-import quoi.utils.WorldUtils.nearbyBlocks
-import quoi.utils.WorldUtils.solid
-import quoi.utils.WorldUtils.walkable
 import quoi.utils.aabb
-import quoi.utils.addVec
-import quoi.utils.floorPos
 import quoi.utils.skyblock.player.MovementUtils.cancelMovementTask
-import quoi.utils.skyblock.player.MovementUtils.moveTo
-import quoi.utils.skyblock.player.MovementUtils.moving
 
 object Tenacity : ToggleableGroup(Dojo, "Tenacity", subarea = "dojo arena") {
 

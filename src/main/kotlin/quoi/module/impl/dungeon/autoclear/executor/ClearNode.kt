@@ -9,9 +9,7 @@ import quoi.api.world.RaycastResult
 import quoi.module.impl.dungeon.autoclear.executor.nodes.ClearEtherNode
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.aabb
-import quoi.utils.blockPos
 import quoi.utils.equalsOneOf
-import quoi.utils.floorPos
 import quoi.utils.player
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawLine

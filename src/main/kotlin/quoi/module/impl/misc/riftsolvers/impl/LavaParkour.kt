@@ -2,11 +2,7 @@ package quoi.module.impl.misc.riftsolvers.impl
 
 import net.minecraft.world.phys.Vec3
 import quoi.api.colour.Colour
-import quoi.api.events.ChatEvent
-import quoi.api.events.GuiEvent
-import quoi.api.events.MouseEvent
-import quoi.api.events.RenderEvent
-import quoi.api.events.TickEvent
+import quoi.api.events.*
 import quoi.api.events.core.on
 import quoi.module.impl.misc.riftsolvers.MirrorverseSolvers
 import quoi.module.settings.group.ToggleableGroup

@@ -1,13 +1,7 @@
 package quoi.module.impl.general.chat
 
 import quoi.module.Module
-import quoi.module.impl.general.chat.impl.AutoDialogue
-import quoi.module.impl.general.chat.impl.ChatBypass
-import quoi.module.impl.general.chat.impl.ChatPeek
-import quoi.module.impl.general.chat.impl.CompactChat
-import quoi.module.impl.general.chat.impl.CopyChat
-import quoi.module.impl.general.chat.impl.KeepChatHistory
-import quoi.module.impl.general.chat.impl.NoChatLimit
+import quoi.module.impl.general.chat.impl.*
 
 @Suppress("unused_expression")
 object Chat : Module(
