@@ -58,7 +58,7 @@ import quoi.utils.skyblock.player.interact.AuraAction
 import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.ui.textPair
 
-object Test : Module("Test", desc = "Dev module for testing.") {
+object Test : Module("Test", desc = "Dev module for testing.") { // 123
 
     val highlightTest = highlight()
     val tracerTest = tracer()
