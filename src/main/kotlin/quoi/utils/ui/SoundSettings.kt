@@ -41,7 +41,7 @@ class SoundSettings(
 
     fun play(interval: Long = 0) {
         val currentTime = System.currentTimeMillis()
-        if (currentTime - lastPlayed > interval) return
+        if (currentTime - lastPlayed < interval) return
         lastPlayed = currentTime
 
         SoundUtils.play(soundEvent, volume, pitch)

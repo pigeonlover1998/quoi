@@ -11,6 +11,7 @@ import quoi.api.events.WorldEvent
 import quoi.api.events.core.on
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.module.impl.dungeon.secrets.Secrets
+import quoi.module.settings.Setting.Companion.json
 import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.group.ToggleableGroup
 import quoi.utils.EntityUtils.interpolatedBox
@@ -27,15 +28,13 @@ object SecretHighlight : ToggleableGroup(
     name = "Secret Highlight",
     desc = "Highlights collected secrets.",
 ) {
-    private val secretChime by switch("Chime", desc = "Plays a sound on secret click.")
-    private val clickSound = sound("Secret sound").childOf(::secretChime)
-//    private val dropSound = createSoundSettings("Drop", chimeDropdown) { secretChime }
-
     private val secretClicks by switch("Clicks", desc = "Highlights the secret on click.")
     private val outline by switch("Outline", desc = "Draws the outline.").childOf(::secretClicks)
     private val thickness by slider("Thickness", 3f, 1f, 6f).childOf(::outline)
     private val clickColour by colourPicker("Click colour", Colour.GREEN, allowAlpha = true).childOf(::secretClicks)
     private val lockedColour by colourPicker("Locked colour", Colour.RED, allowAlpha = true, desc = "Locked secret colour.").childOf(::secretClicks)
+    private val secretChime by switch("Play sound", desc = "Plays a sound on secret click.").json("Secret chime").childOf(::secretClicks)
+    private val clickSound = sound("Secret sound").childOf(::secretClicks) { secretChime }
 
     private val itemHighlight by switch("Item", desc = "Highlights secret items.")
     private val closeColour by colourPicker("Close colour", Colour.GREEN, allowAlpha = true, desc = "Highlight colour when the player is near the item.").childOf(::itemHighlight)
@@ -80,7 +79,7 @@ object SecretHighlight : ToggleableGroup(
                 var colour = farColour
 
                 if (item.distanceTo(player) <= 3.5) {
-                    if (playSound) itemSound.play(10)
+                    if (playSound) itemSound.play(20)
                     colour = closeColour
                 }
                 ctx.drawFilledBox(item.interpolatedBox.inflate(sizeOffset), colour)
