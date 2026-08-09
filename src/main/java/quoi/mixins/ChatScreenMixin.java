@@ -5,7 +5,6 @@ import net.minecraft.client.multiplayer.chat.GuiMessageSource;
 import quoi.api.input.CatKeyboard;
 import quoi.api.input.CatKeys;
 import quoi.mixininterfaces.ISearchMode;
-import quoi.mixins.accessors.ChatComponentAccessor;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -98,11 +97,10 @@ public class ChatScreenMixin extends Screen implements ISearchMode {
     private void toggleSearch(boolean activate) {
         isSearchActive = activate;
         ChatComponent chatHud = mc.gui.getChat();
-        ChatComponentAccessor accessor = (ChatComponentAccessor) chatHud;
 
         if (activate) {
             messageBackup.clear();
-            messageBackup.addAll(accessor.getMessages());
+            messageBackup.addAll(chatHud.allMessages);
             queuedMessages.clear();
 
             textBeforeSearch = input.getValue();
@@ -110,8 +108,8 @@ public class ChatScreenMixin extends Screen implements ISearchMode {
             input.setTextColor(Color.YELLOW.getRGB());
             doSearch("");
         } else {
-            accessor.getMessages().clear();
-            accessor.getMessages().addAll(messageBackup);
+            chatHud.allMessages.clear();
+            chatHud.allMessages.addAll(messageBackup);
             messageBackup.clear();
 
             for (Component queuedMessage : queuedMessages) {
@@ -129,8 +127,7 @@ public class ChatScreenMixin extends Screen implements ISearchMode {
     @Unique
     private void doSearch(String query) {
         ChatComponent chatHud = mc.gui.getChat();
-        ChatComponentAccessor accessor = (ChatComponentAccessor) chatHud;
-        List<GuiMessage> messages = accessor.getMessages();
+        List<GuiMessage> messages = chatHud.allMessages;
 
         messages.clear();
 

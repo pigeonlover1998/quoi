@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(RenderType.class)
-public interface RenderTypeAccessor {
+public interface RenderTypeAccessor { // todo remove prob
     @Invoker("create")
     static RenderType invokeCreate(String name, RenderSetup setup) {
         throw new AssertionError();

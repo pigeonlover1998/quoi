@@ -21,10 +21,6 @@ import quoi.api.events.core.until
 import quoi.utils.ChatUtils
 import quoi.utils.Scheduler
 import quoi.utils.Shortcuts
-import quoi.utils.StringUtils.noControlCodes
-import quoi.utils.items
-import quoi.utils.skyblock.item.ItemUtils.loreString
-import quoi.utils.skyblock.item.ItemUtils.skyblockUuid
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 

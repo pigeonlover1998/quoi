@@ -1,7 +1,23 @@
 accessWidener v2 official
 
+accessible field net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;
+accessible field net/minecraft/client/KeyMapping clickCount I
+
 accessible class net/minecraft/client/gui/Font$PreparedTextBuilder
+
+accessible field net/minecraft/client/gui/components/ImageButton sprites Lnet/minecraft/client/gui/components/WidgetSprites;
+accessible field net/minecraft/client/gui/components/ChatComponent allMessages Ljava/util/List;
+accessible field net/minecraft/client/gui/components/ChatComponent trimmedMessages Ljava/util/List;
+accessible field net/minecraft/client/gui/components/ChatComponent chatScrollbarPos I
+accessible method net/minecraft/client/gui/components/ChatComponent refreshTrimmedMessages ()V
+accessible method net/minecraft/client/gui/components/ChatComponent getWidth ()I
+accessible method net/minecraft/client/gui/components/ChatComponent getScale ()D
+accessible method net/minecraft/client/gui/components/ChatComponent getLineHeight ()I
+
+accessible method net/minecraft/client/multiplayer/MultiPlayerGameMode startPrediction (Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/client/multiplayer/prediction/PredictiveAction;)V
+
 accessible method net/minecraft/world/entity/Entity getInputVector (Lnet/minecraft/world/phys/Vec3;FF)Lnet/minecraft/world/phys/Vec3;
 accessible field net/minecraft/world/entity/Entity dimensions Lnet/minecraft/world/entity/EntityDimensions;
 accessible field net/minecraft/world/entity/LivingEntity jumping Z
 accessible field net/minecraft/world/entity/LivingEntity noJumpDelay I
+accessible field net/minecraft/world/entity/player/Inventory items Lnet/minecraft/core/NonNullList;

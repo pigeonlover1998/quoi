@@ -27,7 +27,6 @@ import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.utils.ChatUtils
 import quoi.utils.ChatUtils.literal
 import quoi.utils.ChatUtils.modMessage
-import quoi.utils.clickCount
 import quoi.utils.skyblock.player.MovementUtils.hold
 import java.net.URI
 import java.nio.file.Files

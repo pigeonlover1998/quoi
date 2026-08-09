@@ -15,7 +15,6 @@ import quoi.utils.EntityUtils.interpolatedBox
 import quoi.utils.StringUtils.toFixed
 import quoi.utils.addVec
 import quoi.utils.equalsOneOf
-import quoi.utils.items
 import quoi.utils.render.drawText
 import quoi.utils.skyblock.player.SwapManager
 

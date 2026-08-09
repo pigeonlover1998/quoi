@@ -2,7 +2,9 @@ package quoi.utils
 
 import quoi.QuoiMod.mc
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.multiplayer.MultiPlayerGameMode
 import net.minecraft.client.multiplayer.PlayerInfo
+import net.minecraft.client.multiplayer.prediction.PredictiveAction
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
@@ -11,7 +13,6 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.status.ChunkStatus
-import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 import net.minecraft.world.phys.shapes.VoxelShape
@@ -67,6 +68,11 @@ object WorldUtils { // todo cleanup
     val Block.registryName: String get() {
         val registry = BuiltInRegistries.BLOCK.getKey(this)
         return "${registry.namespace}:${registry.path}"
+    }
+
+    fun MultiPlayerGameMode.startPrediction(action: PredictiveAction) {
+        val level = mc.level ?: return
+        startPrediction(level, action)
     }
 
     fun LocalPlayer.blocksAtFeet(offset: Number = 0.0): Iterable<BlockPos> {

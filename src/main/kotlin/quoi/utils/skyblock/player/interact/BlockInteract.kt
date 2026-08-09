@@ -6,7 +6,7 @@ import net.minecraft.world.InteractionHand
 import quoi.utils.gameMode
 import quoi.utils.getHitResult
 import quoi.utils.skyblock.player.interact.AuraManager.debugBox
-import quoi.utils.startPrediction
+import quoi.utils.WorldUtils.startPrediction
 
 class BlockInteract(private val pos: BlockPos, private val force: Boolean) {
     fun execute() {

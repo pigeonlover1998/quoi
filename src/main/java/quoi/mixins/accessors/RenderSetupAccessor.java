@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(RenderSetup.class)
-public interface RenderSetupAccessor {
+public interface RenderSetupAccessor { // todo remove prob since it's public
     @Invoker("builder")
     static RenderSetup.RenderSetupBuilder invokeBuilder(RenderPipeline pipeline) {
         throw new AssertionError();

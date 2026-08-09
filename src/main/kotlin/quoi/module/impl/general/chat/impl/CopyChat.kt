@@ -9,10 +9,12 @@ import quoi.api.events.GuiEvent
 import quoi.api.events.core.on
 import quoi.api.input.CatKeyboard
 import quoi.api.input.CatKeys
-import quoi.mixins.accessors.ChatComponentAccessor
 import quoi.module.impl.general.chat.Chat
 import quoi.module.settings.group.ToggleableGroup
 import quoi.utils.*
+import quoi.utils.ChatUtils.getMessageLineIdx
+import quoi.utils.ChatUtils.toChatLineMX
+import quoi.utils.ChatUtils.toChatLineMY
 import quoi.utils.StringUtils.noControlCodes
 
 object CopyChat : ToggleableGroup(Chat, "Copy chat", desc = "Copies chat on mouse click.") {
@@ -23,7 +25,7 @@ object CopyChat : ToggleableGroup(Chat, "Copy chat", desc = "Copies chat on mous
     init {
         on<GuiEvent.Click> {
             if (!state || screen !is ChatScreen) return@on
-            if (mc.gui.chat.visibleMessages.isEmpty()) return@on
+            if (mc.gui.chat.trimmedMessages.isEmpty()) return@on
 
             val isCopyBtn = button == copyKey.key + 100 && copyKey.isModifierDown()
             val isCodeBtn = button == copyCodesKey.key + 100 && copyCodesKey.isModifierDown()
@@ -33,7 +35,7 @@ object CopyChat : ToggleableGroup(Chat, "Copy chat", desc = "Copies chat on mous
             val dx = mc.gui.chat.toChatLineMX(mx)
             val dy = mc.gui.chat.toChatLineMY(my)
             val idx = mc.gui.chat.getMessageLineIdx(dx, dy)
-            if (idx !in mc.gui.chat.visibleMessages.indices) return@on
+            if (idx !in mc.gui.chat.trimmedMessages.indices) return@on
             if (idx == 0 && dy !in 0.0..1.0 || dx >= ChatComponent.getWidth(mc.options.chatWidth().get()).plus(10)) return@on
 
             val fullText = mc.gui.chat.getFullText(idx)?.string ?: return@on
@@ -47,7 +49,7 @@ object CopyChat : ToggleableGroup(Chat, "Copy chat", desc = "Copies chat on mous
     }
 
     private fun ChatComponent.getFullText(idx: Int): Component? {
-        val visible = (this as ChatComponentAccessor).visibleMessages ?: return null
+        val visible = trimmedMessages ?: return null
         if (idx !in visible.indices) return null
 
         var fullIndex = -1
@@ -56,6 +58,6 @@ object CopyChat : ToggleableGroup(Chat, "Copy chat", desc = "Copies chat on mous
             if (i == idx) break
         }
 
-        return messages.getOrNull(fullIndex)?.content
+        return allMessages.getOrNull(fullIndex)?.content
     }
 }

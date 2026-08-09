@@ -18,7 +18,7 @@ import quoi.utils.level
 import quoi.utils.player
 import quoi.utils.skyblock.player.RotationUtils.resetRotation
 import quoi.utils.skyblock.player.RotationUtils.rotateSilently
-import quoi.utils.startPrediction
+import quoi.utils.WorldUtils.startPrediction
 import kotlin.math.ceil
 
 @OptIn(Internal::class)

@@ -23,7 +23,7 @@ import quoi.utils.copy
 import quoi.utils.getHitResult
 import quoi.utils.render.drawFilledBox
 import quoi.utils.render.drawWireFrameBox
-import quoi.utils.startPrediction
+import quoi.utils.WorldUtils.startPrediction
 
 @Init
 @OptIn(Internal::class)

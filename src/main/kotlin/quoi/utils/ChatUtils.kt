@@ -6,12 +6,45 @@ import quoi.module.impl.render.clickgui.impl.PrefixSettings.prefixColour
 import quoi.module.impl.render.clickgui.impl.PrefixSettings.prefixText
 import quoi.utils.StringUtils.noControlCodes
 import net.fabricmc.fabric.impl.command.client.ClientCommandInternals
+import net.minecraft.client.gui.components.ChatComponent
 import net.minecraft.client.multiplayer.chat.GuiMessage
 import net.minecraft.client.multiplayer.chat.GuiMessageSource
 import net.minecraft.client.multiplayer.chat.GuiMessageTag
 import net.minecraft.network.chat.*
+import net.minecraft.world.entity.player.ChatVisiblity
+import quoi.mixininterfaces.IChatComponent
+import quoi.mixininterfaces.IGuiMessage
+import kotlin.math.floor
 
 object ChatUtils {
+
+    @Suppress("cast_never_succeeds")
+    inline var GuiMessage.id: Int
+        get() = (this as IGuiMessage).`quoi$getId`()
+        set(value) {
+            (this as IGuiMessage).`quoi$setId`(value)
+        }
+
+    fun ChatComponent.add(text: Component, id: Int) =
+        (this as IChatComponent).`quoi$add`(text, id)
+
+    fun ChatComponent.toChatLineMX(x: Double): Double =
+        x / scale - 4.0
+
+    fun ChatComponent.toChatLineMY(y: Double): Double =
+        (mc.window.guiScaledHeight - y - 40.0) / (scale * lineHeight)
+
+    fun ChatComponent.getMessageLineIdx(chatLineX: Double, chatLineY: Double): Int = run {
+        if (!isChatFocused || mc.options.chatVisibility().get() == ChatVisiblity.HIDDEN) return -1
+        if (chatLineX < -4.0 || chatLineX > floor(width.toDouble() / scale)) return -1
+
+        val lineCount = minOf(linesPerPage, trimmedMessages.size)
+        if (chatLineY < 0.0 || chatLineY >= lineCount) return -1
+
+        val idx = floor(chatLineY + chatScrollbarPos.toDouble()).toInt()
+        idx.takeIf { it in trimmedMessages.indices } ?: -1
+    }
+
     fun prefix(text: String = prefixText): Component
         = literal("[").withColor(bracketsColour.rgb)
             .append(literal(text).withColor(prefixColour.rgb))
@@ -31,7 +64,7 @@ object ChatUtils {
 
     fun removeLines(cb: (GuiMessage) -> Boolean): Boolean {
         var removedLine = false
-        val messageList = mc.gui.chat.messages.listIterator()
+        val messageList = mc.gui.chat.allMessages.listIterator()
 
         while (messageList.hasNext()) {
             val msg = messageList.next()
@@ -55,7 +88,7 @@ object ChatUtils {
         val indicator =
             if (mc.isSingleplayer) GuiMessageTag.systemSinglePlayer()
             else GuiMessageTag.system()
-        val messageList = mc.gui.chat.messages.listIterator()
+        val messageList = mc.gui.chat.allMessages.listIterator()
 
         while (messageList.hasNext()) {
             val msg = messageList.next()
