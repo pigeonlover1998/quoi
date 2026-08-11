@@ -7,6 +7,7 @@ import quoi.module.settings.impl.Keybinding
 import quoi.utils.ChatUtils.modMessage
 import quoi.annotations.AlwaysActive
 import quoi.api.events.core.AreaBoundListener
+import quoi.api.events.core.removeAsyncScope
 import quoi.api.skyblock.location.Area
 import quoi.module.settings.SettingsDSL
 import quoi.utils.Shortcuts
@@ -64,7 +65,10 @@ abstract class Module(
     fun toggle() {
         enabled = !enabled
         if (enabled) onEnable()
-        else onDisable()
+        else {
+            removeAsyncScope()
+            onDisable()
+        }
     }
 
     fun addSettings(vararg setArray: Setting<*>) {

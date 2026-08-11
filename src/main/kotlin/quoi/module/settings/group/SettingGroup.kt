@@ -69,7 +69,7 @@ open class SettingGroup(
     override val hudModule: Module
         get() = module
 
-    override fun parent() = module
+    override fun parent() = this.parent
 
     override fun inArea(): Boolean = super.inArea() && parent.inArea()
 

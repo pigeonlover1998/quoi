@@ -18,7 +18,10 @@ import quoi.api.events.DungeonEvent
 import quoi.api.events.RenderEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
+import quoi.api.events.core.AreaBoundListener
+import quoi.api.events.core.onAsync
 import quoi.api.events.core.on
+import quoi.api.events.core.wait
 import quoi.api.pathfinding.impl.WalkPathfinder
 import quoi.api.skyblock.dungeon.Dungeon
 import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
@@ -51,19 +54,20 @@ import quoi.utils.skyblock.player.MovementUtils.moveTo
 import quoi.utils.skyblock.player.PlayerUtils
 import quoi.utils.skyblock.player.RotationUtils.resetRotation
 import quoi.utils.skyblock.player.RotationUtils.rotateSilently
+import quoi.utils.skyblock.player.container.ContainerSettings
 import quoi.utils.skyblock.player.container.ContainerUtils
 import quoi.utils.skyblock.player.container.task.containerTask
+import quoi.utils.skyblock.player.container.task.inv
 import quoi.utils.skyblock.player.container.task.menu
 import quoi.utils.skyblock.player.interact.AuraAction
 import quoi.utils.skyblock.player.interact.AuraManager
 import quoi.utils.ui.textPair
 
 object Test : Module("Test", desc = "Dev module for testing.") { // 123
+    private val cons = ContainerSettings(this)
 
-    val highlightTest = highlight()
-    val tracerTest = tracer()
-
-    val testGroup = TestGroup(this)
+    private val testGroup = TestGroup(this)
+    private val testGroup2 = TestGroup2(testGroup)
     val auraDebug by switch("Aura debug")
     val uiDebug by switch("UI debug").onValueChanged { old, new -> ClickGui.reopen() }
     val reopen by button("Reopen") { ClickGui.reopen() }
@@ -152,38 +156,40 @@ object Test : Module("Test", desc = "Dev module for testing.") { // 123
         command.sub("inventory") {
             scheduleTask(20) {
 //                ChatUtils.command("/ac")
-//                containerTask(name = "Tes&at") {
+                containerTask(name = "Tes&at", settings = cons) {
+                    moveSlot(36.inv, 37.inv)
+                    pickup(36.inv)
 //                    awaitingContainer("Anticheat") {
-//                        pickup("Multi-Select".any).unlessName("ON")
+//                        pickup("Multi-Select".menu).unlessName("ON")
 //                        pickup("NCP".menu).unlessLore("ACTIVE")
-//                        pickup("Grim".any).unlessLore("ACTIVE")
-//                        pickup("Apply".any)
+//                        pickup("Grim".menu).unlessLore("ACTIVE")
+//                        pickup("Apply".menu)
+//                    }
+                }.run()
+
+//                ChatUtils.command("/wd")
+//                val start = System.currentTimeMillis()
+//                containerTask(name = "wd test") { // idk it feels slow as shit... maybe it's cuz I have 250ms.
+////                    awaitingContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$""")/*, waitForItems = true*/) {
+//////                        pickup(53.menu)
+//////                        pickup(45.menu)
+////                        pickup(36.menu)//.unlessName("Equipped")
+////                    }
+//                    awaitContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$"""))
+//                    pickup(36.menu)
+//                    action { player.closeContainer() }
+//                    // hypixel reopens and insta closes the window if you close it manually when you trigger reopen
+//                    awaitContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$""")) // todo make it conditional or sm (if you don't click anything to trigger reopen)
+//
+////                    awaitingContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$""")) {
+////                        pickup(36.menu)
+////                        action { player.closeContainer() }
+////                    }
+//
+//                    onComplete {
+//                        modMessage(System.currentTimeMillis() - start)
 //                    }
 //                }.run()
-
-                ChatUtils.command("/wd")
-                val start = System.currentTimeMillis()
-                containerTask(name = "wd test") { // idk it feels slow as shit... maybe it's cuz I have 250ms.
-//                    awaitingContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$""")/*, waitForItems = true*/) {
-////                        pickup(53.menu)
-////                        pickup(45.menu)
-//                        pickup(36.menu)//.unlessName("Equipped")
-//                    }
-                    awaitContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$"""))
-                    pickup(36.menu)
-                    action { player.closeContainer() }
-                    // hypixel reopens and insta closes the window if you close it manually when you trigger reopen
-                    awaitContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$""")) // todo make it conditional or sm (if you don't click anything to trigger reopen)
-
-//                    awaitingContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$""")) {
-//                        pickup(36.menu)
-//                        action { player.closeContainer() }
-//                    }
-
-                    onComplete {
-                        modMessage(System.currentTimeMillis() - start)
-                    }
-                }.run()
             }
         }
 
@@ -251,6 +257,11 @@ object Test : Module("Test", desc = "Dev module for testing.") { // 123
             val room = Dungeon.currentRoom ?: return@sub modMessage("room i snull")
             clusters = MobClusterer.getOrderedClusters(player.position(), room.starredMobs)
         }
+
+//        onAsync<TickEvent.End> {
+//            modMessage(asyncScopes.size)
+//            wait(20)
+//        }
 
         on<RenderEvent.World> {
             if (clusters != null) {
@@ -406,14 +417,20 @@ object Test : Module("Test", desc = "Dev module for testing.") { // 123
     private class DungeonMob(val name: String, var starred: Boolean, val pos: IntArray)
 }
 
-class TestGroup(module: Module) : ToggleableGroup(module, "Test group", subarea = "carnival") {
-    val test by switch("test")
-    val text by switch("text").childOf(::test)
-
+private class TestGroup(module: AreaBoundListener) : ToggleableGroup(module, "Test 1") {
     init {
-        on<TickEvent.Start> {
-            println("if you see this the group is enabled")
-            if (test) println("   this is a test2")
+        onAsync<TickEvent.Start> {
+            modMessage("test 1")
+            wait(20)
+        }
+    }
+}
+
+private class TestGroup2(module: AreaBoundListener) : ToggleableGroup(module, "Test 2") {
+    init {
+        onAsync<TickEvent.Start> {
+            modMessage("test 2")
+            wait(20)
         }
     }
 }

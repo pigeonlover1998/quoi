@@ -2,6 +2,7 @@ package quoi.module.settings.group
 
 import quoi.api.events.core.AreaBoundListener
 import quoi.api.events.core.EventListener
+import quoi.api.events.core.removeAsyncScope
 import quoi.api.skyblock.location.Area
 import quoi.module.Module
 import quoi.module.settings.impl.SwitchComponent
@@ -54,7 +55,10 @@ abstract class ToggleableGroup(
 
     private val switch = (component as SwitchComponent).onValueChanged { _, new ->
         if (new) onEnable()
-        else onDisable()
+        else {
+            removeAsyncScope()
+            onDisable()
+        }
     }
 
     var enabled: Boolean

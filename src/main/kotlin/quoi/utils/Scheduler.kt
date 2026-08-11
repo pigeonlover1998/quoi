@@ -59,16 +59,4 @@ object Scheduler : EventListener {
         (if (server) serverTasks else clientTasks).add(Task(interval, interval, cb))
         return task
     }
-
-    suspend fun wait(ticks: Int = 1, server: Boolean = false) {
-        if (ticks <= 0) return
-
-        val deferred = CompletableDeferred<Unit>()
-
-        scheduleTask(ticks, server = server) {
-            deferred.complete(Unit)
-        }
-
-        deferred.await()
-    }
 }
