@@ -6,7 +6,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.world.inventory.ContainerInput
 
 abstract class GuiEvent {
-    class Open(val screen: Screen) : CancellableEvent() {
+    class Open(val screen: Screen) : CancellableEvent() { // todo maybe use Minecraft.setScreen() (or Gui) hook instead..
         class Post(val screen: Screen) : CancellableEvent()
     }
 

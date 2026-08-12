@@ -6,38 +6,85 @@ import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
 import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.ItemStack
 import quoi.api.events.PacketEvent
-import quoi.api.events.core.EventListener
+import quoi.api.events.TickEvent
 import quoi.api.events.core.Priority
-import quoi.api.events.core.Subscription
-import quoi.api.events.core.until
+import quoi.api.events.core.await
+import quoi.api.events.core.wait
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.gameMode
 import quoi.utils.player
 import quoi.utils.skyblock.player.container.ContainerUtils.containerSize
-import quoi.utils.skyblock.player.container.task.ContainerManager.activeTask
+// todo add comments before I forget whatever is going on here
+abstract class ItemAction : ContainerAction { // shit that interacts with items/slots
+    var skipIf: ((ItemStack) -> Boolean)? = null
+}
 
-interface ContainerAction { // todo cleanup
-    val abort: Boolean get() = false
+interface ContainerAction {
 
-    var skipIf: ((ItemStack) -> Boolean)?
+    /**
+     * Executes the action
+     * @return `true` if the action succeeded, `false` to abort the entire task
+     */
+    suspend fun ContainerManager.execute(): Boolean
 
-    fun execute(): Boolean
+    /**
+     * Clicks on a specific slot or searches for an item to click
+     */
+    class Click(
+        val target: MenuSlot,
+        val button: Int,
+        val input: ContainerInput,
+        val timeout: Int = 20
+    ) : ItemAction() {
+        override suspend fun ContainerManager.execute(): Boolean {
+            var slot: Int? = null
+            var item: ItemStack = ItemStack.EMPTY
 
-    class Click(val slot: Int, val button: Int, val input: ContainerInput, val inContainer: Boolean?) : ContainerAction {
-        override var skipIf: ((ItemStack) -> Boolean)? = null
-        override fun execute(): Boolean {
-            val menu = player.containerMenu
-            val s = when (inContainer) {
-                true, null -> slot
-                false -> if (menu.containerId == 0) slot
-                else menu.type.containerSize + (slot - 9)
+            when (target) {
+                is IndexSlot -> { // just a slot
+                    val menu = player.containerMenu
+                    slot = when (target.inContainer) { // calc slot index based on if it's in tnhe container or inventory
+                        true, null -> target.index
+                        false -> if (menu.containerId == 0) target.index else menu.type.containerSize + (target.index - 9)
+                    }
+                    item = if (slot in 0 until menu.items.size) menu.items[slot] else ItemStack.EMPTY
+                }
+                is ItemSlot -> { // item matching a predicate
+                    fun check(): Boolean { // check for the item in the menu
+                        val menu = player.containerMenu
+                        val items = menu.items
+                        val size = if (menu.containerId == 0) 0 else menu.type.containerSize
+
+                        val range = when (target.inContainer) { // calc range based on if it's in tnhe container or inventory
+                            true -> 0 until size
+                            false -> size until items.size
+                            null -> 0 until items.size
+                        }
+
+                        val s = range.firstOrNull { !items[it].isEmpty && target.predicate(items[it]) }
+                        if (s != null) {
+                            slot = s
+                            item = items[s]
+                            return true
+                        }
+                        return false
+                    }
+
+                    if (!check()) { // check instantly. if not found suspend and check every tick til timeout
+                        await<TickEvent.Start>(timeout) { check() }
+                    }
+                }
             }
 
-            val item = if (s in 0 until menu.items.size) menu.items[s] else ItemStack.EMPTY
-            val skipped = skipIf?.invoke(item) == true
+            if (slot == null) { // no item found during timout
+                modMessage("Timed out finding item")
+                activeTask?.skippedLast = false
+                return false
+            }
 
+            val skipped = skipIf?.invoke(item) == true // skip bs
             if (!skipped) {
-                gameMode.handleContainerInput(menu.containerId, s, button, input, player)
+                gameMode.handleContainerInput(player.containerMenu.containerId, slot, button, input, player)
                 activeTask?.ticksSinceLastClick = 0
             }
             activeTask?.skippedLast = skipped
@@ -46,162 +93,89 @@ interface ContainerAction { // todo cleanup
         }
     }
 
-    class DynamicClick(
-        val predicate: (ItemStack) -> Boolean,
-        val button: Int,
-        val input: ContainerInput,
-        val inContainer: Boolean?,
-        val timeout: Int,
-    ) : ContainerAction {
-        private var waited = 0
-        private var failed = false
-
-        override val abort: Boolean get() = failed
-        override var skipIf: ((ItemStack) -> Boolean)? = null
-        override fun execute(): Boolean {
-            val menu = player.containerMenu
-            val items = menu.items
-            val size = if (menu.containerId == 0) 0 else menu.type.containerSize
-
-            val range = when (inContainer) {
-                true -> 0 until size
-                false -> size until items.size
-                null -> 0 until items.size
-            }
-
-            val slot = range.firstOrNull { !items[it].isEmpty && predicate(items[it]) }
-
-            if (slot != null) {
-                val skipped = skipIf?.invoke(items[slot]) == true
-                if (!skipped) {
-                    gameMode.handleContainerInput(menu.containerId, slot, button, input, player)
-                    activeTask?.ticksSinceLastClick = 0
-                }
-                activeTask?.skippedLast = skipped
-                return true
-            }
-
-            waited++
-            if (waited >= timeout) {
-                modMessage("Timed out")
-                failed = true
-                return true
-            }
-
-            return false
-        }
-    }
-
+    /**
+     * Executes custom block of code
+     */
     class Other(val block: () -> Unit) : ContainerAction {
-        override var skipIf: ((ItemStack) -> Boolean)? = null
-        override fun execute(): Boolean {
-            activeTask?.skippedLast = false
+        override suspend fun ContainerManager.execute(): Boolean {
             block()
             return true
         }
     }
 
-    class Wait(val ticks: Int): ContainerAction {
-        private var waited = 0
-
-        override var skipIf: ((ItemStack) -> Boolean)? = null
-        override fun execute(): Boolean {
-            activeTask?.skippedLast = false
-            waited++
-            return waited >= ticks
+    /**
+     * Suspends execution for [ticks]
+     */
+    class Wait(val ticks: Int) : ContainerAction {
+        override suspend fun ContainerManager.execute(): Boolean {
+            wait(ticks)
+            return true
         }
     }
 
+    /**
+     * Waits for a specific container to open and optionally for the items to populate
+     */
     class AwaitContainer(
         val containerName: Regex,
         val timeout: Int,
         val waitForItems: Boolean
-    ) : ContainerAction, EventListener {
-        private var started = false
-        private var windowId: Int? = null
-        private var menuSize: Int = 54
-        private var complete = false
-        private var failed = false
-        private var ticksWaited = 0
-        private var openSub: Subscription<*>? = null
-        private var slotSub: Subscription<*>? = null
-        private var contentSub: Subscription<*>? = null
+    ) : ContainerAction {
+        override suspend fun ContainerManager.execute(): Boolean {
+            // if the previous action was skipped (for example item didn't match the name)
+            // the server won't send updated container so we can jsut skip waiting
+            val skipped = activeTask?.skippedLast == true
 
-        override val abort: Boolean get() = failed
-        override var skipIf: ((ItemStack) -> Boolean)? = null
-        override fun execute(): Boolean {
-            if (complete || failed) {
-                cleanup()
-                return true
+            activeTask?.skippedLast = false
+
+            if (skipped) return true
+
+            var matches = false
+            val silent = activeTask?.settings?.silent == true
+
+            val open = await<PacketEvent.Received, ClientboundOpenScreenPacket>( // wait for container to open
+                priority = Priority.LOWEST,
+                acceptCancelled = true,
+                timeout = timeout
+            ) {
+                matches = containerName.containsMatchIn(packet.title.string)
+                if (matches && silent) cancel() // if silent and container matches we cancel
+                true
             }
 
-            if (!started) {
-                started = true
+            if (open == null) {
+                modMessage("Timed out waiting for container to open")
+                return false
+            }
 
-                if (activeTask?.skippedLast == true) {
-                    complete = true
-                    cleanup()
-                    return true
-                }
+            if (!matches) {
+                modMessage("Wrong container name. Got &7${open.title.string}&f, needed &7$containerName")
+                return false
+            }
 
-                openSub = until<PacketEvent.Received, ClientboundOpenScreenPacket>(Priority.LOWEST) {
-                    if (!containerName.containsMatchIn(packet.title.string)) {
-                        modMessage("Wrong container name. Got &7${packet.title.string}&f, needed &7${containerName}")
-                        failed = true
-                        cleanup()
-                        return@until false
-                    }
-                    windowId = packet.containerId
-                    menuSize = packet.type.containerSize
+            if (!waitForItems) return true
 
-                    cancel()
-                    if (!waitForItems) {
-                        complete = true
-                        cleanup()
-                    }
-                    true
-                }
+            val windowId = open.containerId
+            val size = open.type.containerSize
 
-                if (waitForItems) {
-                    slotSub = until<PacketEvent.Received, ClientboundContainerSetSlotPacket>(Priority.LOWEST) {
-                        if (windowId == null || packet.containerId != windowId) {
-                            modMessage("Window ids don't match 1")
-                            return@until false
-                        }
-                        if (packet.slot == menuSize - 1) {
-                            complete = true
-                            cleanup()
-                            true
-                        } else false
-                    }
-
-                    contentSub = until<PacketEvent.Received, ClientboundContainerSetContentPacket>(Priority.LOWEST) {
-                        if (windowId == null || packet.containerId != windowId) {
-                            modMessage("Window ids don't match 2")
-                            return@until false
-                        }
-                        complete = true
-                        cleanup()
-                        true
-                    }
+            val items = await<PacketEvent.Received>( // wait for items to populate
+                priority = Priority.LOWEST,
+                acceptCancelled = true,
+                timeout = timeout
+            ) {
+                when (val p = packet) {
+                    is ClientboundContainerSetContentPacket if p.containerId == windowId -> true
+                    is ClientboundContainerSetSlotPacket if p.containerId == windowId && p.slot == size - 1 -> true
+                    else -> false
                 }
             }
 
-            ticksWaited++
-            if (ticksWaited >= timeout) {
-                modMessage("Timed out")
-                failed = true
-                cleanup()
-                return true
+            if (items == null) {
+                modMessage("Timed out waiting for container items")
+                return false
             }
 
-            return false
-        }
-
-        private fun cleanup() {
-            openSub?.unregister()
-            slotSub?.unregister()
-            contentSub?.unregister()
+            return true
         }
     }
 }

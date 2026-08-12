@@ -3,6 +3,7 @@ package quoi.utils.skyblock.player.container.task
 import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.ItemStack
 import quoi.utils.skyblock.item.ItemUtils.loreString
+import quoi.utils.skyblock.player.container.ContainerSettings
 
 @DslMarker
 private annotation class TaskDsl
@@ -14,20 +15,24 @@ class ContainerTask(
     val name: String?,
     val actions: List<ContainerAction>,
     val force: Boolean,
+    val settings: ContainerSettings,
     val onComplete: (() -> Unit)?
 ) {
-    var pending = true
     var completed = false
 
     val totalActions = actions.size
-    var completedActions = 0
     var skippedLast = false
-    var ticksSinceLastClick = 0
-    var actionsThisTick = 0
+    var ticksSinceLastClick = Int.MAX_VALUE
 
-    var awaiting: ContainerAction? = null
+    val stopsMovement: Boolean = run {
+        if (!settings.invWalk) true
+        else {
+            val inventoryClicks = actions.any { it is ContainerAction.Click && it.target.inContainer != true }
+            val hasDelay = settings.clickDelay.second > 0 // don't stop if delay is 0
 
-    var queue = ArrayDeque(actions)
+            inventoryClicks && !force && hasDelay // only stop if clicking in inventory, if not forced, and if there's a delay
+        }
+    }
 
     /**
      * Submits this task to the [ContainerManager] for execution
@@ -40,11 +45,8 @@ class ContainerTaskBuilder(val force: Boolean) {
     val actions = mutableListOf<ContainerAction>()
     var onComplete: (() -> Unit)? = null
 
-    private fun click(slot: MenuSlot, button: Int, input: ContainerInput, timeout: Int = 20): ContainerAction {
-        val action = when (slot) {
-            is IndexSlot -> ContainerAction.Click(slot.index, button, input, slot.inContainer)
-            is ItemSlot -> ContainerAction.DynamicClick(slot.predicate, button, input, slot.inContainer, timeout)
-        }
+    private fun click(slot: MenuSlot, button: Int, input: ContainerInput, timeout: Int = 20): ItemAction {
+        val action = ContainerAction.Click(slot, button, input, timeout)
         actions.add(action)
         return action
     }
@@ -116,7 +118,7 @@ class ContainerTaskBuilder(val force: Boolean) {
     /**
      * skips the action if the [block] is `true` for the item in the target slot.
      */
-    fun <T : ContainerAction> T.unless(block: (ItemStack) -> Boolean): T {
+    fun <T : ItemAction> T.unless(block: (ItemStack) -> Boolean): T {
         skipIf = block
         return this
     }
@@ -124,22 +126,25 @@ class ContainerTaskBuilder(val force: Boolean) {
     /**
      * skips the action if the item's name contains [text]
      */
-    fun <T : ContainerAction> T.unlessName(text: String): T = unless { it.displayName.string.contains(text) }
+    fun <T : ItemAction> T.unlessName(text: String): T = unless { it.displayName.string.contains(text) }
 
     /**
      * skips the action if the item's lore contains [text]
      */
-    fun <T : ContainerAction> T.unlessLore(text: String): T = unless { it.loreString?.contains(text) == true }
+    fun <T : ItemAction> T.unlessLore(text: String): T = unless { it.loreString?.contains(text) == true }
 }
 
 /**
- * @param force if btrue`, bypasses 1 action per tick limit
+ * @param name optional task name. if not null it will be rendered in the middle of the screen
+ * @param force if `true`, bypasses [ContainerSettings.clickDelay] delay
+ * @param settings [ContainerSettings] for the task
  */
 @TaskDsl
 fun containerTask(
     name: String? = null,
     force: Boolean = false,
+    settings: ContainerSettings,
     builder: ContainerTaskBuilder.() -> Unit
 ): ContainerTask = ContainerTaskBuilder(force).apply(builder).run {
-    ContainerTask(name, actions, force, onComplete)
+    ContainerTask(name, actions, force, settings, onComplete)
 }

@@ -156,15 +156,42 @@ object Test : Module("Test", desc = "Dev module for testing.") { // 123
         command.sub("inventory") {
             scheduleTask(20) {
 //                ChatUtils.command("/ac")
-                containerTask(name = "Tes&at", settings = cons) {
-                    moveSlot(36.inv, 37.inv)
-                    pickup(36.inv)
-//                    awaitingContainer("Anticheat") {
+//                containerTask(name = "Tes&at", settings = cons) {
+//                    awaitingContainer("Anticheat Selector") {
 //                        pickup("Multi-Select".menu).unlessName("ON")
 //                        pickup("NCP".menu).unlessLore("ACTIVE")
 //                        pickup("Grim".menu).unlessLore("ACTIVE")
 //                        pickup("Apply".menu)
 //                    }
+//                    onComplete { modMessage("complete") }
+//                }.run()
+                val start = System.currentTimeMillis()
+//                containerTask(settings = cons) {
+//                    moveSlot(9.inv, 36.inv)
+//                    onComplete {
+//                        modMessage(System.currentTimeMillis() - start)
+//                    }
+//                }.run()
+
+                containerTask(name = "inv test", settings = cons) {
+                    // inventory
+                    swap("Cobblestone".inv, 0)
+                    action {
+                        ChatUtils.command("/wd")
+                    }
+                    // container
+                    awaitingContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$""")) {
+                        pickup(36.menu)//.unlessName("Equipped")
+                    }
+                    action {
+                        player.closeContainer()
+                    }
+                    // inventory
+                    swap("Cobblestone".inv, 1)
+
+                    onComplete {
+                        modMessage(System.currentTimeMillis() - start)
+                    }
                 }.run()
 
 //                ChatUtils.command("/wd")

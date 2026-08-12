@@ -1,6 +1,7 @@
 package quoi.mixins;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
@@ -9,8 +10,11 @@ import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import quoi.api.events.EntityEvent;
+import quoi.utils.skyblock.player.container.task.ContainerManager;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
@@ -46,5 +50,15 @@ public class MinecraftMixin {
         } else {
             instance.swing(hand);
         }
+    }
+
+    @Inject(
+            method = "setScreen",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private void quoi$onSetScreen(Screen screen, CallbackInfo ci) {
+        if (ContainerManager.onSetScreen(screen)) ci.cancel();
+
     }
 }

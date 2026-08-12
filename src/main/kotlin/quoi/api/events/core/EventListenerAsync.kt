@@ -1,7 +1,9 @@
 package quoi.api.events.core
 
 import kotlinx.coroutines.*
+import net.minecraft.network.protocol.Packet
 import quoi.QuoiMod.mc
+import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.*
@@ -104,4 +106,60 @@ suspend fun EventListener.wait(ticks: Int) {
 
         cont.invokeOnCancellation { subscription.unregister() }
     }
+}
+
+// todo docs whenever I can be bothered. or recode it because it doesn't seem right rn
+suspend inline fun <reified T : Event> EventListener.await(
+    priority: Int = 0,
+    acceptCancelled: Boolean = false,
+    timeout: Int = -1,
+    crossinline predicate: T.() -> Boolean = { true }
+): T? {
+    if (timeout == 0) return null
+
+    return suspendCancellableCoroutine { cont ->
+        var ticks = 0
+        var timeoutSub: Subscription<TickEvent.Start>? = null
+
+        val eventSub = until<T>(priority, acceptCancelled) {
+            if (predicate(this)) {
+                timeoutSub?.unregister()
+                if (cont.isActive) cont.resume(this)
+                true
+            } else false
+        }
+
+        if (timeout > 0) {
+            timeoutSub = until<TickEvent.Start>(priority) {
+                ticks++
+                if (ticks >= timeout) {
+                    eventSub.unregister()
+                    if (cont.isActive) cont.resume(null)
+                    true
+                } else false
+            }
+        }
+
+        cont.invokeOnCancellation {
+            eventSub.unregister()
+            timeoutSub?.unregister()
+        }
+    }
+}
+
+@JvmName("awaitPacket")
+suspend inline fun <reified E, reified P : Packet<*>> EventListener.await(
+    priority: Int = 0,
+    acceptCancelled: Boolean = false,
+    timeout: Int = -1,
+    crossinline predicate: PacketScope<E, P>.() -> Boolean = { true }
+): P? where E : Event, E : PacketEvent {
+    val event = await<E>(priority, acceptCancelled, timeout) {
+        if (packet is P) {
+            predicate(PacketScope(this, packet as P))
+        } else {
+            false
+        }
+    }
+    return event?.packet as? P
 }

@@ -1,5 +1,8 @@
 package quoi.utils.skyblock.player.container.task
 
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.client.gui.screens.inventory.InventoryScreen
+import quoi.QuoiMod.mc
 import quoi.annotations.Init
 import quoi.api.events.KeyEvent
 import quoi.api.events.MouseEvent
@@ -9,158 +12,119 @@ import quoi.api.events.WorldEvent
 import quoi.api.events.core.EventListener
 import quoi.api.events.core.Priority
 import quoi.api.events.core.on
+import quoi.api.events.core.onAsync
+import quoi.api.events.core.wait
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.StringUtils.width
 import quoi.utils.player
+import quoi.utils.random
 import quoi.utils.render.DrawContextUtils.drawText
 import quoi.utils.scaledHeight
 import quoi.utils.scaledWidth
-import quoi.utils.skyblock.player.MovementUtils.hasMovementInput
 import quoi.utils.skyblock.player.MovementUtils.stop
 
 /**
  * Manages execution of [ContainerTask]s
  */
-@Init
-object ContainerManager : EventListener { // todo toggleable invwalk for container clicks, clean up
+@Init // todo prevent client desyncs, impl fastmode thing from jcnlk's fork
+object ContainerManager : EventListener {
     var activeTask: ContainerTask? = null
         private set
 
-    private var startDelay = 0 // 2 to not get limboed
-    private var endDelay = 0 // 3 to not get limboed
-
-    val active: Boolean
-        get() = activeTask != null || endDelay > 0
+    private val shouldStopMovement: Boolean
+        get() = activeTask?.stopsMovement == true
 
     init {
-        on<TickEvent.Start>(priority = Priority.HIGHEST) {
-            if (active) {
-                player.stop()
+
+        onAsync<TickEvent.Start>(priority = Priority.HIGHEST) {
+            val task = activeTask ?: return@onAsync
+            val settings = task.settings
+
+            wait(settings.startDelay.random())
+
+            var openedInventory = false
+
+            for (action in task.actions) {
+                if (activeTask !== task) return@onAsync
+
+                // hypixel is retarded and only needs inventory opened so there's no need for start/end delay before/after clicks like I did before (https://github.com/pigeonlover1998/quoi/blob/41c7197a61b6e2758cf702c09428f01484240406/src/main/kotlin/quoi/utils/skyblock/player/container/task/ContainerManager.kt#L41)
+                val container = (action as? ContainerAction.Click)?.target?.inContainer
+                val containerAction = action is ContainerAction.AwaitContainer || container == true
+
+                when {
+                    // open inventory if the action isn't in container, no container is open and inventory isn't open
+                    container != true && !openedInventory && player.containerMenu.containerId == 0 && (settings.silent || mc.screen !is InventoryScreen) -> {
+                        mc.setScreen(InventoryScreen(player))
+                        openedInventory = true
+                    }
+                    // close container if next action is container related and we opened inventory
+                    containerAction && openedInventory && (settings.silent || mc.screen is InventoryScreen) -> {
+                        player.closeContainer()
+                        openedInventory = false
+                    }
+                }
+
+                // apply delay between clicks subtracting ticks already elapsed since the last click
+                // this avoids unneeded delays if other actions already consumed part of the delay
+                if (!task.force && action is ItemAction) {
+                    val delay = settings.clickDelay.random()
+                    val remaining = maxOf(0, delay - task.ticksSinceLastClick)
+                    wait(remaining)
+                }
+
+                val success = with(action) { execute() }
+
+                if (!success) break // if action failed (timeout or other shit) abort
             }
 
-            if (startDelay > 0) {
-                startDelay--
-                return@on
+            wait(settings.endDelay.random())
+
+            if (openedInventory && (settings.silent || mc.screen is InventoryScreen)) { // close inventory if it was opened by task
+                player.closeContainer()
             }
 
-            if (endDelay > 0) {
-                endDelay--
-                return@on
-            }
-
-            activeTask?.let { doTask(it) }
+            task.onComplete?.invoke()
+            task.completed = true
+            activeTask = null
         }
 
-        on<TickEvent.End>(priority = Priority.LOWEST) {
-            activeTask?.actionsThisTick = 0
+        on<TickEvent.Start>(priority = Priority.HIGHEST + 1) {
+            if (shouldStopMovement) player.stop()
+            activeTask?.ticksSinceLastClick++
         }
 
         on<WorldEvent.Change> {
             activeTask = null
-            startDelay = 0
-            endDelay = 0
         }
 
-        on<KeyEvent.Press> { if (active) cancel() }
-        on<KeyEvent.Release> { if (active) cancel() }
-        on<MouseEvent.Click> { if (active) cancel() }
-        on<MouseEvent.Scroll> { if (active) cancel() }
-        on<MouseEvent.Move> { if (active) cancel() }
+        on<KeyEvent.Press> { if (shouldStopMovement) cancel() }
+        on<KeyEvent.Release> { if (shouldStopMovement) cancel() }
+        on<MouseEvent.Click> { if (shouldStopMovement) cancel() } // probably don't wanna click regardless idk
+        on<MouseEvent.Scroll> { if (shouldStopMovement) cancel() }
+        on<MouseEvent.Move> { if (shouldStopMovement) cancel() }
 
         on<RenderEvent.Overlay> {
             val task = activeTask ?: return@on
+            if (task.name.isNullOrBlank()) return@on
             if (task.totalActions <= 0) return@on
 
-            val progress = task.completedActions.toFloat() / task.totalActions
-            val filled = (progress * 10).toInt().coerceIn(0, 10)
-            val empty = 10 - filled
-
-            val bar = "[&a${"█".repeat(filled)}&7${"░".repeat(empty)}&r]"
-
-            val x = scaledWidth / 2f - bar.noControlCodes.width() / 2f
-            var y = scaledHeight / 2f + 10f
-
-            if (!task.name.isNullOrBlank()) {
-                val x = scaledWidth / 2f - task.name.noControlCodes.width() / 2f
-                ctx.drawText(task.name, x, y)
-                y += 11f
-            }
-
-            ctx.drawText(bar, x, y)
+            val x = scaledWidth / 2f - task.name.noControlCodes.width() / 2f
+            val y = scaledHeight / 2f + 10f
+            ctx.drawText(task.name, x, y)
         }
     }
 
     fun execute(task: ContainerTask): ContainerTask {
         if (activeTask != null && activeTask !== task) return task
-
-        val first = task.actions.firstOrNull()
-        val f = first is ContainerAction.Click || first is ContainerAction.DynamicClick
-        if (player.hasMovementInput && f) { // only apply if holding movement keys and first action is click
-            player.stop()
-            startDelay = 2
-        }
-        endDelay = 0
-
-        task.queue = ArrayDeque(task.actions)
         activeTask = task
-
         return task
     }
 
-    private fun doTask(task: ContainerTask) {
-        if (task.pending) {
-            activeTask = task
-            task.queue = ArrayDeque(task.actions)
-            task.pending = false
-        }
-
-        doActions()
+    @JvmStatic
+    fun onSetScreen(screen: Screen?): Boolean {
+        return activeTask?.settings?.silent == true && screen is InventoryScreen
     }
 
-    private fun doActions() {
-        val active = activeTask ?: return
-
-        active.awaiting?.let {
-            if (it.execute()) {
-                active.completedActions++
-                if (it.abort) {
-                    activeTask = null
-                    endDelay = maxOf(0, 3 - active.ticksSinceLastClick)
-                    return
-                }
-                active.awaiting = null
-            }
-            else return
-        }
-
-        val iterator = active.queue.iterator()
-
-        while (iterator.hasNext()) {
-            if (active.actionsThisTick >= 1 && !active.force) break
-
-            val action = iterator.next()
-            if (action.execute()) {
-                iterator.remove()
-                active.actionsThisTick++
-                active.completedActions++
-
-                if (action.abort) {
-                    activeTask = null
-                    endDelay = maxOf(0, 3 - active.ticksSinceLastClick)
-                    return
-                }
-            } else {
-                active.awaiting = action
-                active.actionsThisTick++
-                break
-            }
-        }
-
-        if (active.queue.isEmpty() && active.awaiting == null) {
-            active.completed = true
-            active.onComplete?.invoke()
-            activeTask = null
-            endDelay = maxOf(0, 3 - active.ticksSinceLastClick)
-        }
-    }
+    override val running: Boolean
+        get() = super.running && activeTask != null
 }
