@@ -77,7 +77,7 @@ object Discipline : ToggleableGroup(Dojo, "Discipline", subarea = "dojo arena") 
             }
 
             if (swap && held != sword) {
-                val slot = player.inventory.items.indexOfFirst { it.item == sword }
+                val slot = player.inventory.nonEquipmentItems.indexOfFirst { it.item == sword }
                 SwapManager.swapToSlot(slot)
             }
         }

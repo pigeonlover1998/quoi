@@ -20,4 +20,3 @@ accessible method net/minecraft/world/entity/Entity getInputVector (Lnet/minecra
 accessible field net/minecraft/world/entity/Entity dimensions Lnet/minecraft/world/entity/EntityDimensions;
 accessible field net/minecraft/world/entity/LivingEntity jumping Z
 accessible field net/minecraft/world/entity/LivingEntity noJumpDelay I
-accessible field net/minecraft/world/entity/player/Inventory items Lnet/minecraft/core/NonNullList;
