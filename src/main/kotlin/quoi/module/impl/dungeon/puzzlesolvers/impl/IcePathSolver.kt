@@ -33,7 +33,7 @@ import quoi.utils.skyblock.player.PlayerUtils.useItem
  * modified Skyblocker (LGPL-3.0) (c) kevinthegreat1
  * original: https://github.com/SkyblockerMod/Skyblocker/blob/master/src/main/java/de/hysky/skyblocker/skyblock/dungeon/puzzle/IcePath.java
  */
-object IcePath : SettingGroup(PuzzleSolvers, "Ice path"), Repositionable {
+object IcePathSolver : SettingGroup(PuzzleSolvers, "Ice path"), Repositionable {
 
     private val solver by switch("Solver", desc = "Shows the solution for the ice path puzzle.")
     private val colour by colourPicker("Colour", Colour.MINECRAFT_GREEN, desc = "Colour for the solver.").childOf(::solver)

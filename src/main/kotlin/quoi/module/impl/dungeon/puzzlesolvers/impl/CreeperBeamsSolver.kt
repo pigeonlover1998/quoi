@@ -34,7 +34,7 @@ import kotlin.math.sqrt
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/com/odtheking/odin/features/impl/dungeon/puzzlesolvers/BeamsSolver.kt
  */
-object CreeperBeams : SettingGroup(PuzzleSolvers, "Creeper beams"), Repositionable {
+object CreeperBeamsSolver : SettingGroup(PuzzleSolvers, "Creeper beams"), Repositionable { // todo cleanup/recode auto
 
     private val solver by switch("Solver", desc = "Shows the solution for the creeper beams puzzle.")
     private val tracer by switch("Tracer").json("Beams tracer").childOf(::solver)

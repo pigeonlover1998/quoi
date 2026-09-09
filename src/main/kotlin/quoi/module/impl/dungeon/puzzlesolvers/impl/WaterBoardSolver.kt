@@ -35,7 +35,7 @@ import quoi.utils.skyblock.player.interact.AuraManager
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/com/odtheking/odin/features/impl/dungeon/puzzlesolvers/WaterSolver.kt
  */
-object WaterBoard : SettingGroup(PuzzleSolvers, "Water board"), Repositionable {
+object WaterBoardSolver : SettingGroup(PuzzleSolvers, "Water board"), Repositionable {
 
     private val solver by switch("Solver", desc = "Shows the solution to the water board puzzle.")
     private val tracer by switch("Tracer", true, desc = "Shows a tracer to the next lever.").childOf(::solver)

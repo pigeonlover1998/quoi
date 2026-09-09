@@ -23,7 +23,7 @@ import quoi.utils.vec3
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/com/odtheking/odin/features/impl/dungeon/puzzlesolvers/QuizSolver.kt
  */
-object Quiz : SettingGroup(PuzzleSolvers, "Quiz") {
+object QuizSolver : SettingGroup(PuzzleSolvers, "Quiz") {
     private val solver by switch("Solver", desc = "Solver for the trivia puzzle.")
     private val colour by colourPicker("Colour", Colour.MINECRAFT_GREEN.withAlpha(0.75f), true, desc = "Color for the quiz solver.").childOf(::solver)
     private val depth by switch("Depth", desc = "Depth check for the trivia puzzle.").childOf(::solver)

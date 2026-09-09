@@ -24,7 +24,7 @@ import java.util.concurrent.CopyOnWriteArraySet
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/com/odtheking/odin/features/impl/dungeon/puzzlesolvers/TPMazeSolver.kt
  */
-object TeleportMaze : SettingGroup(PuzzleSolvers, "Teleport maze") {
+object TeleportMazeSolver : SettingGroup(PuzzleSolvers, "Teleport maze") { // todo cleanup/recode auto
     private val solver by switch("Solver", desc = "Shows the solution for the TP maze puzzle.")
     private val colourOne by colourPicker("Colour for one", Colour.MINECRAFT_GREEN.withAlpha(0.5f), true, desc = "Colour for when there is a single solution.").childOf(::solver)
     private val colourMultiple by colourPicker("Colour for multiple", Colour.MINECRAFT_GOLD.withAlpha(0.5f), true, desc = "Colour for when there are multiple solutions.").childOf(::solver)

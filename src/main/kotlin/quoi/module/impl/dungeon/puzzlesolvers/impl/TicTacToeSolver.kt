@@ -30,7 +30,7 @@ import quoi.utils.skyblock.player.interact.AuraManager
  *          https://github.com/SkyblockerMod/Skyblocker/blob/master/src/main/java/de/hysky/skyblocker/skyblock/dungeon/puzzle/TicTacToe.java
  *          https://github.com/SkyblockerMod/Skyblocker/blob/master/src/main/java/de/hysky/skyblocker/utils/tictactoe/TicTacToeUtils.java
  */
-object TicTacToe : SettingGroup(PuzzleSolvers, "Tic tac toe") {
+object TicTacToeSolver : SettingGroup(PuzzleSolvers, "Tic tac toe") {
 
     private val solver by switch("Solver", desc = "Shows the solution for the Tic tac toe puzzle.")
     private val colour by colourPicker("Colour", Colour.MINECRAFT_GREEN.withAlpha(0.7f), true, desc = "Colour for the tic tac toe solver").childOf(::solver)

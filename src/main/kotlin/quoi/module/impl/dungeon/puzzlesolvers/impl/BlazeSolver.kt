@@ -43,7 +43,7 @@ import kotlin.math.sin
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/com/odtheking/odin/features/impl/dungeon/puzzlesolvers/BlazeSolver.kt
  */
-object Blaze : SettingGroup(PuzzleSolvers, "Blaze"), Repositionable {
+object BlazeSolver : SettingGroup(PuzzleSolvers, "Blaze"), Repositionable { // todo cleanup/recode auto
 
     private val solver by switch("Solver", desc = "Shows the solution for the blaze puzzle.")
     private val lineNext by switch("Next line", desc = "Shows the next line to click.").childOf(::solver)
@@ -73,11 +73,11 @@ object Blaze : SettingGroup(PuzzleSolvers, "Blaze"), Repositionable {
         }
 
         on<DungeonEvent.Room.Enter> {
-            if (!room?.name.equalsOneOf("Lower Blaze", "Higher Blaze") ) return@on reset()
+            if (!room?.name.equalsOneOf("Lower Blaze", "Higher Blaze")) return@on reset()
         }
 
         on<RenderEvent.World> {
-            if (!solver || blazes.isEmpty()) return@on
+            if ((!solver && !auto) || blazes.isEmpty()) return@on
 
             if (auto && reposition) {
                 val spots = if (Dungeon.currentRoom?.name == "Higher Blaze") HIGHER_SPOTS else LOWER_SPOTS

@@ -34,7 +34,7 @@ import kotlin.math.abs
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/com/odtheking/odin/features/impl/dungeon/puzzlesolvers/IceFillSolver.kt
  */
-object IceFill : SettingGroup(PuzzleSolvers, "Ice fill"), Repositionable {
+object IceFillSolver : SettingGroup(PuzzleSolvers, "Ice fill"), Repositionable {
     private val solver by switch("Solver", desc = "Shows the solution for the ice fill puzzle.")
     private val colour by colourPicker("Colour", Colour.MAGENTA, allowAlpha = true).childOf(::solver)
     private val auto by switch("Auto", desc = "Automatically completes the ice fill puzzle.")

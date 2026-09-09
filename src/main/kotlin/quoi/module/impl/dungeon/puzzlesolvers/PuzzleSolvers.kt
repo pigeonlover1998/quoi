@@ -20,18 +20,18 @@ object PuzzleSolvers : Module(
 ) {
 
     init {
-        IceFill
-        TeleportMaze
-        Quiz
-        ThreeWeirdos
-        TicTacToe
-        WaterBoard
-        CreeperBeams
-        Blaze
-        IcePath
+        IceFillSolver
+        TeleportMazeSolver
+        QuizSolver
+        ThreeWeirdosSolver
+        TicTacToeSolver
+        WaterBoardSolver
+        CreeperBeamsSolver
+        BlazeSolver
+        IcePathSolver
     }
 
-    private val bowDropdown by text("Bow settings").visibleIf { CreeperBeams.auto || Blaze.auto || IcePath.auto }
+    private val bowDropdown by text("Bow settings").visibleIf { CreeperBeamsSolver.auto || BlazeSolver.auto || IcePathSolver.auto }
     val shootCd by slider("Shoot cooldown", 500L, 250L, 1000L, 50L, unit = "ms").childOf(::bowDropdown)
     val missCd by slider("Miss cooldown", 550L, 300L, 1050L, 50L, unit = "ms").childOf(::bowDropdown)
 

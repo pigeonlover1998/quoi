@@ -27,7 +27,7 @@ import java.util.concurrent.CopyOnWriteArraySet
  * copyright (c) 2025-2026 odtheking
  * original: https://github.com/odtheking/Odin/blob/main/src/main/kotlin/com/odtheking/odin/features/impl/dungeon/puzzlesolvers/WeirdosSolver.kt
  */
-object ThreeWeirdos : SettingGroup(PuzzleSolvers, "Three weirdos") {
+object ThreeWeirdosSolver : SettingGroup(PuzzleSolvers, "Three weirdos") {
     private val solver by switch("Solver", desc = "Shows the solution for the Weirdos puzzle.")
     private val colour by colourPicker("Correct colour", Colour.MINECRAFT_GREEN.withAlpha(0.7f), true, desc = "Colour for the Weirdos solver.").childOf(::solver)
     private val wrongColour by colourPicker("Wrong colour", Colour.MINECRAFT_RED.withAlpha(0.7f), true,  desc = "Colour for the incorrect Weirdos.").childOf(::solver)
