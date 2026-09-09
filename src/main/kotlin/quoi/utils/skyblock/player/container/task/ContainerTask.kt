@@ -3,7 +3,8 @@ package quoi.utils.skyblock.player.container.task
 import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.ItemStack
 import quoi.utils.skyblock.item.ItemUtils.loreString
-import quoi.utils.skyblock.player.container.ContainerSettings
+import quoi.utils.skyblock.player.container.CONTAINER_ZERO
+import quoi.utils.skyblock.player.container.IContainerSettings
 
 @DslMarker
 private annotation class TaskDsl
@@ -15,7 +16,7 @@ class ContainerTask(
     val name: String?,
     val actions: List<ContainerAction>,
     val force: Boolean,
-    val settings: ContainerSettings,
+    val settings: IContainerSettings,
     val onComplete: (() -> Unit)?
 ) {
     var completed = false
@@ -136,14 +137,14 @@ class ContainerTaskBuilder(val force: Boolean) {
 
 /**
  * @param name optional task name. if not null it will be rendered in the middle of the screen
- * @param force if `true`, bypasses [ContainerSettings.clickDelay] delay
- * @param settings [ContainerSettings] for the task
+ * @param force if `true`, bypasses [IContainerSettings.clickDelay] delay
+ * @param settings [IContainerSettings] for the task. [CONTAINER_ZERO] by default
  */
 @TaskDsl
 fun containerTask(
     name: String? = null,
     force: Boolean = false,
-    settings: ContainerSettings,
+    settings: IContainerSettings = CONTAINER_ZERO,
     builder: ContainerTaskBuilder.() -> Unit
 ): ContainerTask = ContainerTaskBuilder(force).apply(builder).run {
     ContainerTask(name, actions, force, settings, onComplete)

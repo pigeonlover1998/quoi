@@ -1,13 +1,13 @@
 package quoi.module.impl.general
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
 import net.minecraft.world.item.ItemStack
-import quoi.QuoiMod
+import quoi.QuoiMod.scope
 import quoi.api.commands.internal.GreedyString
 import quoi.api.events.GuiEvent
 import quoi.api.events.core.on
@@ -18,13 +18,17 @@ import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.impl.KeybindComponent
 import quoi.module.settings.impl.MapSetting
 import quoi.utils.ChatUtils
+import quoi.utils.ChatUtils.button
+import quoi.utils.ChatUtils.literal
+import quoi.utils.ChatUtils.modMessage
 import quoi.utils.StringUtils.noControlCodes
 import quoi.utils.skyblock.item.ItemUtils.loreString
 import quoi.utils.skyblock.item.ItemUtils.petHeldItem
 import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.skyblock.item.ItemUtils.skyblockUuid
-import quoi.utils.skyblock.player.container.ContainerUtils
 import quoi.utils.skyblock.player.container.ContainerUtils.clickSlot
+import quoi.utils.skyblock.player.container.task.containerTask
+import kotlin.coroutines.resume
 
 /**
  * modified OdinFabric (BSD 3-Clause)
@@ -46,7 +50,6 @@ object PetKeybinds : Module(
         KeybindComponent("Pet $i", CatKeys.KEY_0 + i, "Pet $i on the list.").childOf(::advanced).value
     }
 
-
     private val petsRegex = Regex("Pets(?: \\((\\d)/(\\d)\\))?")
 
     val petMap by MapSetting("PetKeys map", mutableMapOf<String, String>())
@@ -60,74 +63,64 @@ object PetKeybinds : Module(
 
         val petCommand = command.sub("petkeybinds").description("Pet Keybinds module settings.")
 
-//        petCommand.sub("summontest") { uuidName: GreedyString ->
-//            val (uuid, name) = uuidName.string.split(" ", limit = 2)
-//
-//            scope.launch(Dispatchers.IO) {
-//                val msg = if (summonPet(uuid)) "Good" else "no good"
-//                modMessage(msg)
-//            }
-//        }.suggests { petMap.entries.map { (uuid, name) -> "$uuid $name" } }
-
         petCommand.sub("clear") {
             petMap.clear()
             Config.save()
         }.description("Clears the pet list.")
 
         petCommand.sub("list") {
-            if (petMap.isEmpty()) return@sub ChatUtils.modMessage("Pet list is empty!")
-            ChatUtils.modMessage(petMap.asPet().toClickable("list"), LIST_ID)
+            if (petMap.isEmpty()) return@sub modMessage("Pet list is empty!")
+            modMessage(petMap.asPet().toClickable("list"), LIST_ID)
         }.description("Shows the pet list.")
 
         petCommand.sub("get") {
-            QuoiMod.scope.launch(Dispatchers.IO) {
+            scope.launch {
                 petsCache = getPets()
                 if (petsCache.isEmpty()) return@launch
-                ChatUtils.modMessage(petsCache.asPet().toClickable("get"), GET_ID)
+                modMessage(petsCache.asPet().toClickable("get"), GET_ID)
             }
         }.description("Gets pets menu pets.")
 
         petCommand.sub("add") {
             val item = if (player.mainHandItem.skyblockId == "PET") player.mainHandItem else null
-            val uuid = item?.skyblockUuid ?: return@sub ChatUtils.modMessage("§cYou can only add pets to the pet list!")
-            if (petMap.size >= 9) return@sub ChatUtils.modMessage("§cYou cannot add more than 9 pets to the list. Remove a pet using §e/petkeys remove §cor clear the list using §e/petkeys clear§c.")
-            if (uuid in petMap) return@sub ChatUtils.modMessage("§cThis pet is already in the list!")
+            val uuid = item?.skyblockUuid ?: return@sub modMessage("§cYou can only add pets to the pet list!")
+            if (petMap.size >= 9) return@sub modMessage("§cYou cannot add more than 9 pets to the list. Remove a pet using §e/petkeys remove §cor clear the list using §e/petkeys clear§c.")
+            if (uuid in petMap) return@sub modMessage("§cThis pet is already in the list!")
 
             val name = item.displayName.string.petName
             petMap[uuid] = name
-            ChatUtils.modMessage("§aAdded &r$name&a to the pet list in position §6${petMap.keys.indexOf(uuid) + 1}§a!")
+            modMessage("§aAdded &r$name&a to the pet list in position §6${petMap.keys.indexOf(uuid) + 1}§a!")
             Config.save()
         }.description("Adds the pet you're holding to the pet list.")
 
         petCommand.sub("addfromuuidname") { source: String, uuid: String, name: GreedyString ->
-            if (uuid in petMap) return@sub ChatUtils.modMessage("§cThis pet is already in the list!")
+            if (uuid in petMap) return@sub modMessage("§cThis pet is already in the list!")
 
             petMap[uuid] = name.string
 //            modMessage("&aAdded &r$name&a to the pet list in position ${petMap.keys.indexOf(uuid) + 1}!")
             Config.save()
             when (source) {
-                "list" -> ChatUtils.modMessage(petMap.asPet().toClickable("list"), LIST_ID)
-                "get"  -> ChatUtils.modMessage(petsCache.asPet().toClickable("get"), GET_ID)
+                "list" -> modMessage(petMap.asPet().toClickable("list"), LIST_ID)
+                "get"  -> modMessage(petsCache.asPet().toClickable("get"), GET_ID)
             }
         }
 
         petCommand.sub("removefromuuidname") { source: String, uuid: String, name: GreedyString ->
-            if (uuid !in petMap) return@sub ChatUtils.modMessage("§cThis pet is not in the list!")
+            if (uuid !in petMap) return@sub modMessage("§cThis pet is not in the list!")
 
             petMap.remove(uuid)
-//            modMessage("&aRemoved &r$name&a pet from the pet list!")
             Config.save()
             when (source) {
-                "list" -> ChatUtils.modMessage(petMap.asPet().toClickable("list"), LIST_ID)
-                "get"  -> ChatUtils.modMessage(petsCache.asPet().toClickable("get"), GET_ID)
+                "list" -> modMessage(petMap.asPet().toClickable("list"), LIST_ID)
+                "get"  -> modMessage(petsCache.asPet().toClickable("get"), GET_ID)
             }
         }
 
         petCommand.sub("remove") { uuidName: GreedyString ->
             val (uuid, name) = uuidName.string.split(" ", limit = 2)
-            if (uuid !in petMap) return@sub ChatUtils.modMessage("This pet is not in the list!")
+            if (uuid !in petMap) return@sub modMessage("This pet is not in the list!")
             petMap.remove(uuid)
-            ChatUtils.modMessage("&aRemoved &r$name&a from the pet list!")
+            modMessage("&aRemoved &r$name&a from the pet list!")
             Config.save()
         }.description("Removes the pet from the pet list.").suggests { petMap.entries.map { (uuid, name) -> "$uuid $name" } }
 
@@ -136,27 +129,27 @@ object PetKeybinds : Module(
         }
 
         on<GuiEvent.Key.Press> {
-            if (screen is AbstractContainerScreen<*> && onClick(screen, this.key)) cancel()
+            if (screen is AbstractContainerScreen<*> && onClick(screen, key)) cancel()
         }
     }
 
-    fun List<Pet>.toClickable(source: String): MutableComponent {
-        val result = ChatUtils.literal("Pet list:\n")
+    private fun List<Pet>.toClickable(source: String): MutableComponent {
+        val result = literal("Pet list:\n")
         this.forEachIndexed { i, (uuid, name, heldItem) ->
             val symbol = if (uuid !in petMap) "&a[✔]" else "&c[x]"
             val command = if (uuid !in petMap) "addfromuuidname" else "removefromuuidname"
             val hoverText = if (uuid !in petMap) "Click to add!" else "Click to remove!"
 
-            result.append(ChatUtils.button(symbol, "/quoi petkeybinds $command $source $uuid $name", hoverText))
-            result.append(ChatUtils.literal(" "))
+            result.append(button(symbol, "/quoi petkeybinds $command $source $uuid $name", hoverText))
+            result.append(literal(" "))
 
             val heldStr = if (heldItem != null) " &7($heldItem)" else ""
             result.append(
-                ChatUtils.literal("&6$name$heldStr").withStyle(
-                    Style.EMPTY.withHoverEvent(HoverEvent.ShowText(ChatUtils.literal("$uuid")))
+                literal("&6$name$heldStr").withStyle(
+                    Style.EMPTY.withHoverEvent(HoverEvent.ShowText(literal("$uuid")))
                 )
             )
-            if (i != size - 1) result.append(ChatUtils.literal("\n"))
+            if (i != size - 1) result.append(literal("\n"))
         }
         return result
     }
@@ -171,28 +164,27 @@ object PetKeybinds : Module(
         var slot = when (keyCode) {
             nextPageKeybind.key ->
                 if (current < total) 53
-                else return false.also { ChatUtils.modMessage("§cYou are already on the last page.") }
+                else return false.also { modMessage("§cYou are already on the last page.") }
 
             previousPageKeybind.key ->
                 if (current > 1) 45
-                else return false.also { ChatUtils.modMessage("§cYou are already on the first page.") }
+                else return false.also { modMessage("§cYou are already on the first page.") }
 
             unequipKeybind.key ->
                 screen.menu.slots.subList(10, 43)
                     .indexOfFirst { it.item.loreString?.contains("Click to despawn!") == true }
-                    .takeIf { it != -1 }?.plus(10) ?: return false.also { ChatUtils.modMessage("§cCouldn't find equipped pet") }
+                    .takeIf { it != -1 }?.plus(10) ?: return false.also { modMessage("§cCouldn't find equipped pet") }
 
             else -> {
                 val petIndex = petKeys.indexOfFirst { it.key == keyCode }.takeIf { it != -1 } ?: return false
                 petMap.entries.elementAtOrNull(petIndex)?.let { (uuid, _) ->
                     screen.menu.slots.subList(10, 43).indexOfFirst { it?.item?.skyblockUuid == uuid }
                 }?.takeIf { it != -1 }?.plus(10)
-                    ?: return false//.also { modMessage("§cCouldn't find matching pet or there is no pet in that position.") }
+                    ?: return false
             }
         }
 
         if (screen.menu.slots[slot].item.loreString?.contains("Click to despawn!") == true && unequipKeybind.key != keyCode) {
-//            modMessage("§cThat pet is already equipped!")
             if (closeIfAlreadyEquipped) slot = 49
             else if (noUnequip) return false
         }
@@ -201,18 +193,23 @@ object PetKeybinds : Module(
         return true
     }
 
-    private suspend fun getPets(timeout: Int = 20): List<ItemStack> {
-        val pets = ContainerUtils.getContainerItemsClose("petsmenu", "Pets", timeout = timeout).toMutableList()
-        for (i in pets.indices) {
-            if (i !in 9..<45 || i % 9 == 0 || i % 9 == 8) {
-                pets[i] = null
-            }
-        }
+    private suspend fun getPets(): List<ItemStack> = suspendCancellableCoroutine { cont ->
+        containerTask {
+            action { ChatUtils.command("petsmenu") }
+            awaitContainer("Pets", waitForItems = true)
 
-        return pets.filterNotNull()
+            onComplete {
+                val pets = player.containerMenu.items.filterIndexed { i, item ->
+                    i in 9..<45 && i % 9 != 0 && i % 9 != 8 && !item.isEmpty
+                }
+
+                player.closeContainer()
+                cont.resume(pets)
+            }
+        }.run()
     }
 
-    fun List<ItemStack>.asPet(): List<Pet> = map { stack ->
+    private fun List<ItemStack>.asPet(): List<Pet> = map { stack ->
         Pet(
             stack.skyblockUuid,
             stack.displayName.string.petName,
@@ -220,9 +217,9 @@ object PetKeybinds : Module(
         )
     }
 
-    fun Map<String, String>.asPet(): List<Pet> = map { (uuid, name) ->
+    private fun Map<String, String>.asPet(): List<Pet> = map { (uuid, name) ->
         Pet(uuid, name)
     }
 
-    data class Pet(val uuid: String?, val name: String, val heldItem: String? = null)
+    private data class Pet(val uuid: String?, val name: String, val heldItem: String? = null)
 }
