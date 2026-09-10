@@ -24,6 +24,7 @@ import quoi.api.events.core.on
 import quoi.api.events.core.wait
 import quoi.api.pathfinding.impl.WalkPathfinder
 import quoi.api.skyblock.dungeon.Dungeon
+import quoi.api.skyblock.dungeon.Floor7
 import quoi.api.skyblock.dungeon.odonscanning.ScanUtils
 import quoi.api.skyblock.dungeon.odonscanning.tiles.RoomType
 import quoi.api.skyblock.location.Location
@@ -34,7 +35,6 @@ import quoi.module.impl.dungeon.DungeonESP.starredMobs
 import quoi.module.impl.dungeon.autoclear.MobCluster
 import quoi.module.impl.dungeon.autoclear.MobClusterer
 import quoi.module.impl.render.clickgui.ClickGui
-import quoi.module.settings.UIComponent.Companion.childOf
 import quoi.module.settings.group.ToggleableGroup
 import quoi.module.settings.impl.MapSetting
 import quoi.utils.ChatUtils
@@ -431,12 +431,12 @@ object Test : Module("Test", desc = "Dev module for testing.") { // 123
         Data("Subarea", { Location.subarea ?: "None" }, { subarea_ }),
         Data("Boss", { Dungeon.inBoss }, { boss }),
         Data("Floor", { Dungeon.floor ?: "None" }, { floor }),
-        Data("P3 Section", { "${Dungeon.p3Section.name} || ${Dungeon.getP3Section().name} }" }, { p3Section }),
-        Data("   Duration", { "${formatTime(Dungeon.p3Section.getDuration())} | ${formatTime(Dungeon.p3Section.getDurationTicks() * 50)}" }, { p3Section } ),
-        Data("   Terminals", { "${Dungeon.p3Section.terminals}/${Dungeon.p3Section.reqTerminals}" }, { p3Section }),
-        Data("   Levers", { "${Dungeon.p3Section.levers}/2" }, { p3Section }),
-        Data("   Device", { "${Dungeon.p3Section.device}" }, { p3Section }),
-        Data("   Gate", { Dungeon.p3Section.gate }, { p3Section }),
+        Data("P3 Section", { "${Floor7.getStage().name} || ${Floor7.getStageAt().name} }" }, { p3Section }),
+        Data("   Duration", { "${formatTime(Floor7.getStage().getDuration())} | ${formatTime(Floor7.getStage().getDurationTicks() * 50)}" }, { p3Section } ),
+        Data("   Terminals", { "${Floor7.getStage().terminals}/${Floor7.getStage().reqTerminals}" }, { p3Section }),
+        Data("   Levers", { "${Floor7.getStage().levers}/2" }, { p3Section }),
+        Data("   Device", { "${Floor7.getStage().device}" }, { p3Section }),
+        Data("   Gate", { Floor7.getStage().gate }, { p3Section }),
         Data("Container", { "${mc.screen != null} | ${ContainerUtils.containerServerSide} | ${ContainerUtils.containerId} | ${player.containerMenu.containerId}" }, { container })
     )
     private data class Data(val name: String, val value: () -> Any?, val enabled: () -> Boolean)

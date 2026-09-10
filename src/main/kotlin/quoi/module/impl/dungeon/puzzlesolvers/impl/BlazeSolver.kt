@@ -14,8 +14,8 @@ import quoi.api.events.WorldEvent
 import quoi.api.events.core.Event
 import quoi.api.events.core.on
 import quoi.api.skyblock.dungeon.Dungeon
-import quoi.api.skyblock.dungeon.Puzzle
-import quoi.api.skyblock.dungeon.PuzzleStatus
+import quoi.api.skyblock.dungeon.enums.Puzzle
+import quoi.api.skyblock.dungeon.enums.PuzzleStatus
 import quoi.api.skyblock.dungeon.odonscanning.tiles.OdonRoom
 import quoi.api.world.Direction
 import quoi.module.impl.dungeon.autoclear.executor.ClearExecutor

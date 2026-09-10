@@ -8,7 +8,7 @@ import quoi.api.colour.colour
 import quoi.api.events.AreaEvent
 import quoi.api.events.core.Priority
 import quoi.api.events.core.on
-import quoi.api.skyblock.dungeon.P3Section
+import quoi.api.skyblock.dungeon.enums.Stage
 import quoi.api.skyblock.location.Island
 import quoi.module.Module
 import quoi.utils.Scheduler.scheduleTask
@@ -94,8 +94,8 @@ object Splits : Module( // todo section split info hud, task (terms, levers, dev
                         font = font
                     )
                     if (i == 5 && p3Sections) {
-                        P3Section.entries.forEach { section ->
-                            if (section == P3Section.Unknown) return@forEach
+                        Stage.entries.forEach { section ->
+                            if (section == Stage.Unknown) return@forEach
                             textPair(
                                 string = "  S${section.number}:",
                                 supplier = {

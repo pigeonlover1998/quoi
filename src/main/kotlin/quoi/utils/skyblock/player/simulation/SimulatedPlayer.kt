@@ -241,8 +241,8 @@ class SimulatedPlayer(
         }
 
     private fun getJumpVelocityMultiplier(): Float {
-        val f = pos.blockPos.state.block?.jumpFactor ?: 0f
-        val g = getBlockPosBelowThatAffectsMyMovement().state.block?.jumpFactor ?: 0f
+        val f = pos.blockPos.state.block.jumpFactor
+        val g = getBlockPosBelowThatAffectsMyMovement().state.block.jumpFactor
 
         return if (f.toDouble() == 1.0) g else f
     }

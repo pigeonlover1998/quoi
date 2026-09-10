@@ -13,6 +13,8 @@ import quoi.api.events.TickEvent
 import quoi.api.events.WorldEvent
 import quoi.api.events.core.on
 import quoi.api.skyblock.dungeon.Dungeon
+import quoi.api.skyblock.dungeon.Floor7
+import quoi.api.skyblock.dungeon.enums.Phase
 import quoi.api.skyblock.location.Island
 import quoi.api.skyblock.location.invoke
 import quoi.module.Module
@@ -116,7 +118,7 @@ object ArrowAlign : Module(
 
         if (!auto) return
 
-        val skippedFrame = if (!Dungeon.inP3) {
+        val skippedFrame = if (!Floor7.inPhase(Phase.P3)) {
             (0 until 25).filter { i ->
                 val frame = currentFrames[i] ?: return@filter false
                 val target = solution[i] ?: return@filter false

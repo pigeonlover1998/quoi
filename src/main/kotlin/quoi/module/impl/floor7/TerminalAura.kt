@@ -6,6 +6,7 @@ import net.minecraft.world.entity.decoration.ArmorStand
 import quoi.api.events.TickEvent
 import quoi.api.events.core.on
 import quoi.api.skyblock.dungeon.Dungeon
+import quoi.api.skyblock.dungeon.enums.Phase
 import quoi.api.skyblock.location.Island
 import quoi.api.skyblock.location.invoke
 import quoi.module.Module
@@ -15,7 +16,7 @@ import quoi.utils.EntityUtils
 object TerminalAura : Module(
     "Terminal Aura",
     desc = "Automatically opens terminals.",
-    area = Island.Dungeon(7, inBoss = true)
+    area = Island.Dungeon(7, inBoss = true, phase = Phase.P3)
 ) {
 
     private val auraDistance by slider("Distance", 4.0, 0.0, 4.0, 0.1)
@@ -27,7 +28,7 @@ object TerminalAura : Module(
     init {
 
         on<TickEvent.Start> {
-            if (!Dungeon.inP3 || Dungeon.inTerminal || Dungeon.isDead || mc.screen != null) return@on
+            if (Dungeon.inTerminal || Dungeon.isDead || mc.screen != null) return@on
             if (System.currentTimeMillis() - lastClick < auraDelay) return@on
 
             if (groundOnly && !player.onGround()) return@on

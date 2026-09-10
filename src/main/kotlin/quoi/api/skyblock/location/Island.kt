@@ -1,6 +1,9 @@
 package quoi.api.skyblock.location
 
 import quoi.api.skyblock.dungeon.Dungeon
+import quoi.api.skyblock.dungeon.Floor7
+import quoi.api.skyblock.dungeon.enums.Phase
+import quoi.api.skyblock.dungeon.enums.Stage
 import quoi.module.impl.render.clickgui.ClickGui
 
 enum class Island(val displayName: String, val command: String? = null) : Area {
@@ -78,13 +81,15 @@ enum class Island(val displayName: String, val command: String? = null) : Area {
  * created via [Island.invoke]
  * example:
  *  `Island.Dungeon(floor = 7, inClear = true)`
- *  int his case [Area.inActive] will be true only
+ *  in this case [Area.inActive] will be true only
  *  when [Dungeon.floor] number is `7` and [Dungeon.inClear] is `true`
  */
 data class DungeonInstance(
     val floor: Int? = null,
     val inClear: Boolean? = null,
-    val inBoss: Boolean? = null
+    val inBoss: Boolean? = null,
+    val phase: Phase? = null,
+    val stage: Stage? = null
 ) : Area {
     override fun inBase(): Boolean = Island.Dungeon.inBase()
 
@@ -92,6 +97,8 @@ data class DungeonInstance(
         floor?.let { if (Dungeon.floor?.floorNumber != it) return false }
         inClear?.let { if (it && !Dungeon.inClear) return false }
         inBoss?.let { if (it && !Dungeon.inBoss) return false }
+        phase?.let { if (!Floor7.inPhase(it)) return false }
+        stage?.let { if (!Floor7.inStage(it)) return false }
         return true
     }
 }
@@ -109,8 +116,10 @@ data class DungeonInstance(
 operator fun Island.invoke(
     floor: Int? = null,
     inClear: Boolean? = null,
-    inBoss: Boolean? = null
+    inBoss: Boolean? = null,
+    phase: Phase? = null,
+    stage: Stage? = null
 ): Area = when (this) {
-    Island.Dungeon -> DungeonInstance(floor, inClear, inBoss)
+    Island.Dungeon -> DungeonInstance(floor, inClear, inBoss, phase, stage)
     else -> this
 }

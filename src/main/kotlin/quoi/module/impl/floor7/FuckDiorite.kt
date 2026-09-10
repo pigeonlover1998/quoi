@@ -4,8 +4,8 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.Blocks
 import quoi.api.events.TickEvent
 import quoi.api.events.core.on
-import quoi.api.skyblock.dungeon.Dungeon
-import quoi.api.skyblock.dungeon.M7Phases
+import quoi.api.skyblock.dungeon.Floor7
+import quoi.api.skyblock.dungeon.enums.Phase
 import quoi.api.skyblock.location.Island
 import quoi.api.skyblock.location.invoke
 import quoi.module.Module
@@ -90,7 +90,7 @@ object FuckDiorite : Module(
 
     init {
         on<TickEvent.End> {
-            if (Dungeon.getF7Phase() == M7Phases.P2) replaceDiorite()
+            if (Floor7.inPhaseAt(Phase.P2)) replaceDiorite()
         }
     }
 

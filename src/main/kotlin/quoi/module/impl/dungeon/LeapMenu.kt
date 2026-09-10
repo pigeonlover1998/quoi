@@ -18,7 +18,7 @@ import quoi.api.events.core.on
 import quoi.api.input.CatKeys
 import quoi.api.skyblock.dungeon.Dungeon.allTeammatesNoSelf
 import quoi.api.skyblock.dungeon.Dungeon.leapTeammates
-import quoi.api.skyblock.dungeon.DungeonPlayer
+import quoi.api.skyblock.dungeon.enums.DungeonPlayer
 import quoi.api.skyblock.location.Island
 import quoi.config.Config
 import quoi.module.Module
