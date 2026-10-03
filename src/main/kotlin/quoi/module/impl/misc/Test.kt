@@ -175,7 +175,7 @@ object Test : Module("Test", desc = "Dev module for testing.") { // 123
 
                 containerTask(name = "inv test", settings = cons) {
                     // inventory
-                    swap("Cobblestone".inv, 0)
+//                    swap("Cobblestone".inv, 0)
                     action {
                         ChatUtils.command("/wd")
                     }
@@ -186,8 +186,9 @@ object Test : Module("Test", desc = "Dev module for testing.") { // 123
                     action {
                         player.closeContainer()
                     }
+                    catchContainer(Regex("""^\((\d+)/(\d+)\) Armor Sets$"""))
                     // inventory
-                    swap("Cobblestone".inv, 1)
+//                    swap("Cobblestone".inv, 1)
 
                     onComplete {
                         modMessage(System.currentTimeMillis() - start)

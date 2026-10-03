@@ -1,7 +1,6 @@
 package quoi.module.impl.general
 
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.MutableComponent
@@ -28,7 +27,7 @@ import quoi.utils.skyblock.item.ItemUtils.skyblockId
 import quoi.utils.skyblock.item.ItemUtils.skyblockUuid
 import quoi.utils.skyblock.player.container.ContainerUtils.clickSlot
 import quoi.utils.skyblock.player.container.task.containerTask
-import kotlin.coroutines.resume
+import quoi.utils.skyblock.player.container.task.await
 
 /**
  * modified OdinFabric (BSD 3-Clause)
@@ -193,20 +192,16 @@ object PetKeybinds : Module(
         return true
     }
 
-    private suspend fun getPets(): List<ItemStack> = suspendCancellableCoroutine { cont ->
-        containerTask {
-            action { ChatUtils.command("petsmenu") }
-            awaitContainer("Pets", waitForItems = true)
+    private suspend fun getPets(): List<ItemStack> = containerTask {
+        action { ChatUtils.command("petsmenu") }
+        awaitContainer("Pets", waitForItems = true)
+    }.await {
+        val pets = player.containerMenu.items.filterIndexed { i, item ->
+            i in 9..<45 && i % 9 != 0 && i % 9 != 8 && !item.isEmpty
+        }
 
-            onComplete {
-                val pets = player.containerMenu.items.filterIndexed { i, item ->
-                    i in 9..<45 && i % 9 != 0 && i % 9 != 8 && !item.isEmpty
-                }
-
-                player.closeContainer()
-                cont.resume(pets)
-            }
-        }.run()
+        player.closeContainer()
+        pets
     }
 
     private fun List<ItemStack>.asPet(): List<Pet> = map { stack ->

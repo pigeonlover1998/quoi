@@ -4,6 +4,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.InventoryScreen
 import quoi.QuoiMod.mc
 import quoi.annotations.Init
+import quoi.annotations.Internal
 import quoi.api.events.KeyEvent
 import quoi.api.events.MouseEvent
 import quoi.api.events.RenderEvent
@@ -26,13 +27,14 @@ import quoi.utils.skyblock.player.MovementUtils.stop
 /**
  * Manages execution of [ContainerTask]s
  */
-@Init // todo prevent client desyncs, impl fastmode thing from jcnlk's fork
+@Init // todo prevent client desyncs
+@OptIn(Internal::class)
 object ContainerManager : EventListener {
     var activeTask: ContainerTask? = null
         private set
 
     private val shouldStopMovement: Boolean
-        get() = activeTask?.stopsMovement == true
+        get() = activeTask?.shouldStopMovement == true
 
     init {
 
@@ -83,6 +85,7 @@ object ContainerManager : EventListener {
                 player.closeContainer()
             }
 
+            task.finishFastBlock()
             task.onComplete?.invoke()
             task.completed = true
             activeTask = null

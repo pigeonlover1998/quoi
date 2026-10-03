@@ -3,22 +3,28 @@ package quoi.utils.skyblock.player.container.task
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
+import net.minecraft.network.protocol.game.ServerboundContainerClosePacket
 import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.ItemStack
+import quoi.annotations.Internal
 import quoi.api.events.PacketEvent
 import quoi.api.events.TickEvent
 import quoi.api.events.core.Priority
 import quoi.api.events.core.await
+import quoi.api.events.core.on
+import quoi.api.events.core.until
 import quoi.api.events.core.wait
 import quoi.utils.ChatUtils.modMessage
 import quoi.utils.gameMode
 import quoi.utils.player
+import quoi.utils.skyblock.player.container.ContainerUtils
 import quoi.utils.skyblock.player.container.ContainerUtils.containerSize
-// todo add comments before I forget whatever is going on here
+
 abstract class ItemAction : ContainerAction { // shit that interacts with items/slots
     var skipIf: ((ItemStack) -> Boolean)? = null
 }
 
+@OptIn(Internal::class)
 interface ContainerAction {
 
     /**
@@ -89,6 +95,8 @@ interface ContainerAction {
             }
             activeTask?.skippedLast = skipped
 
+            activeTask?.finishFastBlockAfterClick()
+
             return true
         }
     }
@@ -140,6 +148,11 @@ interface ContainerAction {
             ) {
                 matches = containerName.containsMatchIn(packet.title.string)
                 if (matches && silent) cancel() // if silent and container matches we cancel
+
+                if (matches) {
+                    if (silent) cancel()
+                    activeTask?.beginFastBlock()
+                }
                 true
             }
 
@@ -175,6 +188,54 @@ interface ContainerAction {
                 return false
             }
 
+            return true
+        }
+    }
+
+    /**
+     * waits for container to potentially reapper and suppresses it.
+     * if the container doesn't appear within the timeout it dose notting
+     */
+    // from 03/10/26: this shit is one month old and Idgaf if it works rn. future me problem TODO
+    class CatchContainer( // ass impl cuz prob will fuck with some shit. future me problem
+        val containerName: Regex,
+        val timeout: Int = 20
+    ) : ContainerAction {
+        override suspend fun ContainerManager.execute(): Boolean {
+            val taks = activeTask
+//            modMessage("NIGH")
+            val sub = ContainerUtils.on<PacketEvent.Received, ClientboundOpenScreenPacket>(Priority.LOWEST, acceptCancelled = true) {
+//                modMessage(packet.title.string)
+//                modMessage(containerName.containsMatchIn(packet.title.string))
+
+                if (activeTask != null && activeTask !== taks) {
+                    unregister()
+                    return@on
+                }
+
+                if (containerName.containsMatchIn(packet.title.string)) {
+                    cancel()
+                    player.connection.send(ServerboundContainerClosePacket(packet.containerId))
+                    unregister()
+                }
+            }
+
+            var ticks = 0
+            ContainerUtils.until<TickEvent.Start> { // idkman
+//                println(ticks)
+                if (activeTask != null && activeTask !== taks) {
+                    sub.unregister()
+                    return@until true
+                }
+
+                ticks++
+                if (ticks >= timeout /*+ 100_000*/) {
+                    sub.unregister()
+                    true
+                } else {
+                    false
+                }
+            }
             return true
         }
     }
