@@ -34,18 +34,19 @@ object TerminalAura : Module(
             if (groundOnly && !player.onGround()) return@on
 
             val entities = EntityUtils.getEntities<ArmorStand>(player.boundingBox.inflate(auraDistance))
+            val eyesPos = player.eyePosition
 
             for (entity in entities) {
                 val name = entity.displayName?.string ?: continue
 
                 if (!name.contains("Inactive Terminal")) continue
                 if (entity.isRemoved || !entity.isAlive) continue
+                if (eyesPos.y < entity.y) continue
 
                 val entityCenter = entity.position().add(0.0, entity.bbHeight / 2.0, 0.0)
 
-                if (player.eyePosition.distanceToSqr(entityCenter) > auraDistance * auraDistance) continue
+                if (eyesPos.distanceToSqr(entityCenter) > auraDistance * auraDistance) continue
 
-                val eyesPos = player.eyePosition
                 val aabb = entity.boundingBox.inflate(0.1)
                 val hitResult = aabb.clip(eyesPos, entityCenter)
 
