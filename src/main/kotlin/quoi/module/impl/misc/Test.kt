@@ -153,6 +153,22 @@ object Test : Module("Test", desc = "Dev module for testing.") { // 123
     init {
         val command = BaseCommand("quoitest")
 
+        command.sub("movetask") {
+            val points = listOf( // 2x2
+                Vec3(64.0, 87.0, -113.0),
+                Vec3(64.0, 87.0, -109.0),
+                Vec3(64.0, 88.0, -105.0),
+            )
+
+            val points2 = listOf( // pots
+//                Vec3(59.5, 88.38, -113.5),
+                Vec3(56.5, 88.38, -114.5),
+                Vec3(53.5, 88.38, -112.5)
+            )
+
+            player.moveTo(points2)
+        }
+
         command.sub("inventory") {
             scheduleTask(20) {
 //                ChatUtils.command("/ac")

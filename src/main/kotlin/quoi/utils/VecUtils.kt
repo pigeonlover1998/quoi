@@ -54,6 +54,7 @@ fun Vec3.aabb(radius: Double = 0.0) = AABB(
 )
 inline val Vec3.blockPos: BlockPos get() = BlockPos.containing(this)
 inline val Vec3.floorPos: BlockPos get() = BlockPos(x, ceil(y - 1.0), z)
+inline val Vec3.floored: Vec3 get() = Vec3(floor(x), floor(y), floor(z))
 
 inline val BlockPos.aabb: AABB get() = AABB(this)
 inline val BlockPos.vec3: Vec3 get() = Vec3(x.toDouble(), y.toDouble(), z.toDouble())
@@ -186,11 +187,14 @@ fun Vec3.rotateToNorth(rotation: Rotations): Vec3 {
 fun Vec3.equal(other: Vec3): Boolean =
     this.x == other.x && this.y == other.y && this.z == other.z
 
-fun Vec3.distanceTo2D(to: Vec3): Double {
+fun Vec3.distanceTo2DSqr(to: Vec3): Double {
     val dx = this.x - to.x
     val dz = this.z - to.z
-    return sqrt(dx * dx + dz * dz)
+    return dx * dx + dz * dz
 }
+
+fun Vec3.distanceTo2D(to: Vec3): Double =
+    sqrt(distanceTo2DSqr(to))
 
 fun Vec3.toDirection(): Direction {
     val dist = sqrt(x.sq + z.sq)

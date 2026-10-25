@@ -72,8 +72,8 @@ object LavaMaze : ToggleableGroup(MirrorverseSolvers, "Lava maze") {
         current = 0
     }
 
-    private val points = listOf(
-        BlockPos(-83.0, 51.0, -112.0), BlockPos(-86.0, 51.0, -112.0), BlockPos(-86.0, 51.0, -115.0),
+    private val points = listOf( // https://github.com/hannibal002/SkyHanni-REPO/blob/main/constants/RiftLavaMazeParkour.json
+        BlockPos(-84.0, 51.0, -112.0), BlockPos(-86.0, 51.0, -112.0), BlockPos(-86.0, 51.0, -115.0),
         BlockPos(-88.0, 51.0, -115.0), BlockPos(-88.0, 51.0, -110.0), BlockPos(-86.0, 51.0, -110.0),
         BlockPos(-86.0, 51.0, -109.0), BlockPos(-84.0, 51.0, -109.0), BlockPos(-84.0, 51.0, -107.0),
         BlockPos(-90.0, 51.0, -107.0), BlockPos(-90.0, 51.0, -108.0), BlockPos(-93.0, 51.0, -108.0),

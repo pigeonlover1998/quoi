@@ -151,7 +151,7 @@ object TinyDancer : ToggleableGroup(MirrorverseSolvers, "Tiny dancer") {
 
     private const val COMPLETE_PITCH = 0.7460317611694336
 
-    private val actions = listOf(
+    private val actions = listOf( // https://github.com/hannibal002/SkyHanni-REPO/blob/main/constants/DanceRoomInstructions.json
         "move", "move", "move", "move", "move",
         "sneak", "stand",
         "sneak", "stand",

@@ -25,6 +25,7 @@ import quoi.module.impl.general.inventory.Inventory
 import quoi.module.impl.misc.riftsolvers.MirrorverseSolvers
 import quoi.module.impl.misc.slayers.Slayers
 import quoi.module.impl.general.*
+import quoi.module.impl.misc.rift.Rift
 import quoi.module.impl.render.*
 import quoi.module.impl.render.clickgui.ClickGui
 import quoi.module.settings.impl.KeybindComponent
@@ -73,6 +74,7 @@ object ModuleManager : EventListener {
             AutoCarnival,
             Slayers,
             Dojo,
+            Rift,
 
             // PLAYER
             AutoSprint,

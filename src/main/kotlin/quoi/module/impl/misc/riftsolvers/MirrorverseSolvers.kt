@@ -4,7 +4,7 @@ import quoi.module.Module
 import quoi.module.impl.misc.riftsolvers.impl.*
 
 @Suppress("unused_expression")
-object MirrorverseSolvers : Module(
+object MirrorverseSolvers : Module( // todo move to rift
     "Mirrorverse Solvers",
     desc = "Automatically completes Mirrorverse puzzles: Lava Maze, Lava Parkour, Craft Room, Red Green, Tiny Dancer, and Tubulator.",
     subarea = "Mirrorverse"

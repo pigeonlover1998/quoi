@@ -1,7 +1,6 @@
 package quoi.module.impl.misc.riftsolvers.impl
 
 import net.minecraft.world.phys.Vec3
-import quoi.QuoiMod
 import quoi.api.colour.Colour
 import quoi.api.events.GuiEvent
 import quoi.api.events.MouseEvent
@@ -51,8 +50,8 @@ object Tubulator : ToggleableGroup(MirrorverseSolvers, "Tubulator") {
 
                 if (hasLanded(targetPos)) {
                     player.stop()
-                    QuoiMod.mc.options.keyJump.isDown = false
-                    QuoiMod.mc.options.keyShift.isDown = false
+                    mc.options.keyJump.isDown = false
+                    mc.options.keyShift.isDown = false
                     waitingTicks = 5
                 } else {
                     move(targetPos)
@@ -61,7 +60,7 @@ object Tubulator : ToggleableGroup(MirrorverseSolvers, "Tubulator") {
         }
 
         on<RenderEvent.World> {
-            ctx.drawFilledBox(points[0].addVec(y = -1.0).aabb, Colour.GREEN, depth = true)
+            ctx.drawFilledBox(points[current].addVec(y = -1.0).aabb, Colour.GREEN, depth = true)
         }
 
         on<GuiEvent.Open> {
@@ -85,11 +84,11 @@ object Tubulator : ToggleableGroup(MirrorverseSolvers, "Tubulator") {
         val totalDist = hypot(target.x - prev.x, target.z - prev.z)
 
         val edge = dist >= 0.7 && distNext > totalDist / 2
-        QuoiMod.mc.options.keyJump.isDown = player.onGround() && edge
-        QuoiMod.mc.options.keyShift.isDown = distNext < 0.6 && !edge
+        mc.options.keyJump.isDown = player.onGround() && edge
+        mc.options.keyShift.isDown = distNext < 0.6 && !edge
 
-        QuoiMod.mc.options.keyUp.isDown = true
-        QuoiMod.mc.options.keySprint.isDown = true
+        mc.options.keyUp.isDown = true
+        mc.options.keySprint.isDown = true
     }
 
     private fun waiting() = waitingTicks <= 0 || --waitingTicks != 0

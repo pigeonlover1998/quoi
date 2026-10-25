@@ -45,7 +45,7 @@ import quoi.utils.ui.popupX
 import quoi.utils.ui.popupY
 import quoi.utils.ui.screens.UIScreen.Companion.open
 
-object CustomTriggers : Module(
+object CustomTriggers : Module( // todo replace with jcnlk's impl https://github.com/jcnlk/quoi/tree/multiversion/src/main/kotlin/quoi/api/customtriggers
     "Custom Triggers"
 ) {
     private val addTrigger by button("ADD TEST TRIGGER") {
