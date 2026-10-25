@@ -1,10 +1,15 @@
 package quoi.mixins;
 
 import quoi.api.events.ChatEvent;
+import quoi.api.events.core.EventDispatcher;
 import quoi.module.impl.general.Tweaks;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.PacketListener;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.world.entity.Entity;
@@ -17,6 +22,19 @@ import static quoi.module.impl.render.RenderOptimiser.should;
 
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
+
+    // based on https://github.com/Noamm9/NoammAddons/blob/1.1.9/src/main/java/com/github/noamm9/mixin/MixinClientPacketListener.java
+    @WrapOperation(
+            method = "handleBundlePacket",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/network/protocol/Packet;handle(Lnet/minecraft/network/PacketListener;)V"
+            )
+    )
+    private void quoi$handleBundledPacket(Packet<?> packet, PacketListener listener, Operation<Void> original) {
+        if (EventDispatcher.onPacketReceived(packet)) return;
+        original.call(packet, listener);
+    }
 
     @Inject(
             method = "sendChat(Ljava/lang/String;)V",
